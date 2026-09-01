@@ -15,22 +15,28 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({
+            request: { headers: request.headers }
+          });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({
+            request: { headers: request.headers }
+          });
           response.cookies.set({ name, value: "", ...options });
-        },
-      },
-    },
+        }
+      }
+    }
   );
 
   const {
-    data: { user },
+    data: { user }
   } = await supabase.auth.getUser();
 
-  const isPublic = PUBLIC_PATHS.some((p) => request.nextUrl.pathname.startsWith(p));
+  const isPublic = PUBLIC_PATHS.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
   const isApi = request.nextUrl.pathname.startsWith("/api");
 
   if (!user && !isPublic && !isApi) {
@@ -47,5 +53,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };
