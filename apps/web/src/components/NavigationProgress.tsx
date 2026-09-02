@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
-import { CrossIcon } from "./Icons";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -130,31 +129,32 @@ export function NavigationProgress() {
       {isLoading && (
         <div className="fixed inset-0 z-[9990] flex items-center justify-center bg-cream/75 backdrop-blur-[4px] transition-all duration-300 animate-in fade-in select-none">
           <div className="flex flex-col items-center gap-5 rounded-3xl bg-white/95 px-9 py-8 shadow-card-hover border border-mint-200/90 max-w-xs text-center backdrop-blur-md">
-            {/* Bouncing Spinner Graphic Container */}
-            <div className="relative flex h-20 w-20 items-center justify-center animate-bounce-soft">
+            {/* Bouncing Spinner Graphic Container with Emblem Logo */}
+            <div className="relative flex h-24 w-24 items-center justify-center animate-bounce-soft">
               {/* Outer Dashed Rotating Ring */}
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-mint-300 animate-spin" />
 
               {/* Inner Glowing Fast Spinner */}
               <div className="absolute inset-1.5 rounded-full border-3 border-transparent border-t-brand-forest border-r-emerald-600 animate-spin" />
 
-              {/* Center Logo Icon */}
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-white shadow-md transition-transform">
-                <CrossIcon size={20} className="text-mint-200 animate-pulse" />
+              {/* Center Emblem Logo Icon */}
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md overflow-hidden p-1 border border-mint-200">
+                <Image
+                  src="/images/logo-emblem.webp"
+                  alt="Salt & Light Emblem"
+                  fill
+                  sizes="64px"
+                  className="object-contain"
+                  priority
+                />
               </div>
             </div>
 
-            {/* Brand Logo & Status Message */}
-            <div className="space-y-1.5 flex flex-col items-center">
-              <div className="relative h-8 w-32">
-                <Image
-                  src="/images/logo.png"
-                  alt="Salt & Light"
-                  fill
-                  sizes="128px"
-                  className="object-contain"
-                />
-              </div>
+            {/* Brand Title & Status Message */}
+            <div className="space-y-1 flex flex-col items-center">
+              <span className="font-display text-sm font-black uppercase tracking-widest text-ink block">
+                Salt &amp; Light
+              </span>
               <span className="text-xs font-semibold text-brand-forest block">
                 {loadingText}
               </span>

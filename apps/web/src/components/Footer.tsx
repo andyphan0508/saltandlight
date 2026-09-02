@@ -118,7 +118,7 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/danh-muc/ao-thun-nguoi-lon" className="hover:text-brand-forest transition-colors">
+              <Link href="/danh-muc/ao-thun" className="hover:text-brand-forest transition-colors">
                 Áo thun người lớn
               </Link>
             </li>
@@ -128,7 +128,7 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/danh-muc/tui-tote-canvas" className="hover:text-brand-forest transition-colors">
+              <Link href="/danh-muc/tui-canvas" className="hover:text-brand-forest transition-colors">
                 Túi tote canvas
               </Link>
             </li>

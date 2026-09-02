@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
+import { computePriceRange } from "@saltandlight/domain";
 import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { productInputSchema } from "@/lib/schemas";
@@ -18,6 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const input = productInputSchema.parse(await req.json());
+    const priceRange = computePriceRange(input.variants);
 
     await prisma.$transaction(async (tx) => {
       await tx.product.update({
@@ -29,6 +31,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           categoryId: input.categoryId,
           status: input.status,
           isNew: input.isNew,
+          minPrice: priceRange.minPrice,
+          maxCompareAtPrice: priceRange.maxCompareAtPrice,
         },
       });
 

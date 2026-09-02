@@ -23,7 +23,7 @@ const CATEGORY_TILES = [
     title: "Áo thun người lớn",
     desc: "Form Regular Fit Unisex 100% Cotton",
     tag: "Bán chạy nhất",
-    href: "/danh-muc/ao-thun-nguoi-lon",
+    href: "/danh-muc/ao-thun",
     bgClass: "from-mint-200 via-mint-100 to-mint-50",
   },
   {
@@ -37,7 +37,7 @@ const CATEGORY_TILES = [
     title: "Túi Tote Canvas",
     desc: "Vải bố dệt mộc dày dặn, in Lời Chúa bền đẹp",
     tag: "Phụ kiện thường nhật",
-    href: "/danh-muc/tui-tote-canvas",
+    href: "/danh-muc/tui-canvas",
     bgClass: "from-amber-100 via-stone-100 to-cream-100",
   },
 ];
@@ -70,7 +70,7 @@ const REVIEWS = [
 ];
 
 export default async function HomePage() {
-  const products = toPlain(await listPublishedProducts());
+  const { products } = toPlain(await listPublishedProducts({ pageSize: 8 }));
 
   return (
     <div className="space-y-16 sm:space-y-24">
@@ -139,7 +139,7 @@ export default async function HomePage() {
             {/* Right Visual Tile Showcase */}
             <div className="grid gap-4 sm:grid-cols-2 lg:col-span-5">
               <Link
-                href="/danh-muc/ao-thun-nguoi-lon"
+                href="/danh-muc/ao-thun"
                 className="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-mint-200 to-mint-100 p-6 shadow-card hover:shadow-card-hover transition-all duration-300"
               >
                 <div className="flex justify-between items-start">
@@ -158,7 +158,7 @@ export default async function HomePage() {
 
               <div className="flex flex-col gap-4">
                 <Link
-                  href="/danh-muc/tui-tote-canvas"
+                  href="/danh-muc/tui-canvas"
                   className="group flex flex-1 flex-col justify-between rounded-3xl bg-gradient-to-br from-amber-100 to-amber-50 p-6 shadow-card hover:shadow-card-hover transition-all duration-300"
                 >
                   <div className="flex justify-between items-start">

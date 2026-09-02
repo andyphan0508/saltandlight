@@ -36,6 +36,11 @@ async function makeProduct(opts: {
       categoryId: opts.categoryId,
       status: "published",
       isNew: opts.isNew ?? false,
+      // Every variant below shares the same price/compareAt, so the cached
+      // range is just those two values — see computePriceRange in
+      // packages/domain for the general case (variants with mixed prices).
+      minPrice: opts.price,
+      maxCompareAtPrice: opts.compareAt ?? null,
       images: {
         create: [{ url: opts.image, sortOrder: 0 }],
       },

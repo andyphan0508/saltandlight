@@ -42,11 +42,22 @@ model Product {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
+  // Denormalized from active variants (kept in sync on every variant write —
+  // see packages/domain/src/pricing.ts#computePriceRange) so the storefront
+  // can filter/sort/paginate catalog listings at the DB level without
+  // joining every product's variants just to find a min price.
+  minPrice          Decimal? @map("min_price") @db.Decimal(12, 0)
+  maxCompareAtPrice Decimal? @map("max_compare_at_price") @db.Decimal(12, 0)
+
   images      ProductImage[]
   variants    ProductVariant[]
   bundleItems ProductBundleItem[]
   orderItems  OrderItem[]
 
+  @@index([status])
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([minPrice])
   @@map("products")
 }
 
@@ -74,6 +85,9 @@ model ProductVariant {
 
   orderItems OrderItem[]
 
+  @@index([productId])
+  @@index([isActive])
+  @@index([size])
   @@map("product_variants")
 }
 

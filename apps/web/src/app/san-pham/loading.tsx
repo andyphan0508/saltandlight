@@ -1,29 +1,23 @@
-export default function ProductsLoading() {
+import { CatalogSidebarSkeleton } from "./components/CatalogSidebarSkeleton";
+import { CatalogResultsSkeleton } from "./components/CatalogResultsSkeleton";
+
+/**
+ * Next.js renders this the instant navigation to /san-pham starts (before
+ * any server data is fetched) — the granular <Suspense> boundaries inside
+ * page.tsx take over from here once the RSC payload starts streaming.
+ */
+export default function Loading() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8 animate-pulse">
-      {/* Header Skeleton */}
-      <div className="h-40 sm:h-48 w-full rounded-3xl bg-mint-100/80" />
+    <div className="mx-auto max-w-7xl animate-pulse px-4 py-8 sm:py-10">
+      <div className="h-3 w-32 rounded bg-ink/5" />
+      <div className="mt-3 h-9 w-64 rounded bg-ink/10" />
+      <div className="mt-2 h-4 w-full max-w-2xl rounded bg-ink/5" />
 
-      {/* Filter bar Skeleton */}
-      <div className="flex gap-2">
-        <div className="h-8 w-24 rounded-full bg-ink/10" />
-        <div className="h-8 w-32 rounded-full bg-ink/10" />
-        <div className="h-8 w-28 rounded-full bg-ink/10" />
-      </div>
-
-      {/* Grid Skeleton */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div
-            key={i}
-            className="rounded-3xl bg-white p-3.5 shadow-card border border-ink/5 space-y-3"
-          >
-            <div className="aspect-[4/5] w-full rounded-2xl bg-mint-100/60" />
-            <div className="h-4 w-3/4 rounded-full bg-ink/10" />
-            <div className="h-3 w-1/2 rounded-full bg-ink/10" />
-            <div className="h-4 w-1/3 rounded-full bg-mint-200" />
-          </div>
-        ))}
+      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+        <CatalogSidebarSkeleton />
+        <div className="min-w-0 flex-1">
+          <CatalogResultsSkeleton />
+        </div>
       </div>
     </div>
   );

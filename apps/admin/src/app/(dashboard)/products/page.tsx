@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@saltandlight/db";
-import { Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
@@ -10,9 +9,9 @@ import { Plus, Search, ImageOff } from "@/components/Icons";
 const PAGE_SIZE = 10;
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
-  draft: { label: "Nháp", className: "bg-ink/8 text-ink/60" },
-  published: { label: "Đang bán", className: "bg-mint-100 text-brand-forest" },
-  archived: { label: "Lưu trữ", className: "bg-gold-100 text-gold-600" },
+  draft: { label: "Bản nháp", className: "bg-slate-100 text-slate-600 border-slate-200" },
+  published: { label: "Đang bán", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  archived: { label: "Lưu trữ", className: "bg-amber-50 text-amber-700 border-amber-200" },
 };
 
 export default async function ProductsPage({
@@ -24,8 +23,8 @@ export default async function ProductsPage({
   const q = searchParams.q?.trim();
   const status = searchParams.status;
 
-  const where = {
-    ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
+  const where: any = {
+    ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
     ...(status ? { status: status as never } : {}),
   };
 
@@ -35,38 +34,49 @@ export default async function ProductsPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { category: true, images: { orderBy: { sortOrder: "asc" }, take: 1 }, variants: true },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        variants: true,
+      },
     }),
     prisma.product.count({ where }),
   ]);
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title="Sản phẩm"
-        subtitle={`${total} sản phẩm trong kho hàng`}
+        title="Quản lý sản phẩm"
+        subtitle={`${total} sản phẩm trong hệ thống kho hàng`}
         action={
-          <Link href="/products/new">
-            <Button size="sm">
-              <Plus size={15} /> Thêm sản phẩm
-            </Button>
+          <Link
+            href="/products/new"
+            className="inline-flex items-center gap-2 rounded-full bg-brand-forest px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 transition-all shadow-sm active:scale-95"
+          >
+            <Plus size={15} />
+            <span>Thêm sản phẩm mới</span>
           </Link>
         }
       />
 
-      <div className="rounded-2xl border border-ink/10 bg-white shadow-card">
-        <div className="flex flex-col gap-3 border-b border-ink/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="luno-card">
+        {/* Search & Status Filters */}
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between">
           <form className="relative w-full sm:max-w-xs">
-            <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" />
+            <Search
+              size={14}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               name="q"
               defaultValue={q}
               placeholder="Tìm theo tên sản phẩm…"
-              className="w-full rounded-xl border border-ink/15 py-2 pl-9 pr-3 text-sm focus:border-brand-forest focus:outline-none"
+              className="w-full rounded-full border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-medium text-ink placeholder:text-slate-400 focus:border-brand-forest focus:bg-white focus:outline-none transition-all"
             />
           </form>
-          <div className="flex flex-wrap gap-1.5">
-            <StatusPill href="/products" active={!status} label="Tất cả" />
+
+          <div className="flex flex-wrap gap-2">
+            <StatusPill href="/products" active={!status} label="Tất cả sản phẩm" />
             {Object.entries(STATUS_LABEL).map(([key, meta]) => (
               <StatusPill
                 key={key}
@@ -78,18 +88,19 @@ export default async function ProductsPage({
           </div>
         </div>
 
+        {/* Product Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-ink/10 text-left text-xs uppercase tracking-wide text-ink/45">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <tr>
-                <th className="px-5 py-3 font-semibold">Sản phẩm</th>
-                <th className="px-5 py-3 font-semibold">Danh mục</th>
-                <th className="px-5 py-3 font-semibold">Giá</th>
-                <th className="px-5 py-3 font-semibold">Tồn kho</th>
-                <th className="px-5 py-3 font-semibold">Trạng thái</th>
+                <th className="px-5 py-3.5">Sản phẩm</th>
+                <th className="px-5 py-3.5">Danh mục</th>
+                <th className="px-5 py-3.5">Giá bán</th>
+                <th className="px-5 py-3.5">Tồn kho</th>
+                <th className="px-5 py-3.5 text-right">Trạng thái</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink/5">
+            <tbody className="divide-y divide-slate-100">
               {products.map((p) => {
                 const prices = p.variants.map((v) => Number(v.price));
                 const compareAts = p.variants
@@ -99,42 +110,71 @@ export default async function ProductsPage({
                 const maxCompareAt = compareAts.length ? Math.max(...compareAts) : null;
                 const discount = calcDiscountPercent(minPrice, maxCompareAt);
                 const stock = p.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
-                const statusMeta = STATUS_LABEL[p.status] ?? { label: p.status, className: "bg-ink/8" };
+                const statusMeta = STATUS_LABEL[p.status] ?? {
+                  label: p.status,
+                  className: "bg-slate-100 text-slate-600 border-slate-200",
+                };
 
                 return (
-                  <tr key={p.id} className="hover:bg-mint-50/40">
-                    <td className="px-5 py-3">
+                  <tr key={p.id} className="hover:bg-slate-50/70 transition-colors group">
+                    <td className="px-5 py-3.5">
                       <Link href={`/products/${p.id}`} className="flex items-center gap-3">
-                        <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-xl bg-mint-100">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80">
                           {p.images[0] ? (
-                            <Image src={p.images[0].url} alt="" fill className="object-cover" />
+                            <Image
+                              src={p.images[0].url}
+                              alt={p.name}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
                           ) : (
-                            <div className="flex h-full items-center justify-center text-ink/25">
-                              <ImageOff size={16} />
+                            <div className="flex h-full items-center justify-center text-slate-400">
+                              <ImageOff size={18} />
                             </div>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate font-medium text-ink hover:underline">{p.name}</div>
-                          <div className="text-xs text-ink/40">{p.variants.length} biến thể</div>
+                          <div className="truncate font-bold text-slate-900 group-hover:text-brand-forest transition-colors">
+                            {p.name}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {p.variants.length} phân loại biến thể
+                          </div>
                         </div>
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-ink/60">{p.category?.name ?? "—"}</td>
-                    <td className="px-5 py-3">
-                      <div className="font-semibold text-ink">{formatVND(minPrice)}</div>
+                    <td className="px-5 py-3.5 font-medium text-slate-600">
+                      {p.category?.name ?? "—"}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="font-black text-brand-forest text-sm">
+                        {formatVND(minPrice)}
+                      </div>
                       {discount && (
-                        <div className="flex items-center gap-1.5 text-xs">
-                          <span className="text-ink/35 line-through">{formatVND(maxCompareAt!)}</span>
-                          <span className="font-bold text-sale">-{discount}%</span>
+                        <div className="flex items-center gap-1.5 text-[11px]">
+                          <span className="text-slate-400 line-through">
+                            {formatVND(maxCompareAt!)}
+                          </span>
+                          <span className="font-bold text-rose-600">-{discount}%</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-5 py-3">
-                      <span className={stock <= 5 ? "font-semibold text-sale" : "text-ink/70"}>{stock}</span>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                          stock <= 5
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {stock} cái
+                      </span>
                     </td>
-                    <td className="px-5 py-3">
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.className}`}>
+                    <td className="px-5 py-3.5 text-right">
+                      <span
+                        className={`inline-block rounded-full border px-3 py-0.5 text-[11px] font-bold ${statusMeta.className}`}
+                      >
                         {statusMeta.label}
                       </span>
                     </td>
@@ -143,7 +183,7 @@ export default async function ProductsPage({
               })}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-16 text-center text-sm text-ink/40">
+                  <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400">
                     Không tìm thấy sản phẩm nào.
                   </td>
                 </tr>
@@ -152,13 +192,15 @@ export default async function ProductsPage({
           </table>
         </div>
 
-        <Pagination
-          page={page}
-          pageSize={PAGE_SIZE}
-          total={total}
-          basePath="/products"
-          searchParams={{ q, status }}
-        />
+        <div className="border-t border-slate-100 p-4">
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={total}
+            basePath="/products"
+            searchParams={{ q, status }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -168,8 +210,10 @@ function StatusPill({ href, active, label }: { href: string; active: boolean; la
   return (
     <Link
       href={href}
-      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-        active ? "bg-ink text-white" : "border border-ink/15 text-ink/60 hover:border-ink/40"
+      className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+        active
+          ? "bg-ink text-white shadow-sm"
+          : "border border-slate-200/80 bg-white text-slate-600 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50/30"
       }`}
     >
       {label}

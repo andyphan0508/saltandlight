@@ -3,20 +3,29 @@ import { PageHeader } from "@/components/PageHeader";
 import { ShippingMethodRow } from "@/components/ShippingMethodRow";
 import { Truck } from "@/components/Icons";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShippingPage() {
   const zones = await prisma.shippingZone.findMany({ include: { methods: true } });
 
   return (
-    <div>
-      <PageHeader title="Vận chuyển" subtitle="Cấu hình phí ship theo từng vùng giao hàng" />
+    <div className="space-y-6">
+      <PageHeader
+        title="Quản lý chính sách vận chuyển"
+        subtitle="Cấu hình biểu phí giao hàng toàn quốc và điều kiện miễn phí vận chuyển (Freeship)"
+      />
+
       <div className="space-y-6">
         {zones.map((zone) => (
-          <div key={zone.id}>
-            <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase text-ink/60">
-              <Truck size={16} className="text-brand-forest" />
-              {zone.name}
+          <div key={zone.id} className="luno-card p-6 space-y-4">
+            <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3 text-sm font-bold uppercase text-slate-800 tracking-wider">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-mint-100 text-brand-forest">
+                <Truck size={17} />
+              </span>
+              <span>Khu vực: {zone.name}</span>
             </div>
-            <div className="space-y-3">
+
+            <div className="space-y-3 pt-1">
               {zone.methods.map((m) => (
                 <ShippingMethodRow
                   key={m.id}
@@ -30,10 +39,16 @@ export default async function ShippingPage() {
             </div>
           </div>
         ))}
+
         {zones.length === 0 && (
-          <div className="rounded-2xl border border-ink/10 bg-white p-12 text-center shadow-card">
-            <Truck size={28} className="mx-auto text-ink/20" />
-            <p className="mt-3 text-sm text-ink/50">Chưa có vùng vận chuyển nào.</p>
+          <div className="luno-card p-16 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+              <Truck size={28} />
+            </div>
+            <h3 className="mt-4 font-bold text-slate-800 text-sm">Chưa có khu vực vận chuyển</h3>
+            <p className="mt-1 text-xs text-slate-400">
+              Vui lòng thiết lập cấu hình biểu phí vận chuyển cho hệ thống.
+            </p>
           </div>
         )}
       </div>

@@ -28,6 +28,7 @@
  * cleanly is written to migration-report.json instead of failing the run.
  */
 import { prisma } from "@saltandlight/db";
+import { computePriceRange } from "@saltandlight/domain";
 import { createClient } from "@supabase/supabase-js";
 import { writeFileSync } from "node:fs";
 
@@ -238,6 +239,7 @@ async function migrateProducts(categoryIdMap: Map<number, string>) {
       if (DRY_RUN) continue;
 
       const status = wc.status === "publish" ? "published" : wc.status === "draft" ? "draft" : "archived";
+      const priceRange = computePriceRange(variants.map((v) => ({ isActive: true, ...v })));
 
       const product = await prisma.product.upsert({
         where: { slug: wc.slug },
@@ -246,6 +248,8 @@ async function migrateProducts(categoryIdMap: Map<number, string>) {
           description: wc.description.replace(/<[^>]+>/g, "").trim(),
           categoryId,
           status,
+          minPrice: priceRange.minPrice,
+          maxCompareAtPrice: priceRange.maxCompareAtPrice,
         },
         create: {
           name: wc.name,
@@ -253,6 +257,8 @@ async function migrateProducts(categoryIdMap: Map<number, string>) {
           description: wc.description.replace(/<[^>]+>/g, "").trim(),
           categoryId,
           status,
+          minPrice: priceRange.minPrice,
+          maxCompareAtPrice: priceRange.maxCompareAtPrice,
         },
       });
 
