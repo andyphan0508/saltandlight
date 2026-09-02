@@ -11,20 +11,17 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          response = NextResponse.next({
-            request: { headers: request.headers }
-          });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          response = NextResponse.next({
-            request: { headers: request.headers }
-          });
-          response.cookies.set({ name, value: "", ...options });
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          // Write to the incoming request too, so getAll() sees fresh values
+          // if getUser() is called again later in this same middleware run.
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request: { headers: request.headers } });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
         }
       }
     }
@@ -39,14 +36,20 @@ export async function middleware(request: NextRequest) {
   );
   const isApi = request.nextUrl.pathname.startsWith("/api");
 
+  // Redirects build a brand-new response, so any session cookie refreshed
+  // above by getUser() has to be copied over or it's silently dropped.
   if (!user && !isPublic && !isApi) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+    return redirectResponse;
   }
 
   if (user && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
+    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+    return redirectResponse;
   }
 
   return response;
