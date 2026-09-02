@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { SITE_URL } from "@/lib/site-url";
 import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut } from "./Icons";
 
 export function AdminHeader({
@@ -102,7 +103,7 @@ export function AdminHeader({
       <div className="flex items-center gap-3">
         {/* View Storefront Link */}
         <a
-          href="http://localhost:3000"
+          href={SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50/40 transition-all shadow-xs"
@@ -168,7 +169,7 @@ export function AdminHeader({
                 </div>
                 <div className="py-1">
                   <a
-                    href="http://localhost:3000"
+                    href={SITE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"

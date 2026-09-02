@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { SITE_URL } from "@/lib/site-url";
 import {
   LayoutGrid,
   Package,
@@ -151,7 +152,7 @@ export function Sidebar({
       {/* 3. Bottom Storefront Quick Link & User Profile Card */}
       <div className="border-t border-slate-100 p-3.5 space-y-2">
         <a
-          href="http://localhost:3000"
+          href={SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-between rounded-xl border border-slate-200/60 bg-slate-50/70 px-3 py-2 text-[11px] font-bold text-slate-600 hover:bg-mint-50/70 hover:text-brand-forest hover:border-mint-200 transition-all"

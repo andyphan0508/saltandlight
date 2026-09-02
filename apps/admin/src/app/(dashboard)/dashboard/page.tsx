@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { RevenueChart } from "@/components/RevenueChart";
 import { StatusBreakdown } from "@/components/StatusBreakdown";
+import { SITE_URL } from "@/lib/site-url";
 import {
   Wallet,
   ShoppingCart,
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
               <span>Thêm sản phẩm mới</span>
             </Link>
             <a
-              href="http://localhost:3000"
+              href={SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-bold text-white hover:bg-white/25 transition-all backdrop-blur-sm border border-white/10"
