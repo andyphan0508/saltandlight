@@ -1,0 +1,317 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [pgcrypto]
+}
+
+// ── Catalog ─────────────────────────────────────────────────────────
+
+model Category {
+  id       String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name     String
+  slug     String     @unique
+  parentId String?    @map("parent_id") @db.Uuid
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryToCategory")
+  products Product[]
+
+  @@map("categories")
+}
+
+enum ProductStatus {
+  draft
+  published
+  archived
+}
+
+model Product {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  slug        String        @unique
+  description String?
+  categoryId  String?       @map("category_id") @db.Uuid
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  status      ProductStatus @default(draft)
+  isNew       Boolean       @default(false) @map("is_new")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  images      ProductImage[]
+  variants    ProductVariant[]
+  bundleItems ProductBundleItem[]
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0) @map("sort_order")
+
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId        String   @map("product_id") @db.Uuid
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku              String   @unique
+  color            String?
+  size             String?
+  price            Decimal  @db.Decimal(12, 0)
+  compareAtPrice   Decimal? @map("compare_at_price") @db.Decimal(12, 0)
+  stockQuantity    Int      @default(0) @map("stock_quantity")
+  isActive         Boolean  @default(true) @map("is_active")
+
+  orderItems OrderItem[]
+
+  @@map("product_variants")
+}
+
+enum DiscountType {
+  percent
+  fixed
+}
+
+model ProductBundle {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  discountType  DiscountType @map("discount_type")
+  discountValue Decimal      @map("discount_value") @db.Decimal(12, 2)
+  isActive      Boolean      @default(true) @map("is_active")
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  items ProductBundleItem[]
+
+  @@map("product_bundles")
+}
+
+model ProductBundleItem {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bundleId  String        @map("bundle_id") @db.Uuid
+  bundle    ProductBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  productId String        @map("product_id") @db.Uuid
+  product   Product       @relation(fields: [productId], references: [id])
+  quantity  Int           @default(1)
+
+  @@map("product_bundle_items")
+}
+
+// ── Customers ───────────────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName  String   @map("full_name")
+  phone     String
+  email     String?
+  isGuest   Boolean  @default(true) @map("is_guest")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  addresses CustomerAddress[]
+  orders    Order[]
+
+  @@index([phone])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String   @map("customer_id") @db.Uuid
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recipientName  String   @map("recipient_name")
+  phone          String
+  province       String
+  district       String
+  ward           String
+  streetAddress  String   @map("street_address")
+  isDefault      Boolean  @default(false) @map("is_default")
+
+  orders Order[]
+
+  @@map("customer_addresses")
+}
+
+enum AdminRole {
+  owner
+  staff
+}
+
+model AdminUser {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authUserId   String?   @unique @map("auth_user_id") @db.Uuid // Supabase auth.users.id
+  email        String    @unique
+  fullName     String?   @map("full_name")
+  role         AdminRole @default(staff)
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  statusChanges     OrderStatusHistory[]
+  confirmedPayments PaymentTransaction[]
+  auditLogs         AuditLog[]
+
+  @@map("admin_users")
+}
+
+// ── Orders & payments ───────────────────────────────────────────────
+
+enum OrderStatus {
+  pending_payment
+  processing
+  on_hold
+  completed
+  cancelled
+  refunded
+}
+
+model Order {
+  id                 String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderNumber        String      @unique @map("order_number")
+  customerId         String      @map("customer_id") @db.Uuid
+  customer           Customer    @relation(fields: [customerId], references: [id])
+  status             OrderStatus @default(pending_payment)
+  subtotal           Decimal     @db.Decimal(12, 0)
+  shippingFee        Decimal     @map("shipping_fee") @db.Decimal(12, 0)
+  total              Decimal     @db.Decimal(12, 0)
+  shippingAddressId  String      @map("shipping_address_id") @db.Uuid
+  shippingAddress    CustomerAddress @relation(fields: [shippingAddressId], references: [id])
+  note               String?
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  payments       PaymentTransaction[]
+
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                  String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId             String          @map("order_id") @db.Uuid
+  order               Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId           String?         @map("product_id") @db.Uuid
+  product             Product?        @relation(fields: [productId], references: [id])
+  productVariantId    String?         @map("product_variant_id") @db.Uuid
+  productVariant      ProductVariant? @relation(fields: [productVariantId], references: [id])
+  productNameSnapshot String          @map("product_name_snapshot")
+  color               String?
+  size                String?
+  unitPrice           Decimal         @map("unit_price") @db.Decimal(12, 0)
+  quantity            Int
+
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId     String      @map("order_id") @db.Uuid
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus  String?     @map("from_status")
+  toStatus    String      @map("to_status")
+  changedById String?     @map("changed_by") @db.Uuid
+  changedBy   AdminUser?  @relation(fields: [changedById], references: [id])
+  changedAt   DateTime    @default(now()) @map("changed_at")
+  note        String?
+
+  @@map("order_status_history")
+}
+
+enum PaymentMethod {
+  bank_transfer
+}
+
+enum PaymentStatus {
+  awaiting_confirmation
+  confirmed
+  rejected
+}
+
+model PaymentTransaction {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String        @map("order_id") @db.Uuid
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        PaymentMethod @default(bank_transfer)
+  amount        Decimal       @db.Decimal(12, 0)
+  bankRefCode   String?       @map("bank_ref_code")
+  status        PaymentStatus @default(awaiting_confirmation)
+  confirmedById String?       @map("confirmed_by") @db.Uuid
+  confirmedBy   AdminUser?    @relation(fields: [confirmedById], references: [id])
+  confirmedAt   DateTime?     @map("confirmed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  @@map("payment_transactions")
+}
+
+// ── Shipping ────────────────────────────────────────────────────────
+
+model ShippingZone {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+
+  methods ShippingMethod[]
+
+  @@map("shipping_zones")
+}
+
+enum ShippingMethodType {
+  flat_rate
+  free_shipping
+}
+
+model ShippingMethod {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  zoneId         String             @map("zone_id") @db.Uuid
+  zone           ShippingZone       @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  type           ShippingMethodType
+  fee            Decimal            @db.Decimal(12, 0)
+  freeThreshold  Decimal?           @map("free_threshold") @db.Decimal(12, 0)
+  isActive       Boolean            @default(true) @map("is_active")
+
+  @@map("shipping_methods")
+}
+
+// ── Audit ───────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  adminUserId String?   @map("admin_user_id") @db.Uuid
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
+  action      String    // e.g. "product.update", "order.status_change"
+  entityType  String    @map("entity_type")
+  entityId    String    @map("entity_id")
+  metadata    Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
+// ── Contact / custom-order submissions ─────────────────────────────
+
+enum ContactStatus {
+  new
+  in_progress
+  closed
+}
+
+model ContactSubmission {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type      String        @default("contact") // "contact" | "custom_order"
+  fullName  String        @map("full_name")
+  phone     String?
+  email     String?
+  message   String
+  status    ContactStatus @default(new)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("contact_submissions")
+}
