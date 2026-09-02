@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
+import { Check, ShieldCheck, Phone, Mail } from "./Icons";
 
 export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -31,49 +32,92 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
 
   if (status === "sent") {
     return (
-      <p className="rounded-2xl bg-mint-100 p-6 text-center text-sm">
-        Cảm ơn bạn! Chúng mình đã nhận được yêu cầu và sẽ phản hồi sớm nhất có thể.
-      </p>
+      <div className="rounded-3xl bg-mint-100 p-8 text-center space-y-3 border border-mint-200">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-forest text-white">
+          <Check size={24} />
+        </div>
+        <h4 className="font-display text-lg font-black uppercase text-ink">
+          Gửi Yêu Cầu Thành Công!
+        </h4>
+        <p className="text-xs sm:text-sm text-ink/75 max-w-sm mx-auto">
+          Cảm ơn bạn! Đội ngũ Salt &amp; Light đã nhận được thông tin và sẽ liên hệ hỗ trợ bạn trong vòng 24 giờ làm việc.
+        </p>
+      </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        name="fullName"
-        placeholder="Họ và tên"
-        required
-        className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-sm"
-      />
-      <div className="grid grid-cols-2 gap-4">
+      <div>
+        <label className="text-xs font-bold uppercase tracking-wider text-ink/70">
+          Họ và tên của bạn <span className="text-sale">*</span>
+        </label>
         <input
-          name="phone"
-          placeholder="Số điện thoại"
-          className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-sm"
-        />
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-sm"
+          name="fullName"
+          placeholder="Ví dụ: Anh/Chị Nguyễn Văn A"
+          required
+          className="mt-1.5 w-full rounded-2xl border border-ink/15 px-4 py-2.5 text-sm focus:border-ink focus:outline-none transition-colors"
         />
       </div>
-      <textarea
-        name="message"
-        rows={5}
-        required
-        placeholder={
-          type === "custom_order"
-            ? "Mô tả yêu cầu đặt theo yêu cầu của bạn (số lượng, thiết kế, thời gian mong muốn...)"
-            : "Nội dung liên hệ"
-        }
-        className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-sm"
-      />
-      <Button type="submit" disabled={status === "sending"} className="w-full">
-        {status === "sending" ? "Đang gửi…" : "Gửi yêu cầu"}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-ink/70">
+            Số điện thoại / Zalo <span className="text-sale">*</span>
+          </label>
+          <input
+            name="phone"
+            type="tel"
+            placeholder="0912 345 678"
+            required
+            className="mt-1.5 w-full rounded-2xl border border-ink/15 px-4 py-2.5 text-sm focus:border-ink focus:outline-none transition-colors"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-ink/70">
+            Địa chỉ Email
+          </label>
+          <input
+            name="email"
+            type="email"
+            placeholder="email@example.com"
+            className="mt-1.5 w-full rounded-2xl border border-ink/15 px-4 py-2.5 text-sm focus:border-ink focus:outline-none transition-colors"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-bold uppercase tracking-wider text-ink/70">
+          {type === "custom_order" ? "Chi tiết yêu cầu đặt áo / quà tặng" : "Nội dung cần hỗ trợ"}{" "}
+          <span className="text-sale">*</span>
+        </label>
+        <textarea
+          name="message"
+          rows={4}
+          required
+          placeholder={
+            type === "custom_order"
+              ? "Vui lòng mô tả: Số lượng dự kiến, câu Kinh Thánh/logo muốn in, ngày cần nhận hàng, màu sắc mong muốn..."
+              : "Nội dung bạn muốn nhắn gửi cho Salt & Light..."
+          }
+          className="mt-1.5 w-full rounded-2xl border border-ink/15 p-3.5 text-sm focus:border-ink focus:outline-none transition-colors"
+        />
+      </div>
+
+      <Button
+        type="submit"
+        disabled={status === "sending"}
+        variant="primary"
+        size="lg"
+        className="w-full shadow-md py-3.5"
+      >
+        {status === "sending" ? "Đang gửi yêu cầu…" : "Gửi thông tin cho chúng mình"}
       </Button>
+
       {status === "error" && (
-        <p className="text-sm text-sale">Có lỗi xảy ra, vui lòng thử lại.</p>
+        <p className="text-xs font-semibold text-sale text-center">
+          Có lỗi xảy ra trong quá trình gửi, vui lòng liên hệ hotline 0847 25 2025.
+        </p>
       )}
     </form>
   );

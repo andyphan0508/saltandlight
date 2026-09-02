@@ -52,7 +52,7 @@ export function UsersManager({ users, currentUserId }: { users: AdminUserRow[]; 
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3 rounded-2xl border border-ink/10 bg-white p-5">
+      <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3 rounded-2xl border border-ink/10 bg-white p-5 shadow-card">
         <div>
           <label className="text-xs font-bold uppercase text-ink/50">Email</label>
           <input name="email" type="email" required className="mt-1 w-56 rounded-lg border border-ink/15 px-3 py-1.5 text-sm" />
@@ -74,7 +74,7 @@ export function UsersManager({ users, currentUserId }: { users: AdminUserRow[]; 
         {error && <p className="w-full text-sm text-sale">{error}</p>}
       </form>
 
-      <div className="overflow-x-auto rounded-2xl border border-ink/10 bg-white">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-ink/10 bg-white shadow-card">
         <table className="w-full text-sm">
           <thead className="border-b border-ink/10 text-left text-xs uppercase text-ink/50">
             <tr>

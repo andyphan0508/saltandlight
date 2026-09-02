@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ee"/>
+      <stop offset="100%" stop-color="#ebdcc8"/>
+    </linearGradient>
+    <filter id="shadow7" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#4a3728" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg7)"/>
+  
+  <!-- Canvas Tote Bag -->
+  <g transform="translate(150, 150)" filter="url(#shadow7)">
+    <!-- Tote Straps -->
+    <path d="M 120 180 C 120 20 180 20 180 180" fill="none" stroke="#d4b996" stroke-width="22" stroke-linecap="round"/>
+    <path d="M 320 180 C 320 20 380 20 380 180" fill="none" stroke="#d4b996" stroke-width="22" stroke-linecap="round"/>
+    
+    <!-- Bag Body (Canvas texture vibe) -->
+    <rect x="50" y="160" width="400" height="500" rx="20" fill="#f5ede0"/>
+    <rect x="50" y="160" width="400" height="40" fill="#ebdcc8" rx="8"/>
+    
+    <!-- Graphic on Tote -->
+    <g transform="translate(250, 420)" text-anchor="middle">
+      <circle cx="0" cy="-30" r="32" fill="none" stroke="#8c6239" stroke-width="3"/>
+      <path d="M -16 -30 L 16 -30 M 0 -46 L 0 -14" stroke="#8c6239" stroke-width="3" stroke-linecap="round"/>
+      <text y="40" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#2d2216" letter-spacing="4">FAITH OVER FEAR</text>
+      <text y="75" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#8c6239" letter-spacing="4">CANVAS TOTE BAG</text>
+      <text y="110" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#786048">100% ORGANIC COTTON CANVAS</text>
+    </g>
+  </g>
+  
+  <rect x="40" y="40" width="130" height="34" rx="17" fill="#8c6239"/>
+  <text x="105" y="62" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="1">ACCESSORIES</text>
+</svg>
+

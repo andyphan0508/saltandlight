@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { ProductForm } from "@/components/ProductForm";
+import { PageHeader } from "@/components/PageHeader";
+import { BackLink } from "@/components/BackLink";
 import { toPlain } from "@/lib/serialize";
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
@@ -17,35 +19,34 @@ export default async function EditProductPage({ params }: { params: { id: string
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-black uppercase">Sửa sản phẩm</h1>
-      <div className="mt-6">
-        <ProductForm
-          categories={categories}
-          initial={{
-            id: plain.id,
-            name: plain.name,
-            slug: plain.slug,
-            description: plain.description ?? "",
-            categoryId: plain.categoryId,
-            status: plain.status,
-            isNew: plain.isNew,
-            images: plain.images.map((img) => ({
-              url: img.url,
-              sortOrder: img.sortOrder,
-            })),
-            variants: plain.variants.map((v) => ({
-              id: v.id,
-              sku: v.sku,
-              color: v.color ?? "",
-              size: v.size ?? "",
-              price: Number(v.price),
-              compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,
-              stockQuantity: v.stockQuantity,
-              isActive: v.isActive,
-            })),
-          }}
-        />
-      </div>
+      <BackLink href="/products" label="Quay lại danh sách sản phẩm" />
+      <PageHeader title={plain.name} subtitle="Chỉnh sửa thông tin, ảnh, giá và biến thể sản phẩm" />
+      <ProductForm
+        categories={categories}
+        initial={{
+          id: plain.id,
+          name: plain.name,
+          slug: plain.slug,
+          description: plain.description ?? "",
+          categoryId: plain.categoryId,
+          status: plain.status,
+          isNew: plain.isNew,
+          images: plain.images.map((img) => ({
+            url: img.url,
+            sortOrder: img.sortOrder,
+          })),
+          variants: plain.variants.map((v) => ({
+            id: v.id,
+            sku: v.sku,
+            color: v.color ?? "",
+            size: v.size ?? "",
+            price: Number(v.price),
+            compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,
+            stockQuantity: v.stockQuantity,
+            isActive: v.isActive,
+          })),
+        }}
+      />
     </div>
   );
 }

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f2f7f4"/>
+      <stop offset="100%" stop-color="#e2eee5"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#142c1f" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  
+  <!-- T-shirt Outline Graphic -->
+  <g transform="translate(100, 100)" filter="url(#shadow)">
+    <!-- Shirt Silhouette -->
+    <path d="M 180 60 Q 300 110 420 60 L 560 160 L 490 280 L 430 240 L 440 680 Q 300 700 160 680 L 170 240 L 110 280 L 40 160 Z" fill="#18181b"/>
+    <!-- Collar Line -->
+    <path d="M 230 65 Q 300 120 370 65" fill="none" stroke="#27272a" stroke-width="4"/>
+    
+    <!-- Graphic on Shirt -->
+    <g transform="translate(300, 320)" text-anchor="middle">
+      <circle cx="0" cy="-40" r="28" fill="none" stroke="#e6f2e8" stroke-width="2" stroke-dasharray="4,4"/>
+      <path d="M 0 -58 L 0 -22 M -18 -40 L 18 -40" stroke="#e6f2e8" stroke-width="3" stroke-linecap="round"/>
+      <text y="30" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="900" fill="#ffffff" letter-spacing="8">FEARLESS</text>
+      <text y="70" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#aed6b7" letter-spacing="4">ISAIAH 41:10</text>
+      <text y="100" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#a1a1aa">ĐỪNG SỢ VÌ TA Ở VỚI CON</text>
+    </g>
+  </g>
+  
+  <!-- Label Tag -->
+  <rect x="40" y="40" width="130" height="34" rx="17" fill="#18181b"/>
+  <text x="105" y="62" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="1">SALT &amp; LIGHT</text>
+</svg>
+

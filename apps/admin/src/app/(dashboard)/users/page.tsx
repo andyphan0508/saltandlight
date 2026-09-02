@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { UsersManager } from "@/components/UsersManager";
+import { PageHeader } from "@/components/PageHeader";
 
 export default async function UsersPage() {
   const current = await getCurrentAdminUser();
@@ -11,10 +12,8 @@ export default async function UsersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-black uppercase">Nhân viên</h1>
-      <div className="mt-6">
-        <UsersManager users={users} currentUserId={current.id} />
-      </div>
+      <PageHeader title="Nhân viên" subtitle="Chỉ chủ shop (owner) mới quản lý được tài khoản nhân viên" />
+      <UsersManager users={users} currentUserId={current.id} />
     </div>
   );
 }

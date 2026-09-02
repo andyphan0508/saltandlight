@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@saltandlight/db";
 import { formatVND } from "@saltandlight/domain";
+import { PageHeader } from "@/components/PageHeader";
 import { PaymentActions } from "@/components/PaymentActions";
+import { Wallet } from "@/components/Icons";
 
 export default async function PaymentsPage() {
   const payments = await prisma.paymentTransaction.findMany({
@@ -12,35 +14,39 @@ export default async function PaymentsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-black uppercase">Chuyển khoản chờ xác nhận</h1>
-      <p className="mt-1 text-sm text-ink/60">
-        Đối chiếu nội dung chuyển khoản (mã đơn hàng) với sao kê ngân hàng trước khi xác nhận.
-      </p>
+      <PageHeader
+        title="Thanh toán"
+        subtitle="Đối chiếu nội dung chuyển khoản (mã đơn hàng) với sao kê ngân hàng trước khi xác nhận."
+      />
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         {payments.map((p) => (
           <div
             key={p.id}
-            className="flex items-center justify-between rounded-2xl border border-ink/10 bg-white p-5"
+            className="flex flex-col gap-4 rounded-2xl border border-ink/10 bg-white p-5 shadow-card sm:flex-row sm:items-center sm:justify-between"
           >
-            <div>
-              <Link href={`/orders/${p.order.id}`} className="font-semibold hover:underline">
-                {p.order.orderNumber}
-              </Link>
-              <div className="text-sm text-ink/60">
-                {p.order.customer.fullName} · {p.order.customer.phone}
-              </div>
-              <div className="mt-1 text-sm">
-                Số tiền: <strong>{formatVND(Number(p.amount))}</strong>
+            <div className="flex items-center gap-4">
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gold-100 text-gold-600">
+                <Wallet size={18} />
+              </span>
+              <div>
+                <Link href={`/orders/${p.order.id}`} className="font-semibold text-ink hover:underline">
+                  {p.order.orderNumber}
+                </Link>
+                <div className="text-xs text-ink/50">
+                  {p.order.customer.fullName} · {p.order.customer.phone}
+                </div>
+                <div className="mt-1 text-sm font-bold text-ink">{formatVND(Number(p.amount))}</div>
               </div>
             </div>
             <PaymentActions paymentId={p.id} />
           </div>
         ))}
         {payments.length === 0 && (
-          <p className="rounded-2xl border border-ink/10 bg-white p-8 text-center text-ink/50">
-            Không có giao dịch nào đang chờ xác nhận.
-          </p>
+          <div className="rounded-2xl border border-ink/10 bg-white p-12 text-center shadow-card">
+            <Wallet size={28} className="mx-auto text-ink/20" />
+            <p className="mt-3 text-sm text-ink/50">Không có giao dịch nào đang chờ xác nhận.</p>
+          </div>
         )}
       </div>
     </div>

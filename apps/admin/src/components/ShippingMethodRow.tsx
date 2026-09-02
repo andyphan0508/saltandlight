@@ -34,7 +34,7 @@ export function ShippingMethodRow({ id, type, fee, freeThreshold, isActive }: Pr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 rounded-2xl border border-ink/10 bg-white p-5">
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 rounded-2xl border border-ink/10 bg-white p-5 shadow-card">
       <div>
         <div className="text-xs font-bold uppercase text-ink/50">Loại</div>
         <div className="mt-1 text-sm font-medium">
