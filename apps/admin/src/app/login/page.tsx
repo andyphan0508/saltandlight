@@ -47,6 +47,22 @@ function LoginForm() {
         <p className="mt-1 text-center text-xs uppercase tracking-wide text-ink/50">
           Trang quản trị
         </p>
+        {searchParams.get("unauthorized") && (
+          <div className="mt-4 rounded-xl bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">
+            Tài khoản này chưa có quyền quản trị. Vui lòng đăng nhập với tài khoản chủ shop hoặc liên hệ quản trị viên.
+            <button
+              type="button"
+              onClick={async () => {
+                const supabase = createSupabaseBrowserClient();
+                await supabase.auth.signOut();
+                router.replace("/login");
+              }}
+              className="mt-2 block w-full text-center font-bold text-amber-900 underline"
+            >
+              Đăng xuất và thử lại
+            </button>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
             <label className="text-xs font-bold uppercase tracking-wide text-ink/60">Email</label>

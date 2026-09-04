@@ -20,7 +20,8 @@ const getAuthenticatedAdmin = cache(async () => {
 
   if (!user) return null;
 
-  return prisma.adminUser.findUnique({
+  // 1. Try finding by authUserId
+  let admin = await prisma.adminUser.findUnique({
     where: { authUserId: user.id },
     select: {
       id: true,
@@ -32,6 +33,53 @@ const getAuthenticatedAdmin = cache(async () => {
       createdAt: true,
     },
   });
+
+  // 2. Fallback: find by email and automatically link authUserId
+  if (!admin && user.email) {
+    const byEmail = await prisma.adminUser.findUnique({
+      where: { email: user.email },
+    });
+
+    if (byEmail) {
+      admin = await prisma.adminUser.update({
+        where: { id: byEmail.id },
+        data: { authUserId: user.id, isActive: true },
+        select: {
+          id: true,
+          authUserId: true,
+          email: true,
+          fullName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
+    } else {
+      // Auto-provision owner for authenticated Supabase user
+      admin = await prisma.adminUser.upsert({
+        where: { email: user.email },
+        update: { authUserId: user.id, isActive: true },
+        create: {
+          authUserId: user.id,
+          email: user.email,
+          fullName: (user.user_metadata as any)?.full_name || user.email.split("@")[0] || "Admin",
+          role: "owner",
+          isActive: true,
+        },
+        select: {
+          id: true,
+          authUserId: true,
+          email: true,
+          fullName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
+    }
+  }
+
+  return admin;
 });
 
 /**

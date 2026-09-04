@@ -52,6 +52,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && request.nextUrl.pathname === "/login") {
+    if (
+      request.nextUrl.searchParams.has("unauthorized") ||
+      request.nextUrl.searchParams.has("logout")
+    ) {
+      return response;
+    }
     const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
     response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
     return redirectResponse;

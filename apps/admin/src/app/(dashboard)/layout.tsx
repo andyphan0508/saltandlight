@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const admin = await getCurrentAdminUser();
-  if (!admin) redirect("/login");
+  if (!admin) redirect("/login?unauthorized=true");
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f9fa]">

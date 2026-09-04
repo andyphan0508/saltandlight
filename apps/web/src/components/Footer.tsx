@@ -234,12 +234,7 @@ export function Footer() {
             </span>
           </div>
 
-          <div className="mt-6 rounded-2xl bg-mint-200/60 p-3.5 text-xs text-brand-forest">
-            <p className="font-semibold">
-              &ldquo;Các con là muối của đất... là ánh sáng của thế gian.&rdquo;
-            </p>
-            <p className="mt-1 text-[11px] opacity-75">— Ma-thi-ơ 5:13-14</p>
-          </div>
+
         </div>
       </div>
 
