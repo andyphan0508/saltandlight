@@ -49,6 +49,7 @@ const NAV_GROUPS: {
     items: [
       { href: "/shipping", label: "Vận chuyển", icon: Truck },
       { href: "/customers", label: "Khách hàng", icon: Users },
+      { href: "/settings/payment", label: "Cài đặt thanh toán", icon: Wallet },
     ],
   },
 ];

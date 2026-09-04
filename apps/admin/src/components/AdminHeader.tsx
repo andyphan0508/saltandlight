@@ -52,6 +52,8 @@ export function AdminHeader({
     customers: "Khách hàng",
     banners: "Banner & Slider",
     "page-builder": "Xây dựng trang",
+    settings: "Cài đặt",
+    payment: "Thanh toán",
     users: "Nhân viên",
     "audit-log": "Nhật ký"
   };

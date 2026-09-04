@@ -380,3 +380,17 @@ model PageBlock {
   @@map("page_blocks")
 }
 
+// ── Payment settings ───────────────────────────────────────────────
+
+// Singleton row (id is always "default") - admin-editable payment/QR display shown on the order confirmation page.
+model PaymentSettings {
+  id               String   @id @default("default")
+  qrImageUrl       String?  @map("qr_image_url")
+  transferNote     String?  @map("transfer_note")
+  showThankYouOnly Boolean  @default(false) @map("show_thank_you_only")
+  thankYouMessage  String?  @map("thank_you_message")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("payment_settings")
+}
+

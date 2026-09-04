@@ -135,51 +135,7 @@ const SEEDS: Seed[] = [
           quoteRef: "Ma-thi-ơ 5:13-14",
         },
       },
-      {
-        type: "FEATURE_CARDS",
-        content: {
-          style: "card",
-          items: [
-            {
-              icon: "Sparkles",
-              title: "Ước Mơ Khởi Nguồn",
-              description:
-                "Salt & Light ra đời từ một ước ao giản dị: Làm sao để Lời Chúa không chỉ nằm trong những trang Kinh Thánh hay trên bục giảng, mà có thể đồng hành cùng các bạn trẻ trong mọi khoảnh khắc cuộc sống — từ trường học, nơi làm việc, quán cà phê cho đến những chuyến đi xa.",
-            },
-            {
-              icon: "ShieldCheck",
-              title: "Chất Lượng Chỉn Chu",
-              description:
-                "Vì đại diện cho danh Chúa, chúng mình đặt tiêu chuẩn cao nhất cho từng sản phẩm: 100% Cotton 4 chiều mềm mịn, công nghệ in bền bỉ không nứt gãy, đường may tỉ mỉ và cách đóng gói trang trọng như một món quà từ tấm lòng.",
-            },
-          ],
-        },
-      },
-      {
-        type: "FEATURE_CARDS",
-        content: {
-          style: "numbered",
-          headline: "3 Giá Trị Cốt Lõi",
-          subtitle: "Kim chỉ nam trong từng sản phẩm của Salt & Light",
-          items: [
-            {
-              number: "01.",
-              title: "Chân Thật",
-              description: "Trang phục mang thông điệp tích cực, chân thật từ Lời Chúa, khích lệ đức tin mỗi ngày.",
-            },
-            {
-              number: "02.",
-              title: "Xuất Sắc",
-              description: "Tận tâm trong từng sợi vải, đường kim mũi chỉ, xứng đáng với tinh thần phụng sự tốt nhất.",
-            },
-            {
-              number: "03.",
-              title: "Bác Ái",
-              description: "Dành 5% doanh thu sẻ chia với các hoàn cảnh khó khăn, mái ấm và quỹ phát triển Cơ Đốc.",
-            },
-          ],
-        },
-      },
+
       {
         type: "CTA_BANNER",
         content: {

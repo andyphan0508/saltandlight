@@ -156,3 +156,13 @@ export const pageBlockReorderSchema = z.object({
   page: z.enum(PAGE_SLUGS),
   orderedIds: z.array(z.string().uuid()).min(1),
 });
+
+// ── Payment settings ────────────────────────────────────────────────
+
+export const paymentSettingsSchema = z.object({
+  qrImageUrl: z.string().url().optional().nullable(),
+  transferNote: z.string().max(2000).optional().nullable(),
+  showThankYouOnly: z.boolean().default(false),
+  thankYouMessage: z.string().max(500).optional().nullable(),
+});
+export type PaymentSettingsInput = z.infer<typeof paymentSettingsSchema>;

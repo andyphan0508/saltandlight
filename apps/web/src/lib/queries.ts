@@ -327,3 +327,15 @@ export const getCachedPageBlocks = (page: string) =>
     { revalidate: 60, tags: ["page-blocks", `page-blocks-${page}`] }
   )();
 
+/** Admin-configured QR image / transfer note / thank-you-only toggle shown on the order confirmation page */
+export async function getPaymentSettings() {
+  return prisma.paymentSettings.findUnique({ where: { id: "default" } });
+}
+
+/** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
+export const getCachedPaymentSettings = unstable_cache(
+  async () => getPaymentSettings(),
+  ["payment-settings"],
+  { revalidate: 300, tags: ["payment-settings"] }
+);
+

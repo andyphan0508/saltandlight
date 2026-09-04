@@ -134,8 +134,11 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendOrderCreatedEmail({
+      orderId: order.id,
       orderNumber: order.orderNumber,
+      customerName: customer.fullName,
       customerEmail: customer.email || null,
+      customerPhone: customer.phone,
       total,
     });
   } catch (err) {
