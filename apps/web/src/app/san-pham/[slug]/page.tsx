@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { prisma } from "@saltandlight/db";
 import { getCachedProductBySlug, getCachedRelatedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -8,6 +9,20 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { ChevronRight, Sparkles, Check, CrossIcon } from "@/components/Icons";
 
 export const revalidate = 120;
+
+export async function generateStaticParams() {
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: "published" },
+      select: { slug: true },
+      take: 100,
+    });
+    return products.map((p) => ({ slug: p.slug }));
+  } catch (err) {
+    console.error("generateStaticParams /san-pham/[slug] error:", err);
+    return [];
+  }
+}
 
 export async function generateMetadata({
   params

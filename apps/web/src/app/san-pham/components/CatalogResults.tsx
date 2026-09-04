@@ -1,4 +1,4 @@
-import { listPublishedProducts } from "@/lib/queries";
+import { getCachedPublishedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductToolbar } from "@/components/ProductToolbar";
@@ -8,12 +8,11 @@ import type { CatalogFilters } from "./parseCatalogParams";
 const PAGE_SIZE = 12;
 
 /**
- * The one query in this page whose cost actually grows with catalog size —
- * isolated in its own Suspense boundary so a slow product page doesn't hold
- * up the sidebar/toolbar chrome around it.
+ * The catalog query is cached with unstable_cache and tags: ["products"]
+ * so category/page switches stream instantly with near-zero database latency.
  */
 export async function CatalogResults({ filters }: { filters: CatalogFilters }) {
-  const { products, total } = await listPublishedProducts({
+  const { products, total } = await getCachedPublishedProducts({
     query: filters.query,
     categorySlugs: filters.categorySlugs,
     sizes: filters.sizes,

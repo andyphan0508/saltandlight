@@ -7,6 +7,8 @@ export const metadata = {
   description: "Câu chuyện và sứ mạng của thương hiệu thời trang Cơ Đốc Salt & Light.",
 };
 
+export const dynamic = "force-static";
+
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-16">

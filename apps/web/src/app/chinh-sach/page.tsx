@@ -5,6 +5,8 @@ export const metadata = {
   description: "Chính sách đổi size trong 7 ngày, biểu phí đồng giá ship 19K và bảng quy đổi size tại Salt & Light.",
 };
 
+export const dynamic = "force-static";
+
 export default function PolicyPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-12">

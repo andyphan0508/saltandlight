@@ -11,7 +11,22 @@ export default async function PaymentsPage() {
   const payments = await prisma.paymentTransaction.findMany({
     where: { status: "awaiting_confirmation" },
     orderBy: { createdAt: "asc" },
-    include: { order: { include: { customer: true } } },
+    select: {
+      id: true,
+      amount: true,
+      order: {
+        select: {
+          id: true,
+          orderNumber: true,
+          customer: {
+            select: {
+              fullName: true,
+              phone: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   return (

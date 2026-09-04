@@ -29,7 +29,13 @@ export default async function CustomersPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { _count: { select: { orders: true } } },
+      select: {
+        id: true,
+        fullName: true,
+        phone: true,
+        email: true,
+        _count: { select: { orders: true } },
+      },
     }),
     prisma.customer.count({ where }),
   ]);

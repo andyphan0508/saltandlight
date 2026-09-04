@@ -207,3 +207,40 @@ export const getCachedRelatedProducts = (categoryId: string, excludeId: string, 
     ["related-products", categoryId, excludeId, String(limit)],
     { revalidate: 120, tags: ["products"] }
   )();
+
+/** Cached published products with filters for catalog browsing & search (cached 60s) */
+export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => {
+  const cacheKey = JSON.stringify({
+    c: filters.categorySlugs?.slice().sort() ?? [],
+    s: filters.sizes?.slice().sort() ?? [],
+    o: filters.onSale ?? false,
+    q: filters.query ?? "",
+    sort: filters.sort ?? "latest",
+    p: filters.page ?? 1,
+    ps: filters.pageSize ?? 12,
+  });
+
+  return unstable_cache(
+    async () => listPublishedProducts(filters),
+    ["catalog-products", cacheKey],
+    { revalidate: 60, tags: ["products"] }
+  )();
+};
+
+/** Cached active shipping methods for cart quote & checkout (cached 10 mins) */
+export const getCachedActiveShippingMethods = unstable_cache(
+  async () => {
+    return prisma.shippingMethod.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        type: true,
+        fee: true,
+        freeThreshold: true,
+        isActive: true,
+      },
+    });
+  },
+  ["active-shipping-methods"],
+  { revalidate: 600, tags: ["shipping"] }
+);

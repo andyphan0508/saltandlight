@@ -37,13 +37,27 @@ export default async function DashboardPage() {
     prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 6,
-      include: { customer: true },
+      select: {
+        id: true,
+        orderNumber: true,
+        total: true,
+        status: true,
+        createdAt: true,
+        customer: { select: { fullName: true, phone: true } },
+      },
     }),
     prisma.productVariant.findMany({
       where: { isActive: true, stockQuantity: { lte: 5 } },
       orderBy: { stockQuantity: "asc" },
       take: 5,
-      include: { product: { include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } } } },
+      select: {
+        id: true,
+        productId: true,
+        size: true,
+        color: true,
+        stockQuantity: true,
+        product: { select: { name: true } },
+      },
     }),
   ]);
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BottomTabBar } from "@/components/BottomTabBar";
@@ -10,6 +11,20 @@ import { NavigationProgress } from "@/components/NavigationProgress";
 import { getCachedCategoriesWithCounts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import "./globals.css";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const beVietnam = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="vi">
+    <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
         <Suspense fallback={null}>
           <NavigationProgress />

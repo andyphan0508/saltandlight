@@ -6,6 +6,8 @@ export const metadata = {
   description: "Thông tin liên hệ và gửi tin nhắn hỗ trợ tới Salt & Light.",
 };
 
+export const dynamic = "force-static";
+
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-12">

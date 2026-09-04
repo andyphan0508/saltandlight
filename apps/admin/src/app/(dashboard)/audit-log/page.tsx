@@ -29,7 +29,7 @@ export default async function AuditLogPage({ searchParams }: { searchParams: { p
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { adminUser: true },
+      include: { adminUser: { select: { fullName: true, email: true } } },
     }),
     prisma.auditLog.count(),
   ]);

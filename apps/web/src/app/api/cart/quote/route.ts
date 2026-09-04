@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
+import { getCachedActiveShippingMethods } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,21 @@ export async function POST(req: NextRequest) {
   const variantIds = parsed.data.items.map((i) => i.productVariantId);
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: variantIds }, isActive: true },
-    include: { product: { include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } } } },
+    select: {
+      id: true,
+      productId: true,
+      color: true,
+      size: true,
+      price: true,
+      stockQuantity: true,
+      product: {
+        select: {
+          name: true,
+          slug: true,
+          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+        },
+      },
+    },
   });
 
   const lines = parsed.data.items.flatMap((item) => {
@@ -41,9 +56,7 @@ export async function POST(req: NextRequest) {
 
   const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
 
-  const shippingMethods = await prisma.shippingMethod.findMany({
-    where: { isActive: true },
-  });
+  const shippingMethods = await getCachedActiveShippingMethods();
   const shippingFee = pickShippingFee(
     subtotal,
     shippingMethods.map((m) => ({
