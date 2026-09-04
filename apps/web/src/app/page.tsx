@@ -70,7 +70,13 @@ const REVIEWS = [
 ];
 
 export default async function HomePage() {
-  const { products } = toPlain(await listPublishedProducts({ pageSize: 8 }));
+  let products: any[] = [];
+  try {
+    const data = await listPublishedProducts({ pageSize: 8 });
+    products = toPlain(data).products;
+  } catch (err) {
+    console.error("HomePage listPublishedProducts error:", err);
+  }
 
   return (
     <div className="space-y-16 sm:space-y-24">

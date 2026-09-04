@@ -21,8 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { categories } = await listCategoriesWithCounts();
-  const navCategories = toPlain(categories.filter((c) => c.count > 0));
+  let navCategories: any[] = [];
+  try {
+    const { categories } = await listCategoriesWithCounts();
+    navCategories = toPlain(categories.filter((c) => c.count > 0));
+  } catch (err) {
+    console.error("RootLayout listCategoriesWithCounts error:", err);
+  }
 
   return (
     <html lang="vi">
