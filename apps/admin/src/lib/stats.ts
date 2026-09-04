@@ -1,8 +1,9 @@
 import { prisma } from "@saltandlight/db";
+import { unstable_cache } from "next/cache";
 
 const REVENUE_STATUSES = ["processing", "completed"] as const;
 
-export async function getDashboardStats() {
+async function computeDashboardStats() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -83,3 +84,10 @@ export async function getDashboardStats() {
     revenueSeries,
   };
 }
+
+/** Cached dashboard stats (revalidates every 30s or on demand via tag 'dashboard-stats') */
+export const getDashboardStats = unstable_cache(
+  async () => computeDashboardStats(),
+  ["admin-dashboard-stats"],
+  { revalidate: 30, tags: ["dashboard-stats"] }
+);

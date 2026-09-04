@@ -11,7 +11,7 @@ export const metadata = {
   description:
     "Khám phá bộ sưu tập áo thun Cơ Đốc, túi tote canvas và quà tặng đức tin cao cấp tại Salt & Light.",
 };
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default function ProductsPage({ searchParams }: { searchParams: CatalogSearchParams }) {
   const filters = parseCatalogParams(searchParams);

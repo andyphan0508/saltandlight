@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 
-export const dynamic = "force-dynamic";
-import { listPublishedProducts } from "@/lib/queries";
+export const revalidate = 60;
+import { getCachedFeaturedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { ProductGrid } from "@/components/ProductGrid";
 import {
@@ -72,10 +72,10 @@ const REVIEWS = [
 export default async function HomePage() {
   let products: any[] = [];
   try {
-    const data = await listPublishedProducts({ pageSize: 8 });
+    const data = await getCachedFeaturedProducts(8);
     products = toPlain(data).products;
   } catch (err) {
-    console.error("HomePage listPublishedProducts error:", err);
+    console.error("HomePage getCachedFeaturedProducts error:", err);
   }
 
   return (

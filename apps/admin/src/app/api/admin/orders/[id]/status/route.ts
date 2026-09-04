@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/auth";
@@ -39,6 +40,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       entityId: params.id,
       metadata: { from: order.status, to: body.status },
     });
+
+    try {
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Revalidation
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

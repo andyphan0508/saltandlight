@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
@@ -92,6 +93,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       entityId: params.id,
     });
 
+    try {
+      revalidateTag("products");
+      revalidateTag("categories");
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Revalidation
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
@@ -116,6 +125,15 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
       entityType: "product",
       entityId: params.id,
     });
+
+    try {
+      revalidateTag("products");
+      revalidateTag("categories");
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Revalidation
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });

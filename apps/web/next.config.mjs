@@ -16,6 +16,8 @@ const nextConfig = {
   },
   transpilePackages: ["@saltandlight/db", "@saltandlight/domain", "@saltandlight/ui"],
   images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: "https",

@@ -5,12 +5,10 @@ declare global {
   var __prisma__: PrismaClient | undefined;
 }
 
-// Reuse a single client across hot-reloads / warm serverless invocations
-// so we don't exhaust the Supabase connection pool.
+// Reuse a single client across hot-reloads and warm serverless containers
+// to eliminate connection handshake overhead and conserve Supabase connections.
 export const prisma = globalThis.__prisma__ ?? new PrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalThis.__prisma__ = prisma;
-}
+globalThis.__prisma__ = prisma;
 
 export * from "@prisma/client";

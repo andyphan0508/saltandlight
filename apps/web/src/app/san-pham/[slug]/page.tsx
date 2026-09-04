@@ -1,20 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProductBySlug, getRelatedProducts } from "@/lib/queries";
+import { getCachedProductBySlug, getCachedRelatedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ChevronRight, Sparkles, Check, CrossIcon } from "@/components/Icons";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 export async function generateMetadata({
   params
 }: {
   params: { slug: string };
 }) {
-  const product = await getProductBySlug(params.slug);
+  const product = await getCachedProductBySlug(params.slug);
   return {
     title: product?.name
       ? `${product.name} · Áo Thun Cơ Đốc Salt & Light`
@@ -30,11 +30,11 @@ export default async function ProductDetailPage({
 }: {
   params: { slug: string };
 }) {
-  const product = await getProductBySlug(params.slug);
+  const product = await getCachedProductBySlug(params.slug);
   if (!product) notFound();
 
   const plain = toPlain(product);
-  const variants = plain.variants.map((v) => ({
+  const variants = plain.variants.map((v: any) => ({
     id: v.id,
     color: v.color,
     size: v.size,
@@ -44,7 +44,7 @@ export default async function ProductDetailPage({
   }));
 
   const relatedProducts = plain.categoryId
-    ? toPlain(await getRelatedProducts(plain.categoryId, plain.id, 4))
+    ? toPlain(await getCachedRelatedProducts(plain.categoryId, plain.id, 4))
     : [];
 
   return (

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
@@ -45,6 +46,12 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
       entityType: "payment_transaction",
       entityId: params.id,
     });
+
+    try {
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Revalidation
+    }
 
     try {
       await sendPaymentConfirmedEmail({

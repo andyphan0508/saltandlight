@@ -35,9 +35,9 @@ export default async function ProductsPage({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
       include: {
-        category: true,
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-        variants: true,
+        category: { select: { name: true } },
+        images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+        variants: { select: { price: true, compareAtPrice: true, stockQuantity: true } },
       },
     }),
     prisma.product.count({ where }),

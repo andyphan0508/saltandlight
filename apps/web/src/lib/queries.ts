@@ -167,3 +167,43 @@ export async function getRelatedProducts(
 
   return rows.map(toCardData);
 }
+
+// ── High-Performance Cached Queries (ISR / Edge Cache) ─────────────────
+import { unstable_cache } from "next/cache";
+
+/** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
+export const getCachedCategoriesWithCounts = unstable_cache(
+  async () => listCategoriesWithCounts(),
+  ["nav-categories-with-counts"],
+  { revalidate: 300, tags: ["categories"] }
+);
+
+/** Cached available sizes across active variants (cached 10 mins) */
+export const getCachedAvailableSizes = unstable_cache(
+  async () => listAvailableSizes(),
+  ["available-product-sizes"],
+  { revalidate: 600, tags: ["products"] }
+);
+
+/** Cached featured products for home page (cached 60s) */
+export const getCachedFeaturedProducts = unstable_cache(
+  async (pageSize = 8) => listPublishedProducts({ pageSize }),
+  ["homepage-featured-products"],
+  { revalidate: 60, tags: ["products"] }
+);
+
+/** Cached product detail by slug (cached 120s) */
+export const getCachedProductBySlug = (slug: string) =>
+  unstable_cache(
+    async () => getProductBySlug(slug),
+    ["product-detail", slug],
+    { revalidate: 120, tags: ["products", `product-${slug}`] }
+  )();
+
+/** Cached related products by category (cached 120s) */
+export const getCachedRelatedProducts = (categoryId: string, excludeId: string, limit = 4) =>
+  unstable_cache(
+    async () => getRelatedProducts(categoryId, excludeId, limit),
+    ["related-products", categoryId, excludeId, String(limit)],
+    { revalidate: 120, tags: ["products"] }
+  )();

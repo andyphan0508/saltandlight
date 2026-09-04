@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
@@ -59,9 +60,18 @@ export async function POST(req: NextRequest) {
       action: "product.create",
       entityType: "product",
       entityId: product.id,
+      metadata: { name: product.name, slug: product.slug },
     });
 
-    return NextResponse.json({ product });
+    try {
+      revalidateTag("products");
+      revalidateTag("categories");
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Background revalidation
+    }
+
+    return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
     if (err instanceof z.ZodError) return NextResponse.json({ error: err.flatten() }, { status: 400 });

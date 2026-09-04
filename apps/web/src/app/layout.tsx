@@ -7,7 +7,7 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
 import { NavigationProgress } from "@/components/NavigationProgress";
-import { listCategoriesWithCounts } from "@/lib/queries";
+import { getCachedCategoriesWithCounts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import "./globals.css";
 
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   let navCategories: any[] = [];
   try {
-    const { categories } = await listCategoriesWithCounts();
+    const { categories } = await getCachedCategoriesWithCounts();
     navCategories = toPlain(categories.filter((c) => c.count > 0));
   } catch (err) {
-    console.error("RootLayout listCategoriesWithCounts error:", err);
+    console.error("RootLayout getCachedCategoriesWithCounts error:", err);
   }
 
   return (
