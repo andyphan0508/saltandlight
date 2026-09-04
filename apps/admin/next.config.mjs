@@ -1,5 +1,19 @@
+import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    outputFileTracingRoot: path.join(__dirname, "../../"),
+    outputFileTracingIncludes: {
+      "/**": [
+        "../../node_modules/.pnpm/@prisma+client*/**/libquery_engine*",
+      ],
+    },
+  },
   transpilePackages: ["@saltandlight/db", "@saltandlight/domain", "@saltandlight/ui"],
   images: {
     remotePatterns: [
@@ -9,6 +23,12 @@ const nextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins, new PrismaPlugin()];
+    }
+    return config;
   },
   async headers() {
     return [
