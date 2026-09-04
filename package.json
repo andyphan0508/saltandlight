@@ -10,6 +10,9 @@
     "dev:web": "turbo run dev --filter=web",
     "dev:admin": "turbo run dev --filter=admin",
     "build": "turbo run build",
+    "build:cloudflare": "pnpm --filter web build:cloudflare",
+    "preview:cloudflare": "pnpm --filter web preview:cloudflare",
+    "deploy:cloudflare": "pnpm --filter web deploy:cloudflare",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -23,8 +26,13 @@
     "bootstrap:owner": "pnpm --filter @saltandlight/scripts bootstrap:owner"
   },
   "devDependencies": {
+    "prettier": "^3.3.3",
     "turbo": "^2.1.3",
-    "typescript": "^5.6.3",
-    "prettier": "^3.3.3"
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@opennextjs/aws": "patches/@opennextjs__aws.patch"
+    }
   }
 }

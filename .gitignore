@@ -9,6 +9,8 @@ out
 .env.*.local
 !.env.example
 .vercel
+.open-next
+.wrangler
 .turbo
 *.tsbuildinfo
 .DS_Store

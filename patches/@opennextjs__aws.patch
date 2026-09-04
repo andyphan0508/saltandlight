@@ -1,0 +1,13 @@
+diff --git a/dist/utils/regex.js b/dist/utils/regex.js
+index 30e328657e30b5acde3420cb880654578e55913b..8b9bb9a579d0167a2f57064fdaffe87a82c2b390 100644
+--- a/dist/utils/regex.js
++++ b/dist/utils/regex.js
+@@ -10,7 +10,7 @@
+  * getCrossPlatformPathRegex(String.raw`\./middleware\.(mjs|cjs)`, { escape: false })
+  * ```
+  */
+-export function getCrossPlatformPathRegex(regex, { escape: shouldEscape = true, flags = "g" } = {}) {
++export function getCrossPlatformPathRegex(regex, { escape: shouldEscape = true, flags = "" } = {}) {
+     const newExpr = (shouldEscape ? regex.replace(/([[\]().*+?^$|{}\\])/g, "\\$1") : regex).replaceAll("/", String.raw `(?:\/|\\)`);
+     return new RegExp(newExpr, flags);
+ }
