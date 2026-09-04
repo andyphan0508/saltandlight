@@ -13,6 +13,8 @@
     "@saltandlight/db": "workspace:*",
     "@saltandlight/domain": "workspace:*",
     "@saltandlight/ui": "workspace:*",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.4",
     "clsx": "^2.1.1",
     "next": "^14.2.15",
     "react": "^18.3.1",

@@ -47,18 +47,18 @@ const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
       count: 8,
     },
   },
-  {
-    id: "default-story-banner",
-    type: "STORY_BANNER",
-    content: {
-      icon: "CrossIcon",
-      quote: "Các con là muối của đất... Các con là ánh sáng của thế gian.",
-      quoteRef: "Ma-thi-ơ 5:13-14",
-      body: "Salt & Light ra đời với ước ao đem Lời Hằng Sống của Chúa hiện diện một cách gần gũi, chỉn chu và thẩm mỹ trong đời sống giới trẻ và cộng đồng Cơ Đốc Việt Nam. Mỗi chiếc áo, mỗi chiếc túi là một lời chứng sống động về đức tin, hy vọng và tình yêu thương.",
-      ctaLabel: "Đọc câu chuyện của Salt & Light",
-      ctaHref: "/gioi-thieu",
-    },
-  },
+  // {
+  //   id: "default-story-banner",
+  //   type: "STORY_BANNER",
+  //   content: {
+  //     icon: "CrossIcon",
+  //     quote: "Các con là muối của đất... Các con là ánh sáng của thế gian.",
+  //     quoteRef: "Ma-thi-ơ 5:13-14",
+  //     body: "Salt & Light ra đời với ước ao đem Lời Hằng Sống của Chúa hiện diện một cách gần gũi, chỉn chu và thẩm mỹ trong đời sống giới trẻ và cộng đồng Cơ Đốc Việt Nam. Mỗi chiếc áo, mỗi chiếc túi là một lời chứng sống động về đức tin, hy vọng và tình yêu thương.",
+  //     ctaLabel: "Đọc câu chuyện của Salt & Light",
+  //     ctaHref: "/gioi-thieu",
+  //   },
+  // },
   {
     id: "default-promo-cta",
     type: "PROMO_CTA",
