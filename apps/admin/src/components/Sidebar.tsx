@@ -16,6 +16,7 @@ import {
   History,
   LogOut,
   ExternalLink,
+  Sparkles,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -37,6 +38,7 @@ const NAV_GROUPS: {
     label: "Bán hàng",
     items: [
       { href: "/products", label: "Sản phẩm", icon: Package },
+      { href: "/banners", label: "Banner & Slider", icon: Sparkles },
       { href: "/orders", label: "Đơn hàng", icon: ShoppingCart },
       { href: "/payments", label: "Thanh toán", icon: Wallet },
     ],

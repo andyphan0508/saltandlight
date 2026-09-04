@@ -45,6 +45,7 @@ export interface ProductFormInitial {
   categoryId: string | null;
   status: "draft" | "published" | "archived";
   isNew: boolean;
+  isFeatured?: boolean;
   images: ImageRow[];
   variants: VariantRow[];
 }
@@ -99,6 +100,7 @@ export function ProductForm({
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? categories[0]?.id ?? "");
   const [status, setStatus] = useState(initial?.status ?? "draft");
   const [isNew, setIsNew] = useState(initial?.isNew ?? false);
+  const [isFeatured, setIsFeatured] = useState(initial?.isFeatured ?? false);
   const [images, setImages] = useState<ImageRow[]>(initial?.images ?? []);
   const [variants, setVariants] = useState<VariantRow[]>(
     initial?.variants ?? [{ ...emptyVariant }],
@@ -217,6 +219,7 @@ export function ProductForm({
       categoryId: categoryId || null,
       status,
       isNew,
+      isFeatured,
       images,
       variants: variants.map((v) => ({
         ...v,
@@ -298,15 +301,27 @@ export function ProductForm({
               <div className="mt-1 text-right text-[11px] text-ink/35">{description.length} ký tự</div>
             </Field>
           </div>
-          <label className="flex items-center gap-2 text-sm text-ink/70">
-            <input
-              type="checkbox"
-              checked={isNew}
-              onChange={(e) => setIsNew(e.target.checked)}
-              className="h-4 w-4 rounded accent-brand-forest"
-            />
-            Gắn nhãn &quot;NEW&quot; trên trang sản phẩm
-          </label>
+          <div className="md:col-span-2 flex flex-wrap items-center gap-4 pt-1">
+            <label className="flex items-center gap-2 text-sm text-ink/70 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isNew}
+                onChange={(e) => setIsNew(e.target.checked)}
+                className="h-4 w-4 rounded accent-brand-forest"
+              />
+              Gắn nhãn &quot;NEW&quot; trên trang sản phẩm
+            </label>
+
+            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-amber-900 bg-amber-50 border border-amber-200/80 px-3.5 py-1.5 rounded-xl cursor-pointer shadow-xs hover:bg-amber-100/70 transition-colors">
+              <input
+                type="checkbox"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                className="h-4 w-4 rounded accent-amber-500"
+              />
+              <span>★ Sản phẩm nổi bật (Ưu tiên hiển thị trang chủ)</span>
+            </label>
+          </div>
         </div>
       </Section>
 

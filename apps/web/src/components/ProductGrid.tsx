@@ -7,13 +7,13 @@ import type { ProductCardData } from "@/lib/types";
 
 const GRID_COLS: Record<string, string> = {
   "2": "grid-cols-2",
-  "3": "grid-cols-2 sm:grid-cols-3",
-  "4": "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+  "3": "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4",
+  "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5",
 };
 
 export function ProductGrid({
   products,
-  view = "3",
+  view = "4",
 }: {
   products: ProductCardData[];
   view?: "2" | "3" | "4" | "list";
@@ -52,7 +52,7 @@ export function ProductGrid({
   }
 
   return (
-    <div className={`grid gap-4 sm:gap-6 ${GRID_COLS[view] ?? GRID_COLS["3"]}`}>
+    <div className={`grid gap-2.5 sm:gap-4.5 ${GRID_COLS[view] ?? GRID_COLS["4"]}`}>
       {products.map((p) => (
         <ProductCard key={p.id} product={p} />
       ))}

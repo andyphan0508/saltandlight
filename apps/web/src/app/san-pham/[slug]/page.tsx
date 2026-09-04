@@ -15,7 +15,7 @@ export async function generateStaticParams() {
     const products = await prisma.product.findMany({
       where: { status: "published" },
       select: { slug: true },
-      take: 100,
+      take: 12,
     });
     return products.map((p) => ({ slug: p.slug }));
   } catch (err) {

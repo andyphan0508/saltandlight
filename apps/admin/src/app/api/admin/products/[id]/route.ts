@@ -41,6 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           categoryId: input.categoryId,
           status: input.status,
           isNew: input.isNew,
+          isFeatured: input.isFeatured,
           minPrice: priceRange.minPrice,
           maxCompareAtPrice: priceRange.maxCompareAtPrice,
         },

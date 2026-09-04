@@ -31,6 +31,7 @@ export default async function EditProductPage({ params }: { params: { id: string
           categoryId: plain.categoryId,
           status: plain.status,
           isNew: plain.isNew,
+          isFeatured: plain.isFeatured,
           images: plain.images.map((img) => ({
             url: img.url,
             sortOrder: img.sortOrder,

@@ -25,6 +25,7 @@ function toCardData(p: {
   name: string;
   slug: string;
   isNew: boolean;
+  isFeatured?: boolean;
   images: { url: string }[];
   minPrice: Prisma.Decimal | null;
   maxCompareAtPrice: Prisma.Decimal | null;
@@ -34,6 +35,7 @@ function toCardData(p: {
     name: p.name,
     slug: p.slug,
     isNew: p.isNew,
+    isFeatured: p.isFeatured ?? false,
     imageUrl: p.images[0]?.url ?? null,
     minPrice: p.minPrice ? Number(p.minPrice) : 0,
     maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
@@ -81,6 +83,7 @@ export async function listPublishedProducts(
         name: true,
         slug: true,
         isNew: true,
+        isFeatured: true,
         minPrice: true,
         maxCompareAtPrice: true,
         images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
@@ -185,9 +188,57 @@ export const getCachedAvailableSizes = unstable_cache(
   { revalidate: 600, tags: ["products"] }
 );
 
-/** Cached featured products for home page (cached 60s) */
+/** Cached featured products for home page: prioritizes products with isFeatured = true (cached 60s) */
 export const getCachedFeaturedProducts = unstable_cache(
-  async (pageSize = 8) => listPublishedProducts({ pageSize }),
+  async (pageSize = 10) => {
+    // 1. Fetch explicitly marked featured products
+    const featuredRows = await prisma.product.findMany({
+      where: { status: "published", isFeatured: true },
+      orderBy: { updatedAt: "desc" },
+      take: pageSize,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isNew: true,
+        isFeatured: true,
+        minPrice: true,
+        maxCompareAtPrice: true,
+        images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+      },
+    });
+
+    // 2. If fewer than pageSize, backfill with newest published products
+    let rows = featuredRows;
+    if (featuredRows.length < pageSize) {
+      const remaining = pageSize - featuredRows.length;
+      const excludedIds = featuredRows.map((f) => f.id);
+      const backfill = await prisma.product.findMany({
+        where: {
+          status: "published",
+          id: { notIn: excludedIds },
+        },
+        orderBy: { createdAt: "desc" },
+        take: remaining,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          isNew: true,
+          isFeatured: true,
+          minPrice: true,
+          maxCompareAtPrice: true,
+          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+        },
+      });
+      rows = [...featuredRows, ...backfill];
+    }
+
+    return {
+      products: rows.map(toCardData),
+      total: rows.length,
+    };
+  },
   ["homepage-featured-products"],
   { revalidate: 60, tags: ["products"] }
 );
@@ -244,3 +295,19 @@ export const getCachedActiveShippingMethods = unstable_cache(
   ["active-shipping-methods"],
   { revalidate: 600, tags: ["shipping"] }
 );
+
+/** List active banners for homepage slider */
+export async function listBanners() {
+  return prisma.banner.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
+/** Cached active banners for hero slider (cached 60s) */
+export const getCachedBanners = unstable_cache(
+  async () => listBanners(),
+  ["homepage-hero-banners"],
+  { revalidate: 60, tags: ["banners"] }
+);
+

@@ -5,6 +5,7 @@ import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
 import { Plus, Search, ImageOff } from "@/components/Icons";
+import { FeaturedToggle } from "@/components/FeaturedToggle";
 
 const PAGE_SIZE = 10;
 
@@ -34,7 +35,11 @@ export default async function ProductsPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        isFeatured: true,
         category: { select: { name: true } },
         images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
         variants: { select: { price: true, compareAtPrice: true, stockQuantity: true } },
@@ -97,6 +102,7 @@ export default async function ProductsPage({
                 <th className="px-5 py-3.5">Danh mục</th>
                 <th className="px-5 py-3.5">Giá bán</th>
                 <th className="px-5 py-3.5">Tồn kho</th>
+                <th className="px-5 py-3.5 text-center">Nổi bật</th>
                 <th className="px-5 py-3.5 text-right">Trạng thái</th>
               </tr>
             </thead>
@@ -171,6 +177,11 @@ export default async function ProductsPage({
                         {stock} cái
                       </span>
                     </td>
+                    <td className="px-5 py-3.5 text-center">
+                      <div className="flex justify-center">
+                        <FeaturedToggle productId={p.id} initialFeatured={p.isFeatured} />
+                      </div>
+                    </td>
                     <td className="px-5 py-3.5 text-right">
                       <span
                         className={`inline-block rounded-full border px-3 py-0.5 text-[11px] font-bold ${statusMeta.className}`}
@@ -183,7 +194,7 @@ export default async function ProductsPage({
               })}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
                     Không tìm thấy sản phẩm nào.
                   </td>
                 </tr>

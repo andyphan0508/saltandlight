@@ -18,6 +18,7 @@ export const productInputSchema = z.object({
   categoryId: z.string().uuid().optional().nullable(),
   status: z.enum(["draft", "published", "archived"]),
   isNew: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
   images: z.array(z.object({ url: z.string().url(), sortOrder: z.number().int() })),
   variants: z.array(variantInputSchema).min(1),
 });

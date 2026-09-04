@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         categoryId: input.categoryId,
         status: input.status,
         isNew: input.isNew,
+        isFeatured: input.isFeatured,
         minPrice: priceRange.minPrice,
         maxCompareAtPrice: priceRange.maxCompareAtPrice,
         images: { create: input.images },
