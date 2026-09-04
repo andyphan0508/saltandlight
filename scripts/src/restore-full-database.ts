@@ -16,6 +16,7 @@
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
 import { createClient } from "@supabase/supabase-js";
+import { restoreCustomersAndOrders } from "./restore-customers-orders";
 
 const SUPABASE_URL = "https://aydjehngunstuhkmdmqs.supabase.co";
 const SERVICE_KEY =
@@ -332,9 +333,11 @@ async function main() {
   await restoreBanners();
   await restoreShipping();
   await restoreAdminOwner();
+  console.log("6. Restoring customer accounts and orders from WooCommerce...");
+  await restoreCustomersAndOrders();
 
   // Check final counts
-  const [categories, products, variants, banners, shipping, adminUsers, blocks] =
+  const [categories, products, variants, banners, shipping, adminUsers, blocks, customers, orders] =
     await Promise.all([
       prisma.category.count(),
       prisma.product.count(),
@@ -343,6 +346,8 @@ async function main() {
       prisma.shippingMethod.count(),
       prisma.adminUser.count(),
       prisma.pageBlock.count(),
+      prisma.customer.count(),
+      prisma.order.count(),
     ]);
 
   console.log("\n==================================================");
@@ -355,6 +360,8 @@ async function main() {
     shipping,
     adminUsers,
     blocks,
+    customers,
+    orders,
   });
   console.log("==================================================");
 }
