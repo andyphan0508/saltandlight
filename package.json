@@ -18,6 +18,7 @@
     "db:deploy": "pnpm --filter @saltandlight/db deploy",
     "db:seed": "pnpm --filter @saltandlight/db seed",
     "db:studio": "pnpm --filter @saltandlight/db studio",
+    "db:restore": "pnpm --filter @saltandlight/scripts exec tsx src/restore-full-database.ts",
     "migrate:woocommerce": "pnpm --filter @saltandlight/scripts migrate:woocommerce",
     "bootstrap:owner": "pnpm --filter @saltandlight/scripts bootstrap:owner"
   },

@@ -352,3 +352,31 @@ model Banner {
   @@map("banners")
 }
 
+// ── Page content blocks ────────────────────────────────────────────
+
+enum PageBlockType {
+  FEATURE_CARDS
+  FEATURED_PRODUCTS
+  STORY_BANNER
+  PROMO_CTA
+  TESTIMONIALS
+  PAGE_HERO
+  RICH_TEXT_SECTIONS
+  CONTACT_INFO
+  CTA_BANNER
+}
+
+model PageBlock {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  page      String
+  type      PageBlockType
+  sortOrder Int           @default(0) @map("sort_order")
+  isVisible Boolean       @default(true) @map("is_visible")
+  content   Json          @default("{}")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@index([page, sortOrder])
+  @@map("page_blocks")
+}
+

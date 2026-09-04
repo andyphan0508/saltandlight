@@ -311,3 +311,19 @@ export const getCachedBanners = unstable_cache(
   { revalidate: 60, tags: ["banners"] }
 );
 
+/** List visible content blocks for a page, in display order */
+export async function listPageBlocks(page: string) {
+  return prisma.pageBlock.findMany({
+    where: { page, isVisible: true },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
+/** Cached page blocks (cached 60s, tagged per-page for targeted revalidation) */
+export const getCachedPageBlocks = (page: string) =>
+  unstable_cache(
+    async () => listPageBlocks(page),
+    ["page-blocks", page],
+    { revalidate: 60, tags: ["page-blocks", `page-blocks-${page}`] }
+  )();
+

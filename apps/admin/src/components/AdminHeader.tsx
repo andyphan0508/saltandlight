@@ -48,6 +48,8 @@ export function AdminHeader({
     payments: "Thanh toán",
     shipping: "Vận chuyển",
     customers: "Khách hàng",
+    banners: "Banner & Slider",
+    "page-builder": "Xây dựng trang",
     users: "Nhân viên",
     "audit-log": "Nhật ký"
   };

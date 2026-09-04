@@ -39,6 +39,7 @@ const NAV_GROUPS: {
     items: [
       { href: "/products", label: "Sản phẩm", icon: Package },
       { href: "/banners", label: "Banner & Slider", icon: Sparkles },
+      { href: "/page-builder", label: "Xây dựng trang", icon: LayoutGrid },
       { href: "/orders", label: "Đơn hàng", icon: ShoppingCart },
       { href: "/payments", label: "Thanh toán", icon: Wallet },
     ],

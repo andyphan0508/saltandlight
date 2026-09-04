@@ -5,7 +5,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "migrate:woocommerce": "tsx src/migrate-woocommerce.ts",
-    "bootstrap:owner": "tsx src/bootstrap-owner.ts"
+    "bootstrap:owner": "tsx src/bootstrap-owner.ts",
+    "seed:page-blocks": "tsx src/seed-page-blocks.ts"
   },
   "dependencies": {
     "@saltandlight/db": "workspace:*",
