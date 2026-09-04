@@ -1,19 +1,38 @@
 import { createJSONStorage } from "zustand/middleware";
 
 /**
- * SSR-safe storage adapter for Zustand persist middleware.
- * Prevents Node 22+ ExperimentalWarning: localStorage is not available.
+ * SSR and browser-privacy safe storage adapter for Zustand persist middleware.
+ * Prevents Node 22+ ExperimentalWarning: localStorage is not available,
+ * and guards against Firefox DOMException: "The operation is insecure."
+ * when storage or cookies are blocked.
  */
 export const safeLocalStorage = createJSONStorage(() => {
   if (typeof window !== "undefined") {
-    return window.localStorage;
+    try {
+      const testKey = "__sl_test__";
+      window.localStorage.setItem(testKey, "1");
+      window.localStorage.removeItem(testKey);
+      return window.localStorage;
+    } catch {
+      // Firefox SecurityError or privacy mode: fallback to memory storage
+    }
   }
+
+  const memory = new Map<string, string>();
   return {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
-    key: () => null,
-    length: 0,
+    getItem: (key: string) => memory.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      memory.set(key, value);
+    },
+    removeItem: (key: string) => {
+      memory.delete(key);
+    },
+    clear: () => {
+      memory.clear();
+    },
+    key: (index: number) => Array.from(memory.keys())[index] ?? null,
+    get length() {
+      return memory.size;
+    },
   } as unknown as Storage;
 });

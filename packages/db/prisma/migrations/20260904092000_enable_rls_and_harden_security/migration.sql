@@ -1,27 +1,26 @@
--- Enable Row Level Security on all public tables
--- Prisma connects directly using the superuser 'postgres' (which bypasses RLS).
--- This protects Supabase's auto-generated PostgREST REST API from being queried
--- or tampered with by anyone using the public NEXT_PUBLIC_SUPABASE_ANON_KEY.
+-- Ensure schema public grants and privileges are accessible to Supabase Studio & client
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role, postgres;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role, postgres;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role, postgres;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role, postgres;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role, postgres;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role, postgres;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role, postgres;
 
-ALTER TABLE "categories" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "products" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "product_images" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "product_variants" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "product_bundles" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "product_bundle_items" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "customers" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "customer_addresses" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "admin_users" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "orders" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "order_items" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "order_status_history" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "payment_transactions" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "shipping_zones" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "shipping_methods" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "audit_logs" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "contact_submissions" ENABLE ROW LEVEL SECURITY;
-
--- Revoke all direct PostgREST access on public tables for anon and authenticated roles
-REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
-REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
-REVOKE ALL ON ALL ROUTINES IN SCHEMA public FROM anon, authenticated;
+ALTER TABLE "categories" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "products" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "product_images" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "product_variants" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "product_bundles" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "product_bundle_items" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "customers" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "customer_addresses" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "admin_users" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "orders" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "order_items" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "order_status_history" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "payment_transactions" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "shipping_zones" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "shipping_methods" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "audit_logs" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE "contact_submissions" DISABLE ROW LEVEL SECURITY;
