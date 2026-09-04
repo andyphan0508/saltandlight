@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const ids = req.nextUrl.searchParams.get("ids");
   const categorySlug = req.nextUrl.searchParams.get("category") ?? undefined;

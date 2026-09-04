@@ -10,6 +10,8 @@ const bodySchema = z.object({
   isActive: z.boolean(),
 });
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const admin = await requireAdmin(["owner"]);

@@ -6,13 +6,22 @@ import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { productInputSchema } from "@/lib/schemas";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const product = await prisma.product.findUnique({
-    where: { id: params.id },
-    include: { images: { orderBy: { sortOrder: "asc" } }, variants: true },
-  });
-  if (!product) return NextResponse.json({ error: "Không tìm thấy sản phẩm" }, { status: 404 });
-  return NextResponse.json({ product });
+  try {
+    await requireAdmin(["owner", "staff"]);
+    const product = await prisma.product.findUnique({
+      where: { id: params.id },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true },
+    });
+    if (!product) return NextResponse.json({ error: "Không tìm thấy sản phẩm" }, { status: 404 });
+    return NextResponse.json({ product });
+  } catch (err) {
+    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
+    console.error(err);
+    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {

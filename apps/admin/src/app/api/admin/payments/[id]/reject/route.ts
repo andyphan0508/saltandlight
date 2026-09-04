@@ -3,6 +3,8 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const admin = await requireAdmin();

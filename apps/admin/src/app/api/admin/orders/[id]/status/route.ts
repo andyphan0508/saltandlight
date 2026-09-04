@@ -9,6 +9,8 @@ const bodySchema = z.object({
   note: z.string().max(500).optional(),
 });
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const admin = await requireAdmin();

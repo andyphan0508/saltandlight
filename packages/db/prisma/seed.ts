@@ -163,7 +163,7 @@ async function main() {
         zoneId: zone.id,
         type: "free_shipping",
         fee: 0,
-        freeThreshold: 500000,
+        freeThreshold: 299000,
       },
     ],
   });

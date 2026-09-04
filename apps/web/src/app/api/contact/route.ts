@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { contactFormSchema } from "@saltandlight/domain";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = contactFormSchema.safeParse(body);

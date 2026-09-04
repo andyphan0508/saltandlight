@@ -20,6 +20,9 @@
     "WOO_COMMERCE_CONSUMER_SECRET"
   ],
   "tasks": {
+    "@saltandlight/db#build": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]

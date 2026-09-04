@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = cartQuoteSchema.safeParse(body);

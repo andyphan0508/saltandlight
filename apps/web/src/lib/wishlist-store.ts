@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { safeLocalStorage } from "./safe-storage";
 
 interface WishlistState {
   productIds: string[];
@@ -23,6 +24,9 @@ export const useWishlistStore = create<WishlistState>()(
       has: (productId) => get().productIds.includes(productId),
       clear: () => set({ productIds: [] }),
     }),
-    { name: "sl-wishlist" },
+    {
+      name: "sl-wishlist",
+      storage: safeLocalStorage,
+    },
   ),
 );

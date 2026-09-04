@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { safeLocalStorage } from "./safe-storage";
 
 export interface CartLine {
   productVariantId: string;
@@ -49,6 +50,9 @@ export const useCartStore = create<CartState>()(
         })),
       clear: () => set({ lines: [] }),
     }),
-    { name: "sl-cart" },
+    {
+      name: "sl-cart",
+      storage: safeLocalStorage,
+    },
   ),
 );

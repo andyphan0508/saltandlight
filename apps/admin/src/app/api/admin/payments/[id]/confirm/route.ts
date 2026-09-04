@@ -4,6 +4,8 @@ import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { sendPaymentConfirmedEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const admin = await requireAdmin();
@@ -44,10 +46,14 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
       entityId: params.id,
     });
 
-    sendPaymentConfirmedEmail({
-      orderNumber: payment.order.orderNumber,
-      customerEmail: payment.order.customer.email,
-    }).catch((err) => console.error("sendPaymentConfirmedEmail failed", err));
+    try {
+      await sendPaymentConfirmedEmail({
+        orderNumber: payment.order.orderNumber,
+        customerEmail: payment.order.customer.email,
+      });
+    } catch (err) {
+      console.error("sendPaymentConfirmedEmail failed", err);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

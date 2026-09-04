@@ -36,9 +36,14 @@ export async function middleware(request: NextRequest) {
   );
   const isApi = request.nextUrl.pathname.startsWith("/api");
 
-  // Redirects build a brand-new response, so any session cookie refreshed
-  // above by getUser() has to be copied over or it's silently dropped.
-  if (!user && !isPublic && !isApi) {
+  // Block unauthenticated requests: 401 JSON for API calls, redirect to /login for pages
+  if (!user && !isPublic) {
+    if (isApi) {
+      return NextResponse.json(
+        { error: "Chưa đăng nhập hoặc phiên làm việc đã hết hạn" },
+        { status: 401 }
+      );
+    }
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("next", request.nextUrl.pathname);
     const redirectResponse = NextResponse.redirect(redirectUrl);

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listPublishedProducts } from "@/lib/queries";
 
+export const dynamic = "force-dynamic";
+
 /** Lightweight preview results for the Spotlight-style search overlay — full results live at /san-pham?q=. */
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim();

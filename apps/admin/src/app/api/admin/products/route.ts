@@ -6,12 +6,21 @@ import { requireAdmin, AuthError } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { productInputSchema } from "@/lib/schemas";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { category: true, images: { orderBy: { sortOrder: "asc" }, take: 1 }, variants: true },
-  });
-  return NextResponse.json({ products });
+  try {
+    await requireAdmin(["owner", "staff"]);
+    const products = await prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { category: true, images: { orderBy: { sortOrder: "asc" }, take: 1 }, variants: true },
+    });
+    return NextResponse.json({ products });
+  } catch (err) {
+    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
+    console.error(err);
+    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {

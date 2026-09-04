@@ -9,6 +9,8 @@ import {
 } from "@saltandlight/domain";
 import { sendOrderCreatedEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = createOrderSchema.safeParse(body);
@@ -130,11 +132,15 @@ export async function POST(req: NextRequest) {
       ? buildVietQrUrl(vietqr, { amount: total, addInfo: transferContent })
       : null;
 
-  sendOrderCreatedEmail({
-    orderNumber: order.orderNumber,
-    customerEmail: customer.email || null,
-    total,
-  }).catch((err) => console.error("sendOrderCreatedEmail failed", err));
+  try {
+    await sendOrderCreatedEmail({
+      orderNumber: order.orderNumber,
+      customerEmail: customer.email || null,
+      total,
+    });
+  } catch (err) {
+    console.error("sendOrderCreatedEmail failed", err);
+  }
 
   return NextResponse.json({
     orderNumber: order.orderNumber,

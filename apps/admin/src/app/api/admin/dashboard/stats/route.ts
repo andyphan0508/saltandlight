@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { requireAdmin, AuthError } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/stats";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     await requireAdmin();

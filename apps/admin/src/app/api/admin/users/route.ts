@@ -11,9 +11,18 @@ const bodySchema = z.object({
   role: z.enum(["owner", "staff"]),
 });
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  const users = await prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } });
-  return NextResponse.json({ users });
+  try {
+    await requireAdmin(["owner"]);
+    const users = await prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } });
+    return NextResponse.json({ users });
+  } catch (err) {
+    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
+    console.error(err);
+    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {

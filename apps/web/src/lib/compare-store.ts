@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { safeLocalStorage } from "./safe-storage";
 
 const MAX_COMPARE = 4;
 
@@ -27,6 +28,9 @@ export const useCompareStore = create<CompareState>()(
       has: (productId) => get().productIds.includes(productId),
       clear: () => set({ productIds: [] }),
     }),
-    { name: "sl-compare" },
+    {
+      name: "sl-compare",
+      storage: safeLocalStorage,
+    },
   ),
 );
