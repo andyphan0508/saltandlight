@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { SITE_URL } from "@/lib/site-url";
-import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut } from "./Icons";
+import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut, KeyRound } from "./Icons";
+import { ChangePasswordModal } from "./ChangePasswordModal";
 
 export function AdminHeader({
   email,
@@ -19,6 +20,7 @@ export function AdminHeader({
   const pathname = usePathname();
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const displayName = fullName || email.split("@")[0] || email;
@@ -170,13 +172,24 @@ export function AdminHeader({
                   <p className="text-[11px] text-slate-400 truncate">{email}</p>
                 </div>
                 <div className="py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setChangePasswordOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <KeyRound size={14} className="text-slate-400" />
+                    <span>Đổi mật khẩu</span>
+                  </button>
                   <a
                     href={SITE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                   >
-                    <ExternalLink size={14} />
+                    <ExternalLink size={14} className="text-slate-400" />
                     <span>Mở storefront</span>
                   </a>
                 </div>
@@ -194,6 +207,12 @@ export function AdminHeader({
           )}
         </div>
       </div>
+
+      <ChangePasswordModal
+        isOpen={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
+        isSelf={true}
+      />
     </header>
   );
 }
