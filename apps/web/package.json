@@ -6,8 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "build:cloudflare": "opennextjs-cloudflare",
-    "preview:cloudflare": "opennextjs-cloudflare preview",
-    "deploy:cloudflare": "wrangler pages deploy .open-next/assets",
+    "preview:cloudflare": "npm run build:cloudflare && wrangler dev",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
     "start": "next start -p 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
