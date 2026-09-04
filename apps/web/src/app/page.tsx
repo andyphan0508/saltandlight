@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { HeroSlider } from "@/components/HeroSlider";
-import { getCachedFeaturedProducts, getCachedBanners } from "@/lib/queries";
+import { getCachedFeaturedProducts, listBanners } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { ProductGrid } from "@/components/ProductGrid";
 import {
@@ -51,7 +53,7 @@ export default async function HomePage() {
   let banners: any[] = [];
   try {
     const [bannersData, productsData] = await Promise.all([
-      getCachedBanners(),
+      listBanners(),
       getCachedFeaturedProducts(10),
     ]);
     banners = toPlain(bannersData);

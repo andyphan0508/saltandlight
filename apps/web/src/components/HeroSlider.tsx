@@ -9,33 +9,33 @@ import type { BannerData } from "@/lib/types";
 const DEFAULT_SLIDES: BannerData[] = [
   {
     id: "default-1",
-    title: "Áo Thun Người Lớn",
+    title: "ÁO THUN NGƯỜI LỚN",
     subtitle: "Form Regular Fit Unisex 100% Cotton 4 chiều, in Lời Chúa sắc nét bền màu",
     badge: "BÁN CHẠY NHẤT",
     linkUrl: "/danh-muc/ao-thun",
-    bgGradient: "from-[#d8edd9] via-[#eaf5eb] to-[#faf9f6]",
+    bgGradient: "from-brand-forest/90 via-emerald-900/80 to-slate-950",
     imageUrl: null,
     sortOrder: 1,
     isActive: true,
   },
   {
     id: "default-2",
-    title: "Áo Thun Cho Bé",
+    title: "ÁO THUN CHO BÉ",
     subtitle: "Cotton tự nhiên mềm mại, thoáng mát, dịu êm an toàn cho làn da nhạy cảm",
     badge: "DỄ THƯƠNG & Ý NGHĨA",
     linkUrl: "/danh-muc/ao-thun-cho-be",
-    bgGradient: "from-[#fde2e4] via-[#fff1f2] to-[#faf9f6]",
+    bgGradient: "from-rose-950/90 via-pink-900/80 to-slate-950",
     imageUrl: null,
     sortOrder: 2,
     isActive: true,
   },
   {
     id: "default-3",
-    title: "Túi Tote Canvas",
+    title: "TÚI TOTE CANVAS",
     subtitle: "Vải bố dệt mộc dày dặn, quai may chịu lực, in thông điệp Đức Tin đồng hành mỗi ngày",
     badge: "PHỤ KIỆN THƯỜNG NHẬT",
     linkUrl: "/danh-muc/tui-canvas",
-    bgGradient: "from-[#fef3c7] via-[#fffbeb] to-[#faf9f6]",
+    bgGradient: "from-amber-950/90 via-stone-900/80 to-zinc-950",
     imageUrl: null,
     sortOrder: 3,
     isActive: true,
@@ -59,10 +59,10 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
     setCurrent((prev) => (prev - 1 + total) % total);
   }, [total]);
 
-  // Autoplay
+  // Autoplay - slowed down to 7.5s for a calm, seamless experience
   useEffect(() => {
     if (isPaused || total <= 1) return;
-    const timer = setInterval(nextSlide, 5500);
+    const timer = setInterval(nextSlide, 7500);
     return () => clearInterval(timer);
   }, [isPaused, nextSlide, total]);
 
@@ -88,108 +88,90 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
 
   return (
     <div
-      className="relative w-full overflow-hidden select-none bg-cream"
+      className="relative w-full overflow-hidden select-none bg-slate-950"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slide Viewport */}
-      <div className="relative w-full min-h-[440px] sm:min-h-[500px] lg:min-h-[560px] flex items-center">
+      {/* Full-width Panoramic Widescreen Slide Viewport */}
+      <div className="relative w-full h-[340px] sm:h-[440px] md:h-[500px] lg:h-[560px] xl:h-[620px]">
         {slides.map((slide, index) => {
           const isActive = index === current;
-          const bgGradient = slide.bgGradient || "from-[#e6f2e8] via-[#f4f9f5] to-[#faf9f6]";
+          const bgGradient = slide.bgGradient || "from-brand-forest/90 via-emerald-900/80 to-slate-950";
 
           return (
             <div
               key={slide.id}
-              className={`absolute inset-0 w-full h-full flex items-center transition-all duration-700 ease-out bg-gradient-to-r ${bgGradient} ${
-                isActive
-                  ? "opacity-100 translate-x-0 z-10 pointer-events-auto"
-                  : "opacity-0 translate-x-8 z-0 pointer-events-none"
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
               }`}
             >
-              {/* Background ambient lighting */}
-              <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-white/40 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-10 w-72 h-72 rounded-full bg-brand-forest/5 blur-2xl pointer-events-none" />
+              {/* Full Bleed Banner Image stretching across the entire width */}
+              {slide.imageUrl ? (
+                <div
+                  className={`absolute inset-0 w-full h-full transform transition-transform duration-7000 ease-out ${
+                    isActive ? "scale-105" : "scale-100"
+                  }`}
+                >
+                  <Image
+                    src={slide.imageUrl}
+                    alt={slide.title}
+                    fill
+                    priority={index === 0}
+                    sizes="100vw"
+                    className="object-cover object-center"
+                  />
+                  {/* Subtle dark gradient overlay on left for crystal-clear readability while letting the banner shine */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/10 sm:from-black/75 sm:via-black/35 sm:to-transparent" />
+                </div>
+              ) : (
+                /* Fallback gradient if no image */
+                <div className={`absolute inset-0 w-full h-full bg-gradient-to-r ${bgGradient}`}>
+                  <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-10 w-72 h-72 rounded-full bg-brand-forest/20 blur-2xl pointer-events-none" />
+                </div>
+              )}
 
-              <div className="relative mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                <div className="grid lg:grid-cols-12 items-center gap-8 lg:gap-12">
-                  {/* Left Content */}
-                  <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
-                    {/* Badge */}
-                    {slide.badge && (
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1 text-[11px] sm:text-xs font-black uppercase tracking-wider text-ink shadow-sm border border-ink/5">
-                        <Sparkles size={13} className="text-brand-forest" />
-                        <span>{slide.badge}</span>
-                      </div>
-                    )}
-
-                    {/* Big Bold Vietnamese Typography */}
-                    <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-ink leading-[1.1]">
-                      {slide.title}
-                    </h1>
-
-                    {/* Subtitle */}
-                    {slide.subtitle && (
-                      <p className="text-sm sm:text-base lg:text-lg text-ink/75 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                        {slide.subtitle}
-                      </p>
-                    )}
-
-                    {/* CTA Button */}
-                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-                      <Link
-                        href={slide.linkUrl || "/san-pham"}
-                        className="inline-flex items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider text-white shadow-md hover:bg-brand-forest hover:shadow-lg transition-all duration-200 active:scale-95 group"
-                      >
-                        <span>Khám phá ngay</span>
-                        <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                      </Link>
-                      <Link
-                        href="/san-pham"
-                        className="inline-flex items-center gap-2 rounded-full bg-white/80 hover:bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-ink transition-all border border-ink/10"
-                      >
-                        <span>Xem tất cả sản phẩm</span>
-                      </Link>
-                    </div>
+              {/* Foreground Typography & Call To Action */}
+              <div className="relative mx-auto max-w-7xl w-full h-full px-5 sm:px-8 lg:px-12 flex flex-col justify-center items-start text-white z-10">
+                {/* Badge */}
+                {slide.badge && (
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white border border-white/20 mb-2.5 sm:mb-4 shadow-sm">
+                    <Sparkles size={13} className="text-amber-300" />
+                    <span>{slide.badge}</span>
                   </div>
+                )}
 
-                  {/* Right Showcase Visual */}
-                  <div className="lg:col-span-5 hidden lg:flex items-center justify-center">
-                    <div className="relative w-72 h-72 sm:w-80 sm:h-80 rounded-3xl bg-white/70 backdrop-blur-md p-6 shadow-card border border-white/60 flex flex-col items-center justify-center text-center space-y-4 hover:shadow-card-hover transition-all">
-                      {slide.imageUrl ? (
-                        <div className="relative w-full h-full overflow-hidden rounded-2xl">
-                          <Image
-                            src={slide.imageUrl}
-                            alt={slide.title}
-                            fill
-                            priority
-                            className="object-cover rounded-2xl"
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 rounded-2xl bg-mint-100 flex items-center justify-center text-brand-forest">
-                            <Sparkles size={32} />
-                          </div>
-                          <div>
-                            <span className="text-[11px] font-black uppercase tracking-widest text-brand-forest block">
-                              Bộ sưu tập cao cấp
-                            </span>
-                            <h3 className="font-display text-xl font-black uppercase text-ink mt-1">
-                              {slide.title}
-                            </h3>
-                            <p className="text-xs text-ink/60 mt-1">100% Cotton • Chuẩn form Unisex</p>
-                          </div>
-                          <span className="inline-block rounded-full bg-ink/5 px-3 py-1 text-[11px] font-bold text-ink/70">
-                            Đồng giá ship 19K toàn quốc
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                {/* Big Vietnamese Headline */}
+                <h2 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight drop-shadow-md max-w-2xl">
+                  {slide.title}
+                </h2>
+
+                {/* Subtitle */}
+                {slide.subtitle && (
+                  <p className="mt-2 sm:mt-3 text-xs sm:text-base lg:text-lg text-white/90 max-w-xl leading-relaxed drop-shadow-sm font-medium">
+                    {slide.subtitle}
+                  </p>
+                )}
+
+                {/* CTA Buttons */}
+                <div className="mt-5 sm:mt-8 flex flex-wrap items-center gap-3">
+                  <Link
+                    href={slide.linkUrl || "/san-pham"}
+                    className="inline-flex items-center gap-2.5 rounded-full bg-white text-ink px-6 py-3 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider shadow-xl hover:bg-mint-100 hover:scale-105 transition-all duration-300 active:scale-95 group"
+                  >
+                    <span>Khám phá ngay</span>
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  </Link>
+
+                  <Link
+                    href="/san-pham"
+                    className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold tracking-wide border border-white/25 transition-all"
+                  >
+                    <span>Xem tất cả</span>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -204,34 +186,32 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
             type="button"
             onClick={prevSlide}
             aria-label="Slide trước"
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 hover:bg-white text-ink shadow-md backdrop-blur border border-ink/5 transition-all active:scale-90"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white shadow-lg backdrop-blur-md border border-white/15 transition-all active:scale-90"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={22} />
           </button>
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Slide tiếp theo"
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/80 hover:bg-white text-ink shadow-md backdrop-blur border border-ink/5 transition-all active:scale-90"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white shadow-lg backdrop-blur-md border border-white/15 transition-all active:scale-90"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={22} />
           </button>
         </>
       )}
 
-      {/* Slide Indicators Dots & Progress */}
+      {/* Pagination Dots Indicator */}
       {total > 1 && (
-        <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-20 flex items-center justify-center gap-2">
-          {slides.map((_, idx) => (
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
+          {slides.map((_, i) => (
             <button
-              key={idx}
+              key={i}
               type="button"
-              onClick={() => setCurrent(idx)}
-              aria-label={`Đi tới slide ${idx + 1}`}
-              className={`transition-all duration-300 rounded-full ${
-                idx === current
-                  ? "w-8 h-2.5 bg-ink"
-                  : "w-2.5 h-2.5 bg-ink/20 hover:bg-ink/40"
+              onClick={() => setCurrent(i)}
+              aria-label={`Đi tới slide ${i + 1}`}
+              className={`h-2 rounded-full transition-all duration-500 ${
+                i === current ? "w-7 bg-white shadow-sm" : "w-2 bg-white/40 hover:bg-white/70"
               }`}
             />
           ))}

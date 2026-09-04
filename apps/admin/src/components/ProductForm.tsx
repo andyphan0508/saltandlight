@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
+import { toast } from "sonner";
 import {
   Plus,
   Trash2,
@@ -237,9 +238,12 @@ export function ProductForm({
     const data = await res.json();
     setSaving(false);
     if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : JSON.stringify(data.error));
+      const errText = typeof data.error === "string" ? data.error : JSON.stringify(data.error);
+      setError(errText);
+      toast.error(errText || "Không thể lưu thông tin sản phẩm");
       return;
     }
+    toast.success(initial?.id ? "Cập nhật sản phẩm thành công!" : "Tạo sản phẩm mới thành công!");
     router.push("/products");
     router.refresh();
   }

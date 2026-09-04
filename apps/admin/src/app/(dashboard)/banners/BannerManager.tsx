@@ -16,7 +16,8 @@ import {
   Check,
   Eye,
 } from "@/components/Icons";
-import { SITE_URL } from "@/lib/site-url";
+import { toast } from "sonner";
+import { SITE_URL, getStorefrontUrl } from "@/lib/site-url";
 
 export interface BannerItem {
   id: string;
@@ -106,12 +107,14 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
         body: JSON.stringify({ isActive: nextActive }),
       });
       if (!res.ok) throw new Error("Cập nhật thất bại");
+      toast.success(nextActive ? "Đã bật hiển thị banner trên trang chủ!" : "Đã tắt hiển thị banner!");
       router.refresh();
     } catch {
       // Revert on error
       setBanners((prev) =>
         prev.map((b) => (b.id === banner.id ? { ...b, isActive: banner.isActive } : b)),
       );
+      toast.error("Không thể cập nhật trạng thái banner. Vui lòng thử lại!");
     }
   }
 
@@ -133,8 +136,11 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
       setImageUrl(data.url);
+      toast.success("Tải ảnh banner lên thành công!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Tải ảnh thất bại");
+      const msg = err instanceof Error ? err.message : "Tải ảnh thất bại";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -190,9 +196,12 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
       }
 
       setIsModalOpen(false);
+      toast.success(editingBanner ? "Cập nhật banner thành công!" : "Tạo banner mới thành công!");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Có lỗi xảy ra khi lưu");
+      const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi lưu";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsSaving(false);
     }
@@ -206,9 +215,11 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
       const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Xóa banner thất bại");
       setBanners((prev) => prev.filter((b) => b.id !== id));
+      toast.success("Đã xóa banner thành công!");
       router.refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Xóa thất bại");
+      const msg = err instanceof Error ? err.message : "Xóa thất bại";
+      toast.error(msg);
     } finally {
       setIsDeletingId(null);
     }
@@ -229,7 +240,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
         </div>
         <div className="flex items-center gap-2.5">
           <a
-            href={SITE_URL}
+            href={getStorefrontUrl()}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/80 transition-colors"

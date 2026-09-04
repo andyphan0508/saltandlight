@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
 import { NavigationProgress } from "@/components/NavigationProgress";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable}`}>
       <body className="font-sans antialiased text-ink bg-[#f8f9fa] selection:bg-mint-300 selection:text-ink">
+        <Toaster richColors position="top-right" duration={3500} closeButton />
         <Suspense fallback={null}>
           <NavigationProgress />
         </Suspense>

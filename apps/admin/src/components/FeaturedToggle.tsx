@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function FeaturedToggle({
   productId,
@@ -30,13 +31,14 @@ export function FeaturedToggle({
       if (!res.ok) {
         setIsFeatured(!nextState); // revert on error
         const data = await res.json();
-        alert(data.error || "Không thể cập nhật trạng thái nổi bật");
+        toast.error(data.error || "Không thể cập nhật trạng thái nổi bật");
       } else {
+        toast.success(nextState ? "Đã bật: Sản phẩm được đưa lên mục Nổi Bật!" : "Đã tắt trạng thái nổi bật");
         router.refresh();
       }
     } catch {
       setIsFeatured(!nextState);
-      alert("Lỗi kết nối mạng");
+      toast.error("Lỗi kết nối mạng khi cập nhật trạng thái nổi bật");
     } finally {
       setLoading(false);
     }
