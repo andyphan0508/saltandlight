@@ -18,6 +18,7 @@ import {
 } from "@/components/admin/Icons";
 import { toast } from "sonner";
 import { SITE_URL, getStorefrontUrl } from "@/lib/admin/site-url";
+import { BannerCropModal } from "@/components/admin/BannerCropModal";
 
 export interface BannerItem {
   id: string;
@@ -52,6 +53,10 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Banner Crop modal states
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -118,15 +123,23 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
     }
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // When user selects a file, open Crop & Scale modal
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setCropFile(file);
+    setIsCropOpen(true);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
+  // When user finishes cropping and scaling
+  async function handleCropComplete(croppedFile: File) {
+    setIsCropOpen(false);
     setIsUploading(true);
     setError(null);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", croppedFile);
 
     try {
       const res = await fetch("/api/admin/media/upload", {
@@ -136,14 +149,13 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
       setImageUrl(data.url);
-      toast.success("Tải ảnh banner lên thành công!");
+      toast.success("Cắt ảnh và tải banner thành công!");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Tải ảnh thất bại";
       setError(msg);
       toast.error(msg);
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -472,7 +484,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
                     ref={fileInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    onChange={handleFileUpload}
+                    onChange={handleFileSelect}
                     className="hidden"
                   />
                   <Button
@@ -483,7 +495,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
                     className="shrink-0 text-xs px-3.5 py-2 rounded-xl font-medium border-slate-200 hover:bg-slate-50"
                   >
                     <Upload size={14} className="mr-1" />
-                    {isUploading ? "Đang tải..." : "Tải tệp"}
+                    {isUploading ? "Đang tải..." : "Tải & Cắt ảnh"}
                   </Button>
                 </div>
               </div>
@@ -574,6 +586,13 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
           </div>
         </div>
       )}
+      {/* Banner Crop & Scale Modal */}
+      <BannerCropModal
+        isOpen={isCropOpen}
+        imageFile={cropFile}
+        onClose={() => setIsCropOpen(false)}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }

@@ -29,9 +29,9 @@ const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
           description: "Mặc không vừa đổi ngay tận nhà, đội ngũ hỗ trợ tận tâm, nhanh chóng.",
         },
         {
-          icon: "Heart",
-          title: "Sứ Mạng & Bác Ái",
-          description: "Trích 5% doanh thu đồng hành cùng các hoạt động từ thiện Cơ Đốc.",
+          icon: "Sparkles",
+          title: "Tư Vấn Tận Tâm 24/7",
+          description: "Đội ngũ Salt & Light sẵn sàng hỗ trợ bạn chọn size và giải đáp mọi thắc mắc.",
         },
       ],
     },

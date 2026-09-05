@@ -75,7 +75,7 @@ export default async function OrdersPage({
           {Object.entries(STATUS_META).map(([key, meta]) => (
             <StatusFilter
               key={key}
-              href={`/orders?status=${key}`}
+              href={`/admin/orders?status=${key}`}
               active={status === key}
               label={meta.label}
               count={countByStatus[key] ?? 0}

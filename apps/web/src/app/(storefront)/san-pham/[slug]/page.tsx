@@ -91,14 +91,14 @@ export default async function ProductDetailPage({
       </nav>
 
       {/* Product Main Showcase */}
-      <div className="grid gap-10 lg:grid-cols-12 items-start">
-        {/* Gallery */}
-        <div className="lg:col-span-6 sticky top-28">
+      <div className="grid gap-8 lg:gap-12 lg:grid-cols-12 items-start">
+        {/* Gallery: 5 cols on desktop, compact and centered */}
+        <div className="lg:col-span-5 lg:sticky lg:top-28">
           <ProductGallery images={plain.images} productName={plain.name} />
         </div>
 
-        {/* Buy Box & Specs */}
-        <div className="lg:col-span-6 space-y-8">
+        {/* Buy Box & Specs: 7 cols on desktop */}
+        <div className="lg:col-span-7 space-y-8">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">

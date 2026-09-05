@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/image-compressor";
 import {
   Plus,
   Trash2,
@@ -15,11 +16,20 @@ import {
   GripVertical,
   Package,
   Tag,
+  Sparkles,
 } from "./Icons";
 
 interface Category {
   id: string;
   name: string;
+}
+
+export interface PromotionOption {
+  id: string;
+  name: string;
+  badge: string | null;
+  discountType: string;
+  discountValue: number | string;
 }
 
 interface VariantRow {
@@ -86,17 +96,18 @@ const emptyVariant: VariantRow = {
 
 export function ProductForm({
   categories,
+  promotions = [],
   initial,
 }: {
   categories: Category[];
+  promotions?: PromotionOption[];
   initial?: ProductFormInitial;
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(initial?.name ?? "");
-  const [slug, setSlug] = useState(initial?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(!!initial);
+  const [slug, setSlug] = useState(initial?.slug ?? (initial?.name ? slugify(initial.name) : ""));
   const [description, setDescription] = useState(initial?.description ?? "");
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? categories[0]?.id ?? "");
   const [status, setStatus] = useState(initial?.status ?? "draft");
@@ -116,12 +127,13 @@ export function ProductForm({
   const [quickPrice, setQuickPrice] = useState(0);
   const [quickStock, setQuickStock] = useState(50);
   const [discountPct, setDiscountPct] = useState(20);
+  const [selectedPromotionId, setSelectedPromotionId] = useState<string>("");
 
   function updateVariant(index: number, patch: Partial<VariantRow>) {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)));
   }
 
-  // ── Images: multi-upload + drag reorder ──────────────────────────
+  // ── Images: multi-upload with automatic ~200kb-500kb compression ───
   async function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
@@ -130,9 +142,12 @@ export function ProductForm({
 
     const uploaded: ImageRow[] = [];
     for (const file of files) {
-      const form = new FormData();
-      form.append("file", file);
       try {
+        // Automatically compress image before uploading to 200kb-500kb WebP
+        const compressed = await compressImage(file);
+        const form = new FormData();
+        form.append("file", compressed);
+
         const res = await fetch("/api/admin/media/upload", { method: "POST", body: form });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Tải ảnh thất bại");
@@ -213,17 +228,20 @@ export function ProductForm({
     setError(null);
     setSaving(true);
 
+    const finalSlug = slug || slugify(name) || `san-pham-${Date.now()}`;
+
     const payload = {
-      name,
-      slug,
+      name: name.trim(),
+      slug: finalSlug,
       description,
       categoryId: categoryId || null,
       status,
       isNew,
       isFeatured,
       images,
-      variants: variants.map((v) => ({
+      variants: variants.map((v, idx) => ({
         ...v,
+        sku: v.sku?.trim() || skuify(finalSlug, v.color || "", v.size || "") || `SKU-${idx + 1}-${Math.random().toString(36).slice(2, 6)}`,
         color: v.color || null,
         size: v.size || null,
         compareAtPrice: v.compareAtPrice || null,
@@ -253,32 +271,28 @@ export function ProductForm({
       {/* Basic info */}
       <Section title="Thông tin cơ bản" icon={<Package size={16} />}>
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Tên sản phẩm" required>
-            <input
-              required
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (!slugTouched) setSlug(slugify(e.target.value));
-              }}
-              className={inputClass}
-              placeholder="VD: Áo Thun FEARLESS"
-            />
-          </Field>
-          <Field label="Slug (URL)" required>
-            <input
-              required
-              value={slug}
-              onChange={(e) => {
-                setSlug(e.target.value);
-                setSlugTouched(true);
-              }}
-              className={`${inputClass} font-mono text-xs`}
-            />
-          </Field>
-          <Field label="Danh mục">
+          <div className="md:col-span-2">
+            <Field label="Tên sản phẩm" required>
+              <input
+                required
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setSlug(slugify(e.target.value));
+                }}
+                className={inputClass}
+                placeholder="VD: Áo Thun FEARLESS"
+              />
+              <div className="mt-1 flex items-center justify-between text-[11px] text-ink/40 font-mono">
+                <span>Đường dẫn xem sản phẩm: /san-pham/{slug || slugify(name) || "..."}</span>
+                <span className="text-brand-forest font-sans font-semibold">✓ Tự động tạo</span>
+              </div>
+            </Field>
+          </div>
+
+          <Field label="Danh mục sản phẩm">
             <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputClass}>
-              <option value="">— Không có —</option>
+              <option value="">— Không có danh mục —</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -385,18 +399,72 @@ export function ProductForm({
             />
           </label>
         </div>
-        <p className="mt-3 text-xs text-ink/40">
-          Chọn nhiều ảnh cùng lúc, kéo-thả để sắp xếp lại thứ tự. Ảnh đầu tiên là ảnh đại diện.
+        <p className="mt-3 text-xs text-ink/50">
+          💡 Ảnh tải lên được hệ thống <strong>tự động nén tối ưu (200kb - 500kb WebP)</strong>, giữ chất lượng ảnh sắc nét mà tải siêu nhanh. Kéo-thả để đổi vị trí.
         </p>
       </Section>
 
-      {/* Quick discount tool */}
-      <Section title="Áp giảm giá nhanh" icon={<Percent size={16} />}>
-        <p className="text-xs text-ink/45">
-          Áp dụng % giảm cho toàn bộ biến thể — giá gốc sẽ giữ ở &quot;Giá so sánh&quot;, giá bán mới tự động tính lại.
+      {/* Promotion / Discount Application */}
+      <Section title="Áp đặt chương trình giảm giá" icon={<Tag size={16} />}>
+        <p className="text-xs text-ink/60">
+          Chọn chương trình khuyến mãi đang chạy hoặc áp dụng mức giảm giá trực tiếp cho toàn bộ biến thể sản phẩm.
         </p>
-        <div className="mt-3 flex flex-wrap items-end gap-3">
-          <Field label="% giảm giá" className="w-32">
+
+        {promotions.length > 0 && (
+          <div className="mt-3 rounded-2xl bg-mint-50 p-4 border border-mint-200/80">
+            <label className="block text-xs font-bold text-brand-forest mb-1.5">
+              Áp dụng theo chương trình khuyến mãi:
+            </label>
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={selectedPromotionId}
+                onChange={(e) => {
+                  const pId = e.target.value;
+                  setSelectedPromotionId(pId);
+                  const promo = promotions.find((p) => p.id === pId);
+                  if (promo) {
+                    const discountVal = Number(promo.discountValue);
+                    setVariants((prev) =>
+                      prev.map((v) => {
+                        const base = v.compareAtPrice ?? v.price;
+                        if (!base) return v;
+                        const newPrice =
+                          promo.discountType === "percent"
+                            ? Math.round((base * (1 - discountVal / 100)) / 1000) * 1000
+                            : Math.max(0, base - discountVal);
+                        return { ...v, compareAtPrice: base, price: newPrice };
+                      }),
+                    );
+                    toast.success(`Đã áp dụng ưu đãi từ chương trình: ${promo.name}`);
+                  }
+                }}
+                className="rounded-xl border border-ink/15 bg-white px-3.5 py-2 text-xs font-semibold focus:border-brand-forest focus:outline-none min-w-[260px]"
+              >
+                <option value="">— Chọn chương trình để áp đặt —</option>
+                {promotions.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.discountType === "percent" ? `Giảm ${p.discountValue}%` : `Giảm ${formatVND(Number(p.discountValue))}`})
+                  </option>
+                ))}
+              </select>
+              {selectedPromotionId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedPromotionId("");
+                    clearDiscount();
+                  }}
+                  className="text-xs text-sale hover:underline font-semibold"
+                >
+                  Hủy áp dụng
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 flex flex-wrap items-end gap-3 pt-2">
+          <Field label="Hoặc nhập % giảm nhanh" className="w-36">
             <div className="relative">
               <input
                 type="number"
@@ -404,7 +472,7 @@ export function ProductForm({
                 max={90}
                 value={discountPct}
                 onChange={(e) => setDiscountPct(Number(e.target.value))}
-                className={`${inputClass} pr-7`}
+                className={`${inputClass} pr-7 text-xs`}
               />
               <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink/40">
                 %

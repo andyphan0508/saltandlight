@@ -6,12 +6,13 @@ import { BackLink } from "@/components/admin/BackLink";
 import { toPlain } from "@/lib/serialize";
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
-  const [product, categories] = await Promise.all([
+  const [product, categories, promotions] = await Promise.all([
     prisma.product.findUnique({
       where: { id: params.id },
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.promotion.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
   ]);
   if (!product) notFound();
 
@@ -23,6 +24,13 @@ export default async function EditProductPage({ params }: { params: { id: string
       <PageHeader title={plain.name} subtitle="Chỉnh sửa thông tin, ảnh, giá và biến thể sản phẩm" />
       <ProductForm
         categories={categories}
+        promotions={promotions.map((p) => ({
+          id: p.id,
+          name: p.name,
+          badge: p.badge,
+          discountType: p.discountType,
+          discountValue: Number(p.discountValue),
+        }))}
         initial={{
           id: plain.id,
           name: plain.name,

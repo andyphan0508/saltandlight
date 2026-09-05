@@ -309,11 +309,11 @@ export default function CartPage() {
           <div className="border-t border-ink/10 pt-4 space-y-2 text-xs text-ink/60">
             <div className="flex items-center gap-2">
               <ShieldCheck size={15} className="text-brand-forest" />
-              <span>Thanh toán an toàn bảo mật qua VietQR</span>
+              <span>Đổi size miễn phí trong 7 ngày nếu không vừa vặn</span>
             </div>
             <div className="flex items-center gap-2">
               <Sparkles size={15} className="text-brand-forest" />
-              <span>Hỗ trợ kiểm tra hàng trước khi nhận (COD)</span>
+              <span>Được kiểm tra hàng tận tay trước khi thanh toán (COD)</span>
             </div>
           </div>
         </div>

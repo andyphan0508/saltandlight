@@ -339,3 +339,27 @@ export const getCachedPaymentSettings = unstable_cache(
   { revalidate: 300, tags: ["payment-settings"] }
 );
 
+/** List active discount campaigns for storefront announcements and product badges */
+export async function listActivePromotions() {
+  const now = new Date();
+  return prisma.promotion.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { startDate: null, endDate: null },
+        { startDate: { lte: now }, endDate: null },
+        { startDate: null, endDate: { gte: now } },
+        { startDate: { lte: now }, endDate: { gte: now } },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export const getCachedActivePromotions = unstable_cache(
+  async () => listActivePromotions(),
+  ["active-promotions"],
+  { revalidate: 60, tags: ["promotions"] }
+);
+
+

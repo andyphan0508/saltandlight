@@ -1,25 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  CrossIcon,
   Phone,
   Mail,
   MapPin,
   ShieldCheck,
   Truck,
   RefreshCw,
-  Heart
+  Sparkles,
 } from "./Icons";
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-ink/10 bg-mint-50/70">
+    <footer className="mt-20 border-t border-ink/10 bg-mint-50/70">
       {/* Top Value Banner in Footer */}
-      <div className="border-b border-ink/10 bg-white/60 py-10 px-4">
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <Truck size={24} />
+      <div className="border-b border-ink/10 bg-white/60 py-8 px-4">
+        <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
+              <Truck size={22} />
             </div>
             <div>
               <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
@@ -31,9 +30,9 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <ShieldCheck size={24} />
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
+              <ShieldCheck size={22} />
             </div>
             <div>
               <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
@@ -45,9 +44,9 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <RefreshCw size={24} />
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
+              <RefreshCw size={22} />
             </div>
             <div>
               <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
@@ -59,24 +58,24 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <Heart size={24} />
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
+              <Sparkles size={22} />
             </div>
             <div>
               <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Quỹ Yêu Thương
+                Tư Vấn Tận Tâm 24/7
               </h4>
               <p className="text-xs text-ink/60 mt-0.5">
-                Trích 5% cho công tác bác ái
+                Hỗ trợ size &amp; mẫu qua Zalo/Hotline
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:grid-cols-2 lg:grid-cols-5">
+      {/* Main Footer Links - Aligned with saltandlight.com.vn */}
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-5">
         {/* Col 1: Brand Info */}
         <div className="lg:col-span-2">
           <Link href="/" className="inline-block">
@@ -99,11 +98,11 @@ export function Footer() {
           <div className="mt-6 flex flex-col gap-2.5 text-xs text-ink/70">
             <div className="flex items-center gap-2">
               <MapPin size={15} className="text-brand-forest flex-shrink-0" />
-              <span>TP. Hồ Chí Minh, Việt Nam</span>
+              <span>Hồ Chí Minh, Việt Nam</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone size={15} className="text-brand-forest flex-shrink-0" />
-              <span>Hotline/Zalo: 0847 25 2025</span>
+              <span>Phone: (+84) 847 25 2025</span>
             </div>
             <div className="flex items-center gap-2">
               <Mail size={15} className="text-brand-forest flex-shrink-0" />
@@ -112,144 +111,118 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Col 2: Categories */}
+        {/* Col 2: VỀ CHÚNG TÔI */}
         <div>
           <div className="text-xs font-black uppercase tracking-wider text-ink">
-            Mua sắm
+            Về Chúng Tôi
           </div>
           <ul className="mt-4 space-y-2.5 text-sm text-ink/70">
             <li>
-              <Link
-                href="/san-pham"
-                className="hover:text-ink transition-colors"
-              >
+              <Link href="/gioi-thieu" className="hover:text-ink transition-colors">
+                Giới thiệu
+              </Link>
+            </li>
+            <li>
+              <Link href="/lien-he" className="hover:text-ink transition-colors">
+                Liên hệ
+              </Link>
+            </li>
+            <li>
+              <Link href="/chinh-sach" className="hover:text-ink transition-colors">
+                Chính sách đổi trả
+              </Link>
+            </li>
+            <li>
+              <Link href="/tra-cuu-don-hang" className="hover:text-ink transition-colors">
+                Tra cứu đơn hàng
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Col 3: SẢN PHẨM */}
+        <div>
+          <div className="text-xs font-black uppercase tracking-wider text-ink">
+            Sản Phẩm
+          </div>
+          <ul className="mt-4 space-y-2.5 text-sm text-ink/70">
+            <li>
+              <Link href="/san-pham" className="hover:text-ink transition-colors">
                 Tất cả sản phẩm
               </Link>
             </li>
             <li>
-              <Link
-                href="/danh-muc/ao-thun-nguoi-lon"
-                className="hover:text-ink transition-colors"
-              >
-                Áo thun người lớn
+              <Link href="/danh-muc/ao-thun" className="hover:text-ink transition-colors">
+                Áo thun
               </Link>
             </li>
             <li>
-              <Link
-                href="/danh-muc/ao-thun-cho-be"
-                className="hover:text-ink transition-colors"
-              >
-                Áo thun cho bé
+              <Link href="/danh-muc/tui-canvas" className="hover:text-ink transition-colors">
+                Túi tote
               </Link>
             </li>
             <li>
-              <Link
-                href="/danh-muc/tui-tote-canvas"
-                className="hover:text-ink transition-colors"
-              >
-                Túi tote canvas
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/dat-theo-yeu-cau"
-                className="hover:text-ink transition-colors font-medium text-brand-forest"
-              >
-                Đặt may/in theo yêu cầu ✦
+              <Link href="/danh-muc/set-qua-ao-tui" className="hover:text-ink transition-colors">
+                Set quà áo + túi
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Col 3: Support */}
+        {/* Col 4: ĐẶT THEO YÊU CẦU & KÊNH MẠNG XÃ HỘI */}
         <div>
           <div className="text-xs font-black uppercase tracking-wider text-ink">
-            Hỗ trợ &amp; Dịch vụ
+            Đặt Theo Yêu Cầu
           </div>
           <ul className="mt-4 space-y-2.5 text-sm text-ink/70">
             <li>
-              <Link
-                href="/tra-cuu-don-hang"
-                className="hover:text-ink transition-colors"
-              >
-                Tra cứu đơn hàng
+              <Link href="/dat-theo-yeu-cau" className="hover:text-ink transition-colors">
+                Đặt số lượng lớn
               </Link>
             </li>
             <li>
-              <Link
-                href="/chinh-sach"
-                className="hover:text-ink transition-colors"
-              >
-                Chính sách đổi trả 7 ngày
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/chinh-sach"
-                className="hover:text-ink transition-colors"
-              >
-                Chính sách giao hàng &amp; thanh toán
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/gioi-thieu"
-                className="hover:text-ink transition-colors"
-              >
-                Câu chuyện thương hiệu
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/lien-he"
-                className="hover:text-ink transition-colors"
-              >
-                Liên hệ hỗ trợ
+              <Link href="/dat-theo-yeu-cau" className="hover:text-ink transition-colors">
+                Đặt in theo yêu cầu
               </Link>
             </li>
           </ul>
-        </div>
 
-        {/* Col 4: Payment & Trust */}
-        <div>
-          <div className="text-xs font-black uppercase tracking-wider text-ink">
-            Thanh toán an toàn
+          <div className="mt-6 text-xs font-black uppercase tracking-wider text-ink">
+            Theo Dõi Chúng Mình Tại
           </div>
-          <p className="mt-4 text-xs text-ink/60">
-            Hỗ trợ quét mã VietQR tự động, Chuyển khoản mọi ngân hàng, Ví điện
-            tử và COD nhận hàng kiểm tra rồi thanh toán.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-lg border border-ink/10 bg-white px-2.5 py-1 text-[11px] font-bold text-ink">
-              VietQR
-            </span>
-            <span className="rounded-lg border border-ink/10 bg-white px-2.5 py-1 text-[11px] font-bold text-ink">
-              Napas 24/7
-            </span>
-            <span className="rounded-lg border border-ink/10 bg-white px-2.5 py-1 text-[11px] font-bold text-ink">
-              MoMo
-            </span>
-            <span className="rounded-lg border border-ink/10 bg-white px-2.5 py-1 text-[11px] font-bold text-ink">
-              COD
-            </span>
+          <div className="mt-3 flex items-center gap-3">
+            <a
+              href="https://www.facebook.com/profile.php?id=61567842338156"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-9 items-center gap-2 rounded-xl bg-white border border-ink/10 px-3 text-xs font-bold text-ink/80 hover:border-brand-forest hover:text-brand-forest transition-colors shadow-xs"
+            >
+              <span>Facebook</span>
+            </a>
+            <a
+              href="https://www.tiktok.com/@aothun_saltandlight?_t=8rnA8OkmCd6&_r=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-9 items-center gap-2 rounded-xl bg-white border border-ink/10 px-3 text-xs font-bold text-ink/80 hover:border-brand-forest hover:text-brand-forest transition-colors shadow-xs"
+            >
+              <span>TikTok</span>
+            </a>
           </div>
-
-
         </div>
       </div>
 
       {/* Bottom Copyright */}
-      <div className="border-t border-ink/10 bg-cream-100 py-6 text-center text-xs text-ink/60">
+      <div className="border-t border-ink/10 bg-cream-100 py-5 text-center text-xs text-ink/60">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 sm:flex-row">
           <p>
-            © {new Date().getFullYear()} Salt &amp; Light. All rights reserved.
-            Lan toả Lời Chúa bằng cả tấm lòng.
+            &copy; {new Date().getFullYear()} Bản quyền thuộc về Salt &amp; Light. All Rights Reserved.
           </p>
           <p className="text-[11px] text-ink/40">
-            Made with love for the Kingdom 🕊️
+            Lan toả Lời Chúa bằng cả tấm lòng 🕊️
           </p>
         </div>
       </div>
     </footer>
   );
 }
+

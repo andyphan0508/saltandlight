@@ -394,3 +394,23 @@ model PaymentSettings {
   @@map("payment_settings")
 }
 
+// ── Promotions / Discount Campaigns ─────────────────────────────────
+
+model Promotion {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  badge         String?   // Ví dụ: "GIẢM 20%", "FLASH SALE"
+  description   String?
+  discountType  String    @default("percent") @map("discount_type") // "percent" | "fixed"
+  discountValue Decimal   @map("discount_value") @db.Decimal(12, 2)
+  startDate     DateTime? @map("start_date")
+  endDate       DateTime? @map("end_date")
+  isActive      Boolean   @default(true) @map("is_active")
+  productIds    String[]  @default([]) @map("product_ids")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("promotions")
+}
+
+

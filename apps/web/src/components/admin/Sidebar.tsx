@@ -17,6 +17,7 @@ import {
   LogOut,
   ExternalLink,
   Sparkles,
+  Tag,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -38,6 +39,7 @@ const NAV_GROUPS: {
     label: "Bán hàng",
     items: [
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
+      { href: "/admin/promotions", label: "Chương trình giảm giá", icon: Tag },
       { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
       { href: "/admin/page-builder", label: "Xây dựng trang", icon: LayoutGrid },
       { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingCart },

@@ -9,7 +9,8 @@ import { useMobileMenuStore } from "@/lib/mobile-menu-store";
 import { useSearchModalStore } from "@/lib/search-store";
 import { NAV_LEFT, NAV_RIGHT } from "@/lib/nav-items";
 import { MarqueeBanner } from "./MarqueeBanner";
-import { Heart, Search, Phone, Truck, ChevronDown } from "./Icons";
+import { Heart, Search, Phone, Truck, ChevronDown, Sparkles } from "./Icons";
+import { formatVND } from "@saltandlight/domain";
 
 interface CategoryNavItem {
   id: string;
@@ -18,7 +19,20 @@ interface CategoryNavItem {
   count: number;
 }
 
-export function Header({ categories }: { categories: CategoryNavItem[] }) {
+export interface ActivePromotionInfo {
+  name: string;
+  badge?: string | null;
+  discountType: string;
+  discountValue: number | string;
+}
+
+export function Header({
+  categories,
+  activePromotion,
+}: {
+  categories: CategoryNavItem[];
+  activePromotion?: ActivePromotionInfo | null;
+}) {
   const pathname = usePathname();
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
 
@@ -47,16 +61,31 @@ export function Header({ categories }: { categories: CategoryNavItem[] }) {
 
   return (
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md transition-all border-b border-ink/5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-      {/* Top micro announcement bar */}
-      <div className="hidden border-b border-ink/5 bg-mint-50/90 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs text-ink/75 lg:block">
+      {/* Top micro announcement bar - Visible on both Mobile and Desktop */}
+      <div className="border-b border-ink/5 bg-mint-50/90 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs text-ink/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
             <span className="font-semibold text-brand-forest">
-              Đồng giá ship 19K toàn quốc • Đơn từ 299K Freeship
+              {activePromotion ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="font-black text-sale uppercase">
+                    {activePromotion.badge || "ƯU ĐÃI"}:
+                  </span>
+                  <span>
+                    {activePromotion.name} (Giảm{" "}
+                    {activePromotion.discountType === "percent"
+                      ? `${activePromotion.discountValue}%`
+                      : formatVND(Number(activePromotion.discountValue))}
+                    )
+                  </span>
+                </span>
+              ) : (
+                "Đồng giá ship 19K toàn quốc • Đơn từ 299K Freeship"
+              )}
             </span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             <Link
               href="/tra-cuu-don-hang"
               className="inline-flex items-center gap-1.5 font-semibold text-ink/70 hover:text-ink transition-colors"
