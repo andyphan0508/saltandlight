@@ -39,6 +39,23 @@ const nextConfig = {
     return config;
   },
   async headers() {
+    const isProd = process.env.NODE_ENV === "production";
+    // Scoped to production only: `'unsafe-eval'` stays available in dev so
+    // Fast Refresh's eval-based source maps keep working, and HSTS has no
+    // business being sent from a local, non-HTTPS dev server.
+    const csp = [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://*.supabase.co https://img.vietqr.io",
+      "font-src 'self' data:",
+      "connect-src 'self' https://aydjehngunstuhkmdmqs.supabase.co wss://aydjehngunstuhkmdmqs.supabase.co",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+    ].join("; ");
+
     return [
       {
         source: "/_next/static/:path*",
@@ -59,6 +76,10 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Content-Security-Policy", value: csp },
+          ...(isProd
+            ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }]
+            : []),
         ],
       },
     ];

@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+/** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
+export const adminPasswordSchema = z
+  .string()
+  .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+  .regex(/[a-zA-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ cái")
+  .regex(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 chữ số");
+
 export const variantInputSchema = z.object({
   id: z.string().uuid().optional(),
   sku: z.string().min(1),
@@ -166,3 +173,49 @@ export const paymentSettingsSchema = z.object({
   thankYouMessage: z.string().max(500).optional().nullable(),
 });
 export type PaymentSettingsInput = z.infer<typeof paymentSettingsSchema>;
+
+// ── Promotions ──────────────────────────────────────────────────────
+
+const promotionDateSchema = z
+  .string()
+  .refine((v) => !isNaN(Date.parse(v)), "Ngày không hợp lệ")
+  .optional()
+  .nullable();
+
+export const promotionCreateSchema = z
+  .object({
+    name: z.string().trim().min(1, "Vui lòng nhập tên chương trình").max(200),
+    badge: z.string().trim().max(100).optional().nullable(),
+    description: z.string().trim().max(2000).optional().nullable(),
+    discountType: z.enum(["percent", "fixed"]).default("percent"),
+    discountValue: z.number().positive("Giá trị giảm giá không hợp lệ"),
+    startDate: promotionDateSchema,
+    endDate: promotionDateSchema,
+    isActive: z.boolean().default(true),
+    productIds: z.array(z.string().uuid()).default([]),
+    applyPrices: z.boolean().default(false),
+  })
+  .refine((data) => data.discountType !== "percent" || data.discountValue <= 100, {
+    message: "Phần trăm giảm giá không được vượt quá 100%",
+    path: ["discountValue"],
+  });
+export type PromotionCreateInput = z.infer<typeof promotionCreateSchema>;
+
+export const promotionUpdateSchema = z
+  .object({
+    name: z.string().trim().min(1, "Vui lòng nhập tên chương trình").max(200).optional(),
+    badge: z.string().trim().max(100).optional().nullable(),
+    description: z.string().trim().max(2000).optional().nullable(),
+    discountType: z.enum(["percent", "fixed"]).optional(),
+    discountValue: z.number().positive("Giá trị giảm giá không hợp lệ").optional(),
+    startDate: promotionDateSchema,
+    endDate: promotionDateSchema,
+    isActive: z.boolean().optional(),
+    productIds: z.array(z.string().uuid()).optional(),
+    applyPrices: z.boolean().optional(),
+  })
+  .refine(
+    (data) => data.discountType !== "percent" || data.discountValue === undefined || data.discountValue <= 100,
+    { message: "Phần trăm giảm giá không được vượt quá 100%", path: ["discountValue"] },
+  );
+export type PromotionUpdateInput = z.infer<typeof promotionUpdateSchema>;

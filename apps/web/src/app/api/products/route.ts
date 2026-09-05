@@ -58,11 +58,8 @@ export async function GET(req: NextRequest) {
         },
       }
     );
-  } catch (err: any) {
+  } catch (err) {
     console.error("GET /api/products error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Failed to fetch products", code: err?.code },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }

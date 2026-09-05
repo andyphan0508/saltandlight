@@ -18,9 +18,13 @@ import { computePriceRange } from "@saltandlight/domain";
 import { createClient } from "@supabase/supabase-js";
 import { restoreCustomersAndOrders } from "./restore-customers-orders";
 
-const SUPABASE_URL = "https://aydjehngunstuhkmdmqs.supabase.co";
-const SERVICE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5ZGplaG5ndW5zdHVoa21kbXFzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODI2NTc4NiwiZXhwIjoyMTAzODQxNzg2fQ.htC9pRoTHDZJ5wskwFpUEsx-ioLx6-lZhSMOfBbSAvo";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY environment variables.");
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
+import { promotionCreateSchema } from "@/lib/admin/schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -22,40 +24,30 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
-    const body = await req.json();
     const {
       name,
       badge,
       description,
-      discountType = "percent",
-      discountValue,
+      discountType,
+      discountValue: numDiscount,
       startDate,
       endDate,
-      isActive = true,
-      productIds = [],
-      applyPrices = false,
-    } = body;
-
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: "Vui lòng nhập tên chương trình" }, { status: 400 });
-    }
-
-    const numDiscount = Number(discountValue);
-    if (isNaN(numDiscount) || numDiscount <= 0) {
-      return NextResponse.json({ error: "Giá trị giảm giá không hợp lệ" }, { status: 400 });
-    }
+      isActive,
+      productIds,
+      applyPrices,
+    } = promotionCreateSchema.parse(await req.json());
 
     const promotion = await prisma.promotion.create({
       data: {
-        name: name.trim(),
-        badge: badge ? badge.trim() : null,
-        description: description ? description.trim() : null,
-        discountType: discountType === "fixed" ? "fixed" : "percent",
+        name,
+        badge,
+        description,
+        discountType,
         discountValue: numDiscount,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
-        isActive: Boolean(isActive),
-        productIds: Array.isArray(productIds) ? productIds : [],
+        isActive,
+        productIds,
       },
     });
 
@@ -112,6 +104,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ promotion });
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
+    }
     console.error("POST /api/admin/promotions error:", err);
     return NextResponse.json({ error: "Không thể tạo chương trình khuyến mãi" }, { status: 500 });
   }

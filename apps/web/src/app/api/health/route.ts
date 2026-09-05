@@ -8,10 +8,8 @@ export async function GET() {
     const start = Date.now();
     const categoriesCount = await prisma.category.count();
     return NextResponse.json({ ok: true, categoriesCount, latencyMs: Date.now() - start });
-  } catch (err: any) {
-    return NextResponse.json(
-      { ok: false, error: err?.message ?? "Database connection failed" },
-      { status: 500 },
-    );
+  } catch (err) {
+    console.error("GET /api/health error:", err);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

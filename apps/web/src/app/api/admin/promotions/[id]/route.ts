@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
+import { promotionUpdateSchema } from "@/lib/admin/schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +30,6 @@ export async function PATCH(
 ) {
   try {
     await requireAdmin();
-    const body = await req.json();
     const {
       name,
       badge,
@@ -40,18 +41,18 @@ export async function PATCH(
       isActive,
       productIds,
       applyPrices,
-    } = body;
+    } = promotionUpdateSchema.parse(await req.json());
 
-    const data: any = {};
-    if (name !== undefined) data.name = name.trim();
-    if (badge !== undefined) data.badge = badge ? badge.trim() : null;
-    if (description !== undefined) data.description = description ? description.trim() : null;
-    if (discountType !== undefined) data.discountType = discountType === "fixed" ? "fixed" : "percent";
-    if (discountValue !== undefined) data.discountValue = Number(discountValue);
+    const data: Record<string, unknown> = {};
+    if (name !== undefined) data.name = name;
+    if (badge !== undefined) data.badge = badge;
+    if (description !== undefined) data.description = description;
+    if (discountType !== undefined) data.discountType = discountType;
+    if (discountValue !== undefined) data.discountValue = discountValue;
     if (startDate !== undefined) data.startDate = startDate ? new Date(startDate) : null;
     if (endDate !== undefined) data.endDate = endDate ? new Date(endDate) : null;
-    if (isActive !== undefined) data.isActive = Boolean(isActive);
-    if (productIds !== undefined) data.productIds = Array.isArray(productIds) ? productIds : [];
+    if (isActive !== undefined) data.isActive = isActive;
+    if (productIds !== undefined) data.productIds = productIds;
 
     const updated = await prisma.promotion.update({
       where: { id: params.id },
@@ -110,6 +111,9 @@ export async function PATCH(
     return NextResponse.json({ promotion: updated });
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
+    }
     console.error("PATCH /api/admin/promotions/[id] error:", err);
     return NextResponse.json({ error: "Không thể cập nhật chương trình" }, { status: 500 });
   }

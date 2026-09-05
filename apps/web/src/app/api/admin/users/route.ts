@@ -4,12 +4,13 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { adminPasswordSchema } from "@/lib/admin/schemas";
 
 const bodySchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   fullName: z.string().min(2, "Họ tên tối thiểu 2 ký tự").optional(),
   role: z.enum(["owner", "staff"]),
-  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự").optional(),
+  password: adminPasswordSchema.optional(),
 });
 
 export const dynamic = "force-dynamic";

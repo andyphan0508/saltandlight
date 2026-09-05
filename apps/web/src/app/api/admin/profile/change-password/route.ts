@@ -3,11 +3,12 @@ import { z } from "zod";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { adminPasswordSchema } from "@/lib/admin/schemas";
 
 export const dynamic = "force-dynamic";
 
 const changePasswordSchema = z.object({
-  newPassword: z.string().min(6, "Mật khẩu mới phải có ít nhất 6 ký tự"),
+  newPassword: adminPasswordSchema,
 });
 
 export async function POST(req: NextRequest) {

@@ -17,7 +17,12 @@ const RULES: Record<string, [number, number]> = {
   "/api/search": [30, 60],
   "/api/cart/quote": [30, 60],
   "/api/products": [30, 60],
-  "/api/health": [300, 60],
+  // Public diagnostic endpoint — only an external uptime monitor should be
+  // hitting this, so it doesn't need the generous limit a real API does.
+  "/api/health": [30, 60],
+  // Uploads cost storage + bandwidth, so they get a tighter cap than the
+  // general admin DEFAULT_RULE below.
+  "/api/admin/media/upload": [10, 60],
 };
 
 const DEFAULT_RULE: [number, number] = [60, 60];
@@ -28,11 +33,16 @@ export async function middleware(req: NextRequest) {
   // 1. Handle Admin Authentication & Protection
   if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
     let response = NextResponse.next({ request: { headers: req.headers } });
+    let user: { id: string } | null = null;
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY");
+      }
+
+      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
           getAll() {
             return req.cookies.getAll();
@@ -45,12 +55,21 @@ export async function middleware(req: NextRequest) {
             );
           },
         },
-      }
-    );
+      });
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      user = authUser;
+    } catch (err) {
+      // Fail CLOSED for auth: a misconfigured/unreachable Supabase must
+      // never leave admin routes open. This previously surfaced as an
+      // uncaught exception crashing the whole Worker (Cloudflare's generic
+      // "error code: 1101") for every /admin request on the isolate —
+      // now it's just treated as "not logged in".
+      console.error("[middleware] Supabase auth check failed:", err);
+      user = null;
+    }
 
     const isLogin = path === "/admin/login" || path.startsWith("/admin/login/");
     const isApi = path.startsWith("/api/admin");
@@ -96,30 +115,38 @@ export async function middleware(req: NextRequest) {
 
   // 2. Handle Storefront API Rate-Limiting
   if (path.startsWith("/api/")) {
-    const [max, windowSeconds] = RULES[path] ?? DEFAULT_RULE;
-    const limiter = getRateLimiter(path, max, windowSeconds);
-    const ip = getClientIp(req);
+    try {
+      const [max, windowSeconds] = RULES[path] ?? DEFAULT_RULE;
+      const limiter = getRateLimiter(path, max, windowSeconds);
+      const ip = getClientIp(req);
 
-    const result = await limiter.limit(ip);
+      const result = await limiter.limit(ip);
 
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Bạn đang thao tác quá nhanh, vui lòng thử lại sau ít phút." },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": Math.ceil(result.resetMs / 1000).toString(),
-            "X-RateLimit-Limit": String(result.limit),
-            "X-RateLimit-Remaining": "0",
-          },
-        }
-      );
+      if (!result.success) {
+        return NextResponse.json(
+          { error: "Bạn đang thao tác quá nhanh, vui lòng thử lại sau ít phút." },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": Math.ceil(result.resetMs / 1000).toString(),
+              "X-RateLimit-Limit": String(result.limit),
+              "X-RateLimit-Remaining": "0",
+            },
+          }
+        );
+      }
+
+      const res = NextResponse.next();
+      res.headers.set("X-RateLimit-Limit", String(result.limit));
+      res.headers.set("X-RateLimit-Remaining", String(result.remaining));
+      return res;
+    } catch (err) {
+      // Fail OPEN for rate-limiting: an infra hiccup in the limiter itself
+      // (e.g. a network error reaching Upstash) must never take down real
+      // traffic — worst case we're briefly unthrottled, not offline.
+      console.error("[middleware] Rate limiter failed, allowing request through:", err);
+      return NextResponse.next();
     }
-
-    const res = NextResponse.next();
-    res.headers.set("X-RateLimit-Limit", String(result.limit));
-    res.headers.set("X-RateLimit-Remaining", String(result.remaining));
-    return res;
   }
 
   return NextResponse.next();
