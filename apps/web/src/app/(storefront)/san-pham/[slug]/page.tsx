@@ -63,7 +63,7 @@ export default async function ProductDetailPage({
     : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-3.5 sm:px-6 py-4 sm:py-10 space-y-8 sm:space-y-14">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-4 sm:py-10 space-y-8 sm:space-y-12 w-full min-w-0 overflow-x-hidden animate-slide-up-fade">
       {/* Breadcrumbs - horizontally scrollable without breaking on mobile */}
       <nav className="flex items-center gap-2 text-xs font-semibold uppercase text-ink/60 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
         <Link href="/" className="hover:text-ink flex-shrink-0">
@@ -85,20 +85,20 @@ export default async function ProductDetailPage({
           </>
         )}
         <ChevronRight size={12} className="flex-shrink-0 text-ink/30" />
-        <span className="text-brand-forest font-bold truncate max-w-[200px] sm:max-w-none">
+        <span className="text-brand-forest font-bold truncate max-w-[180px] sm:max-w-none">
           {plain.name}
         </span>
       </nav>
 
       {/* Product Main Showcase */}
-      <div className="grid gap-6 lg:gap-12 lg:grid-cols-12 items-start">
+      <div className="grid gap-6 lg:gap-12 lg:grid-cols-12 items-start w-full min-w-0">
         {/* Gallery: 5 cols on desktop, compact and centered */}
-        <div className="lg:col-span-5 lg:sticky lg:top-28">
+        <div className="lg:col-span-5 lg:sticky lg:top-28 w-full min-w-0">
           <ProductGallery images={plain.images} productName={plain.name} />
         </div>
 
         {/* Buy Box & Specs: 7 cols on desktop */}
-        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8 w-full min-w-0">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">
@@ -125,36 +125,33 @@ export default async function ProductDetailPage({
           />
 
           {/* Product Highlights list */}
-          <div className="rounded-3xl bg-cream p-6 border border-ink/10 space-y-3">
+          <div className="rounded-3xl bg-cream p-5 sm:p-6 border border-ink/10 space-y-3 w-full min-w-0">
             <h4 className="text-xs font-black uppercase tracking-wider text-ink flex items-center gap-2">
               <Sparkles size={16} className="text-gold-500" />
               Điểm Nổi Bật Của Sản Phẩm
             </h4>
             <ul className="space-y-2 text-xs text-ink/75">
-              <li className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                <span>
-                  Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng
-                  mát.
+              <li className="flex items-start gap-2.5">
+                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng mát.
                 </span>
               </li>
-              <li className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                <span>
-                  Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi
-                  giặt.
+              <li className="flex items-start gap-2.5">
+                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi giặt.
                 </span>
               </li>
-              <li className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                <span>
-                  Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi
-                  làm, đi nhóm.
+              <li className="flex items-start gap-2.5">
+                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi làm, đi nhóm.
                 </span>
               </li>
-              <li className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                <span>
+              <li className="flex items-start gap-2.5">
+                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
                   Đóng gói chỉn chu kèm bookmark Lời Chúa và thiệp cảm ơn.
                 </span>
               </li>
@@ -163,31 +160,31 @@ export default async function ProductDetailPage({
 
           {/* Description & Bible verse section */}
           {plain.description && (
-            <div className="border-t border-ink/10 pt-6">
+            <div className="border-t border-ink/10 pt-6 w-full min-w-0">
               <h3 className="text-xs font-black uppercase tracking-wider text-ink">
                 Mô tả chi tiết &amp; Thông điệp
               </h3>
-              <div className="mt-3 rounded-2xl bg-white p-5 border border-ink/10 text-sm text-ink/80 whitespace-pre-line leading-relaxed">
+              <div className="mt-3 rounded-2xl bg-white p-4 sm:p-5 border border-ink/10 text-xs sm:text-sm text-ink/80 whitespace-pre-line leading-relaxed shadow-xs">
                 {plain.description}
               </div>
             </div>
           )}
 
           {/* Care & Washing guide */}
-          <div className="border-t border-ink/10 pt-6 space-y-3">
+          <div className="border-t border-ink/10 pt-6 space-y-3 w-full min-w-0">
             <h3 className="text-xs font-black uppercase tracking-wider text-ink">
               Hướng dẫn bảo quản áo cotton
             </h3>
-            <div className="grid grid-cols-2 gap-3 text-xs text-ink/70">
-              <div className="rounded-2xl bg-white p-3.5 border border-ink/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs text-ink/70">
+              <div className="rounded-2xl bg-white p-3.5 border border-ink/10 shadow-xs">
                 <p className="font-bold text-ink mb-1">🧼 Giặt áo</p>
-                <p>
+                <p className="leading-relaxed">
                   Nên lộn trái áo khi giặt, không ngâm lâu trong chất tẩy mạnh.
                 </p>
               </div>
-              <div className="rounded-2xl bg-white p-3.5 border border-ink/10">
+              <div className="rounded-2xl bg-white p-3.5 border border-ink/10 shadow-xs">
                 <p className="font-bold text-ink mb-1">👔 Phơi &amp; Ủi</p>
-                <p>Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.</p>
+                <p className="leading-relaxed">Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.</p>
               </div>
             </div>
           </div>

@@ -38,8 +38,12 @@ export function PromoCtaBlock({ content }: { content: PromoCtaContent }) {
         </div>
         <div className="lg:col-span-4 flex justify-start lg:justify-end">
           <Link href={content.ctaHref}>
-            <Button variant="primary" size="lg" className="w-full sm:w-auto shadow-md">
-              {content.ctaLabel}
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full sm:w-auto shadow-md active-press hover:scale-105 transition-all duration-300"
+            >
+              <span>{content.ctaLabel}</span>
               <ArrowRight size={18} />
             </Button>
           </Link>

@@ -105,13 +105,13 @@ export function ProductBuyBox({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 w-full min-w-0">
       {/* Price Header */}
-      <div className="rounded-2xl bg-mint-50/80 p-5 border border-mint-200/60">
-        <div className="flex flex-wrap items-baseline gap-3">
-          <span className="text-3xl font-black text-ink">{formatVND(selected.price)}</span>
+      <div className="rounded-2xl bg-mint-50/80 p-4 sm:p-5 border border-mint-200/60 w-full min-w-0">
+        <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
+          <span className="text-2xl sm:text-3xl font-black text-ink">{formatVND(selected.price)}</span>
           {selected.compareAtPrice && (
-            <span className="text-base text-ink/40 line-through">
+            <span className="text-sm sm:text-base text-ink/40 line-through">
               {formatVND(selected.compareAtPrice)}
             </span>
           )}
@@ -122,21 +122,21 @@ export function ProductBuyBox({
             Tiết kiệm {formatVND(savings)} so với giá niêm yết
           </p>
         )}
-        <div className="mt-3 flex items-center gap-2 text-xs text-brand-forest">
-          <Sparkles size={15} />
-          <span>Tặng kèm thiệp Lời Chúa &amp; Miễn phí vận chuyển cho đơn từ 299K</span>
+        <div className="mt-3 flex items-start gap-2 text-xs text-brand-forest">
+          <Sparkles size={15} className="flex-shrink-0 mt-0.5 text-gold-600" />
+          <span className="leading-snug">Tặng kèm thiệp Lời Chúa &amp; Miễn phí vận chuyển cho đơn từ 299K</span>
         </div>
       </div>
 
       {/* Color Selection */}
       {colors.length > 0 && (
-        <div>
+        <div className="w-full min-w-0">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-ink/70">
               Màu sắc: <strong className="text-ink">{color}</strong>
             </span>
           </div>
-          <div className="mt-2.5 flex flex-wrap gap-2.5">
+          <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
             {colors.map((c) => {
               const active = c === color;
               const isDark = c.toLowerCase().includes("đen") || c.toLowerCase().includes("black");
@@ -145,7 +145,7 @@ export function ProductBuyBox({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold transition-all active-press ${
                     active
                       ? "border-ink bg-ink text-white shadow-sm ring-2 ring-ink/20"
                       : "border-ink/15 bg-white text-ink hover:border-ink/40"
@@ -166,20 +166,20 @@ export function ProductBuyBox({
 
       {/* Size Selection & Size Guide */}
       {sizes.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink/70">
+        <div className="w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink/70 flex-shrink-0">
               Kích thước: <strong className="text-ink">{size}</strong>
             </span>
             <button
               type="button"
               onClick={() => setShowSizeModal(true)}
-              className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors"
+              className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors flex-shrink-0 flex items-center gap-1 active-press"
             >
-              📏 Bảng quy đổi size
+              <span>📏 Bảng size</span>
             </button>
           </div>
-          <div className="mt-2.5 flex flex-wrap gap-2.5">
+          <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
             {sizes.map((s) => {
               const active = s === size;
               return (
@@ -187,7 +187,7 @@ export function ProductBuyBox({
                   key={s}
                   type="button"
                   onClick={() => setSize(s)}
-                  className={`flex h-11 min-w-11 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-all ${
+                  className={`flex h-10 sm:h-11 min-w-10 sm:min-w-11 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-all active-press ${
                     active
                       ? "border-ink bg-ink text-white shadow-sm ring-2 ring-ink/20"
                       : "border-ink/15 bg-white text-ink hover:border-ink/40"
@@ -202,22 +202,25 @@ export function ProductBuyBox({
       )}
 
       {/* Quantity & Inventory */}
-      <div>
-        <div className="flex items-center justify-between text-xs text-ink/70">
-          <span className="font-bold uppercase tracking-wider">Số lượng</span>
-          <span>
+      <div className="w-full min-w-0">
+        <div className="flex items-center justify-between text-xs text-ink/70 gap-2">
+          <span className="font-bold uppercase tracking-wider flex-shrink-0">Số lượng</span>
+          <span className="flex-shrink-0">
             {outOfStock ? (
               <span className="font-bold text-sale">Hết hàng</span>
             ) : (
-              <span className="text-brand-forest font-medium">✓ Còn hàng sẵn</span>
+              <span className="text-brand-forest font-semibold flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Còn hàng sẵn
+              </span>
             )}
           </span>
         </div>
-        <div className="mt-2.5 flex items-center gap-4">
+        <div className="mt-2.5 flex items-center gap-3 sm:gap-4">
           <div className="flex items-center rounded-2xl border border-ink/20 bg-white p-1 shadow-sm">
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-ink hover:bg-ink/5 disabled:opacity-30"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-ink hover:bg-ink/5 disabled:opacity-30 active-press"
               disabled={quantity <= 1}
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             >
@@ -226,7 +229,7 @@ export function ProductBuyBox({
             <span className="w-10 text-center text-sm font-bold text-ink">{quantity}</span>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-ink hover:bg-ink/5"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-ink hover:bg-ink/5 active-press"
               onClick={() => setQuantity((q) => q + 1)}
             >
               +
@@ -249,14 +252,14 @@ export function ProductBuyBox({
       </div>
 
       {/* Action Buttons: Add to Cart + Buy Now */}
-      <div className="space-y-3 pt-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="space-y-3 pt-1 w-full min-w-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full">
           <Button
             variant="outline"
             size="lg"
             disabled={outOfStock}
             onClick={handleAddToCart}
-            className="w-full flex items-center justify-center gap-2 py-3.5 active-press rounded-2xl text-xs sm:text-sm font-bold"
+            className="w-full h-12 flex items-center justify-center gap-2 active-press rounded-2xl text-xs sm:text-sm font-bold border-ink/20 hover:border-ink hover:bg-mint-50/50"
           >
             {justAdded ? (
               <>
@@ -276,7 +279,7 @@ export function ProductBuyBox({
             size="lg"
             disabled={outOfStock}
             onClick={handleBuyNow}
-            className="w-full bg-ink text-white hover:bg-ink-800 shadow-md py-3.5 active-press rounded-2xl text-xs sm:text-sm font-bold tracking-wide"
+            className="w-full h-12 flex items-center justify-center gap-2 bg-ink text-white hover:bg-ink-800 shadow-md active-press rounded-2xl text-xs sm:text-sm font-bold tracking-wide"
           >
             {outOfStock ? "Tạm hết hàng" : "Mua ngay — Nhận ưu đãi"}
           </Button>
@@ -284,22 +287,22 @@ export function ProductBuyBox({
       </div>
 
       {/* Trust Guarantees */}
-      <div className="space-y-2.5 rounded-2xl border border-ink/10 bg-white p-4 text-xs text-ink/80 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Truck size={18} className="text-brand-forest flex-shrink-0" />
-          <span>
+      <div className="space-y-2.5 rounded-2xl border border-ink/10 bg-white p-3.5 sm:p-4 text-xs text-ink/80 shadow-xs w-full min-w-0">
+        <div className="flex items-start gap-2.5">
+          <Truck size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
+          <span className="leading-snug">
             <strong>Đồng giá ship 19K toàn quốc</strong> — Giao tận nơi trong 2-4 ngày.
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <ShieldCheck size={18} className="text-brand-forest flex-shrink-0" />
-          <span>
+        <div className="flex items-start gap-2.5">
+          <ShieldCheck size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
+          <span className="leading-snug">
             <strong>Kiểm tra hàng trước khi nhận</strong> — COD an tâm tuyệt đối.
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <RefreshCw size={18} className="text-brand-forest flex-shrink-0" />
-          <span>
+        <div className="flex items-start gap-2.5">
+          <RefreshCw size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
+          <span className="leading-snug">
             <strong>Đổi size miễn phí trong 7 ngày</strong> nếu không vừa vặn.
           </span>
         </div>
@@ -309,10 +312,10 @@ export function ProductBuyBox({
       {showSizeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
             onClick={() => setShowSizeModal(false)}
           />
-          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
             <div className="flex items-center justify-between border-b border-ink/10 pb-4">
               <h3 className="font-display text-lg font-black uppercase text-ink">
                 Bảng Quy Đổi Size Áo Chuẩn

@@ -26,7 +26,10 @@ export function TestimonialsBlock({ content }: { content: TestimonialsContent })
 
       <div className="grid gap-6 sm:grid-cols-3">
         {content.items.map((rev, i) => (
-          <div key={i} className="flex flex-col justify-between rounded-3xl bg-white p-7 shadow-card border border-ink/5">
+          <div
+            key={i}
+            className="flex flex-col justify-between rounded-3xl bg-white p-6 sm:p-7 shadow-card border border-ink/5 hover:-translate-y-1 hover:shadow-card-hover transition-all duration-300"
+          >
             <div>
               <div className="flex items-center gap-1 text-gold-500 mb-4">
                 {Array.from({ length: rev.rating }).map((_, j) => (

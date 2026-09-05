@@ -138,29 +138,45 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
               <div className="relative mx-auto max-w-7xl w-full h-full px-5 sm:px-8 lg:px-12 flex flex-col justify-center items-start text-white z-10">
                 {/* Badge */}
                 {slide.badge && (
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white border border-white/20 mb-2.5 sm:mb-4 shadow-sm">
+                  <div
+                    className={`inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white border border-white/20 mb-2.5 sm:mb-4 shadow-sm ${
+                      index === current ? "animate-pop-in" : ""
+                    }`}
+                  >
                     <Sparkles size={13} className="text-amber-300" />
                     <span>{slide.badge}</span>
                   </div>
                 )}
 
                 {/* Big Vietnamese Headline */}
-                <h2 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight drop-shadow-md max-w-2xl">
+                <h2
+                  className={`font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight drop-shadow-md max-w-2xl ${
+                    index === current ? "animate-slide-up-fade" : ""
+                  }`}
+                >
                   {slide.title}
                 </h2>
 
                 {/* Subtitle */}
                 {slide.subtitle && (
-                  <p className="mt-2 sm:mt-3 text-xs sm:text-base lg:text-lg text-white/90 max-w-xl leading-relaxed drop-shadow-sm font-medium">
+                  <p
+                    className={`mt-2 sm:mt-3 text-xs sm:text-base lg:text-lg text-white/90 max-w-xl leading-relaxed drop-shadow-sm font-medium ${
+                      index === current ? "animate-slide-up-fade" : ""
+                    }`}
+                  >
                     {slide.subtitle}
                   </p>
                 )}
 
                 {/* CTA Buttons */}
-                <div className="mt-5 sm:mt-8 flex flex-wrap items-center gap-3">
+                <div
+                  className={`mt-5 sm:mt-8 flex flex-wrap items-center gap-3 ${
+                    index === current ? "animate-slide-up-fade" : ""
+                  }`}
+                >
                   <Link
                     href={slide.linkUrl || "/san-pham"}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-white text-ink px-6 py-3 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider shadow-xl hover:bg-mint-100 hover:scale-105 transition-all duration-300 active:scale-95 group"
+                    className="inline-flex items-center gap-2.5 rounded-full bg-white text-ink px-6 py-3 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider shadow-xl hover:bg-mint-100 hover:scale-105 transition-all duration-300 active-press group"
                   >
                     <span>Khám phá ngay</span>
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -168,7 +184,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
 
                   <Link
                     href="/san-pham"
-                    className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold tracking-wide border border-white/25 transition-all"
+                    className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold tracking-wide border border-white/25 transition-all active-press"
                   >
                     <span>Xem tất cả</span>
                   </Link>

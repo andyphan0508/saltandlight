@@ -64,15 +64,15 @@ export function Header({
       {/* Top micro announcement bar - Visible on both Mobile and Desktop */}
       <div className="border-b border-ink/5 bg-mint-50/90 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs text-ink/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-            <span className="font-semibold text-brand-forest">
+            <span className="font-semibold text-brand-forest truncate block text-[11px] sm:text-xs">
               {activePromotion ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="font-black text-sale uppercase">
+                <span className="inline-flex items-center gap-1.5 truncate">
+                  <span className="font-black text-sale uppercase flex-shrink-0">
                     {activePromotion.badge || "ƯU ĐÃI"}:
                   </span>
-                  <span>
+                  <span className="truncate">
                     {activePromotion.name} (Giảm{" "}
                     {activePromotion.discountType === "percent"
                       ? `${activePromotion.discountValue}%`

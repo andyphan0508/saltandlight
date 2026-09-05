@@ -20,14 +20,19 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
   if (style === "row") {
     return (
       <section className="mx-auto max-w-7xl px-4">
-        <div className="grid gap-6 rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-6 rounded-3xl bg-white p-5 sm:p-8 shadow-card border border-ink/5 sm:grid-cols-2 lg:grid-cols-4">
           {content.items.map((item, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-100 text-brand-forest">
-                <BlockIcon name={item.icon} size={24} />
+            <div
+              key={i}
+              className="group flex items-start gap-3.5 sm:gap-4 p-3 rounded-2xl transition-all duration-300 hover:bg-mint-50/60 hover:-translate-y-0.5 active-press"
+            >
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-100 text-brand-forest transition-transform duration-300 group-hover:scale-110 group-hover:bg-mint-200">
+                <BlockIcon name={item.icon} size={22} />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-ink uppercase tracking-wide">{item.title}</h4>
+                <h4 className="font-bold text-xs sm:text-sm text-ink uppercase tracking-wide group-hover:text-brand-forest transition-colors">
+                  {item.title}
+                </h4>
                 <p className="mt-1 text-xs text-ink/65 leading-relaxed">{item.description}</p>
               </div>
             </div>
