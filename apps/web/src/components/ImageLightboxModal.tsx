@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "./Icons";
 
@@ -19,15 +20,20 @@ export function ImageLightboxModal({
   isOpen,
   onClose,
 }: ImageLightboxModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       setCurrentIndex(initialIndex);
       setZoomLevel(1);
-      // Lock scroll
+      // Lock body scroll
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -61,8 +67,10 @@ export function ImageLightboxModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, nextImage, prevImage]);
 
+  if (!mounted || !isOpen || images.length === 0) return null;
+
   const current = images[currentIndex] ?? images[0];
-  if (!isOpen || images.length === 0 || !current) return null;
+  if (!current) return null;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.touches[0]?.clientX ?? null);
@@ -80,22 +88,26 @@ export function ImageLightboxModal({
   };
 
   const toggleZoom = () => {
-    setZoomLevel((prev) => (prev === 1 ? 1.8 : 1));
+    setZoomLevel((prev) => (prev === 1 ? 1.6 : 1));
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-black/95 backdrop-blur-md text-white transition-opacity duration-300 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-between p-3 sm:p-6 bg-black/30 backdrop-blur-md text-white transition-opacity duration-300 animate-in fade-in"
       role="dialog"
       aria-modal="true"
+      onClick={(e) => {
+        // Clicking backdrop background closes modal
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      {/* Top Header Bar */}
-      <div className="w-full flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-b from-black/80 to-transparent z-20">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-white/70 line-clamp-1 max-w-[200px] sm:max-w-md">
+      {/* Top Floating Control Bar */}
+      <div className="w-full max-w-5xl flex items-center justify-between z-30 pointer-events-auto">
+        <div className="flex items-center gap-2.5 rounded-full bg-black/40 backdrop-blur-md px-3.5 py-1.5 border border-white/15 text-white/90 shadow-lg">
+          <span className="text-xs font-bold uppercase tracking-wider line-clamp-1 max-w-[150px] sm:max-w-md">
             {productName}
           </span>
-          <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-mono font-semibold text-white/90">
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-mono font-bold text-white">
             {currentIndex + 1} / {images.length}
           </span>
         </div>
@@ -105,7 +117,7 @@ export function ImageLightboxModal({
           <button
             type="button"
             onClick={toggleZoom}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white/90 transition-colors"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/15 shadow-lg transition-all active:scale-95"
             title={zoomLevel === 1 ? "Phóng to" : "Thu nhỏ"}
           >
             {zoomLevel === 1 ? <ZoomIn size={18} /> : <ZoomOut size={18} />}
@@ -115,7 +127,7 @@ export function ImageLightboxModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/15 shadow-lg transition-all active:scale-95"
             title="Đóng (Esc)"
           >
             <X size={20} />
@@ -123,9 +135,12 @@ export function ImageLightboxModal({
         </div>
       </div>
 
-      {/* Main Image Stage */}
+      {/* Main Focus Center Stage */}
       <div
-        className="relative flex-1 w-full flex items-center justify-center overflow-hidden px-4 select-none"
+        className="relative flex-1 w-full flex items-center justify-center overflow-hidden my-auto select-none"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -135,7 +150,7 @@ export function ImageLightboxModal({
             <button
               type="button"
               onClick={prevImage}
-              className="absolute left-3 sm:left-6 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-sm transition-all active:scale-95"
+              className="absolute left-1 sm:left-4 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md border border-white/15 shadow-xl transition-all active:scale-90"
               title="Ảnh trước (←)"
             >
               <ChevronLeft size={24} />
@@ -143,7 +158,7 @@ export function ImageLightboxModal({
             <button
               type="button"
               onClick={nextImage}
-              className="absolute right-3 sm:right-6 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-sm transition-all active:scale-95"
+              className="absolute right-1 sm:right-4 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md border border-white/15 shadow-xl transition-all active:scale-90"
               title="Ảnh tiếp theo (→)"
             >
               <ChevronRight size={24} />
@@ -151,9 +166,9 @@ export function ImageLightboxModal({
           </>
         )}
 
-        {/* The Image */}
+        {/* Center Image Container: Centered in browser viewport, scaling per device */}
         <div
-          className="relative max-h-[75vh] max-w-[90vw] sm:max-w-[80vw] h-[650px] w-full flex items-center justify-center transition-transform duration-300 cursor-zoom-in"
+          className="relative max-h-[70vh] sm:max-h-[76vh] w-[94vw] sm:w-[85vw] max-w-3xl h-full flex items-center justify-center transition-transform duration-200 cursor-zoom-in rounded-3xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-2 sm:p-4"
           onClick={toggleZoom}
           style={{ transform: `scale(${zoomLevel})` }}
         >
@@ -161,7 +176,7 @@ export function ImageLightboxModal({
             src={current.url}
             alt={`${productName} - ảnh ${currentIndex + 1}`}
             fill
-            sizes="95vw"
+            sizes="(min-width: 1024px) 800px, 92vw"
             className="object-contain"
             priority
           />
@@ -170,8 +185,8 @@ export function ImageLightboxModal({
 
       {/* Bottom Thumbnail Strip */}
       {images.length > 1 && (
-        <div className="w-full py-4 px-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-20 flex justify-center">
-          <div className="flex items-center gap-2.5 overflow-x-auto max-w-full px-2 py-1 scrollbar-none">
+        <div className="w-full flex justify-center z-30 pointer-events-auto">
+          <div className="flex items-center gap-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 p-1.5 shadow-xl max-w-full overflow-x-auto no-scrollbar">
             {images.map((img, idx) => {
               const isActive = idx === currentIndex;
               return (
@@ -182,10 +197,10 @@ export function ImageLightboxModal({
                     setCurrentIndex(idx);
                     setZoomLevel(1);
                   }}
-                  className={`relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                  className={`relative h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
                     isActive
-                      ? "border-emerald-400 scale-105 shadow-lg opacity-100"
-                      : "border-transparent opacity-50 hover:opacity-80"
+                      ? "border-emerald-400 scale-105 shadow-md opacity-100 ring-2 ring-emerald-400/30"
+                      : "border-transparent opacity-50 hover:opacity-90"
                   }`}
                 >
                   <Image src={img.url} alt="" fill className="object-cover" />
@@ -195,6 +210,7 @@ export function ImageLightboxModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
