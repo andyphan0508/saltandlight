@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --font-display: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
-    --font-sans: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
-    --font-patrick: "Patrick Hand", cursive, sans-serif;
+    --font-display: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-inter: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   html {
@@ -16,8 +16,7 @@
 
   body {
     @apply bg-cream text-ink antialiased selection:bg-mint-200 selection:text-brand-forest;
-    font-family: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
-    letter-spacing: 0.015em;
+    font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   button, input, select, textarea {

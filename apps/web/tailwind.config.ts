@@ -10,9 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-patrick)", "Patrick Hand", "cursive", "sans-serif"],
-        display: ["var(--font-patrick)", "Patrick Hand", "cursive", "sans-serif"],
-        patrick: ["var(--font-patrick)", "Patrick Hand", "cursive", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        display: ["var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
       },
     },
   },
