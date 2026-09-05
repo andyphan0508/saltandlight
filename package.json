@@ -7,8 +7,6 @@
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=web",
-    "dev:admin": "turbo run dev --filter=admin",
     "build": "turbo run build && pnpm --filter web build:cloudflare",
     "build:cloudflare": "pnpm --filter web build:cloudflare",
     "preview:cloudflare": "pnpm --filter web preview:cloudflare",

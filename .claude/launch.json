@@ -4,14 +4,8 @@
     {
       "name": "web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev:web"],
+      "runtimeArgs": ["dev"],
       "port": 3000
-    },
-    {
-      "name": "admin",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev:admin"],
-      "port": 3001
     }
   ]
 }

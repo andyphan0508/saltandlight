@@ -31,7 +31,7 @@ export async function sendOrderCreatedEmail(opts: {
   }
 
   if (process.env.NOTIFY_ADMIN_EMAIL) {
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001";
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3000/admin";
     sends.push(
       resend.emails.send({
         from: FROM,

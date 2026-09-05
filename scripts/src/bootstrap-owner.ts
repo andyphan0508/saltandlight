@@ -1,7 +1,7 @@
 /**
  * One-time bootstrap: invites the first `owner` admin account. Needed
- * because the admin dashboard's "invite staff" feature (apps/admin
- * /users) itself requires being logged in as an owner already — this
+ * because the admin dashboard's "invite staff" feature (apps/web
+ * /src/app/admin/users) itself requires being logged in as an owner already — this
  * script breaks that chicken-and-egg problem.
  *
  * Usage:

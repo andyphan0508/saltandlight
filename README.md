@@ -1,21 +1,23 @@
 # Salt & Light — monorepo
 
 React/Next.js replacement for the WordPress/WooCommerce store at
-saltandlight.com.vn. Two Next.js apps sharing one Postgres (Supabase)
-database, deployed as two separate Vercel projects from this one repo.
+saltandlight.com.vn. One Next.js app (storefront + admin dashboard under
+`/admin`), one Postgres (Supabase) database, deployed as a single Cloudflare
+Worker via OpenNext.
 
 ## Architecture
 
 ```
 apps/
-  web/      Storefront — Next.js App Router, SSR/dynamic rendering for SEO.
-            Public: catalog, cart, guest checkout, VietQR payment, order
-            tracking, wishlist/compare (localStorage), contact forms.
-  admin/    Dashboard — separate Next.js app, Supabase Auth–gated.
-            Products/variants, orders, payment confirmation, shipping,
-            customers, staff (owner-only), audit log.
+  web/      Everything — Next.js App Router, one deployable app.
+            Storefront (public): catalog, cart, guest checkout, VietQR
+            payment, order tracking, wishlist/compare (localStorage),
+            contact forms — server-rendered for SEO.
+            Admin (/admin, Supabase Auth–gated): products/variants,
+            orders, payment confirmation, shipping, customers, staff
+            (owner-only), audit log, page builder, banners.
 packages/
-  db/       Prisma schema + client, shared by both apps.
+  db/       Prisma schema + client.
   domain/   Framework-free business logic: pricing, shipping fee rule,
             VietQR URL builder, order numbering, zod schemas.
   ui/       Shared Tailwind preset + a couple of primitives (Button, Badge).
@@ -23,27 +25,28 @@ scripts/    One-off Node scripts: WooCommerce data migration, owner bootstrap.
 supabase/   SQL to run once in the Supabase SQL editor (storage bucket).
 ```
 
-Both apps talk to Postgres directly through Prisma — the browser never calls
+The app talks to Postgres directly through Prisma — the browser never calls
 Supabase's REST API, so table-level RLS isn't load-bearing for the app (it's
 still worth enabling defensively, see below). Supabase itself provides:
 Postgres, Auth (admin login only — the storefront is guest-checkout), and
 Storage (product images uploaded from the dashboard).
 
+Admin routes live under `/admin` on the same domain and the same Worker —
+there is no separate admin app or subdomain. `apps/web/src/middleware.ts`
+gates every `/admin` and `/api/admin/*` request behind a Supabase session
+check, and rate-limits every public `/api/*` route (see
+`apps/web/src/lib/rate-limit.ts`).
+
 ### Deviations from the original WordPress-migration spec
 
-Decided in this session, given the "deploy everything on Vercel" and
-"Supabase" constraints:
-
-- **Backend is Next.js Route Handlers, not NestJS.** NestJS doesn't fit
-  Vercel's serverless model cleanly; API routes live inside each Next.js app
-  instead of a separate service.
+- **Backend is Next.js Route Handlers, not NestJS** — API routes live inside
+  the one Next.js app instead of a separate service.
 - **Wishlist / Compare are client-side (localStorage), not DB-backed** —
   guest checkout means there's no durable customer identity to hang them
   off. Product Bundles (`product_bundles` table) is a real DB feature.
-- **Payment is bank-transfer (VietQR) only** — no COD, per this session's
-  decision (spec §9.1 was left open; COD was dropped).
+- **Payment is bank-transfer (VietQR) only** — no COD.
 - **Guest checkout only** — no customer accounts; orders are looked up by
-  order number + phone (spec §9.3 decision).
+  order number + phone.
 - Everything else (data model, order status machine, shipping logic, audit
   log, RBAC) follows `saltandlight-react-migration-spec.md` directly.
 
@@ -53,6 +56,7 @@ Decided in this session, given the "deploy everything on Vercel" and
 - `pnpm` (this repo pins `packageManager: pnpm@9.12.0` — `corepack enable`
   or `npm install -g pnpm` if you don't have it)
 - A Supabase project (free tier is enough to start)
+- A Cloudflare account (Workers, free tier is enough to start)
 
 ## 1. Supabase setup
 
@@ -76,16 +80,12 @@ Decided in this session, given the "deploy everything on Vercel" and
 pnpm install
 
 cp .env.example apps/web/.env.local
-cp .env.example apps/admin/.env.local
-# fill in both files with the Supabase values from step 1
+# fill in with the Supabase values from step 1
 
 pnpm db:generate
 pnpm db:migrate      # creates tables from packages/db/prisma/schema.prisma
 pnpm db:seed         # sample categories/products/shipping so the UI isn't empty
 ```
-
-Next.js reads env vars from each app's own `.env.local` (not the repo
-root) — the root `.env.example` is just a template to copy into both.
 
 Create the first `owner` admin account (this must run before you can log
 into the dashboard at all — the invite-from-dashboard flow needs an owner
@@ -100,30 +100,54 @@ pnpm bootstrap:owner
 This sends a Supabase invite email with a link to set a password.
 
 ```bash
-pnpm dev:web     # http://localhost:3000
-pnpm dev:admin   # http://localhost:3001
+pnpm dev   # http://localhost:3000  (storefront + /admin)
 ```
 
-## 3. Deploying to Vercel
+## 3. Deploying to Cloudflare
 
-Two separate Vercel projects pointing at the same GitHub repo:
+One Cloudflare Worker ("saltandlight"), built via
+[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) and deployed
+with `wrangler`. Config lives in `wrangler.jsonc` at the repo root (and a
+copy in `apps/web/`, used for local `wrangler` commands run from that
+directory).
 
-| Project | Root Directory | Env vars |
-|---|---|---|
-| `saltandlight-web` | `apps/web` | everything in `.env.example` except the ones only the admin app needs |
-| `saltandlight-admin` | `apps/admin` | everything in `.env.example`, plus `SUPABASE_SERVICE_ROLE_KEY` |
+```bash
+pnpm build:cloudflare     # opennextjs-cloudflare — builds apps/web/.open-next/
+pnpm preview:cloudflare   # build then `wrangler dev` — local Worker preview
+pnpm deploy:cloudflare    # build then `wrangler deploy` — builds + promotes to 100% traffic
+```
 
-Vercel auto-detects the pnpm workspace from `pnpm-workspace.yaml` at the repo
-root and runs the install from there — no custom install command needed.
-Set "Root Directory" per project in Project Settings → General; leave
-"Include files outside Root Directory" on its default (Vercel enables it
-automatically for detected monorepos).
+**Cloudflare dashboard → Workers & Pages → saltandlight → Settings → Builds**,
+for the Git-connected auto-deploy:
 
-Set `NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_ADMIN_URL` to the real deployed
-URLs once you have them (used for absolute links, e.g. in emails).
+- **Root directory**: `/` (repo root — `wrangler.jsonc` and the root `build`
+  script both expect this)
+- **Build command**: `pnpm run build` (runs `turbo run build`, then
+  `opennextjs-cloudflare` for `apps/web`)
+- **Deploy command**: `npx wrangler deploy` — uploads **and** promotes to
+  100% production traffic in one step. (`npx wrangler versions upload` only
+  creates a candidate version and requires a manual `wrangler versions
+  deploy` to go live — don't use it as the Deploy command unless you
+  actually want that two-step review flow.)
+- **Production branch**: whichever branch you push real changes to (must
+  match the branch you're actually deploying from — a mismatch here means
+  every push runs the Version command instead of the Deploy command, so
+  nothing goes live automatically).
 
-After the first deploy, point `saltandlight.com.vn` at the `web` project
-and something like `admin.saltandlight.com.vn` at the `admin` project.
+Environment variables/secrets are configured **once**, on this one Worker,
+under **Settings → Variables and Secrets**. Anything containing a credential
+(`DATABASE_URL`, `DIRECT_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`,
+`UPSTASH_REDIS_REST_TOKEN`, ...) should be added as a **Secret**, via
+`wrangler secret put NAME` or the dashboard — never as a plaintext `vars`
+entry in `wrangler.jsonc` (that file is committed to git) or as a plaintext
+dashboard "Variable" (those get silently wiped/reset on some deploys).
+
+`NEXT_PUBLIC_*` vars are inlined into the client bundle at **build** time,
+which runs in a separate, ephemeral container that doesn't see Worker
+secrets — so they (and `DATABASE_URL`/`DIRECT_URL`, needed for
+`generateStaticParams` during the build) also need to be added under
+**Settings → Build → Environment variables** (a separate section from the
+Worker's runtime Variables/Secrets above).
 
 ## 4. Migrating data from WooCommerce
 
@@ -141,8 +165,8 @@ Settings → Advanced → REST API` (Read permission is enough). The script is
 idempotent (upserts by slug/order number) and writes `migration-report.json`
 listing anything that needs a human look — notably the tote-bag products,
 which were built with Elementor instead of the standard WooCommerce
-description field (spec §1.2), so their description will come back mostly
-empty and needs to be copied over by hand.
+description field, so their description will come back mostly empty and
+needs to be copied over by hand.
 
 ## Notes
 
@@ -153,5 +177,5 @@ empty and needs to be copied over by hand.
   behind each table.
 - The admin dashboard's revenue figure only counts orders in `processing`
   or `completed` — the original WooCommerce dashboard showed 0₫ because it
-  excluded orders stuck in "on-hold"/"processing" (spec §1.1); this avoids
-  repeating that.
+  excluded orders stuck in "on-hold"/"processing"; this avoids repeating
+  that.
