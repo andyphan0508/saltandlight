@@ -47,11 +47,12 @@ export function AdminHeader({
     products: "Sản phẩm",
     new: "Thêm mới",
     orders: "Đơn hàng",
-    payments: "Thanh toán",
+    payments: "Xác nhận thanh toán",
     shipping: "Vận chuyển",
     customers: "Khách hàng",
     banners: "Banner & Slider",
-    "page-builder": "Xây dựng trang",
+    promotions: "Mã & Khuyến mãi",
+    "page-builder": "Bố cục trang chủ",
     settings: "Cài đặt",
     payment: "Thanh toán",
     users: "Nhân viên",
@@ -154,8 +155,8 @@ export function AdminHeader({
               <div className="text-xs font-bold text-ink leading-tight">
                 {displayName}
               </div>
-              <div className="text-[10px] font-semibold uppercase text-brand-forest tracking-wider">
-                {role}
+              <div className="text-[10px] font-semibold text-brand-forest tracking-wider">
+                {role === "owner" ? "Chủ cửa hàng" : role === "admin" ? "Quản trị viên" : "Nhân viên"}
               </div>
             </div>
             <ChevronDown size={14} className="text-slate-400 hidden sm:block" />

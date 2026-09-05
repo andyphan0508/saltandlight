@@ -1,18 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const beVietnam = Be_Vietnam_Pro({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
+const patrickHand = localFont({
+  src: "../assets/fonts/PatrickHand-Regular.ttf",
+  variable: "--font-patrick",
   display: "swap",
 });
 
@@ -35,8 +27,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable} overflow-x-hidden`}>
-      <body className="flex min-h-screen flex-col font-sans overflow-x-hidden w-full max-w-full text-ink bg-cream antialiased">
+    <html lang="vi" className={`${patrickHand.variable} overflow-x-hidden font-patrick`}>
+      <body className="flex min-h-screen flex-col font-patrick overflow-x-hidden w-full max-w-full text-ink bg-cream antialiased selection:bg-mint-200 selection:text-brand-forest">
         {children}
       </body>
     </html>

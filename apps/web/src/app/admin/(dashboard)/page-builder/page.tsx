@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
@@ -34,17 +35,17 @@ export default async function PageBuilderPage({
   });
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title="Xây Dựng Trang"
-        subtitle="Kéo-thả sắp xếp, bật/tắt hiển thị và chỉnh nội dung các khối trên trang chủ và các trang tĩnh"
+        title="Bố Cục Nội Dung Trang"
+        subtitle="Sắp xếp thứ tự hiển thị, bật/tắt các khối nội dung trên trang chủ và trang thông tin"
       />
 
-      <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
         {PAGE_SLUGS.map((slug) => (
-          <a
+          <Link
             key={slug}
-            href={`/page-builder?page=${slug}`}
+            href={`/admin/page-builder?page=${slug}`}
             className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
               slug === page
                 ? "bg-brand-forest text-white shadow-xs"
@@ -52,7 +53,7 @@ export default async function PageBuilderPage({
             }`}
           >
             {PAGE_LABELS[slug]}
-          </a>
+          </Link>
         ))}
       </div>
 

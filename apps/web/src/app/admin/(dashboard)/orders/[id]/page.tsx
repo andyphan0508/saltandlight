@@ -30,7 +30,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
   const meta = STATUS_META[order.status] ?? { label: order.status, className: "bg-ink/8" };
 
   return (
-    <div>
+    <div className="space-y-6">
       <BackLink href="/admin/orders" label="Quay lại danh sách đơn hàng" />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -44,7 +44,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         </span>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Section title="Sản phẩm" icon={<Package size={15} />}>
             <div className="divide-y divide-ink/5">

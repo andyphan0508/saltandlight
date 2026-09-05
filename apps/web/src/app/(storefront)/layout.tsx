@@ -7,6 +7,7 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
 import { NavigationProgress } from "@/components/NavigationProgress";
+import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { getCachedCategoriesWithCounts, getCachedActivePromotions } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
@@ -47,6 +48,7 @@ export default async function StorefrontLayout({ children }: { children: React.R
       <MobileDrawer categories={navCategories} />
       <SearchSpotlight />
       <CartFab />
+      <CuteAmbientBackground />
     </>
   );
 }

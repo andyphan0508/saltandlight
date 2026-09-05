@@ -19,7 +19,7 @@ export default async function EditProductPage({ params }: { params: { id: string
   const plain = toPlain(product);
 
   return (
-    <div>
+    <div className="space-y-6">
       <BackLink href="/admin/products" label="Quay lại danh sách sản phẩm" />
       <PageHeader title={plain.name} subtitle="Chỉnh sửa thông tin, ảnh, giá và biến thể sản phẩm" />
       <ProductForm

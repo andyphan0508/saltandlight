@@ -10,7 +10,7 @@ export default async function NewProductPage() {
   ]);
 
   return (
-    <div>
+    <div className="space-y-6">
       <BackLink href="/admin/products" label="Quay lại danh sách sản phẩm" />
       <PageHeader title="Thêm sản phẩm" subtitle="Điền thông tin, upload ảnh và tạo biến thể cho sản phẩm mới" />
       <ProductForm

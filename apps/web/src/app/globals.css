@@ -4,8 +4,9 @@
 
 @layer base {
   :root {
-    --font-display: "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
-    --font-sans: "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+    --font-display: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
+    --font-sans: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
+    --font-patrick: "Patrick Hand", cursive, sans-serif;
   }
 
   html {
@@ -14,8 +15,13 @@
   }
 
   body {
-    @apply bg-cream text-ink antialiased selection:bg-mint-300 selection:text-ink;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-cream text-ink antialiased selection:bg-mint-200 selection:text-brand-forest;
+    font-family: var(--font-patrick), "Patrick Hand", cursive, sans-serif;
+    letter-spacing: 0.015em;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
   }
 
   /* Custom subtle scrollbar */
@@ -273,4 +279,91 @@
   animation: pulseGlow 2.5s infinite;
 }
 
+/* Cute Sparkling Ambient Background Keyframes */
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    transform: scale(0.55) rotate(0deg);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(1.15) rotate(45deg);
+    opacity: 0.85;
+  }
+}
 
+@keyframes sparkleSpinPulse {
+  0% {
+    transform: rotate(0deg) scale(0.7);
+    opacity: 0.25;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(360deg) scale(0.7);
+    opacity: 0.25;
+  }
+}
+
+@keyframes floatDriftA {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(35px, -45px) scale(1.08);
+  }
+  66% {
+    transform: translate(-25px, 20px) scale(0.95);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes floatDriftB {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(-35px, 30px) scale(1.06);
+  }
+  66% {
+    transform: translate(25px, -35px) scale(0.94);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes floatDriftC {
+  0% {
+    transform: translate(0px, 0px) scale(0.96);
+  }
+  50% {
+    transform: translate(30px, 30px) scale(1.07);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(0.96);
+  }
+}
+
+.animate-sparkle-twinkle {
+  animation: sparkleTwinkle 3.2s ease-in-out infinite;
+}
+
+.animate-sparkle-spin {
+  animation: sparkleSpinPulse 8s linear infinite;
+}
+
+.animate-drift-a {
+  animation: floatDriftA 22s ease-in-out infinite;
+}
+
+.animate-drift-b {
+  animation: floatDriftB 26s ease-in-out infinite;
+}
+
+.animate-drift-c {
+  animation: floatDriftC 20s ease-in-out infinite;
+}

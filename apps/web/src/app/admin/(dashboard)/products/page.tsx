@@ -85,7 +85,7 @@ export default async function ProductsPage({
             {Object.entries(STATUS_LABEL).map(([key, meta]) => (
               <StatusPill
                 key={key}
-                href={`/products?status=${key}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                href={`/admin/products?status=${key}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
                 active={status === key}
                 label={meta.label}
               />

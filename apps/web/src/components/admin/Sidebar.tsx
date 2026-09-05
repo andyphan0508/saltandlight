@@ -39,11 +39,11 @@ const NAV_GROUPS: {
     label: "Bán hàng",
     items: [
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
-      { href: "/admin/promotions", label: "Chương trình giảm giá", icon: Tag },
+      { href: "/admin/promotions", label: "Mã & Khuyến mãi", icon: Tag },
       { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
-      { href: "/admin/page-builder", label: "Xây dựng trang", icon: LayoutGrid },
+      { href: "/admin/page-builder", label: "Bố cục trang chủ", icon: LayoutGrid },
       { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingCart },
-      { href: "/admin/payments", label: "Thanh toán", icon: Wallet },
+      { href: "/admin/payments", label: "Xác nhận thanh toán", icon: Wallet },
     ],
   },
   {
@@ -177,8 +177,8 @@ export function Sidebar({
             <div className="truncate text-xs font-bold text-ink leading-tight">
               {displayName}
             </div>
-            <div className="truncate text-[10px] uppercase font-semibold text-brand-forest">
-              {role}
+            <div className="truncate text-[10px] font-semibold text-brand-forest">
+              {role === "owner" ? "Chủ cửa hàng" : role === "admin" ? "Quản trị viên" : "Nhân viên"}
             </div>
           </div>
           <button

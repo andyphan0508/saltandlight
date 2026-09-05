@@ -13,7 +13,7 @@ export default async function PaymentSettingsPage() {
   const settings = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Cài Đặt Thanh Toán"
         subtitle="Cấu hình mã QR, hướng dẫn chuyển khoản và thông báo hiển thị cho khách sau khi đặt hàng"
