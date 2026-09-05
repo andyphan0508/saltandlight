@@ -63,42 +63,42 @@ export default async function ProductDetailPage({
     : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-16">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs font-semibold uppercase text-ink/60">
-        <Link href="/" className="hover:text-ink">
+    <div className="mx-auto max-w-7xl px-3.5 sm:px-6 py-4 sm:py-10 space-y-8 sm:space-y-14">
+      {/* Breadcrumbs - horizontally scrollable without breaking on mobile */}
+      <nav className="flex items-center gap-2 text-xs font-semibold uppercase text-ink/60 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
+        <Link href="/" className="hover:text-ink flex-shrink-0">
           Trang chủ
         </Link>
-        <ChevronRight size={12} />
-        <Link href="/san-pham" className="hover:text-ink">
+        <ChevronRight size={12} className="flex-shrink-0 text-ink/30" />
+        <Link href="/san-pham" className="hover:text-ink flex-shrink-0">
           Sản phẩm
         </Link>
         {plain.category && (
           <>
-            <ChevronRight size={12} />
+            <ChevronRight size={12} className="flex-shrink-0 text-ink/30" />
             <Link
               href={`/danh-muc/${plain.category.slug}`}
-              className="hover:text-ink"
+              className="hover:text-ink flex-shrink-0"
             >
               {plain.category.name}
             </Link>
           </>
         )}
-        <ChevronRight size={12} />
-        <span className="text-brand-forest font-bold line-clamp-1">
+        <ChevronRight size={12} className="flex-shrink-0 text-ink/30" />
+        <span className="text-brand-forest font-bold truncate max-w-[200px] sm:max-w-none">
           {plain.name}
         </span>
       </nav>
 
       {/* Product Main Showcase */}
-      <div className="grid gap-8 lg:gap-12 lg:grid-cols-12 items-start">
+      <div className="grid gap-6 lg:gap-12 lg:grid-cols-12 items-start">
         {/* Gallery: 5 cols on desktop, compact and centered */}
         <div className="lg:col-span-5 lg:sticky lg:top-28">
           <ProductGallery images={plain.images} productName={plain.name} />
         </div>
 
         {/* Buy Box & Specs: 7 cols on desktop */}
-        <div className="lg:col-span-7 space-y-8">
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">

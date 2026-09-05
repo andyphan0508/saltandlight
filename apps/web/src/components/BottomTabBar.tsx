@@ -41,7 +41,7 @@ export function BottomTabBar() {
       <button
         type="button"
         onClick={() => setMobileMenuOpen(true)}
-        className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-ink/50 active:bg-ink/5"
+        className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-ink/50 hover:text-ink active-press"
         aria-label="Mở menu"
       >
         <Menu size={21} />
@@ -67,14 +67,14 @@ function TabLink({
   return (
     <Link
       href={href}
-      className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors ${
-        active ? "text-ink" : "text-ink/50"
+      className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors active-press ${
+        active ? "text-ink" : "text-ink/50 hover:text-ink"
       }`}
     >
       <span className="relative">
         {children}
         {!!badge && badge > 0 && (
-          <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[9px] font-black text-white">
+          <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[9px] font-black text-white shadow-xs">
             {badge}
           </span>
         )}

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Badge } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { useWishlistStore } from "@/lib/wishlist-store";
@@ -13,8 +14,23 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const toggleWishlist = useWishlistStore((s) => s.toggle);
   const discount = calcDiscountPercent(product.minPrice, product.maxCompareAtPrice);
 
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product.id);
+    if (!isWished) {
+      toast.success("Đã lưu vào yêu thích ❤️", {
+        description: product.name,
+      });
+    } else {
+      toast.info("Đã xóa khỏi danh sách yêu thích", {
+        description: product.name,
+      });
+    }
+  };
+
   return (
-    <div className="group relative flex flex-col justify-between rounded-2xl bg-white p-2.5 sm:p-3 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover border border-ink/5">
+    <div className="group relative flex flex-col justify-between rounded-2xl bg-white p-2.5 sm:p-3 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover border border-ink/5 active-press">
       <div>
         {/* Image Container - compact & clean */}
         <Link href={`/san-pham/${product.slug}`} className="relative block aspect-square sm:aspect-[4/5] overflow-hidden rounded-xl bg-mint-50/70">
@@ -58,14 +74,10 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         {/* Wishlist Button - compact */}
         <button
           type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWishlist(product.id);
-          }}
+          onClick={handleWishlist}
           aria-pressed={isWished}
           aria-label={isWished ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
-          className={`absolute right-3.5 top-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200 shadow-sm ${
+          className={`absolute right-3.5 top-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200 shadow-sm active-press ${
             isWished
               ? "bg-rose-50 text-sale scale-110 shadow-rose-200/50"
               : "bg-white/90 text-ink/60 hover:bg-white hover:text-sale hover:scale-110"

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Badge, Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
@@ -71,12 +72,36 @@ export function ProductBuyBox({
     add(selected.id, quantity);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2200);
+
+    const variantLabel = [
+      selected.size ? `Size ${selected.size}` : null,
+      selected.color ? `Màu ${selected.color}` : null,
+    ]
+      .filter(Boolean)
+      .join(" - ");
+
+    toast.success("Đã thêm vào giỏ hàng!", {
+      description: `${productName || "Sản phẩm"} ${variantLabel ? `(${variantLabel})` : ""} × ${quantity}`,
+    });
   };
 
   const handleBuyNow = () => {
     if (outOfStock) return;
     add(selected.id, quantity);
     router.push("/thanh-toan");
+  };
+
+  const handleToggleWishlist = () => {
+    toggleWishlist(productId);
+    if (!isWished) {
+      toast.success("Đã lưu vào yêu thích ❤️", {
+        description: productName || "Sản phẩm",
+      });
+    } else {
+      toast.info("Đã xóa khỏi danh sách yêu thích", {
+        description: productName || "Sản phẩm",
+      });
+    }
   };
 
   return (
@@ -210,10 +235,10 @@ export function ProductBuyBox({
 
           <button
             type="button"
-            onClick={() => toggleWishlist(productId)}
-            className={`flex h-11 items-center gap-2 rounded-2xl border px-4 text-xs font-bold transition-colors ${
+            onClick={handleToggleWishlist}
+            className={`flex h-11 items-center gap-2 rounded-2xl border px-4 text-xs font-bold transition-all active-press ${
               isWished
-                ? "border-rose-300 bg-rose-50 text-sale"
+                ? "border-rose-300 bg-rose-50 text-sale shadow-sm"
                 : "border-ink/15 bg-white text-ink hover:border-ink/30"
             }`}
           >
@@ -231,12 +256,12 @@ export function ProductBuyBox({
             size="lg"
             disabled={outOfStock}
             onClick={handleAddToCart}
-            className="w-full flex items-center justify-center gap-2 py-3.5"
+            className="w-full flex items-center justify-center gap-2 py-3.5 active-press rounded-2xl text-xs sm:text-sm font-bold"
           >
             {justAdded ? (
               <>
-                <Check size={18} className="text-emerald-600" />
-                <span className="text-emerald-700">Đã thêm vào giỏ!</span>
+                <Check size={18} className="text-emerald-600 animate-bounce-soft" />
+                <span className="text-emerald-700 font-bold">Đã thêm vào giỏ!</span>
               </>
             ) : (
               <>
@@ -251,7 +276,7 @@ export function ProductBuyBox({
             size="lg"
             disabled={outOfStock}
             onClick={handleBuyNow}
-            className="w-full bg-ink text-white hover:bg-ink-800 shadow-md py-3.5"
+            className="w-full bg-ink text-white hover:bg-ink-800 shadow-md py-3.5 active-press rounded-2xl text-xs sm:text-sm font-bold tracking-wide"
           >
             {outOfStock ? "Tạm hết hàng" : "Mua ngay — Nhận ưu đãi"}
           </Button>

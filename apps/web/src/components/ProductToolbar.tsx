@@ -69,7 +69,7 @@ export function ProductToolbar({
         </span>
       </div>
 
-      <div className="flex items-center gap-2 text-xs font-semibold text-ink/60">
+      <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-ink/60">
         <label htmlFor="sort" className="hidden sm:inline">
           Sắp xếp
         </label>

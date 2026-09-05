@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Toaster } from "sonner";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BottomTabBar } from "@/components/BottomTabBar";
@@ -27,6 +28,15 @@ export default async function StorefrontLayout({ children }: { children: React.R
 
   return (
     <>
+      <Toaster
+        richColors
+        position="top-center"
+        duration={2500}
+        closeButton
+        toastOptions={{
+          className: "!rounded-2xl !font-sans !shadow-xl !border !border-ink/10",
+        }}
+      />
       <Suspense fallback={null}>
         <NavigationProgress />
       </Suspense>

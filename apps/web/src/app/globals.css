@@ -153,3 +153,59 @@
   animation: shimmer 1.5s infinite;
 }
 
+/* Native Mobile BottomSheet & Slide Animations */
+@keyframes slideUpSheet {
+  from {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownSheet {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+}
+
+.animate-sheet-up {
+  animation: slideUpSheet 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-sheet-down {
+  animation: slideDownSheet 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Native Touch Feedback (Haptic-like Micro-compression) */
+.active-press {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s ease;
+}
+.active-press:active {
+  transform: scale(0.965);
+  opacity: 0.92;
+}
+
+/* Hide scrollbar while preserving scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Native iOS Smooth Scrolling */
+.native-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+

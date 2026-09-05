@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
 import { ShoppingBag } from "./Icons";
@@ -11,6 +12,7 @@ import { ShoppingBag } from "./Icons";
  * and Desktop with smooth micro-interactions and prominent badge counter.
  */
 export function CartFab() {
+  const pathname = usePathname();
   const cartCount = useCartStore((s) => s.lines.reduce((sum, l) => sum + l.quantity, 0));
   const [bumping, setBumping] = useState(false);
 
@@ -23,11 +25,15 @@ export function CartFab() {
     }
   }, [cartCount]);
 
+  if (pathname === "/gio-hang" || pathname === "/thanh-toan") {
+    return null;
+  }
+
   return (
     <Link
       href="/gio-hang"
       aria-label="Giỏ hàng Salt & Light"
-      className={`group fixed z-40 flex items-center gap-2.5 rounded-full bg-ink text-white shadow-2xl transition-all duration-300 active:scale-95
+      className={`group fixed z-40 flex items-center gap-2.5 rounded-full bg-ink text-white shadow-2xl transition-all duration-300 active-press
         bottom-20 right-4 p-3.5 sm:bottom-24 sm:right-6 lg:bottom-8 lg:right-8 lg:px-4 lg:py-3.5
         hover:bg-ink-800 hover:shadow-brand-forest/20 hover:ring-4 hover:ring-brand-forest/20
         ${bumping ? "scale-110 ring-4 ring-brand-forest/40" : "scale-100"}`}

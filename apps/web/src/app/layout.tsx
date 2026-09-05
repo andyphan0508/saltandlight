@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 
@@ -16,6 +16,14 @@ const beVietnam = Be_Vietnam_Pro({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#FAF7F2",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Salt & Light – Thời Trang & Quà Tặng Lời Chúa",
@@ -27,8 +35,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable}`}>
-      <body className="flex min-h-screen flex-col font-sans">
+    <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable} overflow-x-hidden`}>
+      <body className="flex min-h-screen flex-col font-sans overflow-x-hidden w-full max-w-full text-ink bg-cream antialiased">
         {children}
       </body>
     </html>
