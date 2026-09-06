@@ -1,14 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
 import { Check, ShieldCheck, Phone, Mail } from "./Icons";
+import { TurnstileWidget, type TurnstileWidgetRef } from "./TurnstileWidget";
 
 export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileWidgetRef>(null);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setErrorMessage(null);
+
+    if (!turnstileToken) {
+      setErrorMessage("Vui lòng tích vào ô xác nhận bảo mật bên dưới trước khi gửi.");
+      return;
+    }
+
     setStatus("sending");
     const formEl = e.currentTarget;
     const form = new FormData(formEl);
@@ -22,17 +33,33 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
           phone: form.get("phone"),
           email: form.get("email"),
           message: form.get("message"),
+          turnstileToken,
         }),
-        signal: AbortSignal.timeout(6000),
+        signal: AbortSignal.timeout(8000),
       });
+
+      const data = await res.json().catch(() => null);
+
       if (res.ok) {
         setStatus("sent");
         formEl.reset();
+        setTurnstileToken("");
       } else {
+        const errorMsg =
+          typeof data?.error === "string"
+            ? data.error
+            : data?.error?.formErrors?.[0] ||
+              "Có lỗi xảy ra trong quá trình gửi. Vui lòng thử lại.";
+        setErrorMessage(errorMsg);
         setStatus("error");
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
       }
     } catch {
+      setErrorMessage("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.");
       setStatus("error");
+      turnstileRef.current?.reset();
+      setTurnstileToken("");
     }
   }
 
@@ -110,6 +137,22 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
         />
       </div>
 
+      {/* Cloudflare Turnstile bot verification */}
+      <div className="pt-1">
+        <TurnstileWidget
+          ref={turnstileRef}
+          onVerify={(tok) => {
+            setTurnstileToken(tok);
+            setErrorMessage(null);
+          }}
+          onExpire={() => setTurnstileToken("")}
+          onError={() => {
+            setTurnstileToken("");
+            setErrorMessage("Không thể tải mã bảo mật. Vui lòng thử tải lại trang.");
+          }}
+        />
+      </div>
+
       <Button
         type="submit"
         disabled={status === "sending"}
@@ -120,9 +163,9 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
         {status === "sending" ? "Đang gửi yêu cầu…" : "Gửi thông tin cho chúng mình"}
       </Button>
 
-      {status === "error" && (
-        <p className="text-xs font-semibold text-sale text-center">
-          Có lỗi xảy ra trong quá trình gửi, vui lòng liên hệ hotline 0847 25 2025.
+      {errorMessage && (
+        <p className="text-xs font-semibold text-sale text-center animate-fade-in">
+          {errorMessage}
         </p>
       )}
     </form>

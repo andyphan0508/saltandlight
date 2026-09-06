@@ -8,8 +8,9 @@ import { useMobileMenuStore } from "@/lib/mobile-menu-store";
 import { useSearchModalStore } from "@/lib/search-store";
 import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
+import { useCustomer } from "@/lib/use-customer";
 import { Logo } from "./Logo";
-import { Heart, Search, Phone, Truck, ChevronDown, Sparkles } from "./Icons";
+import { Heart, Search, Phone, Truck, ChevronDown, Sparkles, User } from "./Icons";
 import { formatVND } from "@saltandlight/domain";
 
 interface CategoryNavItem {
@@ -36,6 +37,7 @@ export function Header({
   siteSettings?: SiteSettingsData;
 }) {
   const pathname = usePathname();
+  const { customer } = useCustomer();
   const navLeft = siteSettings.headerNavItems.left;
   const navRight = siteSettings.headerNavItems.right;
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
@@ -242,6 +244,22 @@ export function Header({
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-black text-white shadow-sm">
                   {wishlistCount}
                 </span>
+              )}
+            </Link>
+
+            {/* Customer Account / Login */}
+            <Link
+              href={customer ? "/tai-khoan" : "/dang-nhap"}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-ink/5 transition-all active-press"
+              aria-label={customer ? `Tài khoản (${customer.fullName})` : "Đăng nhập tài khoản"}
+              title={customer ? `Xin chào, ${customer.fullName}` : "Đăng nhập tài khoản"}
+            >
+              {customer ? (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-white text-[11px] font-black shadow-xs ring-2 ring-mint-200">
+                  {customer.fullName.trim().charAt(0).toUpperCase()}
+                </div>
+              ) : (
+                <User size={19} />
               )}
             </Link>
           </div>

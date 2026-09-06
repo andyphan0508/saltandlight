@@ -3,16 +3,16 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
-import { formatVND } from "@saltandlight/domain";
+import { formatVND, ORDER_STATUS_LABELS, type OrderStatusValue } from "@saltandlight/domain";
 import { Truck, Search, Phone, Check, ShieldCheck, Sparkles } from "@/components/Icons";
 
-const STATUS_LABEL: Record<string, { label: string; bg: string }> = {
-  pending_payment: { label: "Chờ thanh toán", bg: "bg-amber-100 text-amber-900 border-amber-200" },
-  processing: { label: "Đang xử lý & Đóng gói", bg: "bg-blue-100 text-blue-900 border-blue-200" },
-  on_hold: { label: "Tạm giữ", bg: "bg-orange-100 text-orange-900 border-orange-200" },
-  completed: { label: "Giao hàng thành công", bg: "bg-emerald-100 text-emerald-900 border-emerald-200" },
-  cancelled: { label: "Đã hủy", bg: "bg-rose-100 text-rose-900 border-rose-200" },
-  refunded: { label: "Đã hoàn tiền", bg: "bg-zinc-100 text-zinc-900 border-zinc-200" },
+const STATUS_BG: Record<string, string> = {
+  pending_payment: "bg-amber-100 text-amber-900 border-amber-200",
+  processing: "bg-blue-100 text-blue-900 border-blue-200",
+  on_hold: "bg-orange-100 text-orange-900 border-orange-200",
+  completed: "bg-emerald-100 text-emerald-900 border-emerald-200",
+  cancelled: "bg-rose-100 text-rose-900 border-rose-200",
+  refunded: "bg-zinc-100 text-zinc-900 border-zinc-200",
 };
 
 interface OrderResult {
@@ -119,10 +119,10 @@ export default function TrackOrderPage() {
             </div>
             <span
               className={`rounded-full border px-4 py-1 text-xs font-black uppercase tracking-wider ${
-                STATUS_LABEL[result.status]?.bg ?? "bg-ink text-white"
+                STATUS_BG[result.status] ?? "bg-ink text-white"
               }`}
             >
-              {STATUS_LABEL[result.status]?.label ?? result.status}
+              {ORDER_STATUS_LABELS[result.status as OrderStatusValue] ?? result.status}
             </span>
           </div>
 
@@ -164,7 +164,7 @@ export default function TrackOrderPage() {
                   </div>
                   <div>
                     <span className="font-bold text-ink">
-                      {STATUS_LABEL[h.toStatus]?.label ?? h.toStatus}
+                      {ORDER_STATUS_LABELS[h.toStatus as OrderStatusValue] ?? h.toStatus}
                     </span>
                     <p className="text-[11px] text-ink/50">
                       {new Date(h.changedAt).toLocaleString("vi-VN")}

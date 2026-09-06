@@ -2,7 +2,9 @@ const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /** Verifies a Cloudflare Turnstile token server-side. Never trust a client-supplied "verified" flag. */
 export async function verifyTurnstileToken(token: string, remoteIp?: string | null): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const secret =
+    process.env.TURNSTILE_SECRET_KEY ||
+    (process.env.NODE_ENV !== "production" ? "1x0000000000000000000000000000000AA" : undefined);
   if (!secret) {
     console.error("[turnstile] TURNSTILE_SECRET_KEY is not set — refusing to accept the form as verified.");
     return false;

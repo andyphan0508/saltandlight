@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMobileMenuStore } from "@/lib/mobile-menu-store";
+import { useCustomer } from "@/lib/use-customer";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { Logo } from "./Logo";
-import { X, ChevronRight, Truck, Phone, Shirt, ShoppingBag, ShieldCheck } from "./Icons";
+import { X, ChevronRight, Truck, Phone, Shirt, ShoppingBag, ShieldCheck, User, LogOut } from "./Icons";
 
 interface CategoryNavItem {
   id: string;
@@ -23,6 +24,7 @@ export function MobileDrawer({
   siteSettings?: SiteSettingsData;
 }) {
   const pathname = usePathname();
+  const { customer, signOut } = useCustomer();
   const navItems = [...siteSettings.headerNavItems.left, ...siteSettings.headerNavItems.right];
   const open = useMobileMenuStore((s) => s.open);
   const setOpen = useMobileMenuStore((s) => s.setOpen);
@@ -103,6 +105,52 @@ export function MobileDrawer({
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto native-scroll px-5 py-4 space-y-5">
+          {/* Customer Account Section */}
+          <div className="rounded-2xl border border-ink/10 bg-white p-3.5 shadow-xs">
+            {customer ? (
+              <div className="flex items-center justify-between gap-3">
+                <Link
+                  href="/tai-khoan"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 min-w-0 flex-1 active-press"
+                >
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white font-black text-sm ring-2 ring-mint-200">
+                    {customer.fullName.trim().charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-black text-ink truncate">{customer.fullName}</p>
+                    <p className="text-[10px] text-brand-forest font-semibold">Đơn hàng của tôi →</p>
+                  </div>
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await signOut();
+                    setOpen(false);
+                  }}
+                  className="rounded-xl p-2 text-ink/40 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                  title="Đăng xuất"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/dang-nhap"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 active-press"
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
+                  <User size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-ink">Đăng nhập tài khoản</p>
+                  <p className="text-[10px] text-ink/40">Xem lại lịch sử đơn hàng &amp; ưu đãi</p>
+                </div>
+                <ChevronRight size={16} className="text-ink/30" />
+              </Link>
+            )}
+          </div>
           {/* Quick Category Grid */}
           {categories.length > 0 && (
             <div>
