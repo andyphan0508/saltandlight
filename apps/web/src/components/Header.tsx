@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useMobileMenuStore } from "@/lib/mobile-menu-store";
 import { useSearchModalStore } from "@/lib/search-store";
-import { NAV_LEFT, NAV_RIGHT } from "@/lib/nav-items";
+import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { MarqueeBanner } from "./MarqueeBanner";
+import { Logo } from "./Logo";
 import { Heart, Search, Phone, Truck, ChevronDown, Sparkles } from "./Icons";
 import { formatVND } from "@saltandlight/domain";
 
@@ -29,11 +29,15 @@ export interface ActivePromotionInfo {
 export function Header({
   categories,
   activePromotion,
+  siteSettings = DEFAULT_SITE_SETTINGS,
 }: {
   categories: CategoryNavItem[];
   activePromotion?: ActivePromotionInfo | null;
+  siteSettings?: SiteSettingsData;
 }) {
   const pathname = usePathname();
+  const navLeft = siteSettings.headerNavItems.left;
+  const navRight = siteSettings.headerNavItems.right;
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
 
   const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
@@ -127,7 +131,7 @@ export function Header({
 
             {/* Desktop nav (left) */}
             <nav className="hidden items-center gap-1 lg:flex">
-              {NAV_LEFT.map((item) => (
+              {navLeft.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -187,14 +191,13 @@ export function Header({
 
           {/* Center: logo */}
           <Link href="/" className="flex flex-shrink-0 items-center justify-self-center group py-1">
-            <div className="relative h-11 sm:h-14 lg:h-16 w-40 sm:w-56 lg:w-60 transition-transform duration-200 group-hover:scale-105">
-              <Image
-                src="/images/logo.png"
+            <div className="transition-transform duration-200 group-hover:scale-105">
+              <Logo
+                src={siteSettings.logoUrl}
+                size={siteSettings.logoSize}
+                placement="header"
                 alt="Salt & Light - Áo Thun Lời Chúa"
-                fill
                 priority
-                className="object-contain"
-                sizes="(max-width: 640px) 160px, 240px"
               />
             </div>
           </Link>
@@ -202,7 +205,7 @@ export function Header({
           {/* Right column */}
           <div className="flex items-center gap-1 justify-self-end sm:gap-2">
             <nav className="hidden items-center gap-1 lg:flex">
-              {NAV_RIGHT.map((item) => (
+              {navRight.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

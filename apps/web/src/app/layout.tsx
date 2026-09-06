@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { getCachedSiteSettings } from "@/lib/queries";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,14 +17,25 @@ export const viewport: Viewport = {
   themeColor: "#FAF7F2",
 };
 
-export const metadata: Metadata = {
-  title: {
-    default: "Salt & Light – Thời Trang & Quà Tặng Lời Chúa",
-    template: "%s · Salt & Light",
-  },
-  description:
-    "Thời trang và quà tặng Cơ Đốc chính hãng: Áo thun 100% Cotton, túi tote canvas in lời Kinh Thánh. Đồng giá ship 19K toàn quốc.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let faviconUrl: string | null = null;
+  try {
+    const settings = await getCachedSiteSettings();
+    faviconUrl = settings?.faviconUrl ?? null;
+  } catch {
+    // Fall back to no explicit favicon — never let this block the page render.
+  }
+
+  return {
+    title: {
+      default: "Salt & Light – Thời Trang & Quà Tặng Lời Chúa",
+      template: "%s · Salt & Light",
+    },
+    description:
+      "Thời trang và quà tặng Cơ Đốc chính hãng: Áo thun 100% Cotton, túi tote canvas in lời Kinh Thánh. Đồng giá ship 19K toàn quốc.",
+    ...(faviconUrl ? { icons: { icon: faviconUrl } } : {}),
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

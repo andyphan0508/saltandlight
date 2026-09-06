@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMobileMenuStore } from "@/lib/mobile-menu-store";
-import { NAV_LEFT, NAV_RIGHT } from "@/lib/nav-items";
+import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
+import { Logo } from "./Logo";
 import { X, ChevronRight, Truck, Phone, Shirt, ShoppingBag, ShieldCheck } from "./Icons";
 
 interface CategoryNavItem {
@@ -15,8 +15,15 @@ interface CategoryNavItem {
   count: number;
 }
 
-export function MobileDrawer({ categories }: { categories: CategoryNavItem[] }) {
+export function MobileDrawer({
+  categories,
+  siteSettings = DEFAULT_SITE_SETTINGS,
+}: {
+  categories: CategoryNavItem[];
+  siteSettings?: SiteSettingsData;
+}) {
   const pathname = usePathname();
+  const navItems = [...siteSettings.headerNavItems.left, ...siteSettings.headerNavItems.right];
   const open = useMobileMenuStore((s) => s.open);
   const setOpen = useMobileMenuStore((s) => s.setOpen);
 
@@ -73,12 +80,10 @@ export function MobileDrawer({ categories }: { categories: CategoryNavItem[] }) 
         <div className="flex items-center justify-between border-b border-ink/5 px-6 pb-3 pt-1">
           <div className="flex items-center gap-2.5">
             <div className="relative h-8 w-28">
-              <Image
-                src="/images/logo.png"
+              <img
+                src={siteSettings.logoUrl}
                 alt="Salt & Light"
-                fill
-                className="object-contain object-left"
-                priority
+                className="h-full w-full object-contain object-left"
               />
             </div>
             <span className="rounded-full bg-brand-forest/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-forest">
@@ -155,7 +160,7 @@ export function MobileDrawer({ categories }: { categories: CategoryNavItem[] }) 
               Điều hướng chính
             </div>
 
-            {[...NAV_LEFT, ...NAV_RIGHT].map((item) => {
+            {navItems.map((item) => {
               const active = isActive(item.href);
               return (
                 <Link

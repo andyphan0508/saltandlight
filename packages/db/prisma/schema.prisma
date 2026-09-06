@@ -413,4 +413,28 @@ model Promotion {
   @@map("promotions")
 }
 
+// ── Site settings (header/footer/logo/menu editor) ────────────────
+
+// Singleton row (id is always "default") - admin-editable header/footer
+// content so the shop owner can change logo/menu/footer without a code
+// deploy. Null fields fall back to the hardcoded defaults in the
+// components themselves, so an empty row changes nothing visually.
+model SiteSettings {
+  id                String   @id @default("default")
+  logoUrl           String?  @map("logo_url")
+  logoSize          String   @default("md") @map("logo_size") // "sm" | "md" | "lg"
+  footerLogoUrl     String?  @map("footer_logo_url") // null = reuse logoUrl
+  faviconUrl        String?  @map("favicon_url")
+  headerNavItems    Json?    @map("header_nav_items") // [{label, href}]
+  footerBrandText   String?  @map("footer_brand_text")
+  footerPhone       String?  @map("footer_phone")
+  footerEmail       String?  @map("footer_email")
+  footerAddress     String?  @map("footer_address")
+  footerSocialLinks Json?    @map("footer_social_links") // [{platform, url}]
+  footerColumns     Json?    @map("footer_columns") // [{title, items:[{label,href}]}]
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
 

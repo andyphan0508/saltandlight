@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Sparkles,
   Tag,
+  Globe,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -52,6 +53,7 @@ const NAV_GROUPS: {
       { href: "/admin/shipping", label: "Vận chuyển", icon: Truck },
       { href: "/admin/customers", label: "Khách hàng", icon: Users },
       { href: "/admin/settings/payment", label: "Cài đặt thanh toán", icon: Wallet },
+      { href: "/admin/settings/site", label: "Header & Footer", icon: Globe },
     ],
   },
 ];

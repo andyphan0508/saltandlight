@@ -219,3 +219,48 @@ export const promotionUpdateSchema = z
     { message: "Phần trăm giảm giá không được vượt quá 100%", path: ["discountValue"] },
   );
 export type PromotionUpdateInput = z.infer<typeof promotionUpdateSchema>;
+
+// ── Site settings (header/footer/logo/menu editor) ──────────────────
+
+const hrefSchema = z
+  .string()
+  .trim()
+  .min(1, "Vui lòng nhập đường dẫn")
+  .refine((v) => v.startsWith("/") || v.startsWith("http://") || v.startsWith("https://"), {
+    message: "Đường dẫn phải bắt đầu bằng / hoặc http(s)://",
+  });
+
+const navLinkItemSchema = z.object({
+  label: z.string().trim().min(1, "Vui lòng nhập tên mục").max(50),
+  href: hrefSchema,
+});
+
+const footerColumnSchema = z.object({
+  title: z.string().trim().min(1, "Vui lòng nhập tiêu đề cột").max(50),
+  items: z.array(navLinkItemSchema).max(10),
+});
+
+export const siteSettingsSchema = z.object({
+  logoUrl: z.string().url().optional().nullable(),
+  logoSize: z.enum(["sm", "md", "lg"]).default("md"),
+  footerLogoUrl: z.string().url().optional().nullable(),
+  faviconUrl: z.string().url().optional().nullable(),
+  headerNavItems: z
+    .object({
+      left: z.array(navLinkItemSchema).max(8),
+      right: z.array(navLinkItemSchema).max(8),
+    })
+    .optional()
+    .nullable(),
+  footerBrandText: z.string().trim().max(2000).optional().nullable(),
+  footerPhone: z.string().trim().max(50).optional().nullable(),
+  footerEmail: z.string().trim().max(200).optional().nullable(),
+  footerAddress: z.string().trim().max(200).optional().nullable(),
+  footerSocialLinks: z
+    .array(z.object({ platform: z.string().trim().min(1).max(30), url: z.string().url() }))
+    .max(10)
+    .optional()
+    .nullable(),
+  footerColumns: z.array(footerColumnSchema).max(6).optional().nullable(),
+});
+export type SiteSettingsInput = z.infer<typeof siteSettingsSchema>;

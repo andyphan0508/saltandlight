@@ -362,4 +362,16 @@ export const getCachedActivePromotions = unstable_cache(
   { revalidate: 60, tags: ["promotions"] }
 );
 
+/** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
+export async function getSiteSettings() {
+  return prisma.siteSettings.findUnique({ where: { id: "default" } });
+}
+
+/** Cached site settings (cached 300s — this rarely changes). */
+export const getCachedSiteSettings = unstable_cache(
+  async () => getSiteSettings(),
+  ["site-settings"],
+  { revalidate: 300, tags: ["site-settings"] }
+);
+
 

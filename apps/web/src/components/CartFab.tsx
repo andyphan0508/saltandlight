@@ -37,6 +37,7 @@ export function CartFab() {
         bottom-20 right-3.5 p-2.5 sm:bottom-24 sm:right-6 lg:bottom-8 lg:right-8 lg:px-4 lg:py-3.5
         hover:bg-ink-800 hover:shadow-brand-forest/20 hover:ring-4 hover:ring-brand-forest/20 animate-pop-in
         ${cartCount === 0 ? "hidden lg:flex" : "flex"}
+        ${cartCount > 0 && !bumping ? "animate-pulse-glow" : ""}
         ${bumping ? "scale-110 ring-4 ring-brand-forest/40" : "scale-100"}`}
     >
       <span className="relative flex items-center justify-center">
