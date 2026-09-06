@@ -29,15 +29,23 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }) {
-  const product = await getCachedProductBySlug(params.slug);
-  return {
-    title: product?.name
-      ? `${product.name} · Áo Thun Cơ Đốc Salt & Light`
-      : "Sản phẩm",
-    description:
-      product?.description ??
-      "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light."
-  };
+  try {
+    const product = await getCachedProductBySlug(params.slug);
+    return {
+      title: product?.name
+        ? `${product.name} · Áo Thun Cơ Đốc Salt & Light`
+        : "Sản phẩm",
+      description:
+        product?.description ??
+        "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light."
+    };
+  } catch (err) {
+    console.error("generateMetadata /san-pham/[slug] error:", err);
+    return {
+      title: "Sản phẩm · Salt & Light",
+      description: "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light."
+    };
+  }
 }
 
 export default async function ProductDetailPage({

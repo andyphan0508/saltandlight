@@ -44,6 +44,42 @@ function getOrCreatePrisma(): PrismaClient {
   return globalThis.__prisma__;
 }
 
+const TRANSIENT_ERROR_REGEX =
+  /connection closed|closed the connection|connection terminated|can't reach database|terminating connection|broken pipe|econnreset|etimedout|57P01|P1001|P1002|P1017/i;
+
+export function isTransientConnectionError(error: unknown): boolean {
+  if (!error) return false;
+  const msg = error instanceof Error ? error.message : String(error);
+  return TRANSIENT_ERROR_REGEX.test(msg);
+}
+
+async function runWithRetry<T>(operation: (client: PrismaClient) => Promise<T>): Promise<T> {
+  let attempt = 0;
+  const maxRetries = 2;
+  while (true) {
+    const client = getOrCreatePrisma();
+    try {
+      return await operation(client);
+    } catch (err) {
+      attempt++;
+      if (attempt <= maxRetries && isTransientConnectionError(err)) {
+        console.warn(
+          `[db] Transient connection error: "${(err as Error).message}". Resetting connection pool and retrying (${attempt}/${maxRetries})...`,
+        );
+        try {
+          await globalThis.__prisma__?.$disconnect();
+        } catch {
+          // ignore disconnect error on closed socket
+        }
+        globalThis.__prisma__ = undefined;
+        await new Promise((resolve) => setTimeout(resolve, 50 * attempt));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 /**
  * A plain `export const prisma = createClient()` would run at module-load
  * time, which in a Worker can happen before OpenNext has set up the
@@ -53,17 +89,49 @@ function getOrCreatePrisma(): PrismaClient {
  * `prisma` is a Proxy so the real client is only built the first time a
  * query actually runs — always inside a request — then cached on
  * `globalThis` for reuse across requests on that warm isolate.
+ *
+ * It also wraps model operations and query methods with automatic retry
+ * on transient pooler/PgBouncer disconnects ("Connection closed"), discarding
+ * the dead connection and reconnecting seamlessly.
  */
 export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = getOrCreatePrisma();
     const value = Reflect.get(client as object, prop);
-    // Prisma Client methods close over private state tied to the exact
-    // object they were declared on — call one with `this` bound to this
-    // Proxy (the default for `prisma.foo()`) and it breaks. Binding to the
-    // real client keeps `this` correct.
-    return typeof value === "function" ? value.bind(client) : value;
+
+    // If accessing top-level methods like $transaction, $queryRaw, $executeRaw
+    if (typeof value === "function") {
+      if (prop === "$connect" || prop === "$disconnect") {
+        return value.bind(client);
+      }
+      return (...args: any[]) =>
+        runWithRetry((c) => {
+          const method = Reflect.get(c as object, prop);
+          return method.apply(c, args);
+        });
+    }
+
+    // If accessing a model delegate (e.g. prisma.product, prisma.category, prisma.order)
+    if (value && typeof value === "object" && typeof prop === "string" && !prop.startsWith("_")) {
+      return new Proxy(value, {
+        get(modelTarget, modelProp) {
+          const origMethod = Reflect.get(modelTarget, modelProp);
+          if (typeof origMethod === "function") {
+            return (...args: any[]) =>
+              runWithRetry((c) => {
+                const delegate = Reflect.get(c as object, prop);
+                const method = Reflect.get(delegate as object, modelProp);
+                return method.apply(delegate, args);
+              });
+          }
+          return origMethod;
+        },
+      });
+    }
+
+    return value;
   },
 });
 
 export * from "@prisma/client";
+
