@@ -7,6 +7,7 @@ export const config = {
     "/admin/:path*",
     "/admin",
     "/api/:path*",
+    "/auth/:path*",
   ],
 };
 
@@ -25,6 +26,9 @@ const RULES: Record<string, [number, number]> = {
   // Uploads cost storage + bandwidth, so they get a tighter cap than the
   // general admin DEFAULT_RULE below.
   "/api/admin/media/upload": [10, 60],
+  // One-time OAuth redirect per real login — no legitimate user hits this
+  // more than a couple times a minute.
+  "/auth/callback": [10, 60],
 };
 
 const DEFAULT_RULE: [number, number] = [60, 60];
@@ -115,8 +119,8 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // 2. Handle Storefront API Rate-Limiting
-  if (path.startsWith("/api/")) {
+  // 2. Handle Storefront API + Auth Callback Rate-Limiting
+  if (path.startsWith("/api/") || path.startsWith("/auth/")) {
     try {
       const [max, windowSeconds] = RULES[path] ?? DEFAULT_RULE;
       const limiter = getRateLimiter(path, max, windowSeconds);

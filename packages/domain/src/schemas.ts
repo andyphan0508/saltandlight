@@ -57,5 +57,6 @@ export const contactFormSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().min(5).max(2000),
+  turnstileToken: z.string().min(1, "Vui lòng xác minh bạn không phải robot"),
 });
 export type ContactFormInput = z.infer<typeof contactFormSchema>;

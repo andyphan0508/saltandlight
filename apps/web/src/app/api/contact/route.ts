@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { contactFormSchema } from "@saltandlight/domain";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +11,11 @@ export async function POST(req: NextRequest) {
   const parsed = contactFormSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const isHuman = await verifyTurnstileToken(parsed.data.turnstileToken, getClientIp(req));
+  if (!isHuman) {
+    return NextResponse.json({ error: "Xác minh Turnstile thất bại, vui lòng thử lại." }, { status: 400 });
   }
 
   try {

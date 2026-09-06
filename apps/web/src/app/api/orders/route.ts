@@ -8,6 +8,7 @@ import {
   buildTransferContent,
 } from "@saltandlight/domain";
 import { sendOrderCreatedEmail } from "@/lib/email";
+import { getAuthenticatedCustomer } from "@/lib/customer/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -69,15 +70,29 @@ export async function POST(req: NextRequest) {
   );
   const total = subtotal + shippingFee;
 
+  // If the buyer is logged in, attach this order to their account (and keep
+  // their profile fresh with what they just typed) instead of spawning
+  // another guest Customer row for the same person.
+  const authenticatedCustomer = await getAuthenticatedCustomer();
+
   const order = await prisma.$transaction(async (tx) => {
-    const customerRecord = await tx.customer.create({
-      data: {
-        fullName: customer.fullName,
-        phone: customer.phone,
-        email: customer.email || null,
-        isGuest: true,
-      },
-    });
+    const customerRecord = authenticatedCustomer
+      ? await tx.customer.update({
+          where: { id: authenticatedCustomer.id },
+          data: {
+            fullName: customer.fullName,
+            phone: customer.phone,
+            email: customer.email || authenticatedCustomer.email,
+          },
+        })
+      : await tx.customer.create({
+          data: {
+            fullName: customer.fullName,
+            phone: customer.phone,
+            email: customer.email || null,
+            isGuest: true,
+          },
+        });
 
     const address = await tx.customerAddress.create({
       data: {
