@@ -1,9 +1,8 @@
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 import { HeroSlider } from "@/components/HeroSlider";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { listBanners, getCachedPageBlocks } from "@/lib/queries";
+import { getCachedBanners, getCachedPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
 const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
@@ -113,7 +112,7 @@ export default async function HomePage() {
   let banners: any[] = [];
   let blocks: PageBlockData[] = [];
   try {
-    const [bannersData, blocksData] = await Promise.all([listBanners(), getCachedPageBlocks("home")]);
+    const [bannersData, blocksData] = await Promise.all([getCachedBanners(), getCachedPageBlocks("home")]);
     banners = toPlain(bannersData);
     blocks = toPlain(blocksData);
   } catch (err) {

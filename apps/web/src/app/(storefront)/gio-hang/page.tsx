@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import {
   ShoppingBag,
   Trash2,
@@ -43,6 +44,7 @@ export default function CartPage() {
   const cartLines = useCartStore((s) => s.lines);
   const setQuantity = useCartStore((s) => s.setQuantity);
   const remove = useCartStore((s) => s.remove);
+  const hydrated = useStoreHydrated(useCartStore);
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +73,7 @@ export default function CartPage() {
   // image, unit price, stock cap) doesn't change while just adjusting qty.
   const lineIdsKey = cartLines.map((l) => l.productVariantId).sort().join(",");
   useEffect(() => {
+    if (!hydrated) return;
     if (cartLines.length === 0) {
       setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
       setLoading(false);
@@ -79,7 +82,7 @@ export default function CartPage() {
     setLoading(true);
     fetchQuote(cartLines).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lineIdsKey]);
+  }, [hydrated, lineIdsKey]);
 
   useEffect(() => {
     return () => {
@@ -121,10 +124,10 @@ export default function CartPage() {
   const neededForFreeship = Math.max(0, FREESHIP_THRESHOLD - subtotal);
   const freeshipProgress = Math.min(100, Math.round((subtotal / FREESHIP_THRESHOLD) * 100));
 
-  if (loading) {
+  if (!hydrated || loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-24 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-ink border-t-transparent" />
+      <div className="mx-auto max-w-4xl px-4 py-24 text-center animate-fade-in">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand-forest border-t-transparent" />
         <p className="mt-4 text-sm font-medium text-ink/60">Đang tải giỏ hàng của bạn…</p>
       </div>
     );
@@ -132,7 +135,7 @@ export default function CartPage() {
 
   if (!quote || quote.lines.length === 0) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
+      <div className="mx-auto max-w-lg px-4 py-24 text-center animate-fade-in">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
           <ShoppingBag size={36} />
         </div>
@@ -154,7 +157,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
       {/* Title */}
       <div className="border-b border-ink/10 pb-4">
         <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">

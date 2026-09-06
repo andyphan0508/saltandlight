@@ -48,7 +48,7 @@ export default function ComparePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-10 animate-slide-up-fade">
       <h1 className="font-display text-2xl font-black uppercase">So sánh sản phẩm</h1>
       <div className="mt-8 overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse text-sm">

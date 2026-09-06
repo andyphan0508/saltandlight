@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { LocationSelect, type LocationValue } from "@/components/LocationSelect";
 import {
   ShieldCheck,
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const cartLines = useCartStore((s) => s.lines);
   const clearCart = useCartStore((s) => s.clear);
+  const hydrated = useStoreHydrated(useCartStore);
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -102,9 +104,18 @@ export default function CheckoutPage() {
     }
   }
 
+  if (!hydrated) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-24 text-center animate-fade-in">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand-forest border-t-transparent" />
+        <p className="mt-4 text-sm font-medium text-ink/60">Đang chuẩn bị trang thanh toán…</p>
+      </div>
+    );
+  }
+
   if (cartLines.length === 0) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
+      <div className="mx-auto max-w-lg px-4 py-24 text-center animate-fade-in">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
           <ShoppingBag size={36} />
         </div>
@@ -126,7 +137,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
       {/* Checkout Steps */}
       <div className="border-b border-ink/10 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

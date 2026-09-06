@@ -18,7 +18,7 @@ export default function ProductsPage({ searchParams }: { searchParams: CatalogSe
   const resultsKey = JSON.stringify(filters);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10 animate-slide-up-fade">
       <CatalogHero query={filters.query} />
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">

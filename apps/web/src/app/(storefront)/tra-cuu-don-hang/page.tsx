@@ -53,7 +53,7 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16 space-y-10">
+    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16 space-y-10 animate-slide-up-fade">
       {/* Header */}
       <div className="text-center space-y-3">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-brand-forest shadow-sm">

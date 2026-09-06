@@ -33,7 +33,7 @@ export default function WishlistPage() {
   }, [hydrated, productIds]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
       <div className="flex items-center justify-between border-b border-ink/10 pb-4">
         <div>
           <span className="text-xs font-black uppercase tracking-widest text-brand-forest">

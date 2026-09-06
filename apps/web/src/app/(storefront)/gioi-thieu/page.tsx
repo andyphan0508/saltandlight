@@ -27,7 +27,7 @@ export default async function AboutPage() {
   );
 
   return (
-    <div className="min-h-screen bg-cream-50/50">
+    <div className="min-h-screen bg-cream-50/50 animate-slide-up-fade">
       {/* 1. Header Banner */}
       <div className="border-b border-amber-200/60 bg-[#FDF6D8] py-10 sm:py-14 text-center">
         <div className="mx-auto max-w-4xl px-4">

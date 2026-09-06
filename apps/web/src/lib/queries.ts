@@ -171,19 +171,20 @@ export async function getRelatedProducts(
   return rows.map(toCardData);
 }
 
-// ── High-Performance Cached Queries (ISR / Edge Cache) ─────────────────
+// ── High-Performance Cached Queries (ISR / Edge Cache / Worker Memory) ──
 import { unstable_cache } from "next/cache";
+import { withMemoryCache } from "./memory-cache";
 
 /** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
 export const getCachedCategoriesWithCounts = unstable_cache(
-  async () => listCategoriesWithCounts(),
+  async () => withMemoryCache("nav-categories-with-counts", 300, () => listCategoriesWithCounts()),
   ["nav-categories-with-counts"],
   { revalidate: 300, tags: ["categories"] }
 );
 
 /** Cached available sizes across active variants (cached 10 mins) */
 export const getCachedAvailableSizes = unstable_cache(
-  async () => listAvailableSizes(),
+  async () => withMemoryCache("available-product-sizes", 600, () => listAvailableSizes()),
   ["available-product-sizes"],
   { revalidate: 600, tags: ["products"] }
 );
@@ -191,35 +192,12 @@ export const getCachedAvailableSizes = unstable_cache(
 /** Cached featured products for home page: prioritizes products with isFeatured = true (cached 60s) */
 export const getCachedFeaturedProducts = unstable_cache(
   async (pageSize = 10) => {
-    // 1. Fetch explicitly marked featured products
-    const featuredRows = await prisma.product.findMany({
-      where: { status: "published", isFeatured: true },
-      orderBy: { updatedAt: "desc" },
-      take: pageSize,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isNew: true,
-        isFeatured: true,
-        minPrice: true,
-        maxCompareAtPrice: true,
-        images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-      },
-    });
-
-    // 2. If fewer than pageSize, backfill with newest published products
-    let rows = featuredRows;
-    if (featuredRows.length < pageSize) {
-      const remaining = pageSize - featuredRows.length;
-      const excludedIds = featuredRows.map((f) => f.id);
-      const backfill = await prisma.product.findMany({
-        where: {
-          status: "published",
-          id: { notIn: excludedIds },
-        },
-        orderBy: { createdAt: "desc" },
-        take: remaining,
+    return withMemoryCache(`homepage-featured-products-${pageSize}`, 60, async () => {
+      // 1. Fetch explicitly marked featured products
+      const featuredRows = await prisma.product.findMany({
+        where: { status: "published", isFeatured: true },
+        orderBy: { updatedAt: "desc" },
+        take: pageSize,
         select: {
           id: true,
           name: true,
@@ -231,13 +209,38 @@ export const getCachedFeaturedProducts = unstable_cache(
           images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
         },
       });
-      rows = [...featuredRows, ...backfill];
-    }
 
-    return {
-      products: rows.map(toCardData),
-      total: rows.length,
-    };
+      // 2. If fewer than pageSize, backfill with newest published products
+      let rows = featuredRows;
+      if (featuredRows.length < pageSize) {
+        const remaining = pageSize - featuredRows.length;
+        const excludedIds = featuredRows.map((f) => f.id);
+        const backfill = await prisma.product.findMany({
+          where: {
+            status: "published",
+            id: { notIn: excludedIds },
+          },
+          orderBy: { createdAt: "desc" },
+          take: remaining,
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            isNew: true,
+            isFeatured: true,
+            minPrice: true,
+            maxCompareAtPrice: true,
+            images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+          },
+        });
+        rows = [...featuredRows, ...backfill];
+      }
+
+      return {
+        products: rows.map(toCardData),
+        total: rows.length,
+      };
+    });
   },
   ["homepage-featured-products"],
   { revalidate: 60, tags: ["products"] }
@@ -246,7 +249,7 @@ export const getCachedFeaturedProducts = unstable_cache(
 /** Cached product detail by slug (cached 120s) */
 export const getCachedProductBySlug = (slug: string) =>
   unstable_cache(
-    async () => getProductBySlug(slug),
+    async () => withMemoryCache(`product-detail-${slug}`, 120, () => getProductBySlug(slug)),
     ["product-detail", slug],
     { revalidate: 120, tags: ["products", `product-${slug}`] }
   )();
@@ -254,7 +257,7 @@ export const getCachedProductBySlug = (slug: string) =>
 /** Cached related products by category (cached 120s) */
 export const getCachedRelatedProducts = (categoryId: string, excludeId: string, limit = 4) =>
   unstable_cache(
-    async () => getRelatedProducts(categoryId, excludeId, limit),
+    async () => withMemoryCache(`related-products-${categoryId}-${excludeId}-${limit}`, 120, () => getRelatedProducts(categoryId, excludeId, limit)),
     ["related-products", categoryId, excludeId, String(limit)],
     { revalidate: 120, tags: ["products"] }
   )();
@@ -272,7 +275,7 @@ export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => 
   });
 
   return unstable_cache(
-    async () => listPublishedProducts(filters),
+    async () => withMemoryCache(`catalog-products-${cacheKey}`, 60, () => listPublishedProducts(filters)),
     ["catalog-products", cacheKey],
     { revalidate: 60, tags: ["products"] }
   )();
@@ -281,20 +284,22 @@ export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => 
 /** Cached shipping zones (with their methods) for cart quote & checkout, priced per region (cached 10 mins) */
 export const getCachedShippingZones = unstable_cache(
   async () => {
-    return prisma.shippingZone.findMany({
-      select: {
-        id: true,
-        provinceCodes: true,
-        methods: {
-          select: {
-            id: true,
-            type: true,
-            fee: true,
-            freeThreshold: true,
-            isActive: true,
+    return withMemoryCache("shipping-zones", 600, async () => {
+      return prisma.shippingZone.findMany({
+        select: {
+          id: true,
+          provinceCodes: true,
+          methods: {
+            select: {
+              id: true,
+              type: true,
+              fee: true,
+              freeThreshold: true,
+              isActive: true,
+            },
           },
         },
-      },
+      });
     });
   },
   ["shipping-zones"],
@@ -311,7 +316,7 @@ export async function listBanners() {
 
 /** Cached active banners for hero slider (cached 60s) */
 export const getCachedBanners = unstable_cache(
-  async () => listBanners(),
+  async () => withMemoryCache("homepage-hero-banners", 60, () => listBanners()),
   ["homepage-hero-banners"],
   { revalidate: 60, tags: ["banners"] }
 );
@@ -327,7 +332,7 @@ export async function listPageBlocks(page: string) {
 /** Cached page blocks (cached 60s, tagged per-page for targeted revalidation) */
 export const getCachedPageBlocks = (page: string) =>
   unstable_cache(
-    async () => listPageBlocks(page),
+    async () => withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page)),
     ["page-blocks", page],
     { revalidate: 60, tags: ["page-blocks", `page-blocks-${page}`] }
   )();
@@ -339,7 +344,7 @@ export async function getPaymentSettings() {
 
 /** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
 export const getCachedPaymentSettings = unstable_cache(
-  async () => getPaymentSettings(),
+  async () => withMemoryCache("payment-settings", 300, () => getPaymentSettings()),
   ["payment-settings"],
   { revalidate: 300, tags: ["payment-settings"] }
 );
@@ -362,7 +367,7 @@ export async function listActivePromotions() {
 }
 
 export const getCachedActivePromotions = unstable_cache(
-  async () => listActivePromotions(),
+  async () => withMemoryCache("active-promotions", 60, () => listActivePromotions()),
   ["active-promotions"],
   { revalidate: 60, tags: ["promotions"] }
 );
@@ -374,7 +379,7 @@ export async function getSiteSettings() {
 
 /** Cached site settings (cached 300s — this rarely changes). */
 export const getCachedSiteSettings = unstable_cache(
-  async () => getSiteSettings(),
+  async () => withMemoryCache("site-settings", 300, () => getSiteSettings()),
   ["site-settings"],
   { revalidate: 300, tags: ["site-settings"] }
 );
