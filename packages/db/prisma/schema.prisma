@@ -147,8 +147,10 @@ model CustomerAddress {
   recipientName  String   @map("recipient_name")
   phone          String
   province       String
-  district       String
+  provinceCode   Int?     @map("province_code")
+  district       String?
   ward           String
+  wardCode       Int?     @map("ward_code")
   streetAddress  String   @map("street_address")
   isDefault      Boolean  @default(false) @map("is_default")
 
@@ -272,8 +274,9 @@ model PaymentTransaction {
 // ── Shipping ────────────────────────────────────────────────────────
 
 model ShippingZone {
-  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name    String
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  provinceCodes Int[]    @default([]) @map("province_codes")
 
   methods ShippingMethod[]
 

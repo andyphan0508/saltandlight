@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
+import { LocationSelect, type LocationValue } from "@/components/LocationSelect";
 import {
   ShieldCheck,
   Truck,
@@ -30,17 +31,26 @@ export default function CheckoutPage() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState<LocationValue>({
+    provinceCode: null,
+    province: "",
+    wardCode: null,
+    ward: "",
+  });
 
   useEffect(() => {
     if (cartLines.length === 0) return;
     fetch("/api/cart/quote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: cartLines }),
+      body: JSON.stringify({
+        items: cartLines,
+        ...(location.provinceCode != null ? { provinceCode: location.provinceCode } : {}),
+      }),
     })
       .then((r) => r.json())
       .then(setQuote);
-  }, [cartLines]);
+  }, [cartLines, location.provinceCode]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,9 +67,10 @@ export default function CheckoutPage() {
       shippingAddress: {
         recipientName: String(form.get("fullName") || ""),
         phone: String(form.get("phone") || ""),
-        province: String(form.get("province") || ""),
-        district: String(form.get("district") || ""),
-        ward: String(form.get("ward") || ""),
+        province: location.province,
+        provinceCode: location.provinceCode,
+        ward: location.ward,
+        wardCode: location.wardCode,
         streetAddress: String(form.get("streetAddress") || ""),
       },
       note: String(form.get("note") || ""),
@@ -183,26 +194,7 @@ export default function CheckoutPage() {
             </h2>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Field
-                  label="Tỉnh / Thành phố"
-                  name="province"
-                  placeholder="Ví dụ: TP. Hồ Chí Minh"
-                  required
-                />
-                <Field
-                  label="Quận / Huyện"
-                  name="district"
-                  placeholder="Ví dụ: Quận 1"
-                  required
-                />
-                <Field
-                  label="Phường / Xã"
-                  name="ward"
-                  placeholder="Ví dụ: Phường Bến Nghé"
-                  required
-                />
-              </div>
+              <LocationSelect value={location} onChange={setLocation} />
 
               <Field
                 label="Địa chỉ cụ thể (số nhà, tên đường, tòa nhà)"

@@ -51,15 +51,20 @@ export async function POST(req: NextRequest) {
     0,
   );
 
-  const shippingMethods = await prisma.shippingMethod.findMany({ where: { isActive: true } });
+  const zones = await prisma.shippingZone.findMany({ include: { methods: true } });
   const shippingFee = pickShippingFee(
     subtotal,
-    shippingMethods.map((m) => ({
-      id: m.id,
-      type: m.type,
-      fee: Number(m.fee),
-      freeThreshold: m.freeThreshold ? Number(m.freeThreshold) : null,
-      isActive: m.isActive,
+    shippingAddress.provinceCode,
+    zones.map((z) => ({
+      id: z.id,
+      provinceCodes: z.provinceCodes,
+      methods: z.methods.map((m) => ({
+        id: m.id,
+        type: m.type,
+        fee: Number(m.fee),
+        freeThreshold: m.freeThreshold ? Number(m.freeThreshold) : null,
+        isActive: m.isActive,
+      })),
     })),
   );
   const total = subtotal + shippingFee;
@@ -80,8 +85,10 @@ export async function POST(req: NextRequest) {
         recipientName: shippingAddress.recipientName,
         phone: shippingAddress.phone,
         province: shippingAddress.province,
-        district: shippingAddress.district,
+        provinceCode: shippingAddress.provinceCode,
+        district: shippingAddress.district ?? null,
         ward: shippingAddress.ward,
+        wardCode: shippingAddress.wardCode,
         streetAddress: shippingAddress.streetAddress,
         isDefault: true,
       },

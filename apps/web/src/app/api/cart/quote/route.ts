@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
-import { getCachedActiveShippingMethods } from "@/lib/queries";
+import { getCachedShippingZones } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -56,15 +56,20 @@ export async function POST(req: NextRequest) {
 
   const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
 
-  const shippingMethods = await getCachedActiveShippingMethods();
+  const zones = await getCachedShippingZones();
   const shippingFee = pickShippingFee(
     subtotal,
-    shippingMethods.map((m) => ({
-      id: m.id,
-      type: m.type,
-      fee: Number(m.fee),
-      freeThreshold: m.freeThreshold ? Number(m.freeThreshold) : null,
-      isActive: m.isActive,
+    parsed.data.provinceCode ?? null,
+    zones.map((z) => ({
+      id: z.id,
+      provinceCodes: z.provinceCodes,
+      methods: z.methods.map((m) => ({
+        id: m.id,
+        type: m.type,
+        fee: Number(m.fee),
+        freeThreshold: m.freeThreshold ? Number(m.freeThreshold) : null,
+        isActive: m.isActive,
+      })),
     })),
   );
 

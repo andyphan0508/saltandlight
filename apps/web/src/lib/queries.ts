@@ -278,21 +278,26 @@ export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => 
   )();
 };
 
-/** Cached active shipping methods for cart quote & checkout (cached 10 mins) */
-export const getCachedActiveShippingMethods = unstable_cache(
+/** Cached shipping zones (with their methods) for cart quote & checkout, priced per region (cached 10 mins) */
+export const getCachedShippingZones = unstable_cache(
   async () => {
-    return prisma.shippingMethod.findMany({
-      where: { isActive: true },
+    return prisma.shippingZone.findMany({
       select: {
         id: true,
-        type: true,
-        fee: true,
-        freeThreshold: true,
-        isActive: true,
+        provinceCodes: true,
+        methods: {
+          select: {
+            id: true,
+            type: true,
+            fee: true,
+            freeThreshold: true,
+            isActive: true,
+          },
+        },
       },
     });
   },
-  ["active-shipping-methods"],
+  ["shipping-zones"],
   { revalidate: 600, tags: ["shipping"] }
 );
 

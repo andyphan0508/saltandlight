@@ -17,6 +17,8 @@ const RULES: Record<string, [number, number]> = {
   "/api/search": [30, 60],
   "/api/cart/quote": [30, 60],
   "/api/products": [30, 60],
+  // Static vendored dataset, 30-day CDN cache — generous limit is safe.
+  "/api/locations": [60, 60],
   // Public diagnostic endpoint — only an external uptime monitor should be
   // hitting this, so it doesn't need the generous limit a real API does.
   "/api/health": [30, 60],
