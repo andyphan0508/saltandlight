@@ -8,9 +8,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   experimental: {
     outputFileTracingRoot: path.join(__dirname, "../../"),
+    // Pinned to the exact resolved version (not a `@prisma+client*` wildcard) so a
+    // stale duplicate left over from a future Prisma bump doesn't get traced/bundled
+    // again — see packages/db/package.json for the version this must track.
     outputFileTracingIncludes: {
       "/**": [
-        "../../node_modules/.pnpm/@prisma+client*/**/libquery_engine*",
+        "../../node_modules/.pnpm/@prisma+client@6.19.3_prisma@6.19.3_typescript@5.9.3__typescript@5.9.3/**/libquery_engine*",
       ],
     },
   },

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllLocations } from "@saltandlight/domain";
+import { getAllLocations } from "@saltandlight/domain/vn-locations";
 
 /** Static Vietnam administrative dataset (34 provinces + wards) — vendored, never changes at runtime. */
 export async function GET() {

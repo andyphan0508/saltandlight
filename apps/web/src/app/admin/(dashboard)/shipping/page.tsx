@@ -1,5 +1,5 @@
 import { prisma } from "@saltandlight/db";
-import { getAllProvinces } from "@saltandlight/domain";
+import { getAllProvinces } from "@saltandlight/domain/vn-locations";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ShippingZonesManager } from "@/components/admin/ShippingZoneForm";
 
