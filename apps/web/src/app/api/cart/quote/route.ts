@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
 import { getCachedShippingZones } from "@/lib/queries";
+import { withMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -13,24 +14,28 @@ export async function POST(req: NextRequest) {
   }
 
   const variantIds = parsed.data.items.map((i) => i.productVariantId);
-  const variants = await prisma.productVariant.findMany({
-    where: { id: { in: variantIds }, isActive: true },
-    select: {
-      id: true,
-      productId: true,
-      color: true,
-      size: true,
-      price: true,
-      stockQuantity: true,
-      product: {
-        select: {
-          name: true,
-          slug: true,
-          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+  const cacheKey = `quote-variants-${variantIds.slice().sort().join(",")}`;
+
+  const variants = await withMemoryCache(cacheKey, 60, () =>
+    prisma.productVariant.findMany({
+      where: { id: { in: variantIds }, isActive: true },
+      select: {
+        id: true,
+        productId: true,
+        color: true,
+        size: true,
+        price: true,
+        stockQuantity: true,
+        product: {
+          select: {
+            name: true,
+            slug: true,
+            images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+          },
         },
       },
-    },
-  });
+    })
+  );
 
   const lines = parsed.data.items.flatMap((item) => {
     const variant = variants.find((v) => v.id === item.productVariantId);

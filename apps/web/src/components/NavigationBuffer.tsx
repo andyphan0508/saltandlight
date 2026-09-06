@@ -32,59 +32,64 @@ function NavigationBufferInner() {
 
   const [isBuffering, setIsBuffering] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [bufferText, setBufferText] = useState("Đang tải dữ liệu...");
+  const [bufferText, setBufferText] = useState("Đang tải trang...");
 
-  const lastNavTimeRef = useRef<number>(0);
-  const pendingTargetRef = useRef<string | null>(null);
-  const bufferTimerRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const bufferTimerRef = useRef<NodeJS.Timeout | null>(null);
   const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const prevPathRef = useRef(pathname);
+  const prevParamsRef = useRef(searchParams?.toString());
 
   const stopBuffer = useCallback(() => {
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
 
     setProgress(100);
-    // Buffer window (200ms) gives the newly rendered page time to settle DOM & layout
     if (bufferTimerRef.current) clearTimeout(bufferTimerRef.current);
     bufferTimerRef.current = setTimeout(() => {
       setIsBuffering(false);
       setProgress(0);
-      pendingTargetRef.current = null;
-    }, 220);
+    }, 180);
   }, []);
 
   const startBuffer = useCallback(
-    (text = "Đang tải dữ liệu...") => {
+    (text = "Đang tải trang...") => {
       setBufferText(text);
       setIsBuffering(true);
-      setProgress(20);
+      setProgress(25);
 
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 85) return prev;
-          const step = Math.random() * 8 + 4;
-          return Math.min(prev + step, 85);
+          if (prev >= 88) return prev;
+          const step = Math.random() * 10 + 5;
+          return Math.min(prev + step, 88);
         });
-      }, 180);
+      }, 150);
 
-      // Safety timeout: dismiss after 5.5s in case of an unhandled navigation abort
+      // Auto dismiss safety timer: maximum 2s so user is NEVER blocked
       if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
       safetyTimeoutRef.current = setTimeout(() => {
         stopBuffer();
-      }, 5500);
+      }, 2000);
     },
     [stopBuffer]
   );
 
-  // When pathname or searchParams update, the new route has mounted:
-  // complete progress and smoothly dismiss the buffer
+  // When pathname or searchParams ACTUALLY change, the destination route mounted:
+  // finish progress and dismiss smoothly
   useEffect(() => {
-    if (isBuffering) {
+    const currentParams = searchParams?.toString();
+    const hasPathChanged = pathname !== prevPathRef.current;
+    const hasParamsChanged = currentParams !== prevParamsRef.current;
+
+    if (hasPathChanged || hasParamsChanged) {
+      prevPathRef.current = pathname;
+      prevParamsRef.current = currentParams;
       stopBuffer();
     }
-  }, [pathname, searchParams, isBuffering, stopBuffer]);
+  }, [pathname, searchParams, stopBuffer]);
 
   // Clean up all timers on unmount
   useEffect(() => {
@@ -117,15 +122,14 @@ function NavigationBufferInner() {
         !e.shiftKey &&
         !e.altKey
       ) {
-        const currentFull = window.location.pathname + window.location.search;
-        // Ignore clicking the exact same current URL
-        if (href === currentFull) return;
+        const currentPath = window.location.pathname;
+        const currentSearch = window.location.search;
+        const targetClean = href.split("#")[0];
 
-        const now = Date.now();
-        // Rapid-click guard: if user clicks rapidly, update the destination target
-        // without spawning conflicting timers
-        lastNavTimeRef.current = now;
-        pendingTargetRef.current = href;
+        // Ignore clicking on the exact current path and search
+        if (targetClean === currentPath + currentSearch || targetClean === currentPath) {
+          return;
+        }
 
         startBuffer("Đang mở trang...");
       }
@@ -141,10 +145,10 @@ function NavigationBufferInner() {
 
   return (
     <NavigationBufferContext.Provider value={{ isBuffering, startBuffer, stopBuffer }}>
-      {/* 1. Top Loading Progress Bar */}
+      {/* 1. Top Loading Progress Bar - ALWAYS non-blocking */}
       <div className="fixed top-0 left-0 right-0 z-[9999] h-[3.5px] bg-transparent pointer-events-none select-none">
         <div
-          className="h-full bg-gradient-to-r from-mint-300 via-brand-forest to-emerald-500 shadow-[0_0_16px_rgba(31,92,63,0.85)] transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-mint-300 via-brand-forest to-emerald-500 shadow-[0_0_14px_rgba(31,92,63,0.9)] transition-all duration-200 ease-out"
           style={{
             width: `${progress}%`,
             opacity: isBuffering || progress > 0 ? 1 : 0,
@@ -152,50 +156,40 @@ function NavigationBufferInner() {
         />
       </div>
 
-      {/* 2. Soft Navigation Buffer Overlay ("loading xong sẽ hiển thị") */}
+      {/* 2. Floating Buffer Badge - ALWAYS pointer-events-none so it NEVER blocks user clicks */}
       {isBuffering && (
         <div
-          className={`fixed inset-0 z-[9990] flex items-center justify-center bg-cream/70 backdrop-blur-[5px] transition-opacity duration-300 select-none ${
-            progress === 100 ? "opacity-0 pointer-events-none" : "opacity-100 animate-in fade-in"
+          className={`fixed top-5 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none select-none transition-all duration-300 ${
+            progress === 100 ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0 animate-pop-in"
           }`}
         >
-          <div className="flex flex-col items-center gap-5 rounded-3xl bg-white/95 px-8 py-7 shadow-card-hover border border-mint-200/90 max-w-xs text-center backdrop-blur-md animate-pop-in">
-            {/* Animated Logo Container */}
-            <div className="relative flex h-24 w-24 items-center justify-center animate-bounce-soft">
-              {/* Outer Slow Rotating Dashed Ring */}
+          <div className="flex items-center gap-3 rounded-full bg-white/95 px-5 py-2.5 shadow-2xl border border-mint-200/90 backdrop-blur-md">
+            {/* Animated Logo Icon */}
+            <div className="relative flex h-7 w-7 items-center justify-center flex-shrink-0">
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-mint-300 animate-spin-slow" />
-
-              {/* Glowing Inner Spinner Ring */}
-              <div className="absolute inset-1.5 rounded-full border-[2.5px] border-transparent border-t-brand-forest border-r-emerald-500 animate-spin" />
-
-              {/* Center Emblem Logo */}
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm overflow-hidden p-1.5 border border-mint-200">
+              <div className="absolute inset-0.5 rounded-full border-[2px] border-transparent border-t-brand-forest border-r-emerald-500 animate-spin" />
+              <div className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white overflow-hidden p-0.5">
                 <Image
                   src="/images/logo-emblem.webp"
                   alt="Salt & Light"
                   fill
-                  sizes="64px"
+                  sizes="20px"
                   className="object-contain"
                   priority
                 />
               </div>
             </div>
 
-            {/* Brand Title & Status Message */}
-            <div className="space-y-1 flex flex-col items-center">
-              <span className="font-display text-sm font-black uppercase tracking-widest text-ink block">
-                Salt &amp; Light
-              </span>
-              <span className="text-xs font-semibold text-brand-forest block">
+            {/* Label and bouncing dots */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-ink tracking-tight">
                 {bufferText}
               </span>
-            </div>
-
-            {/* Cute Staggered Bouncing Dots Loader */}
-            <div className="flex items-center gap-2 pt-0.5">
-              <span className="h-2 w-2 rounded-full bg-brand-forest animate-bounce [animation-delay:-0.3s]" />
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.15s]" />
-              <span className="h-2 w-2 rounded-full bg-mint-400 animate-bounce" />
+              <div className="flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-forest animate-bounce [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-mint-400 animate-bounce" />
+              </div>
             </div>
           </div>
         </div>

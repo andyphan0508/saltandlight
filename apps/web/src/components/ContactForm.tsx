@@ -10,22 +10,28 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("sending");
-    const form = new FormData(e.currentTarget);
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type,
-        fullName: form.get("fullName"),
-        phone: form.get("phone"),
-        email: form.get("email"),
-        message: form.get("message"),
-      }),
-    });
-    if (res.ok) {
-      setStatus("sent");
-      e.currentTarget.reset();
-    } else {
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          fullName: form.get("fullName"),
+          phone: form.get("phone"),
+          email: form.get("email"),
+          message: form.get("message"),
+        }),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) {
+        setStatus("sent");
+        formEl.reset();
+      } else {
+        setStatus("error");
+      }
+    } catch {
       setStatus("error");
     }
   }

@@ -11,15 +11,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  await prisma.contactSubmission.create({
-    data: {
-      type: parsed.data.type,
-      fullName: parsed.data.fullName,
-      phone: parsed.data.phone || null,
-      email: parsed.data.email || null,
-      message: parsed.data.message,
-    },
-  });
+  try {
+    await prisma.contactSubmission.create({
+      data: {
+        type: parsed.data.type,
+        fullName: parsed.data.fullName,
+        phone: parsed.data.phone || null,
+        email: parsed.data.email || null,
+        message: parsed.data.message,
+      },
+    });
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Contact submission error:", err);
+    return NextResponse.json({ error: "Không thể lưu thông tin liên hệ lúc này." }, { status: 500 });
+  }
 }

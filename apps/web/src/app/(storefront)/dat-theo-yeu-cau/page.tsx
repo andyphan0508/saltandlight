@@ -6,7 +6,7 @@ export const metadata = {
   description: "Dịch vụ thiết kế và may áo đồng phục Cơ Đốc cho Ban Thanh Niên, Trại Hè, Hội Thánh.",
 };
 
-export const dynamic = "force-static";
+export const revalidate = 300;
 
 const STEPS = [
   { step: "01", title: "Tiếp nhận ý tưởng", desc: "Gửi thông tin số lượng, ý tưởng câu gốc hoặc logo Hội thánh." },

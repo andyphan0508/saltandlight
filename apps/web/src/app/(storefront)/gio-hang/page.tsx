@@ -47,7 +47,7 @@ export default function CartPage() {
   const hydrated = useStoreHydrated(useCartStore);
 
   const [quote, setQuote] = useState<Quote | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
 
@@ -55,17 +55,30 @@ export default function CartPage() {
   const requestIdRef = useRef(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchQuote = useCallback((lines: { productVariantId: string; quantity: number }[]) => {
+  const fetchQuote = useCallback(async (lines: { productVariantId: string; quantity: number }[]) => {
+    if (!lines || lines.length === 0) {
+      setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
+      return;
+    }
     const requestId = ++requestIdRef.current;
-    return fetch("/api/cart/quote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: lines }),
-    })
-      .then((r) => r.json())
-      .then((data: Quote) => {
-        if (requestId === requestIdRef.current) setQuote(data);
+    try {
+      const res = await fetch("/api/cart/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: lines }),
+        signal: AbortSignal.timeout(4000),
       });
+      if (!res.ok) {
+        console.warn("Quote request returned status:", res.status);
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (requestId === requestIdRef.current && data && Array.isArray(data.lines)) {
+        setQuote(data);
+      }
+    } catch (err) {
+      console.warn("Quote request failed:", err);
+    }
   }, []);
 
   // Re-fetches the full quote only when the SET of items in the cart changes
@@ -103,14 +116,14 @@ export default function CartPage() {
     }
 
     setQuote((prev) => {
-      if (!prev) return prev;
+      if (!prev || !Array.isArray(prev.lines)) return prev;
       const lines = prev.lines.map((l) =>
         l.productVariantId === productVariantId
           ? { ...l, quantity: nextQuantity, lineTotal: l.unitPrice * nextQuantity }
           : l,
       );
       const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
-      return { ...prev, lines, subtotal, total: subtotal + prev.shippingFee };
+      return { ...prev, lines, subtotal, total: subtotal + (prev.shippingFee ?? 0) };
     });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -123,17 +136,46 @@ export default function CartPage() {
   const subtotal = quote?.subtotal ?? 0;
   const neededForFreeship = Math.max(0, FREESHIP_THRESHOLD - subtotal);
   const freeshipProgress = Math.min(100, Math.round((subtotal / FREESHIP_THRESHOLD) * 100));
+  const lines = quote?.lines ?? [];
+  const totalItemCount = lines.reduce((s, l) => s + (l.quantity ?? 1), 0);
 
-  if (!hydrated || loading) {
+  // If store is not hydrated, or is loading items for the first time without a quote yet
+  if (!hydrated || (loading && !quote && cartLines.length > 0)) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-24 text-center animate-fade-in">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand-forest border-t-transparent" />
-        <p className="mt-4 text-sm font-medium text-ink/60">Đang tải giỏ hàng của bạn…</p>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8 animate-pulse">
+        <div className="border-b border-ink/10 pb-4">
+          <div className="h-8 w-56 rounded-2xl bg-ink/10" />
+        </div>
+        <div className="h-16 w-full rounded-3xl bg-mint-100/70 border border-mint-200/50" />
+        <div className="grid gap-10 lg:grid-cols-12 items-start">
+          <div className="space-y-4 lg:col-span-7">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex gap-4 rounded-3xl bg-white p-4 sm:p-5 shadow-card border border-ink/5 items-center"
+              >
+                <div className="h-24 w-20 flex-shrink-0 rounded-2xl bg-mint-100/60" />
+                <div className="flex-1 space-y-2.5">
+                  <div className="h-4 w-3/4 rounded-full bg-ink/10" />
+                  <div className="h-3 w-1/2 rounded-full bg-ink/10" />
+                  <div className="h-4 w-1/4 rounded-full bg-mint-200" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-5 space-y-4">
+            <div className="h-6 w-44 rounded-full bg-ink/10" />
+            <div className="h-4 w-full rounded-full bg-ink/5" />
+            <div className="h-4 w-full rounded-full bg-ink/5" />
+            <div className="h-12 w-full rounded-2xl bg-brand-forest/20" />
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!quote || quote.lines.length === 0) {
+  // Cart is empty
+  if (cartLines.length === 0 || (!loading && lines.length === 0)) {
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center animate-fade-in">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
@@ -161,7 +203,7 @@ export default function CartPage() {
       {/* Title */}
       <div className="border-b border-ink/10 pb-4">
         <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">
-          Giỏ Hàng Của Bạn ({quote.lines.reduce((s, l) => s + l.quantity, 0)} món)
+          Giỏ Hàng Của Bạn ({totalItemCount} món)
         </h1>
       </div>
 
@@ -191,7 +233,7 @@ export default function CartPage() {
       <div className="grid gap-10 lg:grid-cols-12 items-start">
         {/* Cart Item List */}
         <div className="space-y-4 lg:col-span-7">
-          {quote.lines.map((line) => (
+          {lines.map((line) => (
             <div
               key={line.productVariantId}
               className="flex gap-4 rounded-3xl bg-white p-4 sm:p-5 shadow-card border border-ink/5 items-center"
@@ -291,15 +333,15 @@ export default function CartPage() {
           <div className="space-y-3 text-sm text-ink/75">
             <div className="flex justify-between">
               <span>Tạm tính tiền hàng</span>
-              <span className="font-bold text-ink">{formatVND(quote.subtotal)}</span>
+              <span className="font-bold text-ink">{formatVND(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Phí vận chuyển</span>
               <span>
-                {quote.shippingFee === 0 ? (
+                {(quote?.shippingFee ?? 0) === 0 ? (
                   <span className="font-bold text-emerald-700">Miễn phí</span>
                 ) : (
-                  <span className="font-bold text-ink">{formatVND(quote.shippingFee)}</span>
+                  <span className="font-bold text-ink">{formatVND(quote?.shippingFee ?? 0)}</span>
                 )}
               </span>
             </div>
@@ -307,14 +349,18 @@ export default function CartPage() {
             {couponApplied && (
               <div className="flex justify-between text-emerald-700 font-semibold">
                 <span>Ưu đãi mã giảm giá (10%)</span>
-                <span>-{formatVND(Math.round(quote.subtotal * 0.1))}</span>
+                <span>-{formatVND(Math.round(subtotal * 0.1))}</span>
               </div>
             )}
 
             <div className="border-t border-ink/10 pt-4 flex justify-between items-baseline">
               <span className="font-display font-black text-base uppercase text-ink">Tổng thanh toán</span>
               <span className="font-display font-black text-2xl text-ink">
-                {formatVND(couponApplied ? Math.round(quote.total - quote.subtotal * 0.1) : quote.total)}
+                {formatVND(
+                  couponApplied
+                    ? Math.round((quote?.total ?? (subtotal + (quote?.shippingFee ?? 0))) - subtotal * 0.1)
+                    : (quote?.total ?? (subtotal + (quote?.shippingFee ?? 0))),
+                )}
               </span>
             </div>
           </div>
