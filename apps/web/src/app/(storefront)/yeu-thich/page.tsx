@@ -4,16 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { useWishlistStore } from "@/lib/wishlist-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Heart, Sparkles } from "@/components/Icons";
 import type { ProductCardData } from "@/lib/types";
 
 export default function WishlistPage() {
   const productIds = useWishlistStore((s) => s.productIds);
+  const hydrated = useStoreHydrated(useWishlistStore);
   const [products, setProducts] = useState<ProductCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for the persisted wishlist to load from localStorage first —
+    // otherwise this fires with the pre-hydration empty default and flashes
+    // the "no favorites" empty state even when the wishlist isn't empty.
+    if (!hydrated) return;
     if (productIds.length === 0) {
       setProducts([]);
       setLoading(false);
@@ -24,7 +30,7 @@ export default function WishlistPage() {
       .then((r) => r.json())
       .then((data) => setProducts(data.products ?? []))
       .finally(() => setLoading(false));
-  }, [productIds]);
+  }, [hydrated, productIds]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8">
@@ -34,7 +40,7 @@ export default function WishlistPage() {
             Sưu tập cá nhân
           </span>
           <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink mt-1">
-            Sản Phẩm Yêu Thích ({productIds.length})
+            Sản Phẩm Yêu Thích ({hydrated ? productIds.length : "…"})
           </h1>
         </div>
         <Link href="/san-pham" className="text-xs font-bold uppercase hover:underline text-ink/70">

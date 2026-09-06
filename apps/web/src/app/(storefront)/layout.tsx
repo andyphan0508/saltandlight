@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -6,8 +5,6 @@ import { BottomTabBar } from "@/components/BottomTabBar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
-import { NavigationProgress } from "@/components/NavigationProgress";
-import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { getCachedCategoriesWithCounts, getCachedActivePromotions, getCachedSiteSettings } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/lib/site-settings-types";
@@ -42,9 +39,6 @@ export default async function StorefrontLayout({ children }: { children: React.R
           className: "!rounded-2xl !font-sans !shadow-xl !border !border-ink/10",
         }}
       />
-      <Suspense fallback={null}>
-        <NavigationProgress />
-      </Suspense>
       <Header categories={navCategories} activePromotion={activePromotion} siteSettings={siteSettings} />
       <main className="flex-1 pb-16 lg:pb-0">{children}</main>
       <Footer siteSettings={siteSettings} />
@@ -52,7 +46,6 @@ export default async function StorefrontLayout({ children }: { children: React.R
       <MobileDrawer categories={navCategories} siteSettings={siteSettings} />
       <SearchSpotlight />
       <CartFab />
-      <CuteAmbientBackground />
     </>
   );
 }

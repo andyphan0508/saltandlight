@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useMobileMenuStore } from "@/lib/mobile-menu-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
 
 /**
@@ -15,8 +16,10 @@ import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
  */
 export function BottomTabBar() {
   const pathname = usePathname();
-  const cartCount = useCartStore((s) => s.lines.reduce((sum, l) => sum + l.quantity, 0));
-  const wishlistCount = useWishlistStore((s) => s.productIds.length);
+  const cartHydrated = useStoreHydrated(useCartStore);
+  const wishlistHydrated = useStoreHydrated(useWishlistStore);
+  const cartCount = useCartStore((s) => (cartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
+  const wishlistCount = useWishlistStore((s) => (wishlistHydrated ? s.productIds.length : 0));
   const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));

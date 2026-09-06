@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { ShoppingBag } from "./Icons";
 
 /**
@@ -13,7 +14,8 @@ import { ShoppingBag } from "./Icons";
  */
 export function CartFab() {
   const pathname = usePathname();
-  const cartCount = useCartStore((s) => s.lines.reduce((sum, l) => sum + l.quantity, 0));
+  const cartHydrated = useStoreHydrated(useCartStore);
+  const cartCount = useCartStore((s) => (cartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
   const [bumping, setBumping] = useState(false);
 
   // Trigger subtle pop/bump animation whenever cart count increments

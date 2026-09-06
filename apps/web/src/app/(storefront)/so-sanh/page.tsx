@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { formatVND } from "@saltandlight/domain";
 import { useCompareStore } from "@/lib/compare-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import type { ProductCardData } from "@/lib/types";
 
 interface CompareProduct extends ProductCardData {
@@ -14,9 +15,14 @@ interface CompareProduct extends ProductCardData {
 export default function ComparePage() {
   const productIds = useCompareStore((s) => s.productIds);
   const toggle = useCompareStore((s) => s.toggle);
+  const hydrated = useStoreHydrated(useCompareStore);
   const [products, setProducts] = useState<CompareProduct[]>([]);
 
   useEffect(() => {
+    // Wait for the persisted compare list to load from localStorage first —
+    // otherwise this fires with the pre-hydration empty default and flashes
+    // the "nothing to compare" empty state even when the list isn't empty.
+    if (!hydrated) return;
     if (productIds.length === 0) {
       setProducts([]);
       return;
@@ -24,7 +30,11 @@ export default function ComparePage() {
     fetch(`/api/products?ids=${productIds.join(",")}`)
       .then((r) => r.json())
       .then((data) => setProducts(data.products));
-  }, [productIds]);
+  }, [hydrated, productIds]);
+
+  if (!hydrated) {
+    return null;
+  }
 
   if (products.length === 0) {
     return (

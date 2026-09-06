@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useMobileMenuStore } from "@/lib/mobile-menu-store";
 import { useSearchModalStore } from "@/lib/search-store";
+import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
-import { MarqueeBanner } from "./MarqueeBanner";
 import { Logo } from "./Logo";
 import { Heart, Search, Phone, Truck, ChevronDown, Sparkles } from "./Icons";
 import { formatVND } from "@saltandlight/domain";
@@ -39,6 +39,7 @@ export function Header({
   const navLeft = siteSettings.headerNavItems.left;
   const navRight = siteSettings.headerNavItems.right;
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
+  const wishlistHydrated = useStoreHydrated(useWishlistStore);
 
   const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
   const setSearchOpen = useSearchModalStore((s) => s.setOpen);
@@ -237,7 +238,7 @@ export function Header({
               aria-label="Sản phẩm yêu thích"
             >
               <Heart size={20} />
-              {wishlistCount > 0 && (
+              {wishlistHydrated && wishlistCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-black text-white shadow-sm">
                   {wishlistCount}
                 </span>
@@ -246,8 +247,6 @@ export function Header({
           </div>
         </div>
       </div>
-
-      <MarqueeBanner />
     </header>
   );
 }
