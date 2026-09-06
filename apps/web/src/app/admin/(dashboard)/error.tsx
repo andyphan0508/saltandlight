@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isRouterCorruptionError } from "@/lib/error-classification";
 
 export default function AdminError({
   error,
@@ -9,9 +10,20 @@ export default function AdminError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const isRouterCorrupted = isRouterCorruptionError(error?.message);
+
   useEffect(() => {
     console.error(error);
-  }, [error]);
+    // Corrupted client router (e.g. after the admin tab sat frozen in
+    // bfcache) — reset() re-renders the same broken router, so only a full
+    // reload fixes it.
+    if (isRouterCorrupted) {
+      const timer = setTimeout(() => {
+        window.location.reload();
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [error, isRouterCorrupted]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-4 text-center">
@@ -21,7 +33,9 @@ export default function AdminError({
       <div className="max-w-md space-y-2">
         <h1 className="text-xl font-black uppercase text-slate-900">Đã có lỗi xảy ra</h1>
         <p className="text-sm text-slate-500">
-          Không thể tải dữ liệu cho trang này. Vui lòng thử lại sau giây lát.
+          {isRouterCorrupted
+            ? "Trang đã ở chế độ chờ quá lâu. Đang tự động tải lại..."
+            : "Không thể tải dữ liệu cho trang này. Vui lòng thử lại sau giây lát."}
         </p>
         {error.digest && <p className="text-xs text-slate-400">Mã lỗi: {error.digest}</p>}
       </div>
