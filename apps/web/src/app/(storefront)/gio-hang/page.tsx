@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@saltandlight/ui";
@@ -49,6 +49,27 @@ export default function CartPage() {
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
 
+  // Guards against an older, slower request overwriting a newer one's result.
+  const requestIdRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchQuote = useCallback((lines: { productVariantId: string; quantity: number }[]) => {
+    const requestId = ++requestIdRef.current;
+    return fetch("/api/cart/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: lines }),
+    })
+      .then((r) => r.json())
+      .then((data: Quote) => {
+        if (requestId === requestIdRef.current) setQuote(data);
+      });
+  }, []);
+
+  // Re-fetches the full quote only when the SET of items in the cart changes
+  // (added/removed) — not on every quantity tweak, since that data (name,
+  // image, unit price, stock cap) doesn't change while just adjusting qty.
+  const lineIdsKey = cartLines.map((l) => l.productVariantId).sort().join(",");
   useEffect(() => {
     if (cartLines.length === 0) {
       setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
@@ -56,15 +77,45 @@ export default function CartPage() {
       return;
     }
     setLoading(true);
-    fetch("/api/cart/quote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: cartLines }),
-    })
-      .then((r) => r.json())
-      .then(setQuote)
-      .finally(() => setLoading(false));
-  }, [cartLines]);
+    fetchQuote(cartLines).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lineIdsKey]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // Quantity change: update local state instantly (no request), then sync
+  // the authoritative quote (shipping fee/total) in the background after the
+  // user stops clicking, instead of firing an API call per click.
+  function handleQuantityChange(productVariantId: string, nextQuantity: number) {
+    setQuantity(productVariantId, nextQuantity);
+
+    if (nextQuantity <= 0) {
+      // Store already dropped the line — the composition-change effect
+      // below (keyed on lineIdsKey) will pick this up and refetch.
+      return;
+    }
+
+    setQuote((prev) => {
+      if (!prev) return prev;
+      const lines = prev.lines.map((l) =>
+        l.productVariantId === productVariantId
+          ? { ...l, quantity: nextQuantity, lineTotal: l.unitPrice * nextQuantity }
+          : l,
+      );
+      const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+      return { ...prev, lines, subtotal, total: subtotal + prev.shippingFee };
+    });
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const latestLines = useCartStore.getState().lines;
+      if (latestLines.length > 0) fetchQuote(latestLines);
+    }, 600);
+  }
 
   const subtotal = quote?.subtotal ?? 0;
   const neededForFreeship = Math.max(0, FREESHIP_THRESHOLD - subtotal);
@@ -178,7 +229,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       className="flex h-7 w-7 items-center justify-center rounded-lg text-ink hover:bg-ink/10"
-                      onClick={() => setQuantity(line.productVariantId, line.quantity - 1)}
+                      onClick={() => handleQuantityChange(line.productVariantId, line.quantity - 1)}
                     >
                       −
                     </button>
@@ -189,7 +240,7 @@ export default function CartPage() {
                       type="button"
                       className="flex h-7 w-7 items-center justify-center rounded-lg text-ink hover:bg-ink/10"
                       onClick={() =>
-                        setQuantity(
+                        handleQuantityChange(
                           line.productVariantId,
                           Math.min(line.quantity + 1, line.availableStock),
                         )
