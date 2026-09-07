@@ -3,7 +3,14 @@
   "name": "saltandlight",
   "main": "apps/web/.open-next/worker.js",
   "compatibility_date": "2024-12-30",
-  "compatibility_flags": ["nodejs_compat"],
+  // no_handle_cross_request_promise_resolution: works around a confirmed
+  // upstream Prisma bug (prisma/prisma#28732) — under concurrent requests,
+  // Prisma's default query batching resolves a promise from a different
+  // request's I/O context than the one awaiting it, and without this flag
+  // the Workers runtime kills that request as "hung", surfacing as random
+  // 500s / unresponsive navigation whenever several pages load at once
+  // (e.g. Next.js prefetching multiple links in the header/footer).
+  "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
   "assets": {
     "directory": "apps/web/.open-next/assets",
     "binding": "ASSETS"

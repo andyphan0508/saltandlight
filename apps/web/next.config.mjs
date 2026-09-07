@@ -48,11 +48,12 @@ const nextConfig = {
     // business being sent from a local, non-HTTPS dev server.
     const csp = [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+      `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isProd ? "" : " 'unsafe-eval'"}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://img.vietqr.io",
       "font-src 'self' data:",
-      "connect-src 'self' https://aydjehngunstuhkmdmqs.supabase.co wss://aydjehngunstuhkmdmqs.supabase.co",
+      "connect-src 'self' https://aydjehngunstuhkmdmqs.supabase.co wss://aydjehngunstuhkmdmqs.supabase.co https://challenges.cloudflare.com",
+      "frame-src https://challenges.cloudflare.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
