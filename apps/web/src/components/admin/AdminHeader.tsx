@@ -53,6 +53,7 @@ export function AdminHeader({
     banners: "Banner & Slider",
     promotions: "Mã & Khuyến mãi",
     "page-builder": "Bố cục trang chủ",
+    editor: "Editor Trực quan",
     settings: "Cài đặt",
     payment: "Thanh toán",
     users: "Nhân viên",

@@ -140,7 +140,60 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {/* 3. Charts & Analytics Grid */}
+      {/* 3. Section: Editor (Elementor Visual Page Builder) */}
+      <div className="relative overflow-hidden rounded-2xl border border-brand-forest/20 bg-gradient-to-br from-white via-mint-50/40 to-emerald-50/60 p-6 shadow-xs">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-forest text-white px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
+                <Sparkles size={12} />
+                <span>Editor</span>
+              </span>
+              <span className="text-[11px] font-bold text-brand-forest bg-mint-100 px-2 py-0.5 rounded-md">
+                Chuẩn Elementor WYSIWYG
+              </span>
+            </div>
+            <h2 className="text-xl font-black tracking-tight text-slate-900">
+              Trình Dựng Trang Trực Quan (Live Elementor Editor)
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Chỉnh sửa trực tiếp trên giao diện trang web thật của bạn. Click vào bất kỳ khối nào trên trang để sửa nội dung tức thì, kéo-thả sắp xếp khối, và xem trước linh hoạt trên cả Máy tính, Máy tính bảng và Điện thoại.
+            </p>
+
+            {/* Managed Pages Quick Access */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs font-semibold text-slate-500">Mở nhanh trang:</span>
+              {[
+                { slug: "home", label: "Trang chủ (/)" },
+                { slug: "gioi-thieu", label: "Giới thiệu (/gioi-thieu)" },
+                { slug: "lien-he", label: "Liên hệ (/lien-he)" },
+                { slug: "chinh-sach", label: "Chính sách (/chinh-sach)" },
+              ].map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/admin/editor?page=${p.slug}`}
+                  className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50 transition-all shadow-2xs"
+                >
+                  {p.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
+            <Link
+              href="/admin/editor"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-forest px-5 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-brand-forest/90 transition-all shadow-sm active:scale-95"
+            >
+              <Sparkles size={16} />
+              <span>Mở Elementor Editor ngay</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Charts & Analytics Grid */}
       <div className="grid gap-6 xl:grid-cols-3">
         {/* 14-day Revenue Chart */}
         <div className="luno-card p-6 xl:col-span-2">

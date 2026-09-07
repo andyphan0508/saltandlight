@@ -36,6 +36,7 @@ const NAV_GROUPS: {
     label: "Tổng quan",
     items: [
       { href: "/admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { href: "/admin/editor", label: "Editor", icon: Sparkles, badge: "Live" },
     ],
   },
   {
