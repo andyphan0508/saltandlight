@@ -241,10 +241,14 @@ const footerColumnSchema = z.object({
 });
 
 export const siteSettingsSchema = z.object({
-  logoUrl: z.string().url().optional().nullable(),
+  // Logos can be a locally-served default (e.g. "/images/logo.png", the
+  // fallback in DEFAULT_SITE_SETTINGS) or an uploaded Supabase Storage URL —
+  // z.string().url() rejected the relative-path default outright, so every
+  // save failed with "Invalid url" until a custom logo had been uploaded.
+  logoUrl: hrefSchema.optional().nullable(),
   logoSize: z.enum(["sm", "md", "lg"]).default("md"),
-  footerLogoUrl: z.string().url().optional().nullable(),
-  faviconUrl: z.string().url().optional().nullable(),
+  footerLogoUrl: hrefSchema.optional().nullable(),
+  faviconUrl: hrefSchema.optional().nullable(),
   headerNavItems: z
     .object({
       left: z.array(navLinkItemSchema).max(8),
