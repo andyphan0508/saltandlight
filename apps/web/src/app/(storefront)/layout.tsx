@@ -49,7 +49,7 @@ export default async function StorefrontLayout({ children }: { children: React.R
       <BottomTabBar />
       <MobileDrawer categories={navCategories} siteSettings={siteSettings} />
       <SearchSpotlight />
-      <CartFab />
+      <CartFab siteSettings={siteSettings} />
     </>
   );
 }
