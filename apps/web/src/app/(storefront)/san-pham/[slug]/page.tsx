@@ -7,6 +7,7 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ChevronRight, Sparkles, Check, CrossIcon } from "@/components/Icons";
+import { ProductContentRenderer } from "@/components/ProductContentRenderer";
 
 export const revalidate = 120;
 
@@ -169,12 +170,10 @@ export default async function ProductDetailPage({
           {/* Description & Bible verse section */}
           {plain.description && (
             <div className="border-t border-ink/10 pt-6 w-full min-w-0">
-              <h3 className="text-xs font-black uppercase tracking-wider text-ink">
+              <h3 className="text-xs font-black uppercase tracking-wider text-ink mb-3">
                 Mô tả chi tiết &amp; Thông điệp
               </h3>
-              <div className="mt-3 rounded-2xl bg-white p-4 sm:p-5 border border-ink/10 text-xs sm:text-sm text-ink/80 whitespace-pre-line leading-relaxed shadow-xs">
-                {plain.description}
-              </div>
+              <ProductContentRenderer content={plain.description} />
             </div>
           )}
 

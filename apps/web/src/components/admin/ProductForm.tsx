@@ -18,6 +18,7 @@ import {
   Tag,
   Sparkles,
 } from "./Icons";
+import { ProductNotionEditor } from "./ProductNotionEditor";
 
 interface Category {
   id: string;
@@ -308,16 +309,7 @@ export function ProductForm({
             </select>
           </Field>
           <div className="md:col-span-2">
-            <Field label="Mô tả sản phẩm">
-              <textarea
-                rows={6}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className={`${inputClass} resize-y`}
-                placeholder="Câu Kinh Thánh, chất liệu, kỹ thuật in, hướng dẫn bảo quản…"
-              />
-              <div className="mt-1 text-right text-[11px] text-ink/35">{description.length} ký tự</div>
-            </Field>
+            <ProductNotionEditor value={description} onChange={(val) => setDescription(val)} />
           </div>
           <div className="md:col-span-2 flex flex-wrap items-center gap-4 pt-1">
             <label className="flex items-center gap-2 text-sm text-ink/70 cursor-pointer">

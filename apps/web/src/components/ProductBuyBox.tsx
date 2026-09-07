@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge, Button } from "@saltandlight/ui";
@@ -38,6 +39,12 @@ export function ProductBuyBox({
   variants: VariantPlain[];
 }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const colors = useMemo(
     () => Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[],
     [variants],
@@ -52,6 +59,21 @@ export function ProductBuyBox({
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
+
+  // Prevent scroll when modal is open and handle ESC key
+  useEffect(() => {
+    if (showSizeModal) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setShowSizeModal(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [showSizeModal]);
 
   const selected =
     variants.find((v) => (color ? v.color === color : true) && (size ? v.size === size : true)) ??
@@ -308,82 +330,101 @@ export function ProductBuyBox({
         </div>
       </div>
 
-      {/* Size Chart Modal */}
-      {showSizeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
-            onClick={() => setShowSizeModal(false)}
-          />
-          <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
-            <div className="flex items-center justify-between border-b border-ink/10 pb-4">
-              <h3 className="font-display text-lg font-black uppercase text-ink">
-                Bảng Quy Đổi Size Áo Chuẩn
-              </h3>
-              <button
-                onClick={() => setShowSizeModal(false)}
-                className="rounded-full p-2 text-ink/50 hover:bg-ink/5"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="mt-4">
-              <p className="text-xs text-ink/70">
-                Form áo Regular Fit tiêu chuẩn, dáng suông thoải mái cho cả nam &amp; nữ. Nếu thích
-                mặc rộng rãi phong cách oversize, bạn có thể tăng lên 1 size.
-              </p>
-
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-mint-100 text-ink font-bold uppercase">
-                    <tr>
-                      <th className="p-2.5 rounded-l-lg">Size</th>
-                      <th className="p-2.5">Chiều cao</th>
-                      <th className="p-2.5">Cân nặng</th>
-                      <th className="p-2.5 rounded-r-lg">Dài áo / Rộng áo</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-ink/10">
-                    <tr>
-                      <td className="p-2.5 font-bold">S</td>
-                      <td className="p-2.5">1m50 - 1m62</td>
-                      <td className="p-2.5">42 - 52 kg</td>
-                      <td className="p-2.5">66cm / 48cm</td>
-                    </tr>
-                    <tr>
-                      <td className="p-2.5 font-bold">M</td>
-                      <td className="p-2.5">1m60 - 1m70</td>
-                      <td className="p-2.5">53 - 62 kg</td>
-                      <td className="p-2.5">69cm / 51cm</td>
-                    </tr>
-                    <tr>
-                      <td className="p-2.5 font-bold">L</td>
-                      <td className="p-2.5">1m68 - 1m76</td>
-                      <td className="p-2.5">63 - 72 kg</td>
-                      <td className="p-2.5">72cm / 54cm</td>
-                    </tr>
-                    <tr>
-                      <td className="p-2.5 font-bold">XL</td>
-                      <td className="p-2.5">1m75 - 1m85</td>
-                      <td className="p-2.5">73 - 85 kg</td>
-                      <td className="p-2.5">75cm / 57cm</td>
-                    </tr>
-                  </tbody>
-                </table>
+      {/* Size Chart Modal rendered via Portal directly to body */}
+      {mounted &&
+        showSizeModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
+              onClick={() => setShowSizeModal(false)}
+              aria-hidden="true"
+            />
+            <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 my-auto max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
+              <div className="flex items-center justify-between border-b border-ink/10 pb-4">
+                <h3 className="font-display text-lg font-black uppercase text-ink flex items-center gap-2">
+                  <span>📏 Bảng Quy Đổi Size Áo Chuẩn</span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeModal(false)}
+                  className="rounded-full p-2 text-ink/50 hover:bg-ink/5 hover:text-ink transition-colors"
+                  title="Đóng (ESC)"
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              <div className="mt-6 rounded-2xl bg-cream p-4 text-xs text-ink/70">
-                <p className="font-bold text-ink">💡 Bạn còn phân vân size?</p>
-                <p className="mt-1">
-                  Hãy nhắn ngay hotline/Zalo <strong>0847 25 2025</strong>, đội ngũ tư vấn sẽ hỗ
-                  trợ bạn chọn size vừa vặn nhất!
+              <div className="mt-4 space-y-4">
+                <p className="text-xs text-ink/70 leading-relaxed">
+                  Form áo Regular Fit tiêu chuẩn, dáng suông thoải mái cho cả nam &amp; nữ. Nếu thích
+                  mặc rộng rãi phong cách oversize, bạn có thể chọn tăng lên 1 size.
                 </p>
+
+                <div className="overflow-x-auto rounded-2xl border border-ink/10 shadow-xs">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-mint-100 text-ink font-bold uppercase">
+                      <tr>
+                        <th className="p-3">Size</th>
+                        <th className="p-3">Chiều cao</th>
+                        <th className="p-3">Cân nặng</th>
+                        <th className="p-3">Dài áo / Rộng áo</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ink/10 bg-white">
+                      <tr>
+                        <td className="p-3 font-bold text-brand-forest">S</td>
+                        <td className="p-3">1m50 - 1m62</td>
+                        <td className="p-3">42 - 52 kg</td>
+                        <td className="p-3 font-mono">66cm / 48cm</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-brand-forest">M</td>
+                        <td className="p-3">1m60 - 1m70</td>
+                        <td className="p-3">53 - 62 kg</td>
+                        <td className="p-3 font-mono">69cm / 51cm</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-brand-forest">L</td>
+                        <td className="p-3">1m68 - 1m76</td>
+                        <td className="p-3">63 - 72 kg</td>
+                        <td className="p-3 font-mono">72cm / 54cm</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-brand-forest">XL</td>
+                        <td className="p-3">1m75 - 1m85</td>
+                        <td className="p-3">73 - 85 kg</td>
+                        <td className="p-3 font-mono">75cm / 57cm</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="rounded-2xl bg-cream p-4 text-xs text-ink/70 border border-ink/5">
+                  <p className="font-bold text-ink flex items-center gap-1.5">
+                    <span>💡 Bạn còn phân vân chưa chắc chắn về size?</span>
+                  </p>
+                  <p className="mt-1 leading-relaxed">
+                    Hãy liên hệ ngay hotline/Zalo <strong>0847 25 2025</strong>, đội ngũ tư vấn sẽ hỗ
+                    trợ bạn chọn size chuẩn và vừa vặn nhất!
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-ink/10 flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowSizeModal(false)}
+                  className="rounded-xl px-5 py-2 text-xs font-bold"
+                >
+                  Đã hiểu &amp; Đóng
+                </Button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

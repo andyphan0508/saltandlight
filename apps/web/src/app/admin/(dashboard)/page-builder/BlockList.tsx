@@ -13,10 +13,12 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@saltandlight/ui";
-import { Plus, Trash2, Pencil, GripVertical } from "@/components/admin/Icons";
+import { Plus, Trash2, Pencil, GripVertical, Sparkles, Eye } from "@/components/admin/Icons";
 import { toast } from "sonner";
 import { BLOCK_TYPE_LABELS, PAGE_BLOCK_TYPES, type PageBlockTypeValue } from "@/lib/admin/page-block-types";
 import { BlockEditForm } from "./BlockEditForm";
+import { BlockPaletteModal } from "@/components/admin/BlockPaletteModal";
+import { PageLivePreviewModal } from "@/components/admin/PageLivePreviewModal";
 
 export interface PageBlockItem {
   id: string;
@@ -34,6 +36,11 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
   const [isAdding, setIsAdding] = useState(false);
   const [addType, setAddType] = useState<PageBlockTypeValue>(PAGE_BLOCK_TYPES[0]);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+
+  // Advanced Visual Palette & Live Preview States
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [insertIndex, setInsertIndex] = useState<number | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -98,24 +105,63 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
     }
   }
 
+  function handleSelectFromPalette(type: PageBlockTypeValue, targetIdx?: number | null) {
+    setAddType(type);
+    setInsertIndex(typeof targetIdx === "number" ? targetIdx : null);
+    setIsAdding(true);
+  }
+
   function handleSaved(block: PageBlockItem, isNew: boolean) {
-    setBlocks((prev) => (isNew ? [...prev, block] : prev.map((b) => (b.id === block.id ? block : b))));
+    if (isNew && typeof insertIndex === "number") {
+      const next = [...blocks];
+      next.splice(insertIndex + 1, 0, block);
+      setBlocks(next);
+      persistOrder(next);
+    } else {
+      setBlocks((prev) => (isNew ? [...prev, block] : prev.map((b) => (b.id === block.id ? block : b))));
+    }
     setEditingBlock(null);
     setIsAdding(false);
+    setInsertIndex(null);
     router.refresh();
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Top Action Toolbar */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <p className="text-xs text-slate-500">
-          Kéo giữ biểu tượng ⠿ để đổi vị trí. Nhấn vào nút trạng thái để bật hoặc ẩn khối trên trang web.
+          Kéo giữ biểu tượng ⠿ để đổi vị trí. Bạn có thể chèn thêm khối ở bất kỳ vị trí nào hoặc xem trước giao diện.
         </p>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setInsertIndex(null);
+              setIsPaletteOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 text-xs font-bold rounded-xl px-3.5 py-2 !border-brand-forest/40 !text-brand-forest hover:!bg-mint-50 shadow-2xs"
+          >
+            <Sparkles size={15} />
+            Thư viện khối mẫu
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => setIsPreviewOpen(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-bold rounded-xl px-3.5 py-2 !bg-slate-800 hover:!bg-slate-900 !text-white shadow-xs"
+          >
+            <Eye size={15} />
+            Xem trước trang web
+          </Button>
+
+          <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+
           <select
             value={addType}
             onChange={(e) => setAddType(e.target.value as PageBlockTypeValue)}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold focus:border-brand-forest focus:outline-none bg-white"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold focus:border-brand-forest focus:outline-none bg-white max-w-[200px] truncate"
           >
             {PAGE_BLOCK_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -124,36 +170,59 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
             ))}
           </select>
           <Button
-            onClick={() => setIsAdding(true)}
+            onClick={() => {
+              setInsertIndex(null);
+              setIsAdding(true);
+            }}
             className="inline-flex items-center gap-1.5 !bg-brand-forest hover:!bg-brand-forest/90 !text-white text-xs font-bold rounded-xl px-4 py-2 shadow-xs"
           >
             <Plus size={16} />
-            + Thêm khối mới
+            + Thêm khối
           </Button>
         </div>
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2.5">
-            {blocks.map((block) => (
-              <SortableBlockRow
-                key={block.id}
-                block={block}
-                onToggle={() => handleToggleVisible(block)}
-                onEdit={() => setEditingBlock(block)}
-                onDelete={() => handleDelete(block.id)}
-                isDeleting={isDeletingId === block.id}
-              />
+          <div className="space-y-1.5">
+            {blocks.map((block, idx) => (
+              <div key={block.id} className="space-y-1.5">
+                <SortableBlockRow
+                  block={block}
+                  onToggle={() => handleToggleVisible(block)}
+                  onEdit={() => setEditingBlock(block)}
+                  onDelete={() => handleDelete(block.id)}
+                  isDeleting={isDeletingId === block.id}
+                />
+                <InsertDivider
+                  onInsert={() => {
+                    setInsertIndex(idx);
+                    setIsPaletteOpen(true);
+                  }}
+                />
+              </div>
             ))}
           </div>
         </SortableContext>
       </DndContext>
 
       {blocks.length === 0 && (
-        <div className="py-16 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+        <div className="py-16 text-center bg-white rounded-2xl border border-dashed border-slate-200 space-y-3">
           <div className="text-sm font-bold text-slate-700">Chưa có khối hiển thị nào</div>
-          <p className="text-xs text-slate-400 mt-1">Chọn loại khối trong danh sách trên và bấm &quot;+ Thêm khối mới&quot; để bắt đầu thiết kế.</p>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            Bấm &quot;Thư viện khối mẫu&quot; để chọn các mẫu thiết kế đẹp mắt hoặc bấm &quot;+ Thêm khối&quot; để bắt đầu.
+          </p>
+          <Button
+            type="button"
+            onClick={() => {
+              setInsertIndex(null);
+              setIsPaletteOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 !bg-brand-forest text-white text-xs font-bold rounded-xl px-4 py-2 shadow-xs"
+          >
+            <Sparkles size={15} />
+            Mở thư viện khối mẫu
+          </Button>
         </div>
       )}
 
@@ -165,10 +234,40 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
           onClose={() => {
             setEditingBlock(null);
             setIsAdding(false);
+            setInsertIndex(null);
           }}
           onSaved={(block) => handleSaved(block, !editingBlock)}
         />
       )}
+
+      <BlockPaletteModal
+        isOpen={isPaletteOpen}
+        targetIndex={insertIndex}
+        onClose={() => setIsPaletteOpen(false)}
+        onSelectBlock={handleSelectFromPalette}
+      />
+
+      <PageLivePreviewModal
+        isOpen={isPreviewOpen}
+        page={page}
+        onClose={() => setIsPreviewOpen(false)}
+      />
+    </div>
+  );
+}
+
+function InsertDivider({ onInsert }: { onInsert: () => void }) {
+  return (
+    <div className="relative py-1 group flex items-center justify-center">
+      <div className="absolute inset-x-0 h-px bg-slate-200/60 group-hover:bg-brand-forest/40 transition-colors" />
+      <button
+        type="button"
+        onClick={onInsert}
+        className="relative z-10 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 inline-flex items-center gap-1 rounded-full bg-white border border-brand-forest/40 px-3 py-1 text-[11px] font-bold text-brand-forest hover:bg-mint-50 shadow-xs"
+      >
+        <Plus size={12} />
+        <span>Chèn khối vào đây</span>
+      </button>
     </div>
   );
 }
