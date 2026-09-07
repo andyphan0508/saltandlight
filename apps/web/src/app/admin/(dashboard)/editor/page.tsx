@@ -28,7 +28,7 @@ export default async function EditorPage({
   });
 
   return (
-    <div className="h-full">
+    <div className="-m-4 sm:-m-6 lg:-m-8 xl:-m-10 2xl:-m-12 h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       <ElementorEditorClient
         initialPage={page}
         initialBlocks={JSON.parse(JSON.stringify(blocks))}

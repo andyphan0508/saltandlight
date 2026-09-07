@@ -88,7 +88,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl space-y-6">
       {error && (
         <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">{error}</div>
       )}

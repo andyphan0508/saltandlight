@@ -61,8 +61,20 @@ export function LiveBlockClient({
       }
     }
 
+    function handleAnchorClick(e: MouseEvent) {
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest("a");
+      if (anchor) {
+        e.preventDefault();
+      }
+    }
+    document.addEventListener("click", handleAnchorClick, { capture: true });
+
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      document.removeEventListener("click", handleAnchorClick, { capture: true });
+    };
   }, [blockId]);
 
   if (!isEditorMode) {

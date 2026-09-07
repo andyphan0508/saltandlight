@@ -1,5 +1,5 @@
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { getCachedPageBlocks } from "@/lib/queries";
+import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
 export const metadata = {
@@ -50,10 +50,18 @@ const DEFAULT_POLICY_BLOCKS: PageBlockData[] = [
   },
 ];
 
-export default async function PolicyPage() {
+export default async function PolicyPage({
+  searchParams,
+}: {
+  searchParams?: { editor?: string };
+}) {
   let blocks: PageBlockData[] = [];
   try {
-    blocks = toPlain(await getCachedPageBlocks("chinh-sach"));
+    const isEditor = searchParams?.editor === "1";
+    const fetched = isEditor
+      ? await listPageBlocks("chinh-sach")
+      : await getCachedPageBlocks("chinh-sach");
+    blocks = toPlain(fetched);
   } catch (err) {
     console.error("PolicyPage data fetching error:", err);
   }

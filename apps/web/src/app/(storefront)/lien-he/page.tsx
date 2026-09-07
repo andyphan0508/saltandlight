@@ -1,6 +1,6 @@
 import { ContactForm } from "@/components/ContactForm";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { getCachedPageBlocks } from "@/lib/queries";
+import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
 export const metadata = {
@@ -10,16 +10,25 @@ export const metadata = {
 
 export const revalidate = 60;
 
-export default async function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams?: { editor?: string };
+}) {
   let blocks: PageBlockData[] = [];
   try {
-    blocks = toPlain(await getCachedPageBlocks("lien-he"));
+    const isEditor = searchParams?.editor === "1";
+    const fetched = isEditor
+      ? await listPageBlocks("lien-he")
+      : await getCachedPageBlocks("lien-he");
+    blocks = toPlain(fetched);
   } catch (err) {
     console.error("ContactPage data fetching error:", err);
   }
 
   const heroBlock = blocks.find((b) => b.type === "PAGE_HERO");
   const infoBlock = blocks.find((b) => b.type === "CONTACT_INFO");
+  const extraBlocks = blocks.filter((b) => b.type !== "PAGE_HERO" && b.type !== "CONTACT_INFO");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-12 animate-slide-up-fade">
@@ -95,6 +104,14 @@ export default async function ContactPage() {
           <ContactForm type="contact" />
         </div>
       </div>
+
+      {extraBlocks.length > 0 && (
+        <div className="space-y-12 pt-6">
+          {extraBlocks.map((block) => (
+            <BlockRenderer key={block.id} block={block} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ export const revalidate = 60;
 
 import { HeroSlider } from "@/components/HeroSlider";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { getCachedBanners, getCachedPageBlocks } from "@/lib/queries";
+import { getCachedBanners, getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
 const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
@@ -108,11 +108,19 @@ const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
   },
 ];
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: { editor?: string };
+}) {
   let banners: any[] = [];
   let blocks: PageBlockData[] = [];
   try {
-    const [bannersData, blocksData] = await Promise.all([getCachedBanners(), getCachedPageBlocks("home")]);
+    const isEditor = searchParams?.editor === "1";
+    const [bannersData, blocksData] = await Promise.all([
+      getCachedBanners(),
+      isEditor ? listPageBlocks("home") : getCachedPageBlocks("home"),
+    ]);
     banners = toPlain(bannersData);
     blocks = toPlain(blocksData);
   } catch (err) {

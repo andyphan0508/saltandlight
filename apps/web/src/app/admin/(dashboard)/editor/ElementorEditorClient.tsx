@@ -43,7 +43,7 @@ import {
   type PageBlockTypeValue,
 } from "@/lib/admin/page-block-types";
 import { BLOCK_TEMPLATES } from "@/components/admin/BlockPaletteModal";
-import { BlockEditForm } from "../page-builder/BlockEditForm";
+import { BlockEditForm, defaultContent } from "../page-builder/BlockEditForm";
 import type { PageBlockItem } from "../page-builder/BlockList";
 
 const MANAGED_PAGES = [
@@ -52,6 +52,13 @@ const MANAGED_PAGES = [
   { slug: "lien-he", label: "Liên hệ", path: "/lien-he" },
   { slug: "chinh-sach", label: "Chính sách", path: "/chinh-sach" },
 ];
+
+const DEFAULT_PAGE_BLOCK_TYPES: Record<string, PageBlockTypeValue[]> = {
+  home: ["FEATURE_CARDS", "FEATURED_PRODUCTS", "STORY_BANNER", "PROMO_CTA"],
+  "gioi-thieu": ["PAGE_HERO", "STORY_BANNER", "RICH_TEXT_SECTIONS", "CTA_BANNER"],
+  "lien-he": ["PAGE_HERO", "CONTACT_INFO", "CTA_BANNER"],
+  "chinh-sach": ["PAGE_HERO", "FEATURE_CARDS", "RICH_TEXT_SECTIONS"],
+};
 
 export function ElementorEditorClient({
   initialPage = "home",
@@ -69,6 +76,7 @@ export function ElementorEditorClient({
   const [iframeKey, setIframeKey] = useState(0);
   const [iframeReady, setIframeReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const pageMeta = MANAGED_PAGES.find((p) => p.slug === currentPage) ?? MANAGED_PAGES[0]!;
@@ -197,10 +205,11 @@ export function ElementorEditorClient({
   // Add block from palette
   async function handleAddFromPalette(type: PageBlockTypeValue) {
     try {
+      const content = defaultContent(type);
       const res = await fetch("/api/admin/page-blocks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page: currentPage, type }),
+        body: JSON.stringify({ page: currentPage, type, content }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Không thể tạo khối");
@@ -212,6 +221,35 @@ export function ElementorEditorClient({
       setIframeKey((k) => k + 1);
     } catch (err: any) {
       toast.error(err.message || "Lỗi tạo khối");
+    }
+  }
+
+  // Seed default blocks if page is empty
+  async function handleSeedDefaultBlocks() {
+    setIsSeeding(true);
+    const typesToSeed =
+      DEFAULT_PAGE_BLOCK_TYPES[currentPage] || ["FEATURE_CARDS", "FEATURED_PRODUCTS"];
+    try {
+      const createdBlocks: PageBlockItem[] = [];
+      for (const type of typesToSeed) {
+        const content = defaultContent(type);
+        const res = await fetch("/api/admin/page-blocks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ page: currentPage, type, content }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          createdBlocks.push(data.block);
+        }
+      }
+      setBlocks((prev) => [...prev, ...createdBlocks]);
+      toast.success(`Đã khởi tạo ${createdBlocks.length} khối mẫu chuẩn cho trang!`);
+      setIframeKey((k) => k + 1);
+    } catch {
+      toast.error("Không thể khởi tạo khối mẫu");
+    } finally {
+      setIsSeeding(false);
     }
   }
 
@@ -251,7 +289,7 @@ export function ElementorEditorClient({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden select-none">
+    <div className="flex flex-col h-full w-full bg-slate-900 overflow-hidden select-none">
       {/* 1. Elementor Studio Topbar */}
       <header className="flex items-center justify-between px-4 py-2.5 bg-slate-900 text-white border-b border-slate-800 shrink-0">
         <div className="flex items-center gap-3">
@@ -352,7 +390,7 @@ export function ElementorEditorClient({
       {/* 2. Workspace: Left Sidebar + Right Canvas */}
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT COLUMN: Elementor Control Panel */}
-        <div className="w-full sm:w-[410px] xl:w-[440px] flex-shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden">
+        <div className="w-full sm:w-[420px] lg:w-[460px] xl:w-[480px] flex-shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden">
           {/* Panel Tab Navigation */}
           <div className="flex items-center border-b border-slate-200 bg-slate-50/90 px-3 pt-2 shrink-0">
             <button
@@ -412,16 +450,34 @@ export function ElementorEditorClient({
                 </div>
 
                 {blocks.length === 0 ? (
-                  <div className="py-12 text-center rounded-2xl border border-dashed border-slate-300 p-6 space-y-3">
-                    <Sparkles size={24} className="mx-auto text-slate-300" />
-                    <p className="text-xs font-bold text-slate-700">Trang chưa có khối nào</p>
-                    <Button
-                      type="button"
-                      onClick={() => setActiveTab("palette")}
-                      className="!bg-brand-forest text-white text-xs font-bold rounded-xl px-4 py-1.5"
-                    >
-                      Mở thư viện khối
-                    </Button>
+                  <div className="py-10 text-center rounded-2xl border border-dashed border-slate-300 p-5 space-y-3 bg-slate-50/50">
+                    <div className="w-10 h-10 rounded-2xl bg-mint-100 flex items-center justify-center mx-auto text-brand-forest">
+                      <Sparkles size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">Trang chưa có khối nào</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                        Bạn có thể khởi tạo nhanh bộ khối chuẩn hoặc chọn thêm từng khối từ thư viện.
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 pt-2">
+                      <Button
+                        type="button"
+                        onClick={handleSeedDefaultBlocks}
+                        disabled={isSeeding}
+                        className="!bg-brand-forest text-white text-xs font-bold rounded-xl px-4 py-2 w-full shadow-xs active:scale-95 transition-all"
+                      >
+                        {isSeeding ? "Đang tạo khối..." : "✨ Khởi tạo các khối mẫu chuẩn"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setActiveTab("palette")}
+                        className="text-xs font-semibold rounded-xl px-4 py-2 w-full"
+                      >
+                        Chọn khối từ Thư viện mẫu
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <DndContext

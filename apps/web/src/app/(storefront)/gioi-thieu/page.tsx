@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowRight } from "@/components/Icons";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { getCachedPageBlocks } from "@/lib/queries";
+import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
 export const metadata = {
@@ -13,39 +13,49 @@ export const metadata = {
 
 export const revalidate = 60;
 
-export default async function AboutPage() {
+export default async function AboutPage({
+  searchParams,
+}: {
+  searchParams?: { editor?: string };
+}) {
   let blocks: PageBlockData[] = [];
   try {
-    blocks = toPlain(await getCachedPageBlocks("gioi-thieu"));
+    const isEditor = searchParams?.editor === "1";
+    const fetched = isEditor
+      ? await listPageBlocks("gioi-thieu")
+      : await getCachedPageBlocks("gioi-thieu");
+    blocks = toPlain(fetched);
   } catch (err) {
     console.error("AboutPage data fetching error:", err);
   }
 
-  // Filter out PAGE_HERO and CTA_BANNER as the custom hero and CTA are rendered directly
-  const additionalBlocks = blocks.filter(
-    (b) => b.type !== "PAGE_HERO" && b.type !== "CTA_BANNER"
-  );
+  const heroBlock = blocks.find((b) => b.type === "PAGE_HERO");
+  const otherBlocks = blocks.filter((b) => b.type !== "PAGE_HERO");
 
   return (
     <div className="min-h-screen bg-cream-50/50 animate-slide-up-fade">
       {/* 1. Header Banner */}
-      <div className="border-b border-amber-200/60 bg-[#FDF6D8] py-10 sm:py-14 text-center">
-        <div className="mx-auto max-w-4xl px-4">
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-ink">
-            Về Chúng Tôi
-          </h1>
-          <nav className="mt-3 flex items-center justify-center gap-2 text-xs font-medium text-ink/60">
-            <Link
-              href="/"
-              className="hover:text-brand-forest transition-colors font-semibold"
-            >
-              Home
-            </Link>
-            <ChevronRight size={13} className="text-ink/40" />
-            <span className="text-ink/90 font-semibold">Về chúng tôi</span>
-          </nav>
+      {heroBlock ? (
+        <BlockRenderer block={heroBlock} />
+      ) : (
+        <div className="border-b border-amber-200/60 bg-[#FDF6D8] py-10 sm:py-14 text-center">
+          <div className="mx-auto max-w-4xl px-4">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-ink">
+              Về Chúng Tôi
+            </h1>
+            <nav className="mt-3 flex items-center justify-center gap-2 text-xs font-medium text-ink/60">
+              <Link
+                href="/"
+                className="hover:text-brand-forest transition-colors font-semibold"
+              >
+                Home
+              </Link>
+              <ChevronRight size={13} className="text-ink/40" />
+              <span className="text-ink/90 font-semibold">Về chúng tôi</span>
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 2. Story Section (Matching Screenshot) */}
       <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 text-center">
@@ -96,9 +106,9 @@ export default async function AboutPage() {
         </div>
 
         {/* 3. Additional CMS Blocks (e.g. 3 Core Values) */}
-        {additionalBlocks.length > 0 && (
+        {otherBlocks.length > 0 && (
           <div className="mt-20 pt-16 border-t border-mint-200/60 space-y-16 text-left">
-            {additionalBlocks.map((block) => (
+            {otherBlocks.map((block) => (
               <BlockRenderer key={block.id} block={block} />
             ))}
           </div>

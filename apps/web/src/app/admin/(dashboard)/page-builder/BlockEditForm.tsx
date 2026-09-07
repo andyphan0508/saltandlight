@@ -25,7 +25,7 @@ import { TextField, ArrayEditor } from "@/components/admin/form-fields";
 import { ProductPickerModal } from "@/components/admin/ProductPickerModal";
 import type { PageBlockItem } from "./BlockList";
 
-function defaultContent(type: PageBlockTypeValue): Record<string, any> {
+export function defaultContent(type: PageBlockTypeValue): Record<string, any> {
   switch (type) {
     case "FEATURE_CARDS":
       return { style: "row", items: [{ icon: "Sparkles", title: "", description: "" }] };
