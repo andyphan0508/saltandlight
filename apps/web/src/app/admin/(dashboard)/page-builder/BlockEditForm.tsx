@@ -2,7 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@saltandlight/ui";
-import { X, Plus, Trash2 } from "@/components/admin/Icons";
+import {
+  X,
+  Plus,
+  Trash2,
+  Truck,
+  ShieldCheck,
+  RefreshCw,
+  Heart,
+  Sparkles,
+  CrossIcon,
+  Star,
+  Gift,
+  Phone,
+  Mail,
+  MapPin,
+  Check,
+} from "@/components/admin/Icons";
 import { toast } from "sonner";
 import { BLOCK_TYPE_LABELS, BLOCK_ICON_KEYS, type PageBlockTypeValue } from "@/lib/admin/page-block-types";
 import { TextField, ArrayEditor } from "@/components/admin/form-fields";
@@ -375,22 +391,53 @@ function ContentFields({
   }
 }
 
-function IconSelect({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+const ICON_PREVIEW_MAP: Record<string, React.ComponentType<{ size?: number | string; className?: string }>> = {
+  Truck,
+  ShieldCheck,
+  RefreshCw,
+  Heart,
+  Sparkles,
+  CrossIcon,
+  Star,
+  Gift,
+  Phone,
+  Mail,
+  MapPin,
+  Check,
+};
+
+function IconSelect({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const SelectedIcon = value ? ICON_PREVIEW_MAP[value] : null;
   return (
     <div>
       <label className="block text-xs font-bold text-slate-700 mb-1">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none bg-white"
-      >
-        <option value="">— Không chọn —</option>
-        {BLOCK_ICON_KEYS.map((k) => (
-          <option key={k} value={k}>
-            {k}
-          </option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2">
+        {SelectedIcon && (
+          <span className="w-9 h-9 rounded-xl flex items-center justify-center bg-mint-50 text-brand-forest border border-brand-forest/30 shrink-0">
+            <SelectedIcon size={18} />
+          </span>
+        )}
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1 rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none bg-white"
+        >
+          <option value="">— Không chọn —</option>
+          {BLOCK_ICON_KEYS.map((k) => (
+            <option key={k} value={k}>
+              {k}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

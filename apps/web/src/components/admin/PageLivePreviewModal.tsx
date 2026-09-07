@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Globe, ExternalLink, RotateCw } from "./Icons";
+import { X, Globe, ExternalLink, RotateCw, Monitor, Smartphone } from "./Icons";
 
 export function PageLivePreviewModal({
   isOpen,
@@ -37,24 +37,26 @@ export function PageLivePreviewModal({
             <button
               type="button"
               onClick={() => setDevice("desktop")}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                 device === "desktop"
                   ? "bg-brand-forest text-white shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              💻 Máy tính (Desktop)
+              <Monitor size={14} />
+              <span>Máy tính (Desktop)</span>
             </button>
             <button
               type="button"
               onClick={() => setDevice("mobile")}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                 device === "mobile"
                   ? "bg-brand-forest text-white shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              📱 Điện thoại (Mobile)
+              <Smartphone size={14} />
+              <span>Điện thoại (Mobile)</span>
             </button>
           </div>
 

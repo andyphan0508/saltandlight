@@ -17,6 +17,14 @@ import {
   Eye,
   Pencil,
   ImagePlus,
+  FileText,
+  Heading,
+  List,
+  Lightbulb,
+  Quote,
+  Table,
+  CrossIcon,
+  Gift,
 } from "./Icons";
 import {
   parseProductContent,
@@ -272,23 +280,27 @@ export function ProductNotionEditor({
             </span>
             <div className="flex flex-wrap gap-2">
               {[
-                { type: "paragraph", label: "📝 Đoạn văn", desc: "Văn bản mô tả" },
-                { type: "heading", label: "🏷️ Tiêu đề mục", desc: "Phân tách đề mục" },
-                { type: "bullet_list", label: "📋 Gạch đầu dòng", desc: "Các điểm nổi bật" },
-                { type: "callout", label: "💡 Khung chú thích", desc: "Mẹo hoặc lưu ý" },
-                { type: "quote", label: "✝️ Trích dẫn Lời Chúa", desc: "Câu Kinh Thánh" },
-                { type: "specs_table", label: "📊 Bảng thông số", desc: "Chất liệu, form dáng" },
-                { type: "image", label: "🖼️ Ảnh minh họa", desc: "Ảnh chi tiết may/in" },
-              ].map((btn) => (
-                <button
-                  key={btn.type}
-                  type="button"
-                  onClick={() => addBlock(btn.type as ProductContentBlock["type"])}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:bg-mint-50 hover:text-brand-forest transition-all shadow-2xs text-left"
-                >
-                  <span className="font-bold">{btn.label}</span>
-                </button>
-              ))}
+                { type: "paragraph", label: "Đoạn văn", icon: FileText },
+                { type: "heading", label: "Tiêu đề mục", icon: Heading },
+                { type: "bullet_list", label: "Gạch đầu dòng", icon: List },
+                { type: "callout", label: "Khung chú thích", icon: Lightbulb },
+                { type: "quote", label: "Trích dẫn Lời Chúa", icon: Quote },
+                { type: "specs_table", label: "Bảng thông số", icon: Table },
+                { type: "image", label: "Ảnh minh họa", icon: ImagePlus },
+              ].map((btn) => {
+                const IconComp = btn.icon;
+                return (
+                  <button
+                    key={btn.type}
+                    type="button"
+                    onClick={() => addBlock(btn.type as ProductContentBlock["type"])}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:bg-mint-50 hover:text-brand-forest transition-all shadow-2xs text-left group"
+                  >
+                    <IconComp size={14} className="text-slate-400 group-hover:text-brand-forest transition-colors" />
+                    <span>{btn.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -445,13 +457,13 @@ function BlockFieldEditor({
                 onChange={(e) => onChange({ icon: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs bg-white focus:outline-none"
               >
-                <option value="Sparkles">✨ Lấp lánh (Sparkles)</option>
-                <option value="Heart">❤️ Trái tim (Heart)</option>
-                <option value="Gift">🎁 Quà tặng (Gift)</option>
-                <option value="Truck">🚚 Giao hàng (Truck)</option>
-                <option value="ShieldCheck">🛡️ Bảo hành (ShieldCheck)</option>
-                <option value="Star">⭐ Ngôi sao (Star)</option>
-                <option value="CrossIcon">✝️ Thánh giá (CrossIcon)</option>
+                <option value="Sparkles">Sparkles (Lấp lánh)</option>
+                <option value="Heart">Heart (Trái tim)</option>
+                <option value="Gift">Gift (Quà tặng)</option>
+                <option value="Truck">Truck (Giao hàng)</option>
+                <option value="ShieldCheck">ShieldCheck (Bảo hành)</option>
+                <option value="Star">Star (Ngôi sao)</option>
+                <option value="CrossIcon">Cross (Thánh giá)</option>
               </select>
             </div>
             <div>
