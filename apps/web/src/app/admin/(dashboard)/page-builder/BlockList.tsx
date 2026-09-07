@@ -74,7 +74,7 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
         body: JSON.stringify({ isVisible: nextVisible }),
       });
       if (!res.ok) throw new Error();
-      toast.success(nextVisible ? "Đã bật hiển thị block!" : "Đã tắt hiển thị block!");
+      toast.success(nextVisible ? "Đã bật hiển thị khối!" : "Đã ẩn khối trên trang!");
       router.refresh();
     } catch {
       setBlocks((prev) => prev.map((b) => (b.id === block.id ? { ...b, isVisible: block.isVisible } : b)));
@@ -83,16 +83,16 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Bạn có chắc chắn muốn xóa block này?")) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa khối này khỏi trang không?")) return;
     setIsDeletingId(id);
     try {
       const res = await fetch(`/api/admin/page-blocks/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       setBlocks((prev) => prev.filter((b) => b.id !== id));
-      toast.success("Đã xóa block!");
+      toast.success("Đã xóa khối thành công!");
       router.refresh();
     } catch {
-      toast.error("Không thể xóa block. Vui lòng thử lại!");
+      toast.error("Không thể xóa khối. Vui lòng thử lại!");
     } finally {
       setIsDeletingId(null);
     }
@@ -109,7 +109,7 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <p className="text-xs text-slate-500">
-          Kéo tay cầm để đổi thứ tự. Bấm công tắc để bật/tắt hiển thị trên storefront.
+          Kéo giữ biểu tượng ⠿ để đổi vị trí. Nhấn vào nút trạng thái để bật hoặc ẩn khối trên trang web.
         </p>
         <div className="flex items-center gap-2 shrink-0">
           <select
@@ -128,7 +128,7 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
             className="inline-flex items-center gap-1.5 !bg-brand-forest hover:!bg-brand-forest/90 !text-white text-xs font-bold rounded-xl px-4 py-2 shadow-xs"
           >
             <Plus size={16} />
-            Thêm block
+            + Thêm khối mới
           </Button>
         </div>
       </div>
@@ -152,8 +152,8 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
 
       {blocks.length === 0 && (
         <div className="py-16 text-center bg-white rounded-2xl border border-dashed border-slate-200">
-          <div className="text-sm font-bold text-slate-700">Chưa có block nào</div>
-          <p className="text-xs text-slate-400 mt-1">Chọn loại block và bấm &quot;Thêm block&quot; để bắt đầu.</p>
+          <div className="text-sm font-bold text-slate-700">Chưa có khối hiển thị nào</div>
+          <p className="text-xs text-slate-400 mt-1">Chọn loại khối trong danh sách trên và bấm &quot;+ Thêm khối mới&quot; để bắt đầu thiết kế.</p>
         </div>
       )}
 
@@ -229,7 +229,7 @@ function SortableBlockRow({
         type="button"
         onClick={onEdit}
         className="shrink-0 p-2 rounded-xl text-slate-600 hover:text-brand-forest hover:bg-mint-50 transition-colors"
-        title="Chỉnh sửa"
+        title="Chỉnh sửa khối"
       >
         <Pencil size={15} />
       </button>
@@ -238,7 +238,7 @@ function SortableBlockRow({
         onClick={onDelete}
         disabled={isDeleting}
         className="shrink-0 p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
-        title="Xóa"
+        title="Xóa khối"
       >
         <Trash2 size={15} />
       </button>
@@ -248,10 +248,11 @@ function SortableBlockRow({
 
 function blockPreviewText(block: PageBlockItem): string {
   const c = block.content || {};
-  if (typeof c.headline === "string") return c.headline;
-  if (typeof c.title === "string") return c.title;
-  if (typeof c.quote === "string") return c.quote;
+  if (typeof c.headline === "string" && c.headline) return c.headline;
+  if (typeof c.title === "string" && c.title) return c.title;
+  if (typeof c.quote === "string" && c.quote) return c.quote;
+  if (c.sourceType === "category" && c.categoryName) return `Danh mục: ${c.categoryName}`;
   if (Array.isArray(c.items)) return `${c.items.length} mục`;
-  if (Array.isArray(c.sections)) return `${c.sections.length} mục`;
+  if (Array.isArray(c.sections)) return `${c.sections.length} phần`;
   return "";
 }

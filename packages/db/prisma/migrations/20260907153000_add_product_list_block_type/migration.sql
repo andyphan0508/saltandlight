@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "PageBlockType" ADD VALUE IF NOT EXISTS 'PRODUCT_LIST';

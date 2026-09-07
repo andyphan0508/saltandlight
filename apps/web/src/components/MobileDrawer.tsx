@@ -259,18 +259,30 @@ export function MobileDrawer({
                 <ChevronRight size={14} className="text-ink/30" />
               </Link>
 
-              <a
-                href="tel:0847252025"
-                className="flex items-center justify-between rounded-xl px-2 py-1.5 font-semibold text-ink hover:bg-mint-50 transition-colors active-press"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Phone size={16} className="text-brand-forest" />
-                  <span>Hotline: 0847 25 2025</span>
-                </div>
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                  Gọi ngay
-                </span>
-              </a>
+              {(() => {
+                const phone = siteSettings?.footerPhone || "0847 25 2025";
+                const digits = phone.replace(/\D/g, "");
+                const localPhone =
+                  digits.startsWith("84") && digits.length === 11
+                    ? `0${digits.slice(2)}`
+                    : digits.startsWith("0")
+                    ? digits
+                    : `0${digits || "847252025"}`;
+                return (
+                  <a
+                    href={`tel:${localPhone}`}
+                    className="flex items-center justify-between rounded-xl px-2 py-1.5 font-semibold text-ink hover:bg-mint-50 transition-colors active-press"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Phone size={16} className="text-brand-forest" />
+                      <span>Hotline: {phone}</span>
+                    </div>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                      Gọi ngay
+                    </span>
+                  </a>
+                );
+              })()}
             </div>
           </div>
 

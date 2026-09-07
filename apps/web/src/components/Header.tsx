@@ -100,13 +100,25 @@ export function Header({
               <Truck size={14} />
               <span>Tra cứu đơn hàng</span>
             </Link>
-            <a
-              href="tel:0847252025"
-              className="inline-flex items-center gap-1.5 font-semibold text-ink/70 hover:text-ink transition-colors"
-            >
-              <Phone size={13} />
-              <span>Hotline: 0847 25 2025</span>
-            </a>
+            {(() => {
+              const phone = siteSettings?.footerPhone || "0847 25 2025";
+              const digits = phone.replace(/\D/g, "");
+              const localPhone =
+                digits.startsWith("84") && digits.length === 11
+                  ? `0${digits.slice(2)}`
+                  : digits.startsWith("0")
+                  ? digits
+                  : `0${digits || "847252025"}`;
+              return (
+                <a
+                  href={`tel:${localPhone}`}
+                  className="inline-flex items-center gap-1.5 font-semibold text-ink/70 hover:text-ink transition-colors"
+                >
+                  <Phone size={13} />
+                  <span>Hotline: {phone}</span>
+                </a>
+              );
+            })()}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { SITE_URL } from "@/lib/admin/site-url";
 import {
   LayoutGrid,
+  FolderTree,
   Package,
   ShoppingCart,
   Wallet,
@@ -19,6 +20,7 @@ import {
   Sparkles,
   Tag,
   Globe,
+  MessageSquare,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -40,6 +42,7 @@ const NAV_GROUPS: {
     label: "Bán hàng",
     items: [
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
+      { href: "/admin/categories", label: "Danh mục", icon: FolderTree },
       { href: "/admin/promotions", label: "Mã & Khuyến mãi", icon: Tag },
       { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
       { href: "/admin/page-builder", label: "Bố cục trang chủ", icon: LayoutGrid },
@@ -50,6 +53,7 @@ const NAV_GROUPS: {
   {
     label: "Vận hành",
     items: [
+      { href: "/admin/contacts", label: "Yêu cầu liên hệ", icon: MessageSquare },
       { href: "/admin/shipping", label: "Vận chuyển", icon: Truck },
       { href: "/admin/customers", label: "Khách hàng", icon: Users },
       { href: "/admin/settings/payment", label: "Cài đặt thanh toán", icon: Wallet },

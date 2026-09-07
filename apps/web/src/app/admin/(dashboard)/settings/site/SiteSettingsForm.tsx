@@ -267,9 +267,19 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
               </div>
 
               <div className="rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs space-y-4">
-                <h3 className="text-sm font-bold text-ink">Thông tin liên hệ</h3>
+                <div>
+                  <h3 className="text-sm font-bold text-ink">Thông tin liên hệ &amp; Hotline</h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Số điện thoại này sẽ tự động đồng bộ trên thanh Header, Footer, Menu di động và cụm nút nổi FAB (Hotline/Zalo).
+                  </p>
+                </div>
+                <TextField
+                  label="Số điện thoại Hotline / Liên hệ"
+                  value={footerPhone}
+                  onChange={setFooterPhone}
+                  placeholder="0847 25 2025"
+                />
                 <TextField label="Địa chỉ" value={footerAddress} onChange={setFooterAddress} />
-                <TextField label="Điện thoại" value={footerPhone} onChange={setFooterPhone} />
                 <TextField label="Email" value={footerEmail} onChange={setFooterEmail} />
               </div>
 

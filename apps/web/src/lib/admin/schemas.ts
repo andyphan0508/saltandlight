@@ -53,9 +53,17 @@ const featureCardsContentSchema = z.object({
 const featuredProductsContentSchema = z.object({
   eyebrow: z.string().optional(),
   headline: z.string().min(1),
-  ctaLabel: z.string().min(1),
-  ctaHref: z.string().min(1),
-  count: z.number().int().min(1).max(24),
+  ctaLabel: z.string().default("Xem tất cả"),
+  ctaHref: z.string().default("/san-pham"),
+  count: z.number().int().min(1).max(36).default(8),
+  sourceType: z.enum(["all", "category", "manual"]).default("all"),
+  categoryId: z.string().nullable().optional(),
+  categorySlug: z.string().optional(),
+  categoryName: z.string().optional(),
+  productIds: z.array(z.string()).default([]),
+  displayMode: z.enum(["grid", "slider"]).default("grid"),
+  allowViewAll: z.boolean().default(true),
+  viewAllMode: z.enum(["link", "modal"]).default("link"),
 });
 
 const storyBannerContentSchema = z.object({
@@ -141,6 +149,7 @@ const ctaBannerContentSchema = z.object({
 export const pageBlockContentSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("FEATURE_CARDS"), content: featureCardsContentSchema }),
   z.object({ type: z.literal("FEATURED_PRODUCTS"), content: featuredProductsContentSchema }),
+  z.object({ type: z.literal("PRODUCT_LIST"), content: featuredProductsContentSchema }),
   z.object({ type: z.literal("STORY_BANNER"), content: storyBannerContentSchema }),
   z.object({ type: z.literal("PROMO_CTA"), content: promoCtaContentSchema }),
   z.object({ type: z.literal("TESTIMONIALS"), content: testimonialsContentSchema }),

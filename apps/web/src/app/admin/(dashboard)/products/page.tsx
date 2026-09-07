@@ -18,18 +18,20 @@ const STATUS_LABEL: Record<string, { label: string; className: string }> = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; q?: string; status?: string };
+  searchParams: { page?: string; q?: string; status?: string; category?: string };
 }) {
   const page = Math.max(1, Number(searchParams.page) || 1);
   const q = searchParams.q?.trim();
   const status = searchParams.status;
+  const categoryId = searchParams.category;
 
   const where: any = {
     ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
     ...(status ? { status: status as never } : {}),
+    ...(categoryId ? { categoryId } : {}),
   };
 
-  const [products, total] = await Promise.all([
+  const [products, total, categories] = await Promise.all([
     prisma.product.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -40,13 +42,22 @@ export default async function ProductsPage({
         name: true,
         status: true,
         isFeatured: true,
-        category: { select: { name: true } },
+        category: { select: { id: true, name: true } },
         images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
         variants: { select: { price: true, compareAtPrice: true, stockQuantity: true } },
       },
     }),
     prisma.product.count({ where }),
+    prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
+
+  const getUrl = (params: { q?: string; status?: string; category?: string }) => {
+    const search = new URLSearchParams();
+    if (params.q) search.set("q", params.q);
+    if (params.status) search.set("status", params.status);
+    if (params.category) search.set("category", params.category);
+    return `/admin/products${search.toString() ? `?${search.toString()}` : ""}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -80,12 +91,33 @@ export default async function ProductsPage({
             />
           </form>
 
-          <div className="flex flex-wrap gap-2">
-            <StatusPill href="/admin/products" active={!status} label="Tất cả sản phẩm" />
+          <div className="flex flex-wrap items-center gap-2">
+            {categories.length > 0 && (
+              <form method="GET" className="inline-block">
+                {q && <input type="hidden" name="q" value={q} />}
+                {status && <input type="hidden" name="status" value={status} />}
+                <select
+                  name="category"
+                  defaultValue={categoryId || ""}
+                  onChange={(e) => {
+                    e.currentTarget.form?.submit();
+                  }}
+                  className="rounded-full border border-slate-200 bg-slate-50/70 py-1.5 px-3 text-xs font-semibold text-slate-700 focus:border-brand-forest focus:outline-none"
+                >
+                  <option value="">Tất cả danh mục</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </form>
+            )}
+            <StatusPill href={getUrl({ q, category: categoryId })} active={!status} label="Tất cả trạng thái" />
             {Object.entries(STATUS_LABEL).map(([key, meta]) => (
               <StatusPill
                 key={key}
-                href={`/admin/products?status=${key}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                href={getUrl({ q, status: key, category: categoryId })}
                 active={status === key}
                 label={meta.label}
               />

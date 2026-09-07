@@ -19,6 +19,7 @@ export function BlockRenderer({ block }: { block: PageBlockData }) {
     case "FEATURE_CARDS":
       return <FeatureCardsBlock content={block.content} />;
     case "FEATURED_PRODUCTS":
+    case "PRODUCT_LIST":
       return <FeaturedProductsBlock content={block.content} />;
     case "STORY_BANNER":
       return <StoryBannerBlock content={block.content} />;
