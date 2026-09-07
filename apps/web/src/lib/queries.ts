@@ -171,28 +171,31 @@ export async function getRelatedProducts(
   return rows.map(toCardData);
 }
 
-// ── High-Performance Cached Queries (ISR / Edge Cache / Worker Memory) ──
-import { unstable_cache } from "next/cache";
+// ── High-Performance Cached Queries (Worker-isolate memory cache) ──
+//
+// unstable_cache() used to wrap these too, but its cross-request cache-hit
+// coordination triggers a confirmed Cloudflare Workers runtime bug under
+// concurrent requests ("Workers runtime canceled this request because it
+// detected that your Worker's code had hung" — a promise from Next's cache
+// handler resolved outside the request context that awaited it). It also
+// bought nothing here: OpenNext-Cloudflare's incremental/tag cache is
+// configured as "dummy" (no R2/KV backing), so unstable_cache's own
+// persistence never actually worked — withMemoryCache (per-isolate, TTL'd)
+// was already doing all the real caching. See docs/fe-spec... discussion
+// and CPU-optimization notes from this session for the fuller cache story.
 import { withMemoryCache } from "./memory-cache";
 
 /** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
-export const getCachedCategoriesWithCounts = unstable_cache(
-  async () => withMemoryCache("nav-categories-with-counts", 300, () => listCategoriesWithCounts()),
-  ["nav-categories-with-counts"],
-  { revalidate: 300, tags: ["categories"] }
-);
+export const getCachedCategoriesWithCounts = () =>
+  withMemoryCache("nav-categories-with-counts", 300, () => listCategoriesWithCounts());
 
 /** Cached available sizes across active variants (cached 10 mins) */
-export const getCachedAvailableSizes = unstable_cache(
-  async () => withMemoryCache("available-product-sizes", 600, () => listAvailableSizes()),
-  ["available-product-sizes"],
-  { revalidate: 600, tags: ["products"] }
-);
+export const getCachedAvailableSizes = () =>
+  withMemoryCache("available-product-sizes", 600, () => listAvailableSizes());
 
 /** Cached featured products for home page: prioritizes products with isFeatured = true (cached 60s) */
-export const getCachedFeaturedProducts = unstable_cache(
-  async (pageSize = 10) => {
-    return withMemoryCache(`homepage-featured-products-${pageSize}`, 60, async () => {
+export const getCachedFeaturedProducts = (pageSize = 10) => {
+  return withMemoryCache(`homepage-featured-products-${pageSize}`, 60, async () => {
       // 1. Fetch explicitly marked featured products
       const featuredRows = await prisma.product.findMany({
         where: { status: "published", isFeatured: true },
@@ -241,26 +244,17 @@ export const getCachedFeaturedProducts = unstable_cache(
         total: rows.length,
       };
     });
-  },
-  ["homepage-featured-products"],
-  { revalidate: 60, tags: ["products"] }
-);
+};
 
 /** Cached product detail by slug (cached 120s) */
 export const getCachedProductBySlug = (slug: string) =>
-  unstable_cache(
-    async () => withMemoryCache(`product-detail-${slug}`, 120, () => getProductBySlug(slug)),
-    ["product-detail", slug],
-    { revalidate: 120, tags: ["products", `product-${slug}`] }
-  )();
+  withMemoryCache(`product-detail-${slug}`, 120, () => getProductBySlug(slug));
 
 /** Cached related products by category (cached 120s) */
 export const getCachedRelatedProducts = (categoryId: string, excludeId: string, limit = 4) =>
-  unstable_cache(
-    async () => withMemoryCache(`related-products-${categoryId}-${excludeId}-${limit}`, 120, () => getRelatedProducts(categoryId, excludeId, limit)),
-    ["related-products", categoryId, excludeId, String(limit)],
-    { revalidate: 120, tags: ["products"] }
-  )();
+  withMemoryCache(`related-products-${categoryId}-${excludeId}-${limit}`, 120, () =>
+    getRelatedProducts(categoryId, excludeId, limit)
+  );
 
 /** Cached published products with filters for catalog browsing & search (cached 60s) */
 export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => {
@@ -274,37 +268,28 @@ export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => 
     ps: filters.pageSize ?? 12,
   });
 
-  return unstable_cache(
-    async () => withMemoryCache(`catalog-products-${cacheKey}`, 60, () => listPublishedProducts(filters)),
-    ["catalog-products", cacheKey],
-    { revalidate: 60, tags: ["products"] }
-  )();
+  return withMemoryCache(`catalog-products-${cacheKey}`, 60, () => listPublishedProducts(filters));
 };
 
 /** Cached shipping zones (with their methods) for cart quote & checkout, priced per region (cached 10 mins) */
-export const getCachedShippingZones = unstable_cache(
-  async () => {
-    return withMemoryCache("shipping-zones", 600, async () => {
-      return prisma.shippingZone.findMany({
-        select: {
-          id: true,
-          provinceCodes: true,
-          methods: {
-            select: {
-              id: true,
-              type: true,
-              fee: true,
-              freeThreshold: true,
-              isActive: true,
-            },
+export const getCachedShippingZones = () =>
+  withMemoryCache("shipping-zones", 600, async () => {
+    return prisma.shippingZone.findMany({
+      select: {
+        id: true,
+        provinceCodes: true,
+        methods: {
+          select: {
+            id: true,
+            type: true,
+            fee: true,
+            freeThreshold: true,
+            isActive: true,
           },
         },
-      });
+      },
     });
-  },
-  ["shipping-zones"],
-  { revalidate: 600, tags: ["shipping"] }
-);
+  });
 
 /** List active banners for homepage slider */
 export async function listBanners() {
@@ -315,11 +300,8 @@ export async function listBanners() {
 }
 
 /** Cached active banners for hero slider (cached 60s) */
-export const getCachedBanners = unstable_cache(
-  async () => withMemoryCache("homepage-hero-banners", 60, () => listBanners()),
-  ["homepage-hero-banners"],
-  { revalidate: 60, tags: ["banners"] }
-);
+export const getCachedBanners = () =>
+  withMemoryCache("homepage-hero-banners", 60, () => listBanners());
 
 /** List visible content blocks for a page, in display order */
 export async function listPageBlocks(page: string) {
@@ -329,13 +311,9 @@ export async function listPageBlocks(page: string) {
   });
 }
 
-/** Cached page blocks (cached 60s, tagged per-page for targeted revalidation) */
+/** Cached page blocks (cached 60s) */
 export const getCachedPageBlocks = (page: string) =>
-  unstable_cache(
-    async () => withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page)),
-    ["page-blocks", page],
-    { revalidate: 60, tags: ["page-blocks", `page-blocks-${page}`] }
-  )();
+  withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page));
 
 /** Admin-configured QR image / transfer note / thank-you-only toggle shown on the order confirmation page */
 export async function getPaymentSettings() {
@@ -343,11 +321,8 @@ export async function getPaymentSettings() {
 }
 
 /** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
-export const getCachedPaymentSettings = unstable_cache(
-  async () => withMemoryCache("payment-settings", 300, () => getPaymentSettings()),
-  ["payment-settings"],
-  { revalidate: 300, tags: ["payment-settings"] }
-);
+export const getCachedPaymentSettings = () =>
+  withMemoryCache("payment-settings", 300, () => getPaymentSettings());
 
 /** List active discount campaigns for storefront announcements and product badges */
 export async function listActivePromotions() {
@@ -366,11 +341,8 @@ export async function listActivePromotions() {
   });
 }
 
-export const getCachedActivePromotions = unstable_cache(
-  async () => withMemoryCache("active-promotions", 60, () => listActivePromotions()),
-  ["active-promotions"],
-  { revalidate: 60, tags: ["promotions"] }
-);
+export const getCachedActivePromotions = () =>
+  withMemoryCache("active-promotions", 60, () => listActivePromotions());
 
 /** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
 export async function getSiteSettings() {
@@ -378,10 +350,7 @@ export async function getSiteSettings() {
 }
 
 /** Cached site settings (cached 300s — this rarely changes). */
-export const getCachedSiteSettings = unstable_cache(
-  async () => withMemoryCache("site-settings", 300, () => getSiteSettings()),
-  ["site-settings"],
-  { revalidate: 300, tags: ["site-settings"] }
-);
+export const getCachedSiteSettings = () =>
+  withMemoryCache("site-settings", 300, () => getSiteSettings());
 
 
