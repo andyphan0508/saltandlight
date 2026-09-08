@@ -3,12 +3,13 @@ import { Button } from "@saltandlight/ui";
 import { ProductCard } from "./ProductCard";
 import { ProductListItem } from "./ProductListItem";
 import { Sparkles } from "./Icons";
+import { UpcomingCollectionBanner } from "./UpcomingCollectionBanner";
 import type { ProductCardData } from "@/lib/types";
 
 const GRID_COLS: Record<string, string> = {
   "2": "grid-cols-2",
-  "3": "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4",
-  "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5",
+  "3": "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6",
 };
 
 export function ProductGrid({
@@ -20,23 +21,13 @@ export function ProductGrid({
 }) {
   if (products.length === 0) {
     return (
-      <div className="my-8 rounded-3xl border border-ink/5 bg-white p-12 text-center shadow-card">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
-          <Sparkles size={24} />
-        </div>
-        <h3 className="mt-4 font-display text-lg font-bold uppercase text-ink">
-          Không tìm thấy sản phẩm nào
-        </h3>
-        <p className="mt-1 text-xs text-ink/60">
-          Vui lòng thử lại với bộ lọc khác hoặc quay về xem tất cả sản phẩm.
-        </p>
-        <div className="mt-6">
-          <Link href="/san-pham">
-            <Button variant="outline" size="sm">
-              Xem tất cả sản phẩm
-            </Button>
-          </Link>
-        </div>
+      <div className="my-6">
+        <UpcomingCollectionBanner
+          title="BỘ SƯU TẬP MỚI SẮP ĐƯỢC RA MẮT"
+          description="Không tìm thấy sản phẩm nào trong danh mục này hoặc bộ sưu tập sắp được ra mắt. Bạn có thể khám phá thêm các bộ sưu tập khác của Salt & Light!"
+          ctaLabel="KHÁM PHÁ SẢN PHẨM"
+          ctaHref="/san-pham"
+        />
       </div>
     );
   }

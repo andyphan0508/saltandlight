@@ -5,6 +5,7 @@ import { ArrowRight, Sparkles } from "@/components/Icons";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductSlider } from "./ProductSlider";
 import { ProductListModal } from "./ProductListModal";
+import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner";
 import { getCachedFeaturedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import type { ProductCardData } from "@/lib/types";
@@ -134,7 +135,7 @@ export async function FeaturedProductsBlock({
   const displayedProducts = products.slice(0, count);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 animate-slide-up-fade">
+    <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 animate-slide-up-fade">
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-4">
         <div>
           {content.eyebrow && (
@@ -174,24 +175,10 @@ export async function FeaturedProductsBlock({
       </div>
 
       {displayedProducts.length === 0 ? (
-        <div className="rounded-3xl border border-mint-200/80 bg-mint-50/40 p-8 sm:p-12 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-forest shadow-xs border border-mint-200">
-            <Sparkles size={20} />
-          </div>
-          <h4 className="mt-3 font-display text-base font-bold text-ink">
-            Bộ sưu tập đang chuẩn bị ra mắt
-          </h4>
-          <p className="mt-1 text-xs text-ink/65 max-w-md mx-auto">
-            Các sản phẩm thuộc danh mục {content.headline} sẽ sớm có mặt. Bạn có thể khám phá thêm các bộ sưu tập khác của Salt &amp; Light!
-          </p>
-          <div className="mt-4">
-            <Link href="/san-pham">
-              <Button variant="outline" size="sm" className="rounded-xl font-bold">
-                Khám phá tất cả sản phẩm
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <UpcomingCollectionBanner
+          categoryName={content.headline}
+          ctaHref={ctaTargetUrl || "/san-pham"}
+        />
       ) : displayMode === "slider" ? (
         <ProductSlider products={displayedProducts} />
       ) : (

@@ -10,6 +10,7 @@ import { useStoreHydrated } from "@/lib/use-store-hydrated";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { useCustomer } from "@/lib/use-customer";
 import { Logo } from "./Logo";
+import { MarqueeBanner } from "./MarqueeBanner";
 import { Heart, Search, Phone, Truck, ChevronDown, Sparkles, User } from "./Icons";
 import { formatVND } from "@saltandlight/domain";
 
@@ -266,6 +267,8 @@ export function Header({
           </div>
         </div>
       </div>
+
+      <MarqueeBanner />
     </header>
   );
 }

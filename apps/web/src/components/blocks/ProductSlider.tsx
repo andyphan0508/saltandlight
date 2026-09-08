@@ -44,7 +44,7 @@ export function ProductSlider({ products }: { products: ProductCardData[] }) {
         {products.map((p) => (
           <div
             key={p.id}
-            className="w-[175px] sm:w-[220px] lg:w-[260px] flex-shrink-0 snap-start"
+            className="w-[175px] sm:w-[220px] md:w-[240px] lg:w-[260px] xl:w-[280px] flex-shrink-0 snap-start"
           >
             <ProductCard product={p} />
           </div>
