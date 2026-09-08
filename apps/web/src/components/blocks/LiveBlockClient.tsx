@@ -39,11 +39,13 @@ export function LiveBlockClient({
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("editor") === "1";
 
-    if (inIframe && isEditorParam) {
-      setIsEditorMode(true);
-      // Notify parent admin frame that storefront is loaded
-      window.parent.postMessage({ type: "storefront:ready" }, "*");
+    if (!inIframe || !isEditorParam) {
+      return;
     }
+
+    setIsEditorMode(true);
+    // Notify parent admin frame that storefront is loaded
+    window.parent.postMessage({ type: "storefront:ready" }, "*");
 
     function handleMessage(event: MessageEvent) {
       const data = event.data;

@@ -86,11 +86,13 @@ export function ProductListModal({
               </span>
               <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                 {ctaHref && (
-                  <Link href={ctaHref} onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-xl">
-                      <span>Mở trang danh mục đầy đủ</span>
-                      <ArrowRight size={13} />
-                    </Button>
+                  <Link
+                    href={ctaHref}
+                    onClick={() => setIsOpen(false)}
+                    className="inline-flex items-center gap-1.5 text-xs rounded-xl border border-ink/20 px-3 py-1.5 font-semibold text-ink hover:bg-mint-50 active:scale-[0.98] transition-all"
+                  >
+                    <span>Mở trang danh mục đầy đủ</span>
+                    <ArrowRight size={13} />
                   </Link>
                 )}
                 <Button

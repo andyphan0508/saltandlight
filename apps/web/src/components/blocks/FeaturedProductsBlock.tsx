@@ -37,21 +37,60 @@ export async function FeaturedProductsBlock({
   const viewAllMode = content.viewAllMode || "link";
 
   let products: ProductCardData[] = [];
+  let resolvedCategorySlug = content.categorySlug;
 
   try {
-    if (sourceType === "category" && (content.categoryId || content.categorySlug)) {
-      const takeLimit = allowViewAll && viewAllMode === "modal" ? 100 : count;
-      const categoryWhere = content.categoryId
-        ? { categoryId: content.categoryId }
-        : { category: { slug: content.categorySlug } };
+    if (sourceType === "category") {
+      if (!resolvedCategorySlug && content.categoryId) {
+        const cat = await prisma.category.findUnique({
+          where: { id: content.categoryId },
+          select: { slug: true },
+        });
+        if (cat) resolvedCategorySlug = cat.slug;
+      }
 
+      if (content.categoryId || resolvedCategorySlug) {
+        const takeLimit = allowViewAll && viewAllMode === "modal" ? 100 : count;
+        const categoryWhere = content.categoryId
+          ? { categoryId: content.categoryId }
+          : { category: { slug: resolvedCategorySlug } };
+
+        const rows = await prisma.product.findMany({
+          where: {
+            status: "published",
+            ...categoryWhere,
+          },
+          orderBy: { createdAt: "desc" },
+          take: takeLimit,
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            isNew: true,
+            isFeatured: true,
+            minPrice: true,
+            maxCompareAtPrice: true,
+            images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+          },
+        });
+
+        products = rows.map((p) => ({
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          isNew: p.isNew,
+          isFeatured: p.isFeatured ?? false,
+          imageUrl: p.images[0]?.url ?? null,
+          minPrice: p.minPrice ? Number(p.minPrice) : 0,
+          maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
+        }));
+      }
+    } else if (sourceType === "manual" && content.productIds && content.productIds.length > 0) {
       const rows = await prisma.product.findMany({
         where: {
+          id: { in: content.productIds },
           status: "published",
-          ...categoryWhere,
         },
-        orderBy: { createdAt: "desc" },
-        take: takeLimit,
         select: {
           id: true,
           name: true,
@@ -64,7 +103,12 @@ export async function FeaturedProductsBlock({
         },
       });
 
-      products = rows.map((p) => ({
+      const productMap = new Map(rows.map((r) => [r.id, r]));
+      const orderedRows = content.productIds
+        .map((id) => productMap.get(id))
+        .filter(Boolean) as typeof rows;
+
+      products = orderedRows.map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
@@ -74,51 +118,18 @@ export async function FeaturedProductsBlock({
         minPrice: p.minPrice ? Number(p.minPrice) : 0,
         maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
       }));
-    } else if (sourceType === "manual" && content.productIds && content.productIds.length > 0) {
-      const rows = await prisma.product.findMany({
-        where: {
-          status: "published",
-          id: { in: content.productIds },
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          isNew: true,
-          isFeatured: true,
-          minPrice: true,
-          maxCompareAtPrice: true,
-          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-        },
-      });
-
-      const map = new Map(
-        rows.map((p) => [
-          p.id,
-          {
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            isNew: p.isNew,
-            isFeatured: p.isFeatured ?? false,
-            imageUrl: p.images[0]?.url ?? null,
-            minPrice: p.minPrice ? Number(p.minPrice) : 0,
-            maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
-          } as ProductCardData,
-        ])
-      );
-
-      // Preserve order picked in modal
-      products = content.productIds
-        .map((id) => map.get(id))
-        .filter((p): p is ProductCardData => Boolean(p));
     } else {
-      const data = await getCachedFeaturedProducts(count);
-      products = toPlain(data).products;
+      const fallbackResult = await getCachedFeaturedProducts(count);
+      products = toPlain(fallbackResult.products);
     }
   } catch (err) {
     console.error("FeaturedProductsBlock fetch error:", err);
   }
+
+  const ctaTargetUrl =
+    sourceType === "category" && resolvedCategorySlug
+      ? `/san-pham?categories=${resolvedCategorySlug}`
+      : content.ctaHref || "/san-pham";
 
   const displayedProducts = products.slice(0, count);
 
@@ -144,21 +155,18 @@ export async function FeaturedProductsBlock({
               <ProductListModal
                 title={content.headline}
                 subtitle={content.eyebrow}
-                categorySlug={content.categorySlug}
-                ctaLabel={content.ctaLabel || "Xem toàn bộ danh sách"}
-                ctaHref={content.ctaHref}
+                categorySlug={resolvedCategorySlug}
+                ctaLabel={content.ctaLabel || "Xem tất cả"}
+                ctaHref={ctaTargetUrl}
                 products={products}
               />
             ) : (
-              <Link href={content.ctaHref || "/san-pham"}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 active-press hover:bg-mint-50 rounded-xl"
-                >
-                  <span>{content.ctaLabel || "Xem tất cả"}</span>
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                </Button>
+              <Link
+                href={ctaTargetUrl}
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-ink/20 text-ink hover:border-ink hover:bg-mint-50 active:scale-[0.98] text-xs px-3.5 py-2 font-semibold transition-all duration-200"
+              >
+                <span>{content.ctaLabel || "Xem tất cả"}</span>
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </Link>
             )}
           </div>
