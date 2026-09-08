@@ -32,43 +32,45 @@ export function StatCard({
   const t = toneClasses[tone];
 
   return (
-    <div className="luno-card p-5.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          {label}
-        </span>
-        {icon && (
-          <span
-            className={clsx(
-              "flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs transition-transform duration-200",
-              t.bg,
-              t.text,
-              t.border,
-            )}
-          >
-            {icon}
+    <div className="luno-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+            {label}
           </span>
-        )}
+          {icon && (
+            <span
+              className={clsx(
+                "flex h-11 w-11 items-center justify-center rounded-2xl border shadow-2xs transition-transform duration-200 shrink-0",
+                t.bg,
+                t.text,
+                t.border,
+              )}
+            >
+              {icon}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-baseline gap-2">
+          <span className="text-2xl sm:text-3xl lg:text-[2rem] font-black tracking-tight text-ink">
+            {value}
+          </span>
+          {suffix && <span className="text-xs font-semibold text-slate-400">{suffix}</span>}
+        </div>
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-2xl sm:text-3xl font-black tracking-tight text-ink">
-          {value}
-        </span>
-        {suffix && <span className="text-xs font-semibold text-slate-400">{suffix}</span>}
-      </div>
-
-      <div className="mt-2.5 flex items-center justify-between gap-2">
+      <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
         {trend ? (
           <div
             className={clsx(
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold border",
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold border",
               trend.positive
                 ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
                 : "bg-rose-50 text-rose-700 border-rose-200/80",
             )}
           >
-            {trend.positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {trend.positive ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
             <span>{trend.value}</span>
           </div>
         ) : (

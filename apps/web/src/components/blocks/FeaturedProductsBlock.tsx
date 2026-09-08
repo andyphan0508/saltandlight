@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@saltandlight/db";
 import { Button } from "@saltandlight/ui";
-import { ArrowRight } from "@/components/Icons";
+import { ArrowRight, Sparkles } from "@/components/Icons";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductSlider } from "./ProductSlider";
 import { ProductListModal } from "./ProductListModal";
@@ -39,12 +39,16 @@ export async function FeaturedProductsBlock({
   let products: ProductCardData[] = [];
 
   try {
-    if (sourceType === "category" && content.categoryId) {
+    if (sourceType === "category" && (content.categoryId || content.categorySlug)) {
       const takeLimit = allowViewAll && viewAllMode === "modal" ? 100 : count;
+      const categoryWhere = content.categoryId
+        ? { categoryId: content.categoryId }
+        : { category: { slug: content.categorySlug } };
+
       const rows = await prisma.product.findMany({
         where: {
           status: "published",
-          categoryId: content.categoryId,
+          ...categoryWhere,
         },
         orderBy: { createdAt: "desc" },
         take: takeLimit,
@@ -161,7 +165,26 @@ export async function FeaturedProductsBlock({
         )}
       </div>
 
-      {displayMode === "slider" ? (
+      {displayedProducts.length === 0 ? (
+        <div className="rounded-3xl border border-mint-200/80 bg-mint-50/40 p-8 sm:p-12 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-forest shadow-xs border border-mint-200">
+            <Sparkles size={20} />
+          </div>
+          <h4 className="mt-3 font-display text-base font-bold text-ink">
+            Bộ sưu tập đang chuẩn bị ra mắt
+          </h4>
+          <p className="mt-1 text-xs text-ink/65 max-w-md mx-auto">
+            Các sản phẩm thuộc danh mục {content.headline} sẽ sớm có mặt. Bạn có thể khám phá thêm các bộ sưu tập khác của Salt &amp; Light!
+          </p>
+          <div className="mt-4">
+            <Link href="/san-pham">
+              <Button variant="outline" size="sm" className="rounded-xl font-bold">
+                Khám phá tất cả sản phẩm
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ) : displayMode === "slider" ? (
         <ProductSlider products={displayedProducts} />
       ) : (
         <ProductGrid products={displayedProducts} />

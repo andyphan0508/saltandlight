@@ -1,10 +1,9 @@
 export const NAV_LEFT = [
   { href: "/", label: "Trang chủ" },
-  { href: "/gioi-thieu", label: "Về chúng tôi" },
+  { href: "/san-pham", label: "Sản phẩm" },
 ];
 
 export const NAV_RIGHT = [
-  { href: "/san-pham", label: "Sản phẩm" },
-  { href: "/dat-theo-yeu-cau", label: "Đặt theo yêu cầu" },
+  { href: "/dat-theo-yeu-cau", label: "Đặt in theo yêu cầu" },
   { href: "/lien-he", label: "Liên hệ" },
 ];
