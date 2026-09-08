@@ -14,66 +14,6 @@ import {
 export function Footer({ siteSettings = DEFAULT_SITE_SETTINGS }: { siteSettings?: SiteSettingsData }) {
   return (
     <footer className="mt-20 border-t border-ink/10 bg-mint-50/70">
-      {/* Top Value Banner in Footer */}
-      <div className="border-b border-ink/10 bg-white/60 py-8 px-4">
-        <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <Truck size={22} />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Đồng Giá Ship 19K
-              </h4>
-              <p className="text-xs text-ink/60 mt-0.5">
-                Toàn quốc, Freeship đơn từ 299K
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Chất Lượng 100% Cotton
-              </h4>
-              <p className="text-xs text-ink/60 mt-0.5">
-                Vải mềm mịn, co giãn 4 chiều
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <RefreshCw size={22} />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Đổi Trả 7 Ngày Tận Nơi
-              </h4>
-              <p className="text-xs text-ink/60 mt-0.5">
-                Hỗ trợ đổi size nhanh chóng
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-200 text-brand-forest">
-              <Sparkles size={22} />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Tư Vấn Tận Tâm 24/7
-              </h4>
-              <p className="text-xs text-ink/60 mt-0.5">
-                Hỗ trợ size &amp; mẫu qua Zalo/Hotline
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Links - Aligned with saltandlight.com.vn */}
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-5">
