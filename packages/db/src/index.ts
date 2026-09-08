@@ -47,10 +47,21 @@ function getOrCreatePrisma(): PrismaClient {
 const TRANSIENT_ERROR_REGEX =
   /connection closed|closed the connection|connection terminated|can't reach database|terminating connection|broken pipe|econnreset|etimedout|57P01|P1001|P1002|P1017/i;
 
+// Confirmed, still-open upstream bug: Prisma's default query batching can
+// resolve a promise against a different concurrent request's I/O context on
+// Cloudflare Workers (prisma/prisma#28732). When two+ requests hit this
+// isolate close together — e.g. an admin page firing several Promise.all'd
+// queries while another request is in flight — the Workers runtime kills
+// the "loser" outright: "canceled this request because it detected that
+// your Worker's code had hung". No connection actually dropped, but
+// discarding the client and retrying with a fresh one recovers just the
+// same, and it's the only mitigation available until Prisma fixes this.
+const HUNG_REQUEST_REGEX = /runtime canceled this request|detected that your worker's code had hung/i;
+
 export function isTransientConnectionError(error: unknown): boolean {
   if (!error) return false;
   const msg = error instanceof Error ? error.message : String(error);
-  return TRANSIENT_ERROR_REGEX.test(msg);
+  return TRANSIENT_ERROR_REGEX.test(msg) || HUNG_REQUEST_REGEX.test(msg);
 }
 
 async function runWithRetry<T>(operation: (client: PrismaClient) => Promise<T>): Promise<T> {
