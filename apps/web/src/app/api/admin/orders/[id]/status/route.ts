@@ -20,9 +20,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const order = await prisma.order.findUnique({ where: { id: params.id } });
     if (!order) return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
 
-    await prisma.$transaction([
-      prisma.order.update({ where: { id: params.id }, data: { status: body.status } }),
-      prisma.orderStatusHistory.create({
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({ where: { id: params.id }, data: { status: body.status } });
+      await tx.orderStatusHistory.create({
         data: {
           orderId: params.id,
           fromStatus: order.status,
@@ -30,8 +30,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           changedById: admin.id,
           note: body.note,
         },
-      }),
-    ]);
+      });
+    });
 
     await logAudit({
       adminUserId: admin.id,

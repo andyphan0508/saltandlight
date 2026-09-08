@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Sparkles } from "@/components/admin/Icons";
 import { PAGE_SLUGS, type PageSlug } from "@/lib/admin/schemas";
 import { BlockList } from "./BlockList";
 
@@ -39,6 +40,15 @@ export default async function PageBuilderPage({
       <PageHeader
         title="Bố Cục Nội Dung Trang"
         subtitle="Sắp xếp thứ tự hiển thị, bật/tắt các khối nội dung trên trang chủ và trang thông tin"
+        action={
+          <Link
+            href={`/admin/editor?page=${page}`}
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-forest px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand-forest/90 transition-all"
+          >
+            <Sparkles size={14} />
+            <span>Mở trong Elementor Visual Editor</span>
+          </Link>
+        }
       />
 
       <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">

@@ -20,16 +20,16 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: "Giao dịch đã được xử lý" }, { status: 409 });
     }
 
-    await prisma.$transaction([
-      prisma.paymentTransaction.update({
+    await prisma.$transaction(async (tx) => {
+      await tx.paymentTransaction.update({
         where: { id: params.id },
         data: { status: "confirmed", confirmedById: admin.id, confirmedAt: new Date() },
-      }),
-      prisma.order.update({
+      });
+      await tx.order.update({
         where: { id: payment.orderId },
         data: { status: "processing" },
-      }),
-      prisma.orderStatusHistory.create({
+      });
+      await tx.orderStatusHistory.create({
         data: {
           orderId: payment.orderId,
           fromStatus: payment.order.status,
@@ -37,8 +37,8 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
           changedById: admin.id,
           note: "Đã xác nhận chuyển khoản",
         },
-      }),
-    ]);
+      });
+    });
 
     await logAudit({
       adminUserId: admin.id,

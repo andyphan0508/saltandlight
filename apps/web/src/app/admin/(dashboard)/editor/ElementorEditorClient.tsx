@@ -77,6 +77,7 @@ export function ElementorEditorClient({
   const [iframeReady, setIframeReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const pageMeta = MANAGED_PAGES.find((p) => p.slug === currentPage) ?? MANAGED_PAGES[0]!;
@@ -93,6 +94,7 @@ export function ElementorEditorClient({
     setCurrentPage(newSlug);
     setEditingBlock(null);
     setActiveTab("navigator");
+    router.replace(`/admin/editor?page=${newSlug}`, { scroll: false });
     try {
       const res = await fetch(`/api/admin/page-blocks?page=${newSlug}`);
       if (res.ok) {
@@ -131,17 +133,19 @@ export function ElementorEditorClient({
   // Reorder persistence
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id || isReordering) return;
 
     const oldIndex = blocks.findIndex((b) => b.id === active.id);
     const newIndex = blocks.findIndex((b) => b.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
+    const previousBlocks = blocks;
     const reordered = arrayMove(blocks, oldIndex, newIndex).map((b, idx) => ({
       ...b,
       sortOrder: idx,
     }));
     setBlocks(reordered);
+    setIsReordering(true);
 
     try {
       const res = await fetch("/api/admin/page-blocks/reorder", {
@@ -152,12 +156,18 @@ export function ElementorEditorClient({
           orderedIds: reordered.map((b) => b.id),
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Không thể lưu thứ tự khối");
+      }
       toast.success("Đã cập nhật vị trí khối!");
       // Reload iframe to sync
       setIframeKey((k) => k + 1);
-    } catch {
-      toast.error("Không thể lưu thứ tự khối");
+    } catch (err: any) {
+      setBlocks(previousBlocks);
+      toast.error(err?.message || "Không thể lưu thứ tự khối");
+    } finally {
+      setIsReordering(false);
     }
   }
 
@@ -632,7 +642,7 @@ export function ElementorEditorClient({
             )}
 
             <iframe
-              key={iframeKey}
+              key={`${currentPage}-${iframeKey}`}
               ref={iframeRef}
               src={`${pageUrl}?editor=1`}
               title="Elementor Live Canvas"

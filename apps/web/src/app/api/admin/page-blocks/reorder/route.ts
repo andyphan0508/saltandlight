@@ -14,14 +14,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { page, orderedIds } = pageBlockReorderSchema.parse(body);
 
-    await prisma.$transaction(
-      orderedIds.map((id, index) =>
-        prisma.pageBlock.updateMany({
-          where: { id, page },
+    await prisma.$transaction(async (tx) => {
+      for (let index = 0; index < orderedIds.length; index++) {
+        await tx.pageBlock.updateMany({
+          where: { id: orderedIds[index], page },
           data: { sortOrder: index },
-        }),
-      ),
-    );
+        });
+      }
+    });
 
     await logAudit({
       adminUserId: admin.id,

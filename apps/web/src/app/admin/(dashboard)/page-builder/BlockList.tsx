@@ -44,31 +44,36 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  async function persistOrder(next: PageBlockItem[]) {
+  async function persistOrder(next: PageBlockItem[], previous: PageBlockItem[]) {
     try {
       const res = await fetch("/api/admin/page-blocks/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ page, orderedIds: next.map((b) => b.id) }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Không thể lưu thứ tự mới");
+      }
+      toast.success("Đã lưu thứ tự khối thành công!");
       router.refresh();
-    } catch {
-      toast.error("Không thể lưu thứ tự mới. Vui lòng thử lại!");
-      setBlocks(initialBlocks);
+    } catch (err: any) {
+      toast.error(err?.message || "Không thể lưu thứ tự mới. Vui lòng thử lại!");
+      setBlocks(previous);
     }
   }
 
   function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    setBlocks((prev) => {
-      const oldIndex = prev.findIndex((b) => b.id === active.id);
-      const newIndex = prev.findIndex((b) => b.id === over.id);
-      const next = arrayMove(prev, oldIndex, newIndex);
-      persistOrder(next);
-      return next;
-    });
+    const oldIndex = blocks.findIndex((b) => b.id === active.id);
+    const newIndex = blocks.findIndex((b) => b.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const previous = blocks;
+    const next = arrayMove(blocks, oldIndex, newIndex);
+    setBlocks(next);
+    persistOrder(next, previous);
   }
 
   async function handleToggleVisible(block: PageBlockItem) {
@@ -116,7 +121,7 @@ export function BlockList({ page, initialBlocks }: { page: string; initialBlocks
       const next = [...blocks];
       next.splice(insertIndex + 1, 0, block);
       setBlocks(next);
-      persistOrder(next);
+      persistOrder(next, blocks);
     } else {
       setBlocks((prev) => (isNew ? [...prev, block] : prev.map((b) => (b.id === block.id ? block : b))));
     }

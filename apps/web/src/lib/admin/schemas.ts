@@ -170,7 +170,7 @@ export const pageBlockUpdateSchema = z.object({
 
 export const pageBlockReorderSchema = z.object({
   page: z.enum(PAGE_SLUGS),
-  orderedIds: z.array(z.string().uuid()).min(1),
+  orderedIds: z.array(z.string().min(1)).min(1),
 });
 
 // ── Payment settings ────────────────────────────────────────────────
