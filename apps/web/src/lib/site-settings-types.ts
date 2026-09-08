@@ -74,9 +74,9 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
       title: "Sản Phẩm",
       items: [
         { label: "Tất cả sản phẩm", href: "/san-pham" },
-        { label: "Áo thun", href: "/danh-muc/ao-thun" },
-        { label: "Túi tote", href: "/danh-muc/tui-canvas" },
-        { label: "Set quà áo + túi", href: "/danh-muc/set-qua-ao-tui" },
+        { label: "Áo thun người lớn", href: "/san-pham?categories=ao-thun-nguoi-lon" },
+        { label: "Áo thun cho bé", href: "/san-pham?categories=ao-thun-cho-be" },
+        { label: "Túi tote canvas", href: "/san-pham?categories=tui-tote-canvas" },
       ],
     },
     {

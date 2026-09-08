@@ -5,21 +5,35 @@ import { CatalogSidebarSkeleton } from "./components/CatalogSidebarSkeleton";
 import { CatalogResults } from "./components/CatalogResults";
 import { CatalogResultsSkeleton } from "./components/CatalogResultsSkeleton";
 import { parseCatalogParams, type CatalogSearchParams } from "./components/parseCatalogParams";
+import { getCachedCategoriesWithCounts } from "@/lib/queries";
 
 export const metadata = {
   title: "Tất cả sản phẩm · Áo Thun & Quà Tặng Lời Chúa",
   description:
     "Khám phá bộ sưu tập áo thun Cơ Đốc, túi tote canvas và quà tặng đức tin cao cấp tại Salt & Light.",
 };
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-export default function ProductsPage({ searchParams }: { searchParams: CatalogSearchParams }) {
+export default async function ProductsPage({ searchParams }: { searchParams: CatalogSearchParams }) {
   const filters = parseCatalogParams(searchParams);
   const resultsKey = JSON.stringify(filters);
 
+  let categoryName: string | undefined;
+  if (filters.categorySlugs.length === 1) {
+    try {
+      const { categories } = await getCachedCategoriesWithCounts();
+      const match = categories.find((c) => c.slug === filters.categorySlugs[0]);
+      if (match) {
+        categoryName = match.name;
+      }
+    } catch {
+      // Ignore lookup failure
+    }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10 animate-slide-up-fade">
-      <CatalogHero query={filters.query} />
+      <CatalogHero query={filters.query} categoryName={categoryName} />
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
         <Suspense fallback={<CatalogSidebarSkeleton />}>
@@ -35,3 +49,4 @@ export default function ProductsPage({ searchParams }: { searchParams: CatalogSe
     </div>
   );
 }
+
