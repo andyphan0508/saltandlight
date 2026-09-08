@@ -8,8 +8,8 @@ import type { ProductCardData } from "@/lib/types";
 
 const GRID_COLS: Record<string, string> = {
   "2": "grid-cols-2",
-  "3": "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
-  "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6",
+  "3": "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4",
+  "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5",
 };
 
 export function ProductGrid({

@@ -9,11 +9,11 @@ import {
 
 const HIGHLIGHTS = [
   { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
-  { icon: Sparkles, text: "100% COTTON 4 CHIỀU CAO CẤP" },
-  { icon: Gift, text: "MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 299K" },
-  { icon: RefreshCw, text: "ĐỔI SIZE DỄ DÀNG TRONG 7 NGÀY" },
-  { icon: CrossIcon, text: "LAN TOẢ LỜI CHÚA QUA TỪNG CHIẾC ÁO" },
-  { icon: ShieldCheck, text: "IN LỤA CAO CẤP BỀN MÀU" },
+  { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
+  { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
+  { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
+  { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
+  { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
 ];
 
 export function MarqueeBanner() {

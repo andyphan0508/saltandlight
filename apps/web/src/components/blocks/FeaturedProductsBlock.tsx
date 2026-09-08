@@ -135,7 +135,7 @@ export async function FeaturedProductsBlock({
   const displayedProducts = products.slice(0, count);
 
   return (
-    <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 animate-slide-up-fade">
+    <section className="mx-auto max-w-7xl px-4 animate-slide-up-fade">
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-4">
         <div>
           {content.eyebrow && (
