@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { Pagination } from "@/components/admin/Pagination";
 import { Plus, Search, ImageOff } from "@/components/admin/Icons";
 import { FeaturedToggle } from "@/components/admin/FeaturedToggle";
+import { CategoryFilterSelect } from "@/components/admin/CategoryFilterSelect";
 
 const PAGE_SIZE = 10;
 
@@ -119,21 +120,7 @@ export default async function ProductsPage({
               <form method="GET" className="inline-block">
                 {q && <input type="hidden" name="q" value={q} />}
                 {status && <input type="hidden" name="status" value={status} />}
-                <select
-                  name="category"
-                  defaultValue={categoryId || ""}
-                  onChange={(e) => {
-                    e.currentTarget.form?.submit();
-                  }}
-                  className="rounded-full border border-slate-200 bg-slate-50/70 py-1.5 px-3 text-xs font-semibold text-slate-700 focus:border-brand-forest focus:outline-none"
-                >
-                  <option value="">Tất cả danh mục</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <CategoryFilterSelect categoryId={categoryId} categories={categories} />
               </form>
             )}
             <StatusPill href={getUrl({ q, category: categoryId })} active={!status} label="Tất cả trạng thái" />
