@@ -31,25 +31,48 @@ export default async function ProductsPage({
     ...(categoryId ? { categoryId } : {}),
   };
 
-  const [products, total, categories] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        name: true,
-        status: true,
-        isFeatured: true,
-        category: { select: { id: true, name: true } },
-        images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-        variants: { select: { price: true, compareAtPrice: true, stockQuantity: true } },
-      },
-    }),
-    prisma.product.count({ where }),
-    prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-  ]);
+  interface ProductRow {
+    id: string;
+    name: string;
+    status: string;
+    isFeatured: boolean;
+    category: { id: string; name: string } | null;
+    images: { url: string }[];
+    variants: { price: unknown; compareAtPrice: unknown; stockQuantity: number }[];
+  }
+
+  let products: ProductRow[] = [];
+  let total = 0;
+  let categories: { id: string; name: string }[] = [];
+  let loadError = false;
+
+  try {
+    [products, total, categories] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          isFeatured: true,
+          category: { select: { id: true, name: true } },
+          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+          variants: { select: { price: true, compareAtPrice: true, stockQuantity: true } },
+        },
+      }),
+      prisma.product.count({ where }),
+      prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    ]);
+  } catch (err) {
+    // Log full detail server-side (the client only ever sees an opaque
+    // digest in production) — surfaces in `wrangler tail`/Cloudflare logs
+    // instead of only showing up as an unexplained crash for the admin.
+    console.error("[admin/products] data fetch failed:", err);
+    loadError = true;
+  }
 
   const getUrl = (params: { q?: string; status?: string; category?: string }) => {
     const search = new URLSearchParams();
@@ -224,7 +247,20 @@ export default async function ProductsPage({
                   </tr>
                 );
               })}
-              {products.length === 0 && (
+              {loadError && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-16 text-center text-sm">
+                    <p className="text-slate-500">Không thể tải danh sách sản phẩm lúc này.</p>
+                    <a
+                      href="/admin/products"
+                      className="mt-2 inline-block text-xs font-bold uppercase tracking-wider text-brand-forest hover:underline"
+                    >
+                      Tải lại
+                    </a>
+                  </td>
+                </tr>
+              )}
+              {!loadError && products.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
                     Không tìm thấy sản phẩm nào.
@@ -235,15 +271,17 @@ export default async function ProductsPage({
           </table>
         </div>
 
-        <div className="border-t border-slate-100 p-4">
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            total={total}
-            basePath="/admin/products"
-            searchParams={{ q, status }}
-          />
-        </div>
+        {!loadError && (
+          <div className="border-t border-slate-100 p-4">
+            <Pagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              total={total}
+              basePath="/admin/products"
+              searchParams={{ q, status }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
