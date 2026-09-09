@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-import { isRouterCorruptionError } from "@/lib/error-classification";
+import { useEffect, useState } from "react";
+import {
+  isRouterCorruptionError,
+  getRetryBufferState,
+  resetRetryBuffer,
+  MAX_RETRY_ATTEMPTS,
+} from "@/lib/error-classification";
+import DashboardSubLoading from "./loading";
 
 export default function AdminError({
   error,
@@ -11,6 +17,12 @@ export default function AdminError({
   reset: () => void;
 }) {
   const isRouterCorrupted = isRouterCorruptionError(error?.message);
+
+  const [bufferState] = useState(() => {
+    if (isRouterCorrupted) return { shouldRetry: false, attempt: 0, delayMs: 0 };
+    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
+    return getRetryBufferState(routeKey);
+  });
 
   useEffect(() => {
     console.error(error);
@@ -23,7 +35,43 @@ export default function AdminError({
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [error, isRouterCorrupted]);
+
+    // If in retry buffer during service cold boot
+    if (bufferState.shouldRetry) {
+      const timer = setTimeout(() => {
+        if (bufferState.attempt >= MAX_RETRY_ATTEMPTS) {
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          } else {
+            reset();
+          }
+        } else {
+          reset();
+        }
+      }, bufferState.delayMs);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error, isRouterCorrupted, bufferState, reset]);
+
+  // While in the retry buffer, keep displaying the admin loading skeleton
+  if (bufferState.shouldRetry) {
+    return <DashboardSubLoading />;
+  }
+
+  const handleManualRetry = () => {
+    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
+    resetRetryBuffer(routeKey);
+    reset();
+  };
+
+  const handleReload = () => {
+    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
+    resetRetryBuffer(routeKey);
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-4 text-center">
@@ -33,18 +81,24 @@ export default function AdminError({
       <div className="max-w-md space-y-2">
         <h1 className="text-xl font-black uppercase text-slate-900">Đã có lỗi xảy ra</h1>
         <p className="text-sm text-slate-500">
-          {isRouterCorrupted
-            ? "Trang đã ở chế độ chờ quá lâu. Đang tự động tải lại..."
-            : "Không thể tải dữ liệu cho trang này. Vui lòng thử lại sau giây lát."}
+          Không thể tải dữ liệu cho trang này. Vui lòng thử lại sau giây lát.
         </p>
         {error.digest && <p className="text-xs text-slate-400">Mã lỗi: {error.digest}</p>}
       </div>
-      <button
-        onClick={reset}
-        className="rounded-full bg-brand-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800 transition-colors"
-      >
-        Thử lại
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleManualRetry}
+          className="rounded-full bg-brand-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800 transition-colors"
+        >
+          Thử lại
+        </button>
+        <button
+          onClick={handleReload}
+          className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Tải lại trang
+        </button>
+      </div>
     </div>
   );
 }

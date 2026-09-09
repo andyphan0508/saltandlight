@@ -62,17 +62,25 @@ function NavigationBufferInner() {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 88) return prev;
-          const step = Math.random() * 10 + 5;
-          return Math.min(prev + step, 88);
+          if (prev >= 94) return prev;
+          if (prev < 75) {
+            const step = Math.random() * 8 + 6;
+            return Math.min(prev + step, 75);
+          }
+          if (prev < 88) {
+            const step = Math.random() * 4 + 2;
+            return Math.min(prev + step, 88);
+          }
+          // During service cold boot / slower wait, smoothly crawl up to 94%
+          return Math.min(prev + 0.6, 94);
         });
-      }, 150);
+      }, 180);
 
-      // Auto dismiss safety timer: maximum 2s so user is NEVER blocked
+      // Buffer safety timer: 10s gives enough buffer for Cloudflare/DB cold boot
       if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
       safetyTimeoutRef.current = setTimeout(() => {
         stopBuffer();
-      }, 2000);
+      }, 10000);
     },
     [stopBuffer]
   );

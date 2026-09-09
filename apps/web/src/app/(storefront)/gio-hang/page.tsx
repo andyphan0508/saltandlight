@@ -7,6 +7,7 @@ import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
 import { useStoreHydrated } from "@/lib/use-store-hydrated";
+import { fetchWithRetry } from "@/lib/fetch-with-retry";
 import {
   ShoppingBag,
   Trash2,
@@ -62,11 +63,13 @@ export default function CartPage() {
     }
     const requestId = ++requestIdRef.current;
     try {
-      const res = await fetch("/api/cart/quote", {
+      const res = await fetchWithRetry("/api/cart/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: lines }),
-        signal: AbortSignal.timeout(4000),
+        signal: AbortSignal.timeout(10000),
+        retries: 2,
+        retryDelayMs: 1000,
       });
       if (!res.ok) {
         console.warn("Quote request returned status:", res.status);

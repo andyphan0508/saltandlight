@@ -7,6 +7,7 @@ import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { useCartStore } from "@/lib/cart-store";
 import { useStoreHydrated } from "@/lib/use-store-hydrated";
+import { fetchWithRetry } from "@/lib/fetch-with-retry";
 import { LocationSelect, type LocationValue } from "@/components/LocationSelect";
 import {
   ShieldCheck,
@@ -42,16 +43,21 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cartLines.length === 0) return;
-    fetch("/api/cart/quote", {
+    fetchWithRetry("/api/cart/quote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         items: cartLines,
         ...(location.provinceCode != null ? { provinceCode: location.provinceCode } : {}),
       }),
+      retries: 2,
+      retryDelayMs: 1000,
     })
-      .then((r) => r.json())
-      .then(setQuote);
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setQuote(data);
+      })
+      .catch((err) => console.warn("Checkout quote fetch error:", err));
   }, [cartLines, location.provinceCode]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
