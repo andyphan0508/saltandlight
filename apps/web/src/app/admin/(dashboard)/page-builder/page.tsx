@@ -14,6 +14,7 @@ const PAGE_LABELS: Record<PageSlug, string> = {
   "gioi-thieu": "Giới thiệu",
   "lien-he": "Liên hệ",
   "chinh-sach": "Chính sách",
+  "dat-theo-yeu-cau": "Đặt theo yêu cầu",
 };
 
 function isPageSlug(value: string): value is PageSlug {

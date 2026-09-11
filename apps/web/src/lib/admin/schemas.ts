@@ -33,7 +33,7 @@ export type ProductInput = z.infer<typeof productInputSchema>;
 
 // ── Page content blocks ────────────────────────────────────────────
 
-export const PAGE_SLUGS = ["home", "gioi-thieu", "lien-he", "chinh-sach"] as const;
+export const PAGE_SLUGS = ["home", "gioi-thieu", "lien-he", "chinh-sach", "dat-theo-yeu-cau"] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 
 const featureCardItemSchema = z.object({
