@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +29,6 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }

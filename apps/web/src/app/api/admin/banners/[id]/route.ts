@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 
 export const dynamic = "force-dynamic";
@@ -49,13 +49,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     revalidateTag("banners");
 
     return NextResponse.json({ banner });
-  } catch (err: any) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("PATCH /api/admin/banners/[id] error:", err);
-    return NextResponse.json({ error: "Không thể cập nhật banner" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "Không thể cập nhật banner");
   }
 }
 
@@ -77,9 +72,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     revalidateTag("banners");
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error("DELETE /api/admin/banners/[id] error:", err);
-    return NextResponse.json({ error: "Không thể xóa banner" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "Không thể xóa banner");
   }
 }

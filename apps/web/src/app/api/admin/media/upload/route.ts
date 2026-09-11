@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { createSupabaseAdminClient, PRODUCT_IMAGES_BUCKET } from "@/lib/supabase/admin";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -82,8 +82,6 @@ export async function POST(req: NextRequest) {
     const { data } = supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(path);
     return NextResponse.json({ url: data.publicUrl });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }

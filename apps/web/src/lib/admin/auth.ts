@@ -1,4 +1,6 @@
 import { cache } from "react";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -6,6 +8,27 @@ export class AuthError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }
+}
+
+/**
+ * Shared catch-block handler for admin API routes: auth errors keep their
+ * status/message, zod errors become the first validation message, anything
+ * else is logged and collapsed to a generic 500. Routes that return
+ * `err.flatten()` for structured per-field errors keep that shape instead —
+ * this is only for routes that already returned a single error string.
+ */
+export function apiError(err: unknown, fallbackMessage = "Có lỗi xảy ra") {
+  if (err instanceof AuthError) {
+    return NextResponse.json({ error: err.message }, { status: err.status });
+  }
+  if (err instanceof z.ZodError) {
+    return NextResponse.json(
+      { error: err.errors[0]?.message || "Dữ liệu không hợp lệ" },
+      { status: 400 },
+    );
+  }
+  console.error(fallbackMessage, err);
+  return NextResponse.json({ error: fallbackMessage }, { status: 500 });
 }
 
 /**

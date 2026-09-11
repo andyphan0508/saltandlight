@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 
 export const dynamic = "force-dynamic";
@@ -37,12 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     return NextResponse.json({ contact });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("PATCH /api/admin/contacts/[id] error:", err);
-    return NextResponse.json({ error: "Không thể cập nhật yêu cầu liên hệ" }, { status: 500 });
+    return apiError(err, "Không thể cập nhật yêu cầu liên hệ");
   }
 }
 
@@ -68,8 +63,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error("DELETE /api/admin/contacts/[id] error:", err);
-    return NextResponse.json({ error: "Không thể xóa yêu cầu liên hệ" }, { status: 500 });
+    return apiError(err, "Không thể xóa yêu cầu liên hệ");
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { slugify } from "@/lib/slugify";
 
@@ -64,12 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     return NextResponse.json({ category });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("PATCH /api/admin/categories/[id] error:", err);
-    return NextResponse.json({ error: "Không thể cập nhật danh mục" }, { status: 500 });
+    return apiError(err, "Không thể cập nhật danh mục");
   }
 }
 
@@ -119,8 +114,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error("DELETE /api/admin/categories/[id] error:", err);
-    return NextResponse.json({ error: "Không thể xóa danh mục" }, { status: 500 });
+    return apiError(err, "Không thể xóa danh mục");
   }
 }

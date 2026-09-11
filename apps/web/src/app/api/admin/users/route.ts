@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { adminPasswordSchema } from "@/lib/admin/schemas";
@@ -21,9 +21,7 @@ export async function GET() {
     const users = await prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } });
     return NextResponse.json({ users });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }
 
@@ -113,14 +111,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ user: created });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: err.issues[0]?.message || "Dữ liệu không hợp lệ" },
-        { status: 400 },
-      );
-    }
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { siteSettingsSchema } from "@/lib/admin/schemas";
 
@@ -16,9 +15,7 @@ export async function GET() {
     const settings = await prisma.siteSettings.findUnique({ where: { id: SETTINGS_ID } });
     return NextResponse.json({ settings });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }
 
@@ -52,11 +49,6 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ settings });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("PATCH /api/admin/settings/site error:", err);
-    return NextResponse.json({ error: "Không thể lưu cài đặt" }, { status: 500 });
+    return apiError(err, "Không thể lưu cài đặt");
   }
 }

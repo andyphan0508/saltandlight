@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { getDashboardStats } from "@/lib/admin/stats";
 
 export const dynamic = "force-dynamic";
@@ -10,8 +10,6 @@ export async function GET() {
     const stats = await getDashboardStats();
     return NextResponse.json(stats);
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }

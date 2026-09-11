@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +34,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ contacts });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error("GET /api/admin/contacts error:", err);
-    return NextResponse.json({ error: "Có lỗi xảy ra khi tải dữ liệu liên hệ" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra khi tải dữ liệu liên hệ");
   }
 }

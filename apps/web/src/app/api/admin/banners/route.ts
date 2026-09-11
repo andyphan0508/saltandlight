@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 
 export const dynamic = "force-dynamic";
@@ -26,9 +26,7 @@ export async function GET() {
     });
     return NextResponse.json({ banners });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err, "Có lỗi xảy ra");
   }
 }
 
@@ -62,12 +60,7 @@ export async function POST(req: NextRequest) {
     revalidateTag("banners");
 
     return NextResponse.json({ banner }, { status: 201 });
-  } catch (err: any) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("POST /api/admin/banners error:", err);
-    return NextResponse.json({ error: "Không thể tạo banner" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "Không thể tạo banner");
   }
 }

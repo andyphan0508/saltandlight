@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { revalidatePageBlocks } from "@/lib/admin/page-blocks";
 import { pageBlockUpdateSchema } from "@/lib/admin/schemas";
@@ -34,12 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     return NextResponse.json({ block });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0]?.message || "Dữ liệu không hợp lệ" }, { status: 400 });
-    }
-    console.error("PATCH /api/admin/page-blocks/[id] error:", err);
-    return NextResponse.json({ error: "Không thể cập nhật block" }, { status: 500 });
+    return apiError(err, "Không thể cập nhật block");
   }
 }
 
@@ -60,8 +54,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error("DELETE /api/admin/page-blocks/[id] error:", err);
-    return NextResponse.json({ error: "Không thể xóa block" }, { status: 500 });
+    return apiError(err, "Không thể xóa block");
   }
 }
