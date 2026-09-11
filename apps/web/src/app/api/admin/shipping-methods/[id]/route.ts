@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 const bodySchema = z.object({
   fee: z.number().nonnegative(),
@@ -25,6 +26,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       entityId: params.id,
       metadata: body,
     });
+    invalidateMemoryCache("shipping-zones");
 
     return NextResponse.json({ ok: true });
   } catch (err) {

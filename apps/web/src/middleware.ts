@@ -80,6 +80,35 @@ export async function middleware(req: NextRequest) {
     const isLogin = path === "/admin/login" || path.startsWith("/admin/login/");
     const isApi = path.startsWith("/api/admin");
 
+    // Admin API routes were falling through this block's early returns and
+    // never reaching the rate-limiter below — rate-limit them here instead,
+    // before the Supabase round-trip, so a 429 doesn't cost an auth check.
+    if (isApi) {
+      try {
+        const [max, windowSeconds] = RULES[path] ?? DEFAULT_RULE;
+        const limiter = getRateLimiter(path, max, windowSeconds);
+        const ip = getClientIp(req);
+        const result = await limiter.limit(ip);
+
+        if (!result.success) {
+          return NextResponse.json(
+            { error: "Bạn đang thao tác quá nhanh, vui lòng thử lại sau ít phút." },
+            {
+              status: 429,
+              headers: {
+                "Retry-After": Math.ceil(result.resetMs / 1000).toString(),
+                "X-RateLimit-Limit": String(result.limit),
+                "X-RateLimit-Remaining": "0",
+              },
+            }
+          );
+        }
+      } catch (err) {
+        // Fail OPEN for rate-limiting, same as the storefront limiter below.
+        console.error("[middleware] Admin rate limiter failed, allowing request through:", err);
+      }
+    }
+
     // Redirect root /admin to /admin/dashboard
     if (path === "/admin" || path === "/admin/") {
       if (!user) {

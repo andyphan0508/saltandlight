@@ -3,11 +3,21 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, AuthError, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { productInputSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
+
+function invalidateProductCaches() {
+  invalidateMemoryCache("catalog-products-");
+  invalidateMemoryCache("homepage-featured-products-");
+  invalidateMemoryCache("product-detail-");
+  invalidateMemoryCache("related-products-");
+  invalidateMemoryCache("nav-categories-with-counts");
+  invalidateMemoryCache("available-product-sizes");
+}
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -19,9 +29,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     if (!product) return NextResponse.json({ error: "Không tìm thấy sản phẩm" }, { status: 404 });
     return NextResponse.json({ product });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err);
   }
 }
 
@@ -101,6 +109,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     } catch {
       // Revalidation
     }
+    invalidateProductCaches();
 
     return NextResponse.json({ ok: true });
   } catch (err) {
@@ -134,6 +143,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     } catch {
       // Revalidation
     }
+    invalidateProductCaches();
 
     return NextResponse.json({ ok: true });
   } catch (err) {

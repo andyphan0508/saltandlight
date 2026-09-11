@@ -4,6 +4,7 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { siteSettingsSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     revalidateTag("site-settings");
+    invalidateMemoryCache("site-settings");
 
     return NextResponse.json({ settings });
   } catch (err) {

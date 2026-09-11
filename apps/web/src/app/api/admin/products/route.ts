@@ -3,9 +3,10 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
+import { requireAdmin, AuthError, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { productInputSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -15,12 +16,11 @@ export async function GET() {
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
       include: { category: true, images: { orderBy: { sortOrder: "asc" }, take: 1 }, variants: true },
+      take: 500,
     });
     return NextResponse.json({ products });
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
+    return apiError(err);
   }
 }
 
@@ -71,6 +71,10 @@ export async function POST(req: NextRequest) {
     } catch {
       // Background revalidation
     }
+    invalidateMemoryCache("catalog-products-");
+    invalidateMemoryCache("homepage-featured-products-");
+    invalidateMemoryCache("nav-categories-with-counts");
+    invalidateMemoryCache("available-product-sizes");
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {

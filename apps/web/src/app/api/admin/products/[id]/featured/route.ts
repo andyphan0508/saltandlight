@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     });
 
     revalidateTag("products");
+    invalidateMemoryCache("catalog-products-");
+    invalidateMemoryCache("homepage-featured-products-");
+    invalidateMemoryCache("product-detail-");
 
     return NextResponse.json({ success: true, product });
   } catch (err) {

@@ -4,6 +4,7 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { paymentSettingsSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     revalidateTag("payment-settings");
+    invalidateMemoryCache("payment-settings");
 
     return NextResponse.json({ settings });
   } catch (err) {

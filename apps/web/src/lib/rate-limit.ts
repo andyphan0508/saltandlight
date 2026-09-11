@@ -108,8 +108,14 @@ export function getRateLimiter(name: string, max: number, windowSeconds: number)
   return limiter;
 }
 
-/** Best-effort client IP from standard proxy headers (Vercel sets x-forwarded-for). */
+/**
+ * Best-effort client IP. `cf-connecting-ip` is set by Cloudflare's edge itself
+ * (not client-controllable) so it's checked first; `x-forwarded-for` is a
+ * spoofable fallback for non-Cloudflare environments (e.g. local dev).
+ */
 export function getClientIp(req: Request): string {
+  const cfIp = req.headers.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
   const xff = req.headers.get("x-forwarded-for");
   if (xff) return (xff.split(",")[0] || xff).trim();
   return req.headers.get("x-real-ip") || "unknown";

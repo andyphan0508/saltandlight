@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export async function GET() {
     await requireAdmin(["owner", "staff"]);
     const banners = await prisma.banner.findMany({
       orderBy: { sortOrder: "asc" },
+      take: 500,
     });
     return NextResponse.json({ banners });
   } catch (err) {
@@ -58,6 +60,7 @@ export async function POST(req: NextRequest) {
     });
 
     revalidateTag("banners");
+    invalidateMemoryCache("homepage-hero-banners");
 
     return NextResponse.json({ banner }, { status: 201 });
   } catch (err) {

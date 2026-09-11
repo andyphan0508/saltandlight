@@ -4,6 +4,7 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { slugify } from "@/lib/slugify";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function GET(req: NextRequest) {
         parent: { select: { id: true, name: true, slug: true } },
         _count: { select: { products: true } },
       },
+      take: 2000,
     });
     return NextResponse.json({ categories });
   } catch (err) {
@@ -63,6 +65,9 @@ export async function POST(req: NextRequest) {
       entityId: category.id,
       metadata: { name: category.name, slug: category.slug },
     });
+
+    invalidateMemoryCache("nav-categories-with-counts");
+    invalidateMemoryCache("catalog-products-");
 
     return NextResponse.json({ category }, { status: 201 });
   } catch (err) {

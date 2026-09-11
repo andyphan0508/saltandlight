@@ -3,14 +3,23 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
 import { promotionCreateSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
+
+function invalidateProductCaches() {
+  invalidateMemoryCache("catalog-products-");
+  invalidateMemoryCache("homepage-featured-products-");
+  invalidateMemoryCache("product-detail-");
+  invalidateMemoryCache("related-products-");
+}
 
 export async function GET() {
   try {
     await requireAdmin();
     const promotions = await prisma.promotion.findMany({
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
     return NextResponse.json({ promotions });
   } catch (err) {
@@ -55,24 +64,26 @@ export async function POST(req: NextRequest) {
           where: { productId: pId, isActive: true },
         });
 
-        for (const v of variants) {
-          const basePrice = v.compareAtPrice ? Number(v.compareAtPrice) : Number(v.price);
-          let newPrice = basePrice;
+        await Promise.all(
+          variants.map((v) => {
+            const basePrice = v.compareAtPrice ? Number(v.compareAtPrice) : Number(v.price);
+            let newPrice = basePrice;
 
-          if (discountType === "percent") {
-            newPrice = Math.round((basePrice * (1 - numDiscount / 100)) / 1000) * 1000;
-          } else {
-            newPrice = Math.max(0, basePrice - numDiscount);
-          }
+            if (discountType === "percent") {
+              newPrice = Math.round((basePrice * (1 - numDiscount / 100)) / 1000) * 1000;
+            } else {
+              newPrice = Math.max(0, basePrice - numDiscount);
+            }
 
-          await prisma.productVariant.update({
-            where: { id: v.id },
-            data: {
-              compareAtPrice: basePrice,
-              price: newPrice,
-            },
-          });
-        }
+            return prisma.productVariant.update({
+              where: { id: v.id },
+              data: {
+                compareAtPrice: basePrice,
+                price: newPrice,
+              },
+            });
+          })
+        );
 
         // Recompute product min/compare prices
         const updatedVariants = await prisma.productVariant.findMany({
@@ -97,6 +108,9 @@ export async function POST(req: NextRequest) {
         });
       }
     }
+
+    invalidateMemoryCache("active-promotions");
+    if (applyPrices && productIds.length > 0) invalidateProductCaches();
 
     return NextResponse.json({ promotion });
   } catch (err) {

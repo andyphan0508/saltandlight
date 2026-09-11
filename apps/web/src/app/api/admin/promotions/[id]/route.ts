@@ -3,8 +3,16 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
 import { promotionUpdateSchema } from "@/lib/admin/schemas";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
+
+function invalidateProductCaches() {
+  invalidateMemoryCache("catalog-products-");
+  invalidateMemoryCache("homepage-featured-products-");
+  invalidateMemoryCache("product-detail-");
+  invalidateMemoryCache("related-products-");
+}
 
 export async function GET(
   req: NextRequest,
@@ -64,24 +72,26 @@ export async function PATCH(
           where: { productId: pId, isActive: true },
         });
 
-        for (const v of variants) {
-          const basePrice = v.compareAtPrice ? Number(v.compareAtPrice) : Number(v.price);
-          let newPrice = basePrice;
+        await Promise.all(
+          variants.map((v) => {
+            const basePrice = v.compareAtPrice ? Number(v.compareAtPrice) : Number(v.price);
+            let newPrice = basePrice;
 
-          if (updated.discountType === "percent") {
-            newPrice = Math.round((basePrice * (1 - numDiscount / 100)) / 1000) * 1000;
-          } else {
-            newPrice = Math.max(0, basePrice - numDiscount);
-          }
+            if (updated.discountType === "percent") {
+              newPrice = Math.round((basePrice * (1 - numDiscount / 100)) / 1000) * 1000;
+            } else {
+              newPrice = Math.max(0, basePrice - numDiscount);
+            }
 
-          await prisma.productVariant.update({
-            where: { id: v.id },
-            data: {
-              compareAtPrice: basePrice,
-              price: newPrice,
-            },
-          });
-        }
+            return prisma.productVariant.update({
+              where: { id: v.id },
+              data: {
+                compareAtPrice: basePrice,
+                price: newPrice,
+              },
+            });
+          })
+        );
 
         const updatedVariants = await prisma.productVariant.findMany({
           where: { productId: pId, isActive: true },
@@ -106,6 +116,9 @@ export async function PATCH(
       }
     }
 
+    invalidateMemoryCache("active-promotions");
+    if (applyPrices && updated.productIds.length > 0) invalidateProductCaches();
+
     return NextResponse.json({ promotion: updated });
   } catch (err) {
     return apiError(err, "Không thể cập nhật chương trình");
@@ -121,6 +134,7 @@ export async function DELETE(
     await prisma.promotion.delete({
       where: { id: params.id },
     });
+    invalidateMemoryCache("active-promotions");
     return NextResponse.json({ success: true });
   } catch (err) {
     return apiError(err, "Không thể xóa chương trình");

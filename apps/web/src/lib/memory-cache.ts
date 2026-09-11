@@ -6,6 +6,21 @@ interface CacheEntry<T> {
 // In-memory cache map shared across requests on the same worker isolate or Node process
 const memoryStore = new Map<string, CacheEntry<any>>();
 
+const MAX_ENTRIES = 1000;
+
+/** Bound memory use — sweep expired entries, then evict oldest-inserted if still over cap. */
+function gc(now: number) {
+  if (memoryStore.size < MAX_ENTRIES) return;
+  for (const [k, v] of memoryStore) {
+    if (v.expiresAt <= now) memoryStore.delete(k);
+  }
+  while (memoryStore.size >= MAX_ENTRIES) {
+    const oldestKey = memoryStore.keys().next().value;
+    if (oldestKey === undefined) break;
+    memoryStore.delete(oldestKey);
+  }
+}
+
 /**
  * Wraps an async fetcher with an in-memory cache and Stale-While-Revalidate fallback.
  * If the entry is fresh, returns it in 0ms without hitting the DB.
@@ -30,6 +45,7 @@ export async function withMemoryCache<T>(
       value,
       expiresAt: now + ttlSeconds * 1000,
     });
+    gc(now);
     return value;
   } catch (err) {
     if (entry && entry.value !== undefined) {

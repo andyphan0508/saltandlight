@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
+import { invalidateMemoryCache } from "@/lib/memory-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     });
 
     revalidateTag("banners");
+    invalidateMemoryCache("homepage-hero-banners");
 
     return NextResponse.json({ banner });
   } catch (err) {
@@ -70,6 +72,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     });
 
     revalidateTag("banners");
+    invalidateMemoryCache("homepage-hero-banners");
 
     return NextResponse.json({ success: true });
   } catch (err) {

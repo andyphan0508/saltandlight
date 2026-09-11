@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     const contacts = await prisma.contactSubmission.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
 
     return NextResponse.json({ contacts });
