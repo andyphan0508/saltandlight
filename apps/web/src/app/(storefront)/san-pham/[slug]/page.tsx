@@ -6,7 +6,7 @@ import { toPlain } from "@/lib/serialize";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductGrid } from "@/components/ProductGrid";
-import { ChevronRight, Sparkles, Check, CrossIcon } from "@/components/Icons";
+import { ChevronRight } from "@/components/Icons";
 import { ProductContentRenderer } from "@/components/ProductContentRenderer";
 
 export const revalidate = 120;
@@ -131,70 +131,15 @@ export default async function ProductDetailPage({
             productId={plain.id}
             productName={plain.name}
             variants={variants}
+            description={plain.description}
           />
 
-          {/* Product Highlights list */}
-          <div className="rounded-3xl bg-cream p-5 sm:p-6 border border-ink/10 space-y-3 w-full min-w-0">
-            <h4 className="text-xs font-black uppercase tracking-wider text-ink flex items-center gap-2">
-              <Sparkles size={16} className="text-gold-500" />
-              Điểm Nổi Bật Của Sản Phẩm
-            </h4>
-            <ul className="space-y-2 text-xs text-ink/75">
-              <li className="flex items-start gap-2.5">
-                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng mát.
-                </span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi giặt.
-                </span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi làm, đi nhóm.
-                </span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Đóng gói chỉn chu kèm bookmark Lời Chúa và thiệp cảm ơn.
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Description & Bible verse section */}
+          {/* Description & Block Content */}
           {plain.description && (
             <div className="border-t border-ink/10 pt-6 w-full min-w-0">
-              <h3 className="text-xs font-black uppercase tracking-wider text-ink mb-3">
-                Mô tả chi tiết &amp; Thông điệp
-              </h3>
               <ProductContentRenderer content={plain.description} />
             </div>
           )}
-
-          {/* Care & Washing guide */}
-          <div className="border-t border-ink/10 pt-6 space-y-3 w-full min-w-0">
-            <h3 className="text-xs font-black uppercase tracking-wider text-ink">
-              Hướng dẫn bảo quản áo cotton
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs text-ink/70">
-              <div className="rounded-2xl bg-white p-3.5 border border-ink/10 shadow-xs">
-                <p className="font-bold text-ink mb-1">🧼 Giặt áo</p>
-                <p className="leading-relaxed">
-                  Nên lộn trái áo khi giặt, không ngâm lâu trong chất tẩy mạnh.
-                </p>
-              </div>
-              <div className="rounded-2xl bg-white p-3.5 border border-ink/10 shadow-xs">
-                <p className="font-bold text-ink mb-1">👔 Phơi &amp; Ủi</p>
-                <p className="leading-relaxed">Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

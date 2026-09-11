@@ -51,6 +51,7 @@ const MANAGED_PAGES = [
   { slug: "gioi-thieu", label: "Giới thiệu", path: "/gioi-thieu" },
   { slug: "lien-he", label: "Liên hệ", path: "/lien-he" },
   { slug: "chinh-sach", label: "Chính sách", path: "/chinh-sach" },
+  { slug: "dat-theo-yeu-cau", label: "Đặt theo yêu cầu", path: "/dat-theo-yeu-cau" },
 ];
 
 const DEFAULT_PAGE_BLOCK_TYPES: Record<string, PageBlockTypeValue[]> = {
@@ -58,6 +59,7 @@ const DEFAULT_PAGE_BLOCK_TYPES: Record<string, PageBlockTypeValue[]> = {
   "gioi-thieu": ["PAGE_HERO", "STORY_BANNER", "RICH_TEXT_SECTIONS", "CTA_BANNER"],
   "lien-he": ["PAGE_HERO", "CONTACT_INFO", "CTA_BANNER"],
   "chinh-sach": ["PAGE_HERO", "FEATURE_CARDS", "RICH_TEXT_SECTIONS"],
+  "dat-theo-yeu-cau": ["PAGE_HERO", "FEATURE_CARDS", "RICH_TEXT_SECTIONS", "CTA_BANNER"],
 };
 
 export function ElementorEditorClient({

@@ -20,6 +20,11 @@ import {
   Star,
 } from "./Icons";
 
+import {
+  parseProductContent,
+  type ProductContentBlock,
+} from "@/lib/product-content";
+
 export interface VariantPlain {
   id: string;
   color: string | null;
@@ -33,10 +38,12 @@ export function ProductBuyBox({
   productId,
   productName,
   variants,
+  description,
 }: {
   productId: string;
   productName?: string;
   variants: VariantPlain[];
+  description?: string | null;
 }) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -59,6 +66,14 @@ export function ProductBuyBox({
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
+
+  const specsTables = useMemo(() => {
+    if (!description) return [];
+    const blocks = parseProductContent(description);
+    return blocks.filter(
+      (b): b is Extract<ProductContentBlock, { type: "specs_table" }> => b.type === "specs_table"
+    );
+  }, [description]);
 
   // Prevent scroll when modal is open and handle ESC key
   useEffect(() => {
@@ -193,13 +208,15 @@ export function ProductBuyBox({
             <span className="text-xs font-bold uppercase tracking-wider text-ink/70 flex-shrink-0">
               Kích thước: <strong className="text-ink">{size}</strong>
             </span>
-            <button
-              type="button"
-              onClick={() => setShowSizeModal(true)}
-              className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors flex-shrink-0 flex items-center gap-1 active-press"
-            >
-              <span>📏 Bảng size</span>
-            </button>
+            {specsTables.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSizeModal(true)}
+                className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors flex-shrink-0 flex items-center gap-1 active-press"
+              >
+                <span>📏 Bảng size</span>
+              </button>
+            )}
           </div>
           <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
             {sizes.map((s) => {
@@ -331,19 +348,19 @@ export function ProductBuyBox({
       </div>
 
       {/* Size Chart Modal rendered via Portal directly to body */}
-      {mounted &&
-        showSizeModal &&
+      {showSizeModal &&
+        specsTables.length > 0 &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
+              className="fixed inset-0 bg-ink/50 backdrop-blur-xs transition-opacity animate-fade-in"
               onClick={() => setShowSizeModal(false)}
               aria-hidden="true"
             />
             <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 my-auto max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
               <div className="flex items-center justify-between border-b border-ink/10 pb-4">
                 <h3 className="font-display text-lg font-black uppercase text-ink flex items-center gap-2">
-                  <span>📏 Bảng Quy Đổi Size Áo Chuẩn</span>
+                  <span>📏 Bảng Thông Số &amp; Quy Đổi Size</span>
                 </h3>
                 <button
                   type="button"
@@ -356,49 +373,26 @@ export function ProductBuyBox({
               </div>
 
               <div className="mt-4 space-y-4">
-                <p className="text-xs text-ink/70 leading-relaxed">
-                  Form áo Regular Fit tiêu chuẩn, dáng suông thoải mái cho cả nam &amp; nữ. Nếu thích
-                  mặc rộng rãi phong cách oversize, bạn có thể chọn tăng lên 1 size.
-                </p>
-
-                <div className="overflow-x-auto rounded-2xl border border-ink/10 shadow-xs">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-mint-100 text-ink font-bold uppercase">
-                      <tr>
-                        <th className="p-3">Size</th>
-                        <th className="p-3">Chiều cao</th>
-                        <th className="p-3">Cân nặng</th>
-                        <th className="p-3">Dài áo / Rộng áo</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-ink/10 bg-white">
-                      <tr>
-                        <td className="p-3 font-bold text-brand-forest">S</td>
-                        <td className="p-3">1m50 - 1m62</td>
-                        <td className="p-3">42 - 52 kg</td>
-                        <td className="p-3 font-mono">66cm / 48cm</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-bold text-brand-forest">M</td>
-                        <td className="p-3">1m60 - 1m70</td>
-                        <td className="p-3">53 - 62 kg</td>
-                        <td className="p-3 font-mono">69cm / 51cm</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-bold text-brand-forest">L</td>
-                        <td className="p-3">1m68 - 1m76</td>
-                        <td className="p-3">63 - 72 kg</td>
-                        <td className="p-3 font-mono">72cm / 54cm</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-bold text-brand-forest">XL</td>
-                        <td className="p-3">1m75 - 1m85</td>
-                        <td className="p-3">73 - 85 kg</td>
-                        <td className="p-3 font-mono">75cm / 57cm</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {specsTables.map((table, tIdx) => (
+                  <div key={table.id || tIdx} className="overflow-hidden rounded-2xl border border-ink/10 shadow-xs">
+                    <table className="w-full text-left text-xs">
+                      <tbody className="divide-y divide-ink/10 bg-white">
+                        {table.rows
+                          .filter((r) => r.label || r.value)
+                          .map((row, rIdx) => (
+                            <tr key={rIdx} className={rIdx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
+                              <td className="p-3 font-bold text-ink/80 w-1/3 sm:w-1/4 border-r border-ink/5">
+                                {row.label}
+                              </td>
+                              <td className="p-3 font-medium text-ink">
+                                {row.value}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
 
                 <div className="rounded-2xl bg-cream p-4 text-xs text-ink/70 border border-ink/5">
                   <p className="font-bold text-ink flex items-center gap-1.5">

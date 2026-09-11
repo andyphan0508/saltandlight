@@ -184,6 +184,6 @@ function renderCalloutIcon(iconName: string) {
     case "CrossIcon":
       return <CrossIcon size={20} className="text-brand-forest" />;
     default:
-      return "💡";
+      return iconName || "💡";
   }
 }

@@ -43,6 +43,13 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
   }
 
   if (style === "numbered") {
+    const gridCols =
+      content.items.length === 4
+        ? "sm:grid-cols-2 lg:grid-cols-4"
+        : content.items.length === 2
+        ? "sm:grid-cols-2"
+        : "sm:grid-cols-3";
+
     return (
       <div className="rounded-3xl bg-mint-50 p-8 sm:p-12 border border-mint-200/80 space-y-8">
         {(content.headline || content.subtitle) && (
@@ -53,7 +60,7 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
             {content.subtitle && <p className="text-xs text-ink/65 mt-1">{content.subtitle}</p>}
           </div>
         )}
-        <div className="grid gap-6 sm:grid-cols-3 text-center sm:text-left">
+        <div className={`grid gap-6 ${gridCols} text-center sm:text-left`}>
           {content.items.map((item, i) => (
             <div key={i} className="rounded-2xl bg-white p-6 shadow-sm border border-ink/5 space-y-2">
               {item.number && <span className="font-display text-2xl font-black text-brand-forest">{item.number}</span>}

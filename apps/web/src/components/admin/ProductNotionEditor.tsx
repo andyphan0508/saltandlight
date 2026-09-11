@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@saltandlight/ui";
 import {
@@ -43,11 +43,22 @@ export function ProductNotionEditor({
   const [blocks, setBlocks] = useState<ProductContentBlock[]>(() => parseProductContent(value));
   const [activeTab, setActiveTab] = useState<"blocks" | "preview" | "raw">("blocks");
   const [rawText, setRawText] = useState(value);
+  const lastSerializedRef = useRef(value);
+
+  // Sync back if external value changes (e.g. form loaded, reset or async fetched)
+  useEffect(() => {
+    if (value !== lastSerializedRef.current) {
+      lastSerializedRef.current = value;
+      setBlocks(parseProductContent(value));
+      setRawText(value);
+    }
+  }, [value]);
 
   // Sync back to parent when blocks change
   function updateBlocks(newBlocks: ProductContentBlock[]) {
     setBlocks(newBlocks);
     const serialized = serializeProductContent(newBlocks);
+    lastSerializedRef.current = serialized;
     setRawText(serialized);
     onChange(serialized);
   }
@@ -274,33 +285,120 @@ export function ProductNotionEditor({
           )}
 
           {/* Quick Add Palette Toolbar */}
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-3.5 space-y-2.5">
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-600">
-              + Thêm khối nội dung mới:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { type: "paragraph", label: "Đoạn văn", icon: FileText },
-                { type: "heading", label: "Tiêu đề mục", icon: Heading },
-                { type: "bullet_list", label: "Gạch đầu dòng", icon: List },
-                { type: "callout", label: "Khung chú thích", icon: Lightbulb },
-                { type: "quote", label: "Trích dẫn Lời Chúa", icon: Quote },
-                { type: "specs_table", label: "Bảng thông số", icon: Table },
-                { type: "image", label: "Ảnh minh họa", icon: ImagePlus },
-              ].map((btn) => {
-                const IconComp = btn.icon;
-                return (
-                  <button
-                    key={btn.type}
-                    type="button"
-                    onClick={() => addBlock(btn.type as ProductContentBlock["type"])}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:bg-mint-50 hover:text-brand-forest transition-all shadow-2xs text-left group"
-                  >
-                    <IconComp size={14} className="text-slate-400 group-hover:text-brand-forest transition-colors" />
-                    <span>{btn.label}</span>
-                  </button>
-                );
-              })}
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-3.5 space-y-3">
+            <div>
+              <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2">
+                + Thêm khối nội dung mới:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { type: "paragraph", label: "Đoạn văn", icon: FileText },
+                  { type: "heading", label: "Tiêu đề mục", icon: Heading },
+                  { type: "bullet_list", label: "Gạch đầu dòng", icon: List },
+                  { type: "callout", label: "Khung chú thích", icon: Lightbulb },
+                  { type: "quote", label: "Trích dẫn Lời Chúa", icon: Quote },
+                  { type: "specs_table", label: "Bảng thông số", icon: Table },
+                  { type: "image", label: "Ảnh minh họa", icon: ImagePlus },
+                ].map((btn) => {
+                  const IconComp = btn.icon;
+                  return (
+                    <button
+                      key={btn.type}
+                      type="button"
+                      onClick={() => addBlock(btn.type as ProductContentBlock["type"])}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:bg-mint-50 hover:text-brand-forest transition-all shadow-2xs text-left group"
+                    >
+                      <IconComp size={14} className="text-slate-400 group-hover:text-brand-forest transition-colors" />
+                      <span>{btn.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Template Presets */}
+            <div className="border-t border-slate-200/80 pt-2.5">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                ⚡ Nạp nhanh mẫu có sẵn:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ts = Date.now();
+                    const newBlocks: ProductContentBlock[] = [
+                      { id: `blk-${ts}-1`, type: "heading", level: 2, text: "Điểm Nổi Bật Của Sản Phẩm" },
+                      {
+                        id: `blk-${ts}-2`,
+                        type: "bullet_list",
+                        items: [
+                          "Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng mát.",
+                          "Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi giặt.",
+                          "Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi làm, đi nhóm.",
+                          "Đóng gói chỉn chu kèm bookmark Lời Chúa và thiệp cảm ơn.",
+                        ],
+                      },
+                    ];
+                    updateBlocks([...blocks, ...newBlocks]);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-forest/20 bg-mint-50/70 px-2.5 py-1.5 text-[11px] font-bold text-brand-forest hover:bg-mint-100 transition-colors"
+                >
+                  <Sparkles size={12} />
+                  <span>+ Mẫu Điểm nổi bật</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ts = Date.now();
+                    const newBlocks: ProductContentBlock[] = [
+                      { id: `blk-${ts}-1`, type: "heading", level: 2, text: "Hướng Dẫn Bảo Quản Áo" },
+                      {
+                        id: `blk-${ts}-2`,
+                        type: "callout",
+                        icon: "🧼",
+                        title: "Giặt áo",
+                        body: "Nên lộn trái áo khi giặt, không ngâm lâu trong chất tẩy mạnh.",
+                        variant: "mint",
+                      },
+                      {
+                        id: `blk-${ts}-3`,
+                        type: "callout",
+                        icon: "👔",
+                        title: "Phơi & Ủi",
+                        body: "Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.",
+                        variant: "blue",
+                      },
+                    ];
+                    updateBlocks([...blocks, ...newBlocks]);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-forest/20 bg-mint-50/70 px-2.5 py-1.5 text-[11px] font-bold text-brand-forest hover:bg-mint-100 transition-colors"
+                >
+                  <span>🧼 + Mẫu Hướng dẫn giặt &amp; phơi</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ts = Date.now();
+                    const newBlocks: ProductContentBlock[] = [
+                      { id: `blk-${ts}-1`, type: "heading", level: 2, text: "Bảng Quy Đổi Size Áo" },
+                      {
+                        id: `blk-${ts}-2`,
+                        type: "specs_table",
+                        rows: [
+                          { label: "Size S", value: "1m50 - 1m62 | 42 - 52 kg (Dài 66cm / Rộng 48cm)" },
+                          { label: "Size M", value: "1m60 - 1m70 | 53 - 62 kg (Dài 69cm / Rộng 51cm)" },
+                          { label: "Size L", value: "1m68 - 1m76 | 63 - 72 kg (Dài 72cm / Rộng 54cm)" },
+                          { label: "Size XL", value: "1m75 - 1m85 | 73 - 85 kg (Dài 75cm / Rộng 57cm)" },
+                        ],
+                      },
+                    ];
+                    updateBlocks([...blocks, ...newBlocks]);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-forest/20 bg-mint-50/70 px-2.5 py-1.5 text-[11px] font-bold text-brand-forest hover:bg-mint-100 transition-colors"
+                >
+                  <span>📏 + Mẫu Bảng size áo</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -464,6 +562,10 @@ function BlockFieldEditor({
                 <option value="ShieldCheck">ShieldCheck (Bảo hành)</option>
                 <option value="Star">Star (Ngôi sao)</option>
                 <option value="CrossIcon">Cross (Thánh giá)</option>
+                <option value="🧼">🧼 Giặt áo / Vệ sinh</option>
+                <option value="👔">👔 Phơi &amp; Ủi / Form dáng</option>
+                <option value="💡">💡 Mẹo hay / Lưu ý</option>
+                <option value="🌿">🌿 Chất liệu tự nhiên</option>
               </select>
             </div>
             <div>

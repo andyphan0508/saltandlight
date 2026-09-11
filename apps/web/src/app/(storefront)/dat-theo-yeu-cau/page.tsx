@@ -1,56 +1,84 @@
 import { ContactForm } from "@/components/ContactForm";
-import { Gift, ShieldCheck, Sparkles, Check, Phone } from "@/components/Icons";
+import { Check, Phone } from "@/components/Icons";
+import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
+import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
+import { toPlain } from "@/lib/serialize";
 
 export const metadata = {
   title: "Đặt may & in theo yêu cầu · Salt & Light",
   description: "Dịch vụ thiết kế và may áo đồng phục Cơ Đốc cho Ban Thanh Niên, Trại Hè, Hội Thánh.",
 };
 
-export const revalidate = 300;
+export const revalidate = 60;
 
-const STEPS = [
-  { step: "01", title: "Tiếp nhận ý tưởng", desc: "Gửi thông tin số lượng, ý tưởng câu gốc hoặc logo Hội thánh." },
-  { step: "02", title: "Thiết kế Demo", desc: "Đội ngũ Salt & Light lên market mẫu 2D/3D miễn phí cho bạn duyệt." },
-  { step: "03", title: "Sản xuất & Kiểm tra", desc: "Cắt may vải 100% cotton, in DTG/lụa cao cấp chuẩn nét từng chi tiết." },
-  { step: "04", title: "Giao hàng tận nơi", desc: "Đóng gói theo từng size cá nhân và giao hàng toàn quốc đúng hẹn." },
+const DEFAULT_CUSTOM_ORDER_BLOCKS: PageBlockData[] = [
+  {
+    id: "default-custom-order-hero",
+    type: "PAGE_HERO",
+    content: {
+      icon: "Gift",
+      eyebrow: "Dành Cho Hội Thánh & Nhóm Bạn",
+      title: "Đặt May Áo & Quà Tặng Theo Yêu Cầu",
+      subtitle:
+        "Đồng phục Trại Hè, Lễ Phục Sinh, Giáng Sinh, Ban Thanh Niên, Ca Đoàn. Chất lượng vải 100% Cotton mềm mịn, bảng giá chiết khấu đặc quyền từ 10 áo.",
+    },
+  },
+  {
+    id: "default-custom-order-steps",
+    type: "FEATURE_CARDS",
+    content: {
+      style: "numbered",
+      headline: "Quy Trình 4 Bước Đơn Giản",
+      items: [
+        {
+          number: "01",
+          title: "Tiếp nhận ý tưởng",
+          description: "Gửi thông tin số lượng, ý tưởng câu gốc hoặc logo Hội thánh.",
+        },
+        {
+          number: "02",
+          title: "Thiết kế Demo",
+          description: "Đội ngũ Salt & Light lên market mẫu 2D/3D miễn phí cho bạn duyệt.",
+        },
+        {
+          number: "03",
+          title: "Sản xuất & Kiểm tra",
+          description: "Cắt may vải 100% cotton, in DTG/lụa cao cấp chuẩn nét từng chi tiết.",
+        },
+        {
+          number: "04",
+          title: "Giao hàng tận nơi",
+          description: "Đóng gói theo từng size cá nhân và giao hàng toàn quốc đúng hẹn.",
+        },
+      ],
+    },
+  },
 ];
 
-export default function CustomOrderPage() {
+export default async function CustomOrderPage({
+  searchParams,
+}: {
+  searchParams?: { editor?: string };
+}) {
+  let blocks: PageBlockData[] = [];
+  try {
+    const isEditor = searchParams?.editor === "1";
+    const fetched = isEditor
+      ? await listPageBlocks("dat-theo-yeu-cau")
+      : await getCachedPageBlocks("dat-theo-yeu-cau");
+    blocks = toPlain(fetched);
+  } catch (err) {
+    console.error("CustomOrderPage data fetching error:", err);
+  }
+
+  const effectiveBlocks = blocks && blocks.length > 0 ? blocks : DEFAULT_CUSTOM_ORDER_BLOCKS;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-16 animate-slide-up-fade">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-brand-forest shadow-sm">
-          <Gift size={28} />
-        </div>
-        <span className="text-xs font-black uppercase tracking-widest text-brand-forest">
-          Dành Cho Hội Thánh &amp; Nhóm Bạn
-        </span>
-        <h1 className="font-display text-3xl sm:text-4xl font-black uppercase text-ink">
-          Đặt May Áo &amp; Quà Tặng Theo Yêu Cầu
-        </h1>
-        <p className="text-sm text-ink/70 max-w-xl mx-auto leading-relaxed">
-          Đồng phục Trại Hè, Lễ Phục Sinh, Giáng Sinh, Ban Thanh Niên, Ca Đoàn. Chất lượng vải 100% Cotton mềm mịn, bảng giá chiết khấu đặc quyền từ 10 áo.
-        </p>
-      </div>
-
-      {/* 4 Steps Process */}
-      <div className="rounded-3xl bg-mint-50 p-8 sm:p-10 border border-mint-200 space-y-6">
-        <div className="text-center">
-          <h2 className="font-display text-xl font-black uppercase text-ink">
-            Quy Trình 4 Bước Đơn Giản
-          </h2>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <div key={s.step} className="rounded-2xl bg-white p-5 shadow-sm border border-ink/5 space-y-2">
-              <span className="font-display text-2xl font-black text-brand-forest">{s.step}</span>
-              <h3 className="font-bold text-xs uppercase text-ink">{s.title}</h3>
-              <p className="text-xs text-ink/65 leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* CMS Blocks (Hero, Steps, etc.) */}
+      {effectiveBlocks.map((block) => (
+        <BlockRenderer key={block.id} block={block} />
+      ))}
 
       {/* Form Container */}
       <div className="grid gap-10 lg:grid-cols-12 items-start">
