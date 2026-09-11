@@ -114,11 +114,11 @@ export function MobileDrawer({
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 min-w-0 flex-1 active-press"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white font-black text-sm ring-2 ring-mint-200">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white font-bold text-sm ring-2 ring-mint-200">
                     {customer.fullName.trim().charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black text-ink truncate">{customer.fullName}</p>
+                    <p className="text-xs font-bold text-ink truncate">{customer.fullName}</p>
                     <p className="text-[10px] text-brand-forest font-semibold">Đơn hàng của tôi →</p>
                   </div>
                 </Link>
@@ -155,7 +155,7 @@ export function MobileDrawer({
           {categories.length > 0 && (
             <div>
               <div className="mb-2.5 flex items-center justify-between px-1">
-                <span className="text-[11px] font-black uppercase tracking-wider text-ink/50">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-ink/50">
                   Khám phá danh mục
                 </span>
                 <Link
@@ -204,7 +204,7 @@ export function MobileDrawer({
 
           {/* Primary Navigation Links */}
           <div className="space-y-1">
-            <div className="mb-1.5 px-1 text-[11px] font-black uppercase tracking-wider text-ink/50">
+            <div className="mb-1.5 px-1 text-[11px] font-bold uppercase tracking-wider text-ink/50">
               Điều hướng chính
             </div>
 
@@ -230,7 +230,7 @@ export function MobileDrawer({
 
           {/* Customer Service & Policies */}
           <div className="rounded-2xl border border-ink/10 bg-white p-4 space-y-3 shadow-xs">
-            <div className="text-[11px] font-black uppercase tracking-wider text-ink/50">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-ink/50">
               Dịch vụ &amp; Hỗ trợ
             </div>
 

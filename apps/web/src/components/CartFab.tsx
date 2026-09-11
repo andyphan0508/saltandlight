@@ -120,7 +120,7 @@ export function CartFab({ siteSettings }: CartFabProps) {
             <ShoppingBag size={20} className="transition-transform duration-300 group-hover:scale-110" />
             {cartCount > 0 && (
               <span
-                className={`absolute -right-2.5 -top-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1.5 text-[10px] font-black text-white shadow-md border-2 border-ink transition-transform duration-300 ${
+                className={`absolute -right-2.5 -top-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1.5 text-[10px] font-bold text-white shadow-md border-2 border-ink transition-transform duration-300 ${
                   bumping ? "scale-125 animate-bounce-soft" : "scale-100"
                 }`}
               >

@@ -121,7 +121,7 @@ export default async function ProductDetailPage({
               )}
             </div>
 
-            <h1 className="mt-3 font-display text-2xl sm:text-3xl font-black uppercase text-ink leading-tight">
+            <h1 className="mt-3 font-display text-2xl sm:text-3xl font-bold uppercase text-ink leading-tight">
               {plain.name}
             </h1>
           </div>
@@ -148,10 +148,10 @@ export default async function ProductDetailPage({
         <section className="border-t border-ink/10 pt-16 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-black uppercase tracking-widest text-brand-forest">
+              <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">
                 Gợi ý cho bạn
               </span>
-              <h2 className="font-display text-2xl font-black uppercase text-ink mt-1">
+              <h2 className="font-display text-2xl font-bold uppercase text-ink mt-1">
                 Sản Phẩm Cùng Bộ Sưu Tập
               </h2>
             </div>

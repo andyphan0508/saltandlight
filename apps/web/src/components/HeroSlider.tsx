@@ -139,7 +139,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
                 {/* Badge */}
                 {slide.badge && (
                   <div
-                    className={`inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white border border-white/20 mb-2.5 sm:mb-4 shadow-sm ${
+                    className={`inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white border border-white/20 mb-2.5 sm:mb-4 shadow-sm ${
                       index === current ? "animate-pop-in" : ""
                     }`}
                   >
@@ -150,7 +150,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
 
                 {/* Big Vietnamese Headline */}
                 <h2
-                  className={`font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight drop-shadow-md max-w-2xl ${
+                  className={`font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-white leading-tight drop-shadow-md max-w-2xl ${
                     index === current ? "animate-slide-up-fade" : ""
                   }`}
                 >
@@ -176,7 +176,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
                 >
                   <Link
                     href={slide.linkUrl || "/san-pham"}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-white text-ink px-6 py-3 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-black uppercase tracking-wider shadow-xl hover:bg-mint-100 hover:scale-105 transition-all duration-300 active-press group"
+                    className="inline-flex items-center gap-2.5 rounded-full bg-white text-ink px-6 py-3 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-xl hover:bg-mint-100 hover:scale-105 transition-all duration-300 active-press group"
                   >
                     <span>Khám phá ngay</span>
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />

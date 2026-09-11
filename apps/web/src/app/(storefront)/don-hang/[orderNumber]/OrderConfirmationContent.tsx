@@ -52,13 +52,13 @@ export function OrderConfirmationContent({
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shadow-md">
           <Check size={38} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-black uppercase text-ink">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase text-ink">
           Đặt Hàng Thành Công!
         </h1>
         <p className="text-sm text-ink/70">
           Cảm ơn bạn đã lựa chọn Salt &amp; Light. Mã đơn hàng của bạn là:
         </p>
-        <div className="inline-block rounded-full bg-ink px-6 py-2 text-sm font-black uppercase tracking-wider text-white shadow-sm">
+        <div className="inline-block rounded-full bg-ink px-6 py-2 text-sm font-bold uppercase tracking-wider text-white shadow-sm">
           #{orderNumber}
         </div>
       </div>
@@ -77,7 +77,7 @@ export function OrderConfirmationContent({
         /* VietQR Payment Card */
         <div className="rounded-3xl bg-white p-6 sm:p-10 shadow-card border border-ink/5 space-y-6 text-left">
           <div className="border-b border-ink/10 pb-4 text-center sm:text-left">
-            <h2 className="font-display text-lg font-black uppercase text-ink flex items-center justify-center sm:justify-start gap-2">
+            <h2 className="font-display text-lg font-bold uppercase text-ink flex items-center justify-center sm:justify-start gap-2">
               <ShieldCheck size={20} className="text-brand-forest" />
               Thanh Toán Chuyển Khoản Ngân Hàng (VietQR)
             </h2>
@@ -135,7 +135,7 @@ export function OrderConfirmationContent({
 
       {/* Next Steps Timeline */}
       <div className="rounded-3xl bg-mint-50/70 p-6 sm:p-8 border border-mint-200/60 text-left space-y-4">
-        <h3 className="font-display text-sm font-black uppercase text-ink">
+        <h3 className="font-display text-sm font-bold uppercase text-ink">
           Quy Trình Xử Lý Đơn Hàng
         </h3>
         <div className="grid gap-4 sm:grid-cols-3 text-xs text-ink/75">
@@ -198,7 +198,7 @@ function CopyField({
     <div className="rounded-2xl border border-ink/10 bg-white p-3.5 flex items-center justify-between shadow-sm">
       <div>
         <span className="text-[11px] font-semibold text-ink/50 block uppercase tracking-wider">{label}</span>
-        <span className={`text-sm font-black ${highlight ? "text-brand-forest text-base" : "text-ink"}`}>
+        <span className={`text-sm font-bold ${highlight ? "text-brand-forest text-base" : "text-ink"}`}>
           {value}
         </span>
       </div>

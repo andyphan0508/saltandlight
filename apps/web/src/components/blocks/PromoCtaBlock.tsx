@@ -24,7 +24,7 @@ export function PromoCtaBlock({ content }: { content: PromoCtaContent }) {
               {content.badge}
             </span>
           )}
-          <h2 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">{content.headline}</h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink">{content.headline}</h2>
           <p className="text-sm text-ink/75 leading-relaxed max-w-2xl">{content.body}</p>
           {content.bullets && content.bullets.length > 0 && (
             <div className="flex flex-wrap gap-4 pt-2 text-xs font-semibold text-ink/70">

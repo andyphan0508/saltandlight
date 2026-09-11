@@ -126,7 +126,7 @@ export function ContactSubmissionsManager({
     <div className="space-y-6">
       {/* 1. Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
           Quản Lý Yêu Cầu Liên Hệ &amp; Tư Vấn
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -153,7 +153,7 @@ export function ContactSubmissionsManager({
               {countNew}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900">{countNew}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{countNew}</div>
         </button>
 
         <button
@@ -173,7 +173,7 @@ export function ContactSubmissionsManager({
               {countInProgress}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900">{countInProgress}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{countInProgress}</div>
         </button>
 
         <button
@@ -193,7 +193,7 @@ export function ContactSubmissionsManager({
               {countClosed}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900">{countClosed}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{countClosed}</div>
         </button>
       </div>
 

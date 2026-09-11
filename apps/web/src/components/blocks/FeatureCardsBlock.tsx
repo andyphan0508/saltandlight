@@ -55,7 +55,7 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
         {(content.headline || content.subtitle) && (
           <div className="text-center max-w-xl mx-auto">
             {content.headline && (
-              <h2 className="font-display text-2xl font-black uppercase text-ink">{content.headline}</h2>
+              <h2 className="font-display text-2xl font-bold uppercase text-ink">{content.headline}</h2>
             )}
             {content.subtitle && <p className="text-xs text-ink/65 mt-1">{content.subtitle}</p>}
           </div>
@@ -63,7 +63,7 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
         <div className={`grid gap-6 ${gridCols} text-center sm:text-left`}>
           {content.items.map((item, i) => (
             <div key={i} className="rounded-2xl bg-white p-6 shadow-sm border border-ink/5 space-y-2">
-              {item.number && <span className="font-display text-2xl font-black text-brand-forest">{item.number}</span>}
+              {item.number && <span className="font-display text-2xl font-bold text-brand-forest">{item.number}</span>}
               <h3 className="font-bold text-sm uppercase text-ink">{item.title}</h3>
               <p className="text-xs text-ink/70 leading-relaxed">{item.description}</p>
             </div>

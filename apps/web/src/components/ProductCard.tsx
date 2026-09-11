@@ -44,7 +44,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center bg-mint-100/60 text-center p-3">
-              <span className="font-display text-xs font-black uppercase tracking-wider text-ink/40">
+              <span className="font-display text-xs font-bold uppercase tracking-wider text-ink/40">
                 Salt &amp; Light
               </span>
               <span className="text-[10px] text-ink/30 mt-0.5">Faith Apparel</span>
@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           {/* Badges on Top Left */}
           <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
             {product.isFeatured && (
-              <span className="inline-block rounded-full bg-brand-forest text-mint-100 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider shadow-xs">
+              <span className="inline-block rounded-full bg-brand-forest text-mint-100 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-xs">
                 ★ Nổi bật
               </span>
             )}
@@ -109,7 +109,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
       {/* Pricing - compact */}
       <div className="mt-2 border-t border-ink/5 pt-2 px-0.5 flex items-baseline justify-between">
         <div className="flex flex-wrap items-baseline gap-1">
-          <span className="text-xs sm:text-sm font-black text-ink">{formatVND(product.minPrice)}</span>
+          <span className="text-xs sm:text-sm font-bold text-ink">{formatVND(product.minPrice)}</span>
           {product.maxCompareAtPrice && (
             <span className="text-[10px] sm:text-[11px] text-ink/40 line-through">
               {formatVND(product.maxCompareAtPrice)}

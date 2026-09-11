@@ -40,7 +40,7 @@ export default async function AboutPage({
       ) : (
         <div className="border-b border-amber-200/60 bg-[#FDF6D8] py-10 sm:py-14 text-center">
           <div className="mx-auto max-w-4xl px-4">
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-ink">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-ink">
               Về Chúng Tôi
             </h1>
             <nav className="mt-3 flex items-center justify-center gap-2 text-xs font-medium text-ink/60">
@@ -65,7 +65,7 @@ export default async function AboutPage({
         </p>
 
         {/* Main Heading */}
-        <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink tracking-tight mb-5">
+        <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-5">
           Đó Cũng Là Lí Do Salt &amp; Light Được Ra Đời...
         </h2>
 

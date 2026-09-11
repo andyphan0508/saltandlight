@@ -84,7 +84,7 @@ export default async function CustomOrderPage({
       <div className="grid gap-10 lg:grid-cols-12 items-start">
         <div className="space-y-6 lg:col-span-5">
           <div className="rounded-3xl bg-white p-6 shadow-card border border-ink/5 space-y-4">
-            <h3 className="font-display text-base font-black uppercase text-ink">
+            <h3 className="font-display text-base font-bold uppercase text-ink">
               Cam Kết Từ Salt &amp; Light
             </h3>
             <ul className="space-y-3 text-xs text-ink/75">
@@ -114,7 +114,7 @@ export default async function CustomOrderPage({
         </div>
 
         <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-7">
-          <h2 className="font-display text-base font-black uppercase text-ink mb-6">
+          <h2 className="font-display text-base font-bold uppercase text-ink mb-6">
             Gửi Thông Tin Yêu Cầu Báo Giá
           </h2>
           <ContactForm type="custom_order" />

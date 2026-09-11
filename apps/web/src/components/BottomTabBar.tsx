@@ -77,7 +77,7 @@ function TabLink({
       <span className="relative">
         {children}
         {!!badge && badge > 0 && (
-          <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[9px] font-black text-white shadow-xs">
+          <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[9px] font-bold text-white shadow-xs">
             {badge}
           </span>
         )}

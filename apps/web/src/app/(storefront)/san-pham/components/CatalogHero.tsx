@@ -32,7 +32,7 @@ export function CatalogHero({
         )}
       </nav>
 
-      <h1 className="mt-3 font-display text-3xl font-black uppercase text-ink sm:text-4xl">
+      <h1 className="mt-3 font-display text-3xl font-bold uppercase text-ink sm:text-4xl">
         {title}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-ink/60">

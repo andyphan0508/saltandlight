@@ -78,7 +78,7 @@ function LoginForm() {
             </div>
           </div>
 
-          <h1 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wider text-ink">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-wider text-ink">
             Salt &amp; Light
           </h1>
 

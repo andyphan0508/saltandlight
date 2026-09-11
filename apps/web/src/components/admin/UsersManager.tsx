@@ -144,7 +144,7 @@ export function UsersManager({
             <p className="text-xs font-bold uppercase text-slate-400">
               Tổng thành viên
             </p>
-            <p className="text-xl font-black text-ink">{users.length}</p>
+            <p className="text-xl font-bold text-ink">{users.length}</p>
           </div>
         </div>
 
@@ -156,7 +156,7 @@ export function UsersManager({
             <p className="text-xs font-bold uppercase text-slate-400">
               Đang hoạt động
             </p>
-            <p className="text-xl font-black text-ink">{activeCount}</p>
+            <p className="text-xl font-bold text-ink">{activeCount}</p>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export function UsersManager({
           </div>
           <div>
             <p className="text-xs font-bold uppercase text-slate-400">Chủ shop (Owner)</p>
-            <p className="text-xl font-black text-ink">{ownerCount}</p>
+            <p className="text-xl font-bold text-ink">{ownerCount}</p>
           </div>
         </div>
       </div>

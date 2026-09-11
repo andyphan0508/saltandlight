@@ -71,7 +71,7 @@ export default async function DashboardPage() {
               <Sparkles size={13} />
               <span>Bảng Quản Trị Salt &amp; Light 2026</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
               Chào mừng trở lại, Quản trị viên! 👋
             </h1>
             <p className="text-xs sm:text-sm text-white/75 max-w-xl leading-relaxed">
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/admin/products/new"
-              className="inline-flex items-center gap-2 rounded-full bg-mint-300 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-ink hover:bg-white transition-all shadow-sm active:scale-95"
+              className="inline-flex items-center gap-2 rounded-full bg-mint-300 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-ink hover:bg-white transition-all shadow-sm active:scale-95"
             >
               <Plus size={15} />
               <span>Thêm sản phẩm mới</span>
@@ -153,7 +153,7 @@ export default async function DashboardPage() {
                 Chuẩn Elementor WYSIWYG
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Trình Dựng Trang Trực Quan (Live Elementor Editor)
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -183,7 +183,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
             <Link
               href="/admin/editor"
-              className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-brand-forest px-6 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-brand-forest/90 transition-all shadow-md shadow-brand-forest/20 active:scale-95"
+              className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-brand-forest px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-brand-forest/90 transition-all shadow-md shadow-brand-forest/20 active:scale-95"
             >
               <Sparkles size={16} />
               <span>Mở Elementor Editor ngay</span>
@@ -274,7 +274,7 @@ export default async function DashboardPage() {
                       <td className="py-3 px-2">
                         <Link
                           href={`/admin/orders/${o.id}`}
-                          className="font-black text-ink group-hover:text-brand-forest"
+                          className="font-bold text-ink group-hover:text-brand-forest"
                         >
                           {o.orderNumber}
                         </Link>
@@ -283,7 +283,7 @@ export default async function DashboardPage() {
                         <div className="font-bold text-slate-700">{o.customer.fullName}</div>
                         <div className="text-[11px] text-slate-400">{o.customer.phone}</div>
                       </td>
-                      <td className="py-3 px-2 font-black text-brand-forest">
+                      <td className="py-3 px-2 font-bold text-brand-forest">
                         {formatVND(Number(o.total))}
                       </td>
                       <td className="py-3 px-2">
@@ -332,7 +332,7 @@ export default async function DashboardPage() {
                 className="flex items-center gap-3 rounded-2xl p-2.5 hover:bg-slate-50 transition-colors"
               >
                 <span
-                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-xs font-black ${
+                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                     i === 0
                       ? "bg-amber-100 text-amber-700 border border-amber-200"
                       : i === 1
@@ -350,7 +350,7 @@ export default async function DashboardPage() {
                   </span>
                   <span className="text-[11px] text-slate-400">Thời trang Cơ Đốc</span>
                 </div>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-black text-emerald-700 border border-emerald-100">
+                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-100">
                   {p.quantity} đã bán
                 </span>
               </div>
@@ -371,7 +371,7 @@ export default async function DashboardPage() {
                 <Wallet size={20} />
               </span>
               <div className="flex-1 text-xs">
-                <span className="font-black text-slate-900 block text-sm">
+                <span className="font-bold text-slate-900 block text-sm">
                   {stats.pendingPayments} giao dịch chờ xác nhận VietQR
                 </span>
                 <span className="text-slate-600 mt-0.5 block">
@@ -384,7 +384,7 @@ export default async function DashboardPage() {
 
           {lowStockVariants.length > 0 && (
             <div className="rounded-3xl border border-rose-200 bg-rose-50/60 p-6 shadow-xs">
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-rose-700">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-700">
                 <AlertTriangle size={16} /> Cảnh báo sắp hết hàng ({lowStockVariants.length} phân loại)
               </div>
               <div className="mt-3 space-y-2">
@@ -397,7 +397,7 @@ export default async function DashboardPage() {
                     <span className="truncate font-semibold text-slate-700">
                       {v.product.name} ({[v.color, v.size].filter(Boolean).join(" - ")})
                     </span>
-                    <span className="font-black text-rose-600">chỉ còn {v.stockQuantity}</span>
+                    <span className="font-bold text-rose-600">chỉ còn {v.stockQuantity}</span>
                   </Link>
                 ))}
               </div>

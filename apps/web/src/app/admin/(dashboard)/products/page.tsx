@@ -196,7 +196,7 @@ export default async function ProductsPage({
                       {p.category?.name ?? "—"}
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="font-black text-brand-forest text-sm">
+                      <div className="font-bold text-brand-forest text-sm">
                         {formatVND(minPrice)}
                       </div>
                       {discount && (

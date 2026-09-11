@@ -243,7 +243,7 @@ export function Header({
             >
               <Heart size={20} />
               {wishlistHydrated && wishlistCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-black text-white shadow-sm">
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-bold text-white shadow-sm">
                   {wishlistCount}
                 </span>
               )}
@@ -257,7 +257,7 @@ export function Header({
               title={customer ? `Xin chào, ${customer.fullName}` : "Đăng nhập tài khoản"}
             >
               {customer ? (
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-white text-[11px] font-black shadow-xs ring-2 ring-mint-200">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-white text-[11px] font-bold shadow-xs ring-2 ring-mint-200">
                   {customer.fullName.trim().charAt(0).toUpperCase()}
                 </div>
               ) : (

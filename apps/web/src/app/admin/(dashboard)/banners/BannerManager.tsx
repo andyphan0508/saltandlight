@@ -302,7 +302,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
 
               {/* Badges on preview */}
               <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 backdrop-blur-md text-white border border-white/20">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md text-white border border-white/20">
                   <Sparkles size={11} className="text-amber-300" />
                   {b.badge || "Slide"}
                 </span>
@@ -329,7 +329,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
 
               {/* Content overlay */}
               <div className="absolute inset-x-0 bottom-0 p-4">
-                <h3 className="text-base font-black text-white leading-tight drop-shadow-sm line-clamp-1">
+                <h3 className="text-base font-bold text-white leading-tight drop-shadow-sm line-clamp-1">
                   {b.title}
                 </h3>
                 {b.subtitle && (
@@ -557,7 +557,7 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
                       <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md mb-1">
                         {badge || "Bộ sưu tập"}
                       </span>
-                      <h4 className="text-sm font-black leading-tight">{title || "Tiêu đề banner"}</h4>
+                      <h4 className="text-sm font-bold leading-tight">{title || "Tiêu đề banner"}</h4>
                       {subtitle && <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">{subtitle}</p>}
                     </div>
                   </div>

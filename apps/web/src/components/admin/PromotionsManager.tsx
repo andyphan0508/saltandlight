@@ -217,7 +217,7 @@ export function PromotionsManager({
       {/* Action Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-display text-lg font-black uppercase text-ink">
+          <h2 className="font-display text-lg font-bold uppercase text-ink">
             Danh Sách Chương Trình ({promotions.length})
           </h2>
           <p className="text-xs text-ink/60 mt-0.5">
@@ -240,7 +240,7 @@ export function PromotionsManager({
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mint-100 text-brand-forest mb-4">
             <Tag size={24} />
           </div>
-          <h3 className="font-display font-black uppercase text-sm text-ink">
+          <h3 className="font-display font-bold uppercase text-sm text-ink">
             Chưa có chương trình giảm giá nào
           </h3>
           <p className="text-xs text-ink/60 mt-1 max-w-sm mx-auto">
@@ -283,18 +283,18 @@ export function PromotionsManager({
                     </span>
 
                     {promo.badge && (
-                      <span className="rounded-full bg-sale-light px-2 py-0.5 text-[10px] font-black text-sale uppercase">
+                      <span className="rounded-full bg-sale-light px-2 py-0.5 text-[10px] font-bold text-sale uppercase">
                         {promo.badge}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="mt-3 font-display font-black text-base uppercase text-ink line-clamp-1">
+                  <h3 className="mt-3 font-display font-bold text-base uppercase text-ink line-clamp-1">
                     {promo.name}
                   </h3>
 
                   <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-brand-forest">
+                    <span className="text-2xl font-bold text-brand-forest">
                       {isPercent ? `Giảm ${promo.discountValue}%` : `Giảm ${formatVND(Number(promo.discountValue))}`}
                     </span>
                   </div>
@@ -368,7 +368,7 @@ export function PromotionsManager({
           <div className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
-              <h3 className="font-display font-black uppercase text-base text-ink flex items-center gap-2">
+              <h3 className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
                 <Tag size={18} className="text-brand-forest" />
                 {editingPromo ? "Chỉnh Sửa Chương Trình Giảm Giá" : "Tạo Chương Trình Giảm Giá Mới"}
               </h3>

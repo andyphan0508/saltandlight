@@ -109,7 +109,7 @@ export function Sidebar({
             />
           </div>
         </Link>
-        <span className="rounded-md bg-mint-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-brand-forest border border-mint-200">
+        <span className="rounded-md bg-mint-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-forest border border-mint-200">
           Admin
         </span>
       </div>

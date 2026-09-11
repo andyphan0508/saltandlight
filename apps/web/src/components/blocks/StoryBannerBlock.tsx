@@ -20,7 +20,7 @@ export function StoryBannerBlock({ content }: { content: StoryBannerContent }) {
             <BlockIcon name={content.icon} size={24} />
           </div>
 
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight">
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight">
             &ldquo;{content.quote}&rdquo;
           </h2>
 

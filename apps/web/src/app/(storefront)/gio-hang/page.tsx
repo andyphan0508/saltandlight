@@ -184,7 +184,7 @@ export default function CartPage() {
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
           <ShoppingBag size={36} />
         </div>
-        <h1 className="mt-6 font-display text-2xl font-black uppercase text-ink">
+        <h1 className="mt-6 font-display text-2xl font-bold uppercase text-ink">
           Giỏ hàng của bạn đang trống
         </h1>
         <p className="mt-2 text-sm text-ink/60">
@@ -205,7 +205,7 @@ export default function CartPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
       {/* Title */}
       <div className="border-b border-ink/10 pb-4">
-        <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink">
           Giỏ Hàng Của Bạn ({totalItemCount} món)
         </h1>
       </div>
@@ -311,7 +311,7 @@ export default function CartPage() {
 
               {/* Line Total */}
               <div className="text-right flex-shrink-0">
-                <span className="text-sm font-black text-ink">{formatVND(line.lineTotal)}</span>
+                <span className="text-sm font-bold text-ink">{formatVND(line.lineTotal)}</span>
               </div>
             </div>
           ))}
@@ -328,7 +328,7 @@ export default function CartPage() {
 
         {/* Order Summary Box */}
         <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-5 space-y-6">
-          <h2 className="font-display text-lg font-black uppercase text-ink">
+          <h2 className="font-display text-lg font-bold uppercase text-ink">
             Tóm Tắt Đơn Hàng
           </h2>
 
@@ -357,8 +357,8 @@ export default function CartPage() {
             )}
 
             <div className="border-t border-ink/10 pt-4 flex justify-between items-baseline">
-              <span className="font-display font-black text-base uppercase text-ink">Tổng thanh toán</span>
-              <span className="font-display font-black text-2xl text-ink">
+              <span className="font-display font-bold text-base uppercase text-ink">Tổng thanh toán</span>
+              <span className="font-display font-bold text-2xl text-ink">
                 {formatVND(
                   couponApplied
                     ? Math.round((quote?.total ?? (subtotal + (quote?.shippingFee ?? 0))) - subtotal * 0.1)

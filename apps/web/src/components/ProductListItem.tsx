@@ -41,7 +41,7 @@ export function ProductListItem({ product }: { product: ProductCardData }) {
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-base font-black text-ink sm:text-lg">{formatVND(product.minPrice)}</span>
+            <span className="text-base font-bold text-ink sm:text-lg">{formatVND(product.minPrice)}</span>
             {product.maxCompareAtPrice && (
               <span className="text-xs text-ink/40 line-through">{formatVND(product.maxCompareAtPrice)}</span>
             )}

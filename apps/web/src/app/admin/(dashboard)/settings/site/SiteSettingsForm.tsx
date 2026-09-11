@@ -335,7 +335,7 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
 
         {/* Live preview column */}
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <div className="mb-2 text-[11px] font-black uppercase tracking-wider text-slate-400">Xem trước trực tiếp</div>
+          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Xem trước trực tiếp</div>
           <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-cream shadow-xs">
             {tab === "header" ? (
               <HeaderPreview logoUrl={logoUrl} logoSize={logoSize} navLeft={navLeft} navRight={navRight} />
@@ -431,7 +431,7 @@ function FooterPreview({
         <div className="grid grid-cols-2 gap-3">
           {columns.map((col, i) => (
             <div key={i}>
-              <div className="text-[9px] font-black uppercase text-ink">{col.title || "…"}</div>
+              <div className="text-[9px] font-bold uppercase text-ink">{col.title || "…"}</div>
               <div className="mt-1 space-y-0.5">
                 {col.items.map((item, j) => (
                   <div key={j} className="text-[9px] text-ink/60">

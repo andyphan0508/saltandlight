@@ -39,7 +39,7 @@ export function UpcomingCollectionBanner({
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
         {/* Left Content */}
         <div className="flex-1 text-left">
-          <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight text-ink">
+          <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold uppercase tracking-tight text-ink">
             {title}
           </h3>
           <p className="mt-2.5 text-xs sm:text-sm text-ink/75 max-w-xl leading-relaxed">

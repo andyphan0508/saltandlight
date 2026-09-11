@@ -20,7 +20,7 @@ export function RichTextSectionsBlock({ content }: { content: RichTextSectionsCo
         <div className="rounded-3xl bg-white p-8 sm:p-10 shadow-card border border-ink/5 space-y-8 text-sm text-ink/80 leading-relaxed">
           {mainSections.map((section, i) => (
             <section key={i} className={i > 0 ? "space-y-3 border-t border-ink/10 pt-6" : "space-y-3"}>
-              <h2 className="font-display text-base font-black uppercase text-ink">{section.heading}</h2>
+              <h2 className="font-display text-base font-bold uppercase text-ink">{section.heading}</h2>
               {section.paragraphs?.map((p, j) => (
                 <p key={j} className="text-xs text-ink/70">
                   {p}

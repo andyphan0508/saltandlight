@@ -163,7 +163,7 @@ export function BannerCropModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
           <div>
-            <h3 className="font-display font-black uppercase text-base text-ink">
+            <h3 className="font-display font-bold uppercase text-base text-ink">
               Chỉnh Sửa &amp; Căn Chỉnh Banner
             </h3>
             <p className="text-xs text-ink/60 mt-0.5">

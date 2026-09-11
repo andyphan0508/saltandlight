@@ -5,7 +5,7 @@ type Tone = "new" | "sale" | "neutral" | "success" | "warning" | "danger" | "gol
 
 const toneClasses: Record<Tone, string> = {
   new: "bg-brand-new text-white shadow-sm shadow-brand-new/20",
-  sale: "bg-sale text-white shadow-sm shadow-sale/20 font-extrabold",
+  sale: "bg-sale text-white shadow-sm shadow-sale/20 font-bold",
   neutral: "bg-ink-100 text-ink-800 border border-ink/10",
   success: "bg-emerald-50 text-emerald-800 border border-emerald-200",
   warning: "bg-amber-50 text-amber-900 border border-amber-200",

@@ -36,10 +36,10 @@ export default async function ContactPage({
         <BlockRenderer block={heroBlock} />
       ) : (
         <div className="text-center space-y-3">
-          <span className="text-xs font-black uppercase tracking-widest text-brand-forest">
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">
             Kết Nối Cùng Salt &amp; Light
           </span>
-          <h1 className="font-display text-3xl sm:text-4xl font-black uppercase text-ink">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase text-ink">
             Liên Hệ Với Chúng Mình
           </h1>
           <p className="text-sm text-ink/70 max-w-lg mx-auto leading-relaxed">
@@ -54,7 +54,7 @@ export default async function ContactPage({
             <BlockRenderer block={infoBlock} />
           ) : (
             <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 space-y-6">
-              <h3 className="font-display text-base font-black uppercase text-ink">
+              <h3 className="font-display text-base font-bold uppercase text-ink">
                 Thông Tin Hỗ Trợ
               </h3>
               <div className="space-y-4 text-xs text-ink/80">
@@ -64,7 +64,7 @@ export default async function ContactPage({
                   </span>
                   <a
                     href="tel:0847252025"
-                    className="text-sm font-black text-brand-forest hover:underline block"
+                    className="text-sm font-bold text-brand-forest hover:underline block"
                   >
                     0847 25 2025
                   </a>
@@ -98,7 +98,7 @@ export default async function ContactPage({
         </div>
 
         <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-7">
-          <h2 className="font-display text-base font-black uppercase text-ink mb-6">
+          <h2 className="font-display text-base font-bold uppercase text-ink mb-6">
             Gửi Tin Nhắn Cho Shop
           </h2>
           <ContactForm type="contact" />

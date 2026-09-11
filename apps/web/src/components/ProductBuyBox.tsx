@@ -146,7 +146,7 @@ export function ProductBuyBox({
       {/* Price Header */}
       <div className="rounded-2xl bg-mint-50/80 p-4 sm:p-5 border border-mint-200/60 w-full min-w-0">
         <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
-          <span className="text-2xl sm:text-3xl font-black text-ink">{formatVND(selected.price)}</span>
+          <span className="text-2xl sm:text-3xl font-bold text-ink">{formatVND(selected.price)}</span>
           {selected.compareAtPrice && (
             <span className="text-sm sm:text-base text-ink/40 line-through">
               {formatVND(selected.compareAtPrice)}
@@ -359,7 +359,7 @@ export function ProductBuyBox({
             />
             <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 my-auto max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
               <div className="flex items-center justify-between border-b border-ink/10 pb-4">
-                <h3 className="font-display text-lg font-black uppercase text-ink flex items-center gap-2">
+                <h3 className="font-display text-lg font-bold uppercase text-ink flex items-center gap-2">
                   <span>📏 Bảng Thông Số &amp; Quy Đổi Size</span>
                 </h3>
                 <button

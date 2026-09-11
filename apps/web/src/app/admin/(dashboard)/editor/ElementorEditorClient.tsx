@@ -309,7 +309,7 @@ export function ElementorEditorClient({
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-forest text-white shadow-xs">
               <Sparkles size={15} />
             </span>
-            <span className="text-xs sm:text-sm font-black tracking-tight text-white hidden sm:inline">
+            <span className="text-xs sm:text-sm font-bold tracking-tight text-white hidden sm:inline">
               Elementor Visual Editor
             </span>
           </div>

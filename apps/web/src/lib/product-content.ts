@@ -13,18 +13,82 @@ export function isProductContentBlocks(raw?: string | null): boolean {
   if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return false;
   try {
     const parsed = JSON.parse(trimmed);
-    return Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0]?.type === "string";
+    return Array.isArray(parsed);
   } catch {
     return false;
   }
 }
 
+/**
+ * Danh sách các khối nội dung chuẩn từng được hardcode trên web:
+ * 1. Điểm nổi bật (Heading + Bullet list)
+ * 2. Bảng quy đổi size áo (Heading + Specs table)
+ * 3. Hướng dẫn bảo quản áo cotton (Heading + 2 Callouts Giặt & Phơi)
+ */
+export function getDefaultProductSections(): ProductContentBlock[] {
+  const ts = Date.now();
+  return [
+    {
+      id: `default-hl-h-${ts}`,
+      type: "heading",
+      level: 2,
+      text: "Điểm Nổi Bật Của Sản Phẩm",
+    },
+    {
+      id: `default-hl-list-${ts}`,
+      type: "bullet_list",
+      items: [
+        "Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng mát.",
+        "Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi giặt.",
+        "Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi làm, đi nhóm.",
+        "Đóng gói chỉn chu kèm bookmark Lời Chúa và thiệp cảm ơn.",
+      ],
+    },
+    {
+      id: `default-size-h-${ts}`,
+      type: "heading",
+      level: 2,
+      text: "Bảng Quy Đổi Size Áo Chuẩn",
+    },
+    {
+      id: `default-size-tbl-${ts}`,
+      type: "specs_table",
+      rows: [
+        { label: "Size S", value: "1m50 - 1m62 | 42 - 52 kg | Dài 66cm / Rộng 48cm" },
+        { label: "Size M", value: "1m60 - 1m70 | 53 - 62 kg | Dài 69cm / Rộng 51cm" },
+        { label: "Size L", value: "1m68 - 1m76 | 63 - 72 kg | Dài 72cm / Rộng 54cm" },
+        { label: "Size XL", value: "1m75 - 1m85 | 73 - 85 kg | Dài 75cm / Rộng 57cm" },
+      ],
+    },
+    {
+      id: `default-care-h-${ts}`,
+      type: "heading",
+      level: 2,
+      text: "Hướng Dẫn Bảo Quản Áo Cotton",
+    },
+    {
+      id: `default-care-wash-${ts}`,
+      type: "callout",
+      icon: "🧼",
+      title: "Giặt áo",
+      body: "Nên lộn trái áo khi giặt, không ngâm lâu trong chất tẩy mạnh.",
+      variant: "mint",
+    },
+    {
+      id: `default-care-dry-${ts}`,
+      type: "callout",
+      icon: "👔",
+      title: "Phơi & Ủi",
+      body: "Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.",
+      variant: "blue",
+    },
+  ];
+}
+
 export function parseProductContent(raw?: string | null): ProductContentBlock[] {
-  if (!raw || typeof raw !== "string") return [];
-  const trimmed = raw.trim();
-  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+  if (isProductContentBlocks(raw)) {
     try {
-      const parsed = JSON.parse(trimmed);
+      const parsed = JSON.parse((raw as string).trim());
       if (Array.isArray(parsed)) {
         return parsed.map((item, idx) => ({
           ...item,
@@ -32,21 +96,25 @@ export function parseProductContent(raw?: string | null): ProductContentBlock[] 
         }));
       }
     } catch {
-      // Fallback to plain text
+      // Fallback below
     }
   }
 
-  // Legacy plain text: return a single paragraph block
-  return [
-    {
-      id: "legacy-text",
+  // Dữ liệu văn bản thuần legacy hoặc sản phẩm chưa chuyển đổi sang khối:
+  // Tự động giữ đoạn mô tả hiện tại và bổ sung trọn vẹn các phần mặc định (Điểm nổi bật, Size, Hướng dẫn giặt)
+  const blocks: ProductContentBlock[] = [];
+  if (raw && typeof raw === "string" && raw.trim().length > 0) {
+    blocks.push({
+      id: `legacy-desc-${Date.now()}`,
       type: "paragraph",
-      content: raw,
-    },
-  ];
+      content: raw.trim(),
+    });
+  }
+
+  return [...blocks, ...getDefaultProductSections()];
 }
 
 export function serializeProductContent(blocks: ProductContentBlock[]): string {
-  if (!blocks || blocks.length === 0) return "";
+  if (!blocks || blocks.length === 0) return "[]";
   return JSON.stringify(blocks);
 }

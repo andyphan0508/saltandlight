@@ -65,10 +65,10 @@ function LoginPageContent() {
             priority
           />
         </div>
-        <span className="text-xs font-black uppercase tracking-widest text-brand-forest">
+        <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">
           Thành Viên Salt &amp; Light
         </span>
-        <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink">
           Đăng Nhập Khách Hàng
         </h1>
         <p className="text-xs sm:text-sm text-ink/65 max-w-sm mx-auto leading-relaxed">
@@ -88,12 +88,12 @@ function LoginPageContent() {
         {/* If user is already logged in */}
         {!authLoading && customer ? (
           <div className="rounded-2xl bg-mint-50 p-5 border border-mint-200 text-center space-y-4">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-forest text-white font-black text-lg">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-forest text-white font-bold text-lg">
               {customer.fullName.charAt(0).toUpperCase()}
             </div>
             <div>
               <p className="text-xs text-ink/60">Bạn hiện đang đăng nhập với tài khoản</p>
-              <h3 className="font-display text-base font-black text-ink">{customer.fullName}</h3>
+              <h3 className="font-display text-base font-bold text-ink">{customer.fullName}</h3>
               {customer.email && <p className="text-xs text-ink/50">{customer.email}</p>}
             </div>
             <div className="pt-2">

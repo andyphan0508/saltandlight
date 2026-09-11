@@ -13,7 +13,7 @@ export function RevenueChart({ series }: { series: { date: string; total: number
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
             Tổng 14 ngày qua
           </span>
-          <span className="text-lg font-black text-brand-forest">
+          <span className="text-lg font-bold text-brand-forest">
             {formatVND(totalRevenue)}
           </span>
         </div>

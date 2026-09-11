@@ -184,14 +184,14 @@ export function ProductFilters({
               onClick={() => setBottomSheetOpen(true)}
               className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all active-press shadow-xs ${
                 hasActiveFilters
-                  ? "border-brand-forest bg-mint-50 text-brand-forest font-black"
+                  ? "border-brand-forest bg-mint-50 text-brand-forest font-bold"
                   : "border-ink/15 bg-white text-ink hover:bg-ink/5"
               }`}
             >
               <SlidersHorizontal size={15} className={hasActiveFilters ? "text-brand-forest" : "text-ink/70"} />
               <span>Bộ lọc &amp; Sắp xếp</span>
               {activeFilterCount > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-forest px-1 text-[10px] font-black text-white">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-forest px-1 text-[10px] font-bold text-white">
                   {activeFilterCount}
                 </span>
               )}
@@ -203,7 +203,7 @@ export function ProductFilters({
               onClick={toggleOnSale}
               className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-bold transition-all active-press ${
                 onSale
-                  ? "border-sale bg-rose-50 text-sale shadow-xs font-black"
+                  ? "border-sale bg-rose-50 text-sale shadow-xs font-bold"
                   : "border-ink/15 bg-white text-ink/70 hover:bg-ink/5"
               }`}
             >
@@ -254,7 +254,7 @@ export function ProductFilters({
             <div className="flex items-center justify-between border-b border-ink/5 px-6 pb-3 pt-1 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={18} className="text-brand-forest" />
-                <h3 className="text-sm font-black uppercase tracking-wide text-ink">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-ink">
                   Bộ Lọc &amp; Sắp Xếp
                 </h3>
               </div>
@@ -285,7 +285,7 @@ export function ProductFilters({
             <div className="flex-1 overflow-y-auto native-scroll px-6 py-4 space-y-6">
               {/* SECTION 1: SẮP XẾP THEO (Sort Selection Segments) */}
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-ink/50 block mb-2.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-ink/50 block mb-2.5">
                   Sắp xếp theo
                 </span>
                 <div className="grid grid-cols-2 gap-2">
@@ -313,7 +313,7 @@ export function ProductFilters({
               {/* SECTION 2: DANH MỤC SẢN PHẨM */}
               <div>
                 <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-ink/50">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink/50">
                     Danh mục sản phẩm
                   </span>
                   {activeCategories.length > 0 && (
@@ -365,7 +365,7 @@ export function ProductFilters({
               {/* SECTION 3: KÍCH THƯỚC */}
               {sizes.length > 0 && (
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-ink/50 block mb-2.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink/50 block mb-2.5">
                     Kích thước (Size)
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -516,7 +516,7 @@ function FilterSection({
     <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-card">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between text-left text-xs font-black uppercase tracking-wider text-ink"
+        className="flex w-full items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-ink"
       >
         {title}
         {open ? <ChevronUp size={16} className="text-ink/40" /> : <ChevronDown size={16} className="text-ink/40" />}

@@ -42,7 +42,7 @@ export function Footer({ siteSettings = DEFAULT_SITE_SETTINGS }: { siteSettings?
 
         {siteSettings.footerColumns.map((column, i) => (
           <div key={`${column.title}-${i}`}>
-            <div className="text-xs font-black uppercase tracking-wider text-ink">{column.title}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-ink">{column.title}</div>
             <ul className="mt-4 space-y-2.5 text-sm text-ink/70">
               {column.items.map((item) => (
                 <li key={item.href + item.label}>
@@ -55,7 +55,7 @@ export function Footer({ siteSettings = DEFAULT_SITE_SETTINGS }: { siteSettings?
 
             {i === siteSettings.footerColumns.length - 1 && siteSettings.footerSocialLinks.length > 0 && (
               <>
-                <div className="mt-6 text-xs font-black uppercase tracking-wider text-ink">
+                <div className="mt-6 text-xs font-bold uppercase tracking-wider text-ink">
                   Theo Dõi Chúng Mình Tại
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-3">

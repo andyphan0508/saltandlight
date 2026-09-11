@@ -146,7 +146,7 @@ export default function AccountPage() {
       <div className="rounded-3xl bg-gradient-to-r from-mint-50 via-white to-cream-50 p-6 sm:p-8 shadow-card border border-mint-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           {/* Avatar Circle */}
-          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white text-xl font-black shadow-md ring-4 ring-mint-200/70">
+          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white text-xl font-bold shadow-md ring-4 ring-mint-200/70">
             {customer.fullName.trim().charAt(0).toUpperCase() || "S"}
           </div>
 
@@ -156,7 +156,7 @@ export default function AccountPage() {
                 Khách hàng thân thiết
               </span>
             </div>
-            <h1 className="font-display text-xl sm:text-2xl font-black uppercase text-ink truncate">
+            <h1 className="font-display text-xl sm:text-2xl font-bold uppercase text-ink truncate">
               {customer.fullName}
             </h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/65">
@@ -196,7 +196,7 @@ export default function AccountPage() {
       <div className="border-b border-ink/10 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <Truck size={20} className="text-brand-forest" />
-          <h2 className="font-display text-lg sm:text-xl font-black uppercase text-ink">
+          <h2 className="font-display text-lg sm:text-xl font-bold uppercase text-ink">
             Đơn Hàng Của Bạn ({orders.length})
           </h2>
         </div>
@@ -221,7 +221,7 @@ export default function AccountPage() {
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
             <ShoppingBag size={36} />
           </div>
-          <h3 className="font-display text-lg font-black uppercase text-ink">
+          <h3 className="font-display text-lg font-bold uppercase text-ink">
             Bạn chưa có đơn hàng nào
           </h3>
           <p className="text-xs sm:text-sm text-ink/60 max-w-md mx-auto">
@@ -267,7 +267,7 @@ export default function AccountPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/5 pb-4">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-display font-black text-sm sm:text-base text-ink">
+                      <span className="font-display font-bold text-sm sm:text-base text-ink">
                         #{order.orderNumber}
                       </span>
                       <button
@@ -331,7 +331,7 @@ export default function AccountPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink/5 pt-4">
                   <div>
                     <span className="text-xs text-ink/60">Tổng thanh toán: </span>
-                    <span className="font-display font-black text-base text-ink sm:text-lg">
+                    <span className="font-display font-bold text-base text-ink sm:text-lg">
                       {formatVND(order.total)}
                     </span>
                   </div>

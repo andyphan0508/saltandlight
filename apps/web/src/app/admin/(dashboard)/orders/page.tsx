@@ -106,7 +106,7 @@ export default async function OrdersPage({
                     <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/orders/${o.id}`}
-                        className="font-black text-ink group-hover:text-brand-forest transition-colors"
+                        className="font-bold text-ink group-hover:text-brand-forest transition-colors"
                       >
                         {o.orderNumber}
                       </Link>
@@ -115,7 +115,7 @@ export default async function OrdersPage({
                       <div className="font-bold text-slate-800">{o.customer.fullName}</div>
                       <div className="text-[11px] text-slate-400">{o.customer.phone}</div>
                     </td>
-                    <td className="px-5 py-3.5 font-black text-brand-forest text-sm">
+                    <td className="px-5 py-3.5 font-bold text-brand-forest text-sm">
                       {formatVND(Number(o.total))}
                     </td>
                     <td className="px-5 py-3.5">
@@ -182,7 +182,7 @@ function StatusFilter({
     >
       <span>{label}</span>
       <span
-        className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
+        className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
           active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
         }`}
       >

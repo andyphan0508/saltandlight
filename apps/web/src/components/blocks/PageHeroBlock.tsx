@@ -18,9 +18,9 @@ export function PageHeroBlock({ content }: { content: PageHeroContent }) {
         </div>
       )}
       {content.eyebrow && (
-        <span className="text-xs font-black uppercase tracking-widest text-brand-forest">{content.eyebrow}</span>
+        <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">{content.eyebrow}</span>
       )}
-      <h1 className="font-display text-3xl sm:text-5xl font-black uppercase text-ink tracking-tight">
+      <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase text-ink tracking-tight">
         {content.title}
       </h1>
       {content.subtitle && (

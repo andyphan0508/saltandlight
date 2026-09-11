@@ -125,7 +125,7 @@ export default function CheckoutPage() {
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
           <ShoppingBag size={36} />
         </div>
-        <h1 className="mt-6 font-display text-2xl font-black uppercase text-ink">
+        <h1 className="mt-6 font-display text-2xl font-bold uppercase text-ink">
           Giỏ hàng đang trống
         </h1>
         <p className="mt-2 text-sm text-ink/60">
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
       {/* Checkout Steps */}
       <div className="border-b border-ink/10 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink">
             Thanh Toán Đơn Hàng
           </h1>
           <p className="text-xs text-ink/60 mt-1">
@@ -169,7 +169,7 @@ export default function CheckoutPage() {
         {/* Customer & Address Form */}
         <form onSubmit={handleSubmit} className="space-y-6 lg:col-span-7">
           <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 space-y-6">
-            <h2 className="font-display text-base font-black uppercase text-ink flex items-center gap-2">
+            <h2 className="font-display text-base font-bold uppercase text-ink flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-mint-200 text-xs text-brand-forest">
                 1
               </span>
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 space-y-6">
-            <h2 className="font-display text-base font-black uppercase text-ink flex items-center gap-2">
+            <h2 className="font-display text-base font-bold uppercase text-ink flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-mint-200 text-xs text-brand-forest">
                 2
               </span>
@@ -236,7 +236,7 @@ export default function CheckoutPage() {
 
           {/* Payment Method Info Box */}
           <div className="rounded-3xl bg-mint-50 p-6 border border-mint-200 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-brand-forest flex items-center gap-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-forest flex items-center gap-2">
               <ShieldCheck size={16} />
               Phương Thức Thanh Toán VietQR Tự Động
             </h3>
@@ -274,7 +274,7 @@ export default function CheckoutPage() {
 
         {/* Order Summary Sidebar */}
         <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-5 space-y-6 sticky top-28">
-          <h2 className="font-display text-base font-black uppercase text-ink">
+          <h2 className="font-display text-base font-bold uppercase text-ink">
             Đơn Hàng Của Bạn
           </h2>
 
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-ink/10 pt-3 flex justify-between items-baseline font-black text-ink">
+                <div className="border-t border-ink/10 pt-3 flex justify-between items-baseline font-bold text-ink">
                   <span className="text-sm uppercase font-display">Tổng cộng</span>
                   <span className="text-2xl font-display">{formatVND(quote.total)}</span>
                 </div>

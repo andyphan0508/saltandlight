@@ -69,7 +69,7 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-forest text-white">
           <Check size={24} />
         </div>
-        <h4 className="font-display text-lg font-black uppercase text-ink">
+        <h4 className="font-display text-lg font-bold uppercase text-ink">
           Gửi Yêu Cầu Thành Công!
         </h4>
         <p className="text-xs sm:text-sm text-ink/75 max-w-sm mx-auto">

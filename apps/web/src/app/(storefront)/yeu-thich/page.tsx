@@ -36,10 +36,10 @@ export default function WishlistPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
       <div className="flex items-center justify-between border-b border-ink/10 pb-4">
         <div>
-          <span className="text-xs font-black uppercase tracking-widest text-brand-forest">
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">
             Sưu tập cá nhân
           </span>
-          <h1 className="font-display text-2xl sm:text-3xl font-black uppercase text-ink mt-1">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink mt-1">
             Sản Phẩm Yêu Thích ({hydrated ? productIds.length : "…"})
           </h1>
         </div>
@@ -55,7 +55,7 @@ export default function WishlistPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-sale shadow-sm">
             <Heart size={28} />
           </div>
-          <h3 className="font-display text-lg font-black uppercase text-ink">
+          <h3 className="font-display text-lg font-bold uppercase text-ink">
             Chưa có sản phẩm yêu thích nào
           </h3>
           <p className="text-xs text-ink/60">

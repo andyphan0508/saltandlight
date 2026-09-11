@@ -53,7 +53,7 @@ export function StatCard({
         </div>
 
         <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-2xl sm:text-3xl lg:text-[2rem] font-black tracking-tight text-ink">
+          <span className="text-2xl sm:text-3xl lg:text-[2rem] font-bold tracking-tight text-ink">
             {value}
           </span>
           {suffix && <span className="text-xs font-semibold text-slate-400">{suffix}</span>}

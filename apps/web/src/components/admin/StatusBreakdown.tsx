@@ -60,7 +60,7 @@ export function StatusBreakdown({ counts }: { counts: Record<string, number> }) 
                 <span className="font-semibold text-slate-700">{meta.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-ink">{count}</span>
+                <span className="font-bold text-ink">{count}</span>
                 <span className="text-[11px] font-bold text-slate-400">({pct}%)</span>
               </div>
             </div>

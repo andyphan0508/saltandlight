@@ -4,9 +4,8 @@
 
 @layer base {
   :root {
-    --font-display: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-inter: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
   html {
@@ -16,7 +15,8 @@
 
   body {
     @apply bg-cream text-ink antialiased selection:bg-mint-200 selection:text-brand-forest;
-    font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
   }
 
   button, input, select, textarea {

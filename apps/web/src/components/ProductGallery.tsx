@@ -35,7 +35,7 @@ export function ProductGallery({
         ) : (
           <div className="flex h-full flex-col items-center justify-center bg-mint-50 text-ink/30 p-8 text-center">
             <Sparkles size={32} className="text-mint-300 mb-2" />
-            <span className="font-display font-black uppercase tracking-wider text-sm">Salt &amp; Light</span>
+            <span className="font-display font-bold uppercase tracking-wider text-sm">Salt &amp; Light</span>
             <span className="text-xs mt-1">Faith &amp; Apparel</span>
           </div>
         )}

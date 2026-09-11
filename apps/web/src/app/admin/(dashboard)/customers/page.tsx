@@ -78,7 +78,7 @@ export default async function CustomersPage({
                   <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-mint-100 text-brand-forest font-black text-xs border border-mint-200">
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-mint-100 text-brand-forest font-bold text-xs border border-mint-200">
                           {initial}
                         </div>
                         <div>
@@ -90,7 +90,7 @@ export default async function CustomersPage({
                     <td className="px-5 py-3.5 font-semibold text-slate-700">{c.phone}</td>
                     <td className="px-5 py-3.5 text-slate-500">{c.email ?? "Chưa cập nhật"}</td>
                     <td className="px-5 py-3.5 text-right">
-                      <span className="inline-block rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-black text-emerald-700 border border-emerald-100">
+                      <span className="inline-block rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-100">
                         {c._count.orders} đơn
                       </span>
                     </td>

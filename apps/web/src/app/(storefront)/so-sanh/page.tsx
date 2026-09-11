@@ -39,7 +39,7 @@ export default function ComparePage() {
   if (products.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="font-display text-2xl font-black uppercase">So sánh sản phẩm</h1>
+        <h1 className="font-display text-2xl font-bold uppercase">So sánh sản phẩm</h1>
         <p className="mt-4 text-ink/60">
           Chưa có sản phẩm nào để so sánh. Bấm &ldquo;So sánh&rdquo; trên trang chi tiết sản phẩm để thêm.
         </p>
@@ -49,7 +49,7 @@ export default function ComparePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 animate-slide-up-fade">
-      <h1 className="font-display text-2xl font-black uppercase">So sánh sản phẩm</h1>
+      <h1 className="font-display text-2xl font-bold uppercase">So sánh sản phẩm</h1>
       <div className="mt-8 overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse text-sm">
           <tbody>

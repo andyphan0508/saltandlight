@@ -59,7 +59,7 @@ export default function TrackOrderPage() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-brand-forest shadow-sm">
           <Truck size={28} />
         </div>
-        <h1 className="font-display text-3xl font-black uppercase text-ink">
+        <h1 className="font-display text-3xl font-bold uppercase text-ink">
           Tra Cứu Đơn Hàng
         </h1>
         <p className="text-sm text-ink/70 max-w-md mx-auto">
@@ -113,12 +113,12 @@ export default function TrackOrderPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-4">
             <div>
               <span className="text-xs text-ink/50 uppercase font-semibold">Mã đơn hàng</span>
-              <h2 className="font-display text-xl font-black uppercase text-ink">
+              <h2 className="font-display text-xl font-bold uppercase text-ink">
                 #{result.orderNumber}
               </h2>
             </div>
             <span
-              className={`rounded-full border px-4 py-1 text-xs font-black uppercase tracking-wider ${
+              className={`rounded-full border px-4 py-1 text-xs font-bold uppercase tracking-wider ${
                 STATUS_BG[result.status] ?? "bg-ink text-white"
               }`}
             >
@@ -128,7 +128,7 @@ export default function TrackOrderPage() {
 
           {/* Items */}
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-ink mb-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink mb-3">
               Chi tiết sản phẩm
             </h3>
             <div className="divide-y divide-ink/10">
@@ -145,7 +145,7 @@ export default function TrackOrderPage() {
               ))}
             </div>
 
-            <div className="mt-4 flex justify-between border-t border-ink/10 pt-4 font-black text-ink">
+            <div className="mt-4 flex justify-between border-t border-ink/10 pt-4 font-bold text-ink">
               <span className="text-sm uppercase font-display">Tổng giá trị đơn</span>
               <span className="text-xl font-display">{formatVND(result.total)}</span>
             </div>
@@ -153,7 +153,7 @@ export default function TrackOrderPage() {
 
           {/* Timeline History */}
           <div className="border-t border-ink/10 pt-6">
-            <h3 className="text-xs font-black uppercase tracking-wider text-ink mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink mb-4">
               Lịch sử trạng thái đơn hàng
             </h3>
             <ul className="space-y-3 text-xs">

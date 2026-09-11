@@ -58,8 +58,8 @@ export const saltAndLightPreset: Partial<Config> = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "Plus Jakarta Sans", "-apple-system", "sans-serif"],
-        sans: ["var(--font-sans)", "Plus Jakarta Sans", "-apple-system", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        sans: ["var(--font-sans)", "var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
       },
       borderRadius: {
         pill: "999px",

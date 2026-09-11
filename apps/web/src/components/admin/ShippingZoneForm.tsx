@@ -231,7 +231,7 @@ export function ShippingZonesManager({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-xl rounded-3xl bg-white shadow-2xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
-              <h3 className="font-display font-black uppercase text-base text-ink flex items-center gap-2">
+              <h3 className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
                 <Truck size={18} className="text-brand-forest" />
                 Tạo Chính Sách Vận Chuyển
               </h3>

@@ -50,7 +50,7 @@ export default async function PaymentsPage() {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/admin/orders/${p.order.id}`}
-                    className="font-black text-slate-900 hover:text-brand-forest hover:underline transition-colors"
+                    className="font-bold text-slate-900 hover:text-brand-forest hover:underline transition-colors"
                   >
                     Đơn hàng #{p.order.orderNumber}
                   </Link>
@@ -61,7 +61,7 @@ export default async function PaymentsPage() {
                 <div className="text-xs text-slate-500 mt-0.5">
                   Khách hàng: <strong>{p.order.customer.fullName}</strong> • SĐT: {p.order.customer.phone}
                 </div>
-                <div className="mt-1.5 text-base font-black text-brand-forest">
+                <div className="mt-1.5 text-base font-bold text-brand-forest">
                   {formatVND(Number(p.amount))}
                 </div>
               </div>

@@ -164,7 +164,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
       {/* 1. Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Quản Lý Danh Mục Sản Phẩm
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -187,7 +187,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <LayoutGrid size={22} />
           </div>
           <div>
-            <div className="text-2xl font-black text-slate-900">{categories.length}</div>
+            <div className="text-2xl font-bold text-slate-900">{categories.length}</div>
             <div className="text-xs font-semibold text-slate-500">Tổng số danh mục</div>
           </div>
         </div>
@@ -197,7 +197,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <Package size={22} />
           </div>
           <div>
-            <div className="text-2xl font-black text-slate-900">{totalProducts}</div>
+            <div className="text-2xl font-bold text-slate-900">{totalProducts}</div>
             <div className="text-xs font-semibold text-slate-500">Sản phẩm đã phân loại</div>
           </div>
         </div>
@@ -207,7 +207,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <Tag size={22} />
           </div>
           <div>
-            <div className="text-2xl font-black text-slate-900">
+            <div className="text-2xl font-bold text-slate-900">
               {categories.filter((c) => !c.parentId).length}
             </div>
             <div className="text-xs font-semibold text-slate-500">Danh mục chính (Cấp 1)</div>

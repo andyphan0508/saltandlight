@@ -34,7 +34,7 @@ export function ProductListModal({
         className="gap-2 active-press hover:bg-mint-50 rounded-xl"
       >
         <span>{ctaLabel || "Xem toàn bộ danh sách"}</span>
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-mint-100 text-brand-forest font-black text-[10px]">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-mint-100 text-brand-forest font-bold text-[10px]">
           {products.length}
         </span>
       </Button>
@@ -45,7 +45,7 @@ export function ProductListModal({
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10 bg-white/90 backdrop-blur-md flex-shrink-0">
               <div>
-                <h3 className="font-display text-lg sm:text-xl font-black uppercase text-ink">
+                <h3 className="font-display text-lg sm:text-xl font-bold uppercase text-ink">
                   {title}
                 </h3>
                 <p className="text-xs text-ink/60 mt-0.5">

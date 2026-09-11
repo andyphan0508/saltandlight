@@ -19,9 +19,9 @@ export function TestimonialsBlock({ content }: { content: TestimonialsContent })
     <section className="mx-auto max-w-7xl px-4">
       <div className="text-center max-w-2xl mx-auto mb-10">
         {content.eyebrow && (
-          <span className="text-xs font-black uppercase tracking-widest text-brand-forest">{content.eyebrow}</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">{content.eyebrow}</span>
         )}
-        <h2 className="mt-1.5 font-display text-2xl sm:text-3xl font-black uppercase text-ink">{content.headline}</h2>
+        <h2 className="mt-1.5 font-display text-2xl sm:text-3xl font-bold uppercase text-ink">{content.headline}</h2>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-3">

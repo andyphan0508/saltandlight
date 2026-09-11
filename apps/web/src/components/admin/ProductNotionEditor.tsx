@@ -29,6 +29,7 @@ import {
 import {
   parseProductContent,
   serializeProductContent,
+  getDefaultProductSections,
   type ProductContentBlock,
 } from "@/lib/product-content";
 import { ProductContentRenderer } from "@/components/ProductContentRenderer";
@@ -216,12 +217,22 @@ export function ProductNotionEditor({
       {activeTab === "blocks" && (
         <div className="space-y-3.5">
           {blocks.length === 0 ? (
-            <div className="py-10 text-center rounded-xl bg-white border border-dashed border-slate-300">
-              <Sparkles size={28} className="mx-auto text-slate-300 mb-2" />
-              <p className="text-xs font-bold text-slate-700">Chưa có khối nội dung nào</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Bấm một trong các nút bên dưới để bắt đầu viết mô tả sản phẩm theo ý bạn.
-              </p>
+            <div className="py-10 text-center rounded-xl bg-white border border-dashed border-slate-300 space-y-3">
+              <Sparkles size={28} className="mx-auto text-slate-300" />
+              <div>
+                <p className="text-xs font-bold text-slate-700">Chưa có khối nội dung nào</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Bấm nạp mẫu mặc định bên dưới hoặc chọn từng khối để tự tạo nội dung.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateBlocks(getDefaultProductSections())}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-forest text-white px-4 py-2 text-xs font-bold shadow-xs hover:bg-brand-forest/90 transition-all"
+              >
+                <Sparkles size={14} />
+                <span>Nạp trọn bộ nội dung mặc định của sản phẩm</span>
+              </button>
             </div>
           ) : (
             blocks.map((block, idx) => (
@@ -322,6 +333,16 @@ export function ProductNotionEditor({
                 ⚡ Nạp nhanh mẫu có sẵn:
               </span>
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateBlocks([...blocks, ...getDefaultProductSections()]);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-forest/30 bg-mint-100/90 px-3 py-1.5 text-[11px] font-bold text-brand-forest hover:bg-mint-200 transition-colors shadow-2xs"
+                >
+                  <Sparkles size={13} />
+                  <span>⚡ Nạp trọn bộ nội dung mặc định (Điểm nổi bật + Bảng size + Giặt phơi)</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => {

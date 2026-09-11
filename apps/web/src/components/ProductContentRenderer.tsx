@@ -13,16 +13,8 @@ export function ProductContentRenderer({
 }) {
   if (!content) return null;
 
-  // If not structured blocks, render as classic pre-line text
-  if (!isProductContentBlocks(content)) {
-    return (
-      <div className="rounded-2xl bg-white p-4 sm:p-5 border border-ink/10 text-xs sm:text-sm text-ink/80 whitespace-pre-line leading-relaxed shadow-xs">
-        {content}
-      </div>
-    );
-  }
-
   const blocks = parseProductContent(content);
+  if (blocks.length === 0) return null;
 
   return (
     <div className="space-y-4 text-xs sm:text-sm text-ink/85 leading-relaxed">
@@ -51,7 +43,7 @@ function BlockItem({ block }: { block: ProductContentBlock }) {
         );
       }
       return (
-        <h3 className="font-display text-base sm:text-lg font-black text-ink uppercase tracking-wider mt-6 mb-2 border-b border-ink/10 pb-2 flex items-center gap-2">
+        <h3 className="font-display text-base sm:text-lg font-bold text-ink uppercase tracking-wider mt-6 mb-2 border-b border-ink/10 pb-2 flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-brand-forest" />
           <span>{block.text}</span>
         </h3>

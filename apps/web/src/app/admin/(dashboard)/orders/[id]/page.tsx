@@ -34,7 +34,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
       <BackLink href="/admin/orders" label="Quay lại danh sách đơn hàng" />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-black uppercase text-ink">{order.orderNumber}</h1>
+          <h1 className="font-display text-2xl font-bold uppercase text-ink">{order.orderNumber}</h1>
           <p className="mt-1 text-xs text-ink/45">
             Đặt lúc {order.createdAt.toLocaleString("vi-VN")}
           </p>
