@@ -10,13 +10,9 @@ import { useCartStore, useWishlistStore } from "@/stores";
 import {
   ShoppingBag,
   Heart,
-  Truck,
-  ShieldCheck,
-  RefreshCw,
   Check,
   Sparkles,
   X,
-  Star,
 } from "./Icons";
 
 import {
@@ -32,6 +28,22 @@ export interface VariantPlain {
   compareAtPrice: number | null;
   stockQuantity: number;
 }
+
+const SIZE_ORDER = [
+  "XS (BABY)",
+  "S (BABY)",
+  "M (BABY)",
+  "L (BABY)",
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "2XL",
+  "XXL",
+  "3XL",
+  "FREE SIZE",
+];
 
 export const ProductBuyBox = ({
   productId,
@@ -55,10 +67,19 @@ export const ProductBuyBox = ({
     () => Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[],
     [variants],
   );
-  const sizes = useMemo(
-    () => Array.from(new Set(variants.map((v) => v.size).filter(Boolean))) as string[],
-    [variants],
-  );
+
+  // Đảo ngược thứ tự size hiển thị: từ nhỏ đến lớn (XS, S, M, L, XL...)
+  const sizes = useMemo(() => {
+    const raw = Array.from(new Set(variants.map((v) => v.size).filter(Boolean))) as string[];
+    return raw.sort((a, b) => {
+      const ai = SIZE_ORDER.indexOf(a.trim().toUpperCase());
+      const bi = SIZE_ORDER.indexOf(b.trim().toUpperCase());
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return b.localeCompare(a); // Fallback: đảo ngược thứ tự
+    });
+  }, [variants]);
 
   const [color, setColor] = useState<string | null>(colors[0] ?? null);
   const [size, setSize] = useState<string | null>(sizes[0] ?? null);
@@ -66,12 +87,26 @@ export const ProductBuyBox = ({
   const [isJustAdded, setIsJustAdded] = useState(false);
   const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
 
-  const specsTables = useMemo(() => {
-    if (!description) return [];
+  // Tự động cập nhật size khi danh sách sizes thay đổi
+  useEffect(() => {
+    if (sizes.length > 0 && (!size || !sizes.includes(size))) {
+      setSize(sizes[0] ?? null);
+    }
+  }, [sizes, size]);
+
+  const { specsTables, priceNote } = useMemo(() => {
+    if (!description) return { specsTables: [], priceNote: null };
     const blocks = parseProductContent(description);
-    return blocks.filter(
+    const tables = blocks.filter(
       (b): b is Extract<ProductContentBlock, { type: "specs_table" }> => b.type === "specs_table"
     );
+    const noteBlock = blocks.find(
+      (b): b is Extract<ProductContentBlock, { type: "price_note" }> => b.type === "price_note"
+    );
+    return {
+      specsTables: tables,
+      priceNote: noteBlock ? noteBlock.text : null,
+    };
   }, [description]);
 
   // Prevent scroll when modal is open and handle ESC key
@@ -158,10 +193,16 @@ export const ProductBuyBox = ({
             Tiết kiệm {formatVND(savings)} so với giá niêm yết
           </p>
         )}
-        <div className="mt-3 flex items-start gap-2 text-xs text-brand-forest">
-          <Sparkles size={15} className="flex-shrink-0 mt-0.5 text-gold-600" />
-          <span className="leading-snug">Tặng kèm thiệp Lời Chúa &amp; Miễn phí vận chuyển cho đơn từ 299K</span>
-        </div>
+        {(priceNote === null || (priceNote && priceNote.trim().length > 0)) && (
+          <div className="mt-3 flex items-start gap-2 text-xs text-brand-forest">
+            <Sparkles size={15} className="flex-shrink-0 mt-0.5 text-gold-600" />
+            <span className="leading-snug">
+              {priceNote && priceNote.trim().length > 0
+                ? priceNote
+                : "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K"}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Color Selection */}
@@ -324,27 +365,6 @@ export const ProductBuyBox = ({
         </div>
       </div>
 
-      {/* Trust Guarantees */}
-      <div className="space-y-2.5 rounded-2xl border border-ink/10 bg-white p-3.5 sm:p-4 text-xs text-ink/80 shadow-xs w-full min-w-0">
-        <div className="flex items-start gap-2.5">
-          <Truck size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
-          <span className="leading-snug">
-            <strong>Đồng giá ship 19K toàn quốc</strong> — Giao tận nơi trong 2-4 ngày.
-          </span>
-        </div>
-        <div className="flex items-start gap-2.5">
-          <ShieldCheck size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
-          <span className="leading-snug">
-            <strong>Kiểm tra hàng trước khi nhận</strong> — COD an tâm tuyệt đối.
-          </span>
-        </div>
-        <div className="flex items-start gap-2.5">
-          <RefreshCw size={17} className="text-brand-forest flex-shrink-0 mt-0.5" />
-          <span className="leading-snug">
-            <strong>Đổi size miễn phí trong 7 ngày</strong> nếu không vừa vặn.
-          </span>
-        </div>
-      </div>
 
       {/* Size Chart Modal rendered via Portal directly to body */}
       {isMounted &&

@@ -5,7 +5,8 @@ export type ProductContentBlock =
   | { id: string; type: "callout"; icon: string; title: string; body: string; variant?: "mint" | "amber" | "blue" }
   | { id: string; type: "quote"; quote: string; quoteRef?: string }
   | { id: string; type: "specs_table"; rows: { label: string; value: string }[] }
-  | { id: string; type: "image"; url: string; caption?: string };
+  | { id: string; type: "image"; url: string; caption?: string }
+  | { id: string; type: "price_note"; text: string; subtext?: string };
 
 export function isProductContentBlocks(raw?: string | null): boolean {
   if (!raw || typeof raw !== "string") return false;

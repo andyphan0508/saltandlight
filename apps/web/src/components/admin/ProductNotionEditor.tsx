@@ -111,6 +111,9 @@ export function ProductNotionEditor({
       case "image":
         block = { id: newId, type: "image", url: "", caption: "" };
         break;
+      case "price_note":
+        block = { id: newId, type: "price_note", text: "" };
+        break;
     }
 
     const next = [...blocks];
@@ -475,6 +478,8 @@ function getBlockTypeName(type: ProductContentBlock["type"]) {
       return "Bảng thông số kỹ thuật";
     case "image":
       return "Hình ảnh chi tiết";
+    case "price_note":
+      return "Thông điệp ưu đãi khung giá";
   }
 }
 
@@ -738,6 +743,23 @@ function BlockFieldEditor({
               <Image src={block.url} alt={block.caption || "Ảnh"} fill className="object-cover" />
             </div>
           )}
+        </div>
+      );
+
+    case "price_note":
+      return (
+        <div className="rounded-2xl border border-mint-200/80 bg-mint-50/60 p-3.5 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-brand-forest">
+            <Sparkles size={15} className="text-amber-500" />
+            <span>Thông điệp ưu đãi hiển thị trong khung giá sản phẩm</span>
+          </div>
+          <input
+            type="text"
+            value={block.text || ""}
+            onChange={(e) => onChange({ text: e.target.value })}
+            placeholder="VD: Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-brand-forest focus:outline-none"
+          />
         </div>
       );
   }

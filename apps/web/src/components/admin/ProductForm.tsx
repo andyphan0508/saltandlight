@@ -19,6 +19,11 @@ import {
   Sparkles,
 } from "./Icons";
 import { ProductNotionEditor } from "./ProductNotionEditor";
+import {
+  parseProductContent,
+  serializeProductContent,
+  type ProductContentBlock,
+} from "@/lib/product-content";
 
 interface Category {
   id: string;
@@ -124,11 +129,19 @@ export function ProductForm({
   const [error, setError] = useState<string | null>(null);
 
   const [quickColors, setQuickColors] = useState("");
-  const [quickSizes, setQuickSizes] = useState("");
+  const [quickSizes, setQuickSizes] = useState("XS, S, M, L, XL");
   const [quickPrice, setQuickPrice] = useState(0);
   const [quickStock, setQuickStock] = useState(50);
   const [discountPct, setDiscountPct] = useState(20);
   const [selectedPromotionId, setSelectedPromotionId] = useState<string>("");
+
+  // Thông điệp ưu đãi hiển thị trong khung giá sản phẩm
+  const [priceNote, setPriceNote] = useState<string>(() => {
+    if (!initial?.description) return "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K";
+    const blocks = parseProductContent(initial.description);
+    const noteBlock = blocks.find((b): b is Extract<ProductContentBlock, { type: "price_note" }> => b.type === "price_note");
+    return noteBlock ? noteBlock.text : "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K";
+  });
 
   function updateVariant(index: number, patch: Partial<VariantRow>) {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)));
@@ -178,8 +191,33 @@ export function ProductForm({
 
   // ── Quick variant generator (Color × Size) ───────────────────────
   function generateVariants() {
+    const SIZE_ORDER = [
+      "XS (BABY)",
+      "S (BABY)",
+      "M (BABY)",
+      "L (BABY)",
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "2XL",
+      "XXL",
+      "3XL",
+      "FREE SIZE",
+    ];
     const colors = quickColors.split(",").map((c) => c.trim()).filter(Boolean);
-    const sizes = quickSizes.split(",").map((s) => s.trim()).filter(Boolean);
+    const rawSizes = quickSizes.split(",").map((s) => s.trim()).filter(Boolean);
+    // Sắp xếp size theo thứ tự chuẩn từ nhỏ đến lớn: XS, S, M, L, XL
+    const sizes = [...rawSizes].sort((a, b) => {
+      const ai = SIZE_ORDER.indexOf(a.trim().toUpperCase());
+      const bi = SIZE_ORDER.indexOf(b.trim().toUpperCase());
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
     const combos: { color: string; size: string }[] = [];
     if (colors.length && sizes.length) {
       for (const color of colors) for (const size of sizes) combos.push({ color, size });
@@ -231,10 +269,22 @@ export function ProductForm({
 
     const finalSlug = slug || slugify(name) || `san-pham-${Date.now()}`;
 
+    // Lưu thông điệp ưu đãi bảng giá vào danh sách khối mô tả sản phẩm
+    const parsedBlocks = parseProductContent(description);
+    const withoutPriceNote: ProductContentBlock[] = parsedBlocks.filter((b) => b.type !== "price_note");
+    if (priceNote.trim().length > 0) {
+      withoutPriceNote.unshift({
+        id: `price-note-${Date.now()}`,
+        type: "price_note",
+        text: priceNote.trim(),
+      });
+    }
+    const finalDescription = serializeProductContent(withoutPriceNote);
+
     const payload = {
       name: name.trim(),
       slug: finalSlug,
-      description,
+      description: finalDescription,
       categoryId: categoryId || null,
       status,
       isNew,
@@ -480,10 +530,111 @@ export function ProductForm({
         </div>
       </Section>
 
+      {/* Price Box Customizer */}
+      <Section title="Cấu hình hiển thị bảng giá & Thông điệp ưu đãi" icon={<Sparkles size={16} />}>
+        <p className="text-xs text-ink/60 leading-relaxed">
+          Tùy chỉnh thông điệp khuyến mãi hiển thị trực tiếp trong khung giá ở trang chi tiết sản phẩm. Bỏ trống nếu muốn ẩn dòng thông điệp này.
+        </p>
+
+        <div className="mt-3.5 space-y-3">
+          <Field label="Dòng thông điệp ưu đãi trong khung giá">
+            <div className="relative">
+              <input
+                value={priceNote}
+                onChange={(e) => setPriceNote(e.target.value)}
+                placeholder="VD: Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K"
+                className={`${inputClass} pr-9`}
+              />
+              {priceNote && (
+                <button
+                  type="button"
+                  onClick={() => setPriceNote("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-sale font-bold"
+                  title="Xóa thông điệp"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </Field>
+
+          {/* Quick preset chips */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-[11px] font-bold text-slate-400">Gợi ý nhanh:</span>
+            <button
+              type="button"
+              onClick={() => setPriceNote("Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K")}
+              className="rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-semibold text-brand-forest border border-mint-200/80 hover:bg-mint-100 transition-colors"
+            >
+              ✨ Thiệp Lời Chúa & Freeship 299K
+            </button>
+            <button
+              type="button"
+              onClick={() => setPriceNote("Flash Sale đặc biệt — Số lượng có hạn cho mùa lễ")}
+              className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors"
+            >
+              🔥 Flash Sale có hạn
+            </button>
+            <button
+              type="button"
+              onClick={() => setPriceNote("Hỗ trợ đổi size tận nơi — Kiểm tra hàng trước thanh toán")}
+              className="rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-800 border border-sky-200/80 hover:bg-sky-100 transition-colors"
+            >
+              🛡️ Đổi size tận nơi
+            </button>
+            <button
+              type="button"
+              onClick={() => setPriceNote("")}
+              className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+            >
+              Ẩn dòng ưu đãi
+            </button>
+          </div>
+
+          {/* Live Preview of Price Card */}
+          <div className="mt-4 rounded-2xl border border-mint-200/90 bg-mint-50/50 p-4">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-brand-forest mb-2 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Xem trước hiển thị khung giá trên storefront</span>
+            </div>
+            <div className="flex flex-wrap items-baseline gap-2.5">
+              <span className="text-xl sm:text-2xl font-bold text-ink">
+                {formatVND(variants[0]?.price || 0)}
+              </span>
+              {variants[0]?.compareAtPrice && variants[0].compareAtPrice > (variants[0]?.price || 0) && (
+                <>
+                  <span className="text-xs sm:text-sm text-ink/40 line-through">
+                    {formatVND(variants[0].compareAtPrice)}
+                  </span>
+                  <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                    Giảm {Math.round((1 - (variants[0]?.price || 0) / variants[0].compareAtPrice) * 100)}%
+                  </span>
+                </>
+              )}
+            </div>
+            {variants[0]?.compareAtPrice && variants[0].compareAtPrice > (variants[0]?.price || 0) && (
+              <p className="mt-1 text-[11px] font-semibold text-rose-600">
+                Tiết kiệm {formatVND(variants[0].compareAtPrice - (variants[0]?.price || 0))} so với giá niêm yết
+              </p>
+            )}
+            {priceNote.trim().length > 0 ? (
+              <div className="mt-2.5 flex items-start gap-2 text-xs text-brand-forest">
+                <Sparkles size={14} className="flex-shrink-0 mt-0.5 text-amber-500" />
+                <span className="leading-snug font-medium">{priceNote}</span>
+              </div>
+            ) : (
+              <div className="mt-2 text-[11px] italic text-slate-400">
+                (Đang ẩn dòng thông điệp ưu đãi)
+              </div>
+            )}
+          </div>
+        </div>
+      </Section>
+
       {/* Quick variant generator */}
       <Section title="Tạo nhanh biến thể" icon={<Tag size={16} />}>
         <p className="text-xs text-ink/45">
-          Nhập danh sách màu và size (cách nhau bằng dấu phẩy) để tự sinh toàn bộ tổ hợp biến thể.
+          Nhập danh sách màu và size (cách nhau bằng dấu phẩy) để tự sinh toàn bộ tổ hợp biến thể. Size được tự động đảo ngược và sắp xếp chuẩn từ nhỏ đến lớn.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-4">
           <Field label="Màu sắc" className="sm:col-span-1">
@@ -494,11 +645,11 @@ export function ProductForm({
               className={inputClass}
             />
           </Field>
-          <Field label="Size" className="sm:col-span-1">
+          <Field label="Size (thứ tự nhỏ đến lớn)" className="sm:col-span-1">
             <input
               value={quickSizes}
               onChange={(e) => setQuickSizes(e.target.value)}
-              placeholder="S, M, L, XL"
+              placeholder="XS, S, M, L, XL"
               className={inputClass}
             />
           </Field>
@@ -526,7 +677,7 @@ export function ProductForm({
 
       {/* Variants table */}
       <Section
-        title="Biến thể"
+        title="Bảng giá & Biến thể sản phẩm"
         icon={<Tag size={16} />}
         badge={`${variants.length} biến thể`}
         action={
@@ -540,78 +691,127 @@ export function ProductForm({
           </Button>
         }
       >
-        <div className="overflow-x-auto rounded-xl border border-ink/10">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs">
           <table className="w-full text-xs">
-            <thead className="border-b border-ink/10 bg-ink/[0.02] text-left uppercase tracking-wide text-ink/40">
+            <thead className="border-b border-slate-200/80 bg-slate-50/80 text-left uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-3 py-2.5 font-semibold">SKU</th>
-                <th className="px-3 py-2.5 font-semibold">Màu</th>
-                <th className="px-3 py-2.5 font-semibold">Size</th>
-                <th className="px-3 py-2.5 font-semibold">Giá bán</th>
-                <th className="px-3 py-2.5 font-semibold">Giá so sánh</th>
-                <th className="px-3 py-2.5 font-semibold">Tồn kho</th>
-                <th className="px-3 py-2.5"></th>
+                <th className="px-3.5 py-3 font-bold">SKU</th>
+                <th className="px-3.5 py-3 font-bold">Màu sắc</th>
+                <th className="px-3.5 py-3 font-bold">Kích cỡ (Size)</th>
+                <th className="px-3.5 py-3 font-bold">Giá bán thực tế</th>
+                <th className="px-3.5 py-3 font-bold">Giá niêm yết (So sánh)</th>
+                <th className="px-3.5 py-3 font-bold">Tồn kho</th>
+                <th className="px-3.5 py-3 text-center">Xóa</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink/5">
-              {variants.map((v, i) => (
-                <tr key={i}>
-                  <td className="px-3 py-2">
-                    <input
-                      value={v.sku}
-                      onChange={(e) => updateVariant(i, { sku: e.target.value })}
-                      required
-                      className={`${cellClass} font-mono`}
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input value={v.color} onChange={(e) => updateVariant(i, { color: e.target.value })} className={cellClass} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input value={v.size} onChange={(e) => updateVariant(i, { size: e.target.value })} className={cellClass} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      value={v.price}
-                      onChange={(e) => updateVariant(i, { price: Number(e.target.value) })}
-                      required
-                      className={cellClass}
-                    />
-                    <div className="mt-0.5 text-[10px] text-ink/35">{formatVND(v.price)}</div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      value={v.compareAtPrice ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { compareAtPrice: e.target.value ? Number(e.target.value) : null })
-                      }
-                      className={cellClass}
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      value={v.stockQuantity}
-                      onChange={(e) => updateVariant(i, { stockQuantity: Number(e.target.value) })}
-                      required
-                      className={`${cellClass} ${v.stockQuantity <= 5 ? "text-sale font-semibold" : ""}`}
-                    />
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    {variants.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
-                        className="text-ink/30 hover:text-sale"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {variants.map((v, i) => {
+                const discount =
+                  v.compareAtPrice && v.compareAtPrice > v.price
+                    ? Math.round((1 - v.price / v.compareAtPrice) * 100)
+                    : null;
+                const savings =
+                  v.compareAtPrice && v.compareAtPrice > v.price
+                    ? v.compareAtPrice - v.price
+                    : 0;
+
+                return (
+                  <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-3 py-2.5">
+                      <input
+                        value={v.sku}
+                        onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                        required
+                        className={`${cellClass} font-mono text-xs`}
+                        placeholder="SKU-XXX"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        value={v.color}
+                        onChange={(e) => updateVariant(i, { color: e.target.value })}
+                        className={cellClass}
+                        placeholder="VD: Đen"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        value={v.size}
+                        onChange={(e) => updateVariant(i, { size: e.target.value })}
+                        className={`${cellClass} font-bold`}
+                        placeholder="VD: S"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="number"
+                        value={v.price}
+                        onChange={(e) => updateVariant(i, { price: Number(e.target.value) })}
+                        required
+                        className={`${cellClass} font-bold text-slate-900`}
+                      />
+                      <div className="mt-1 text-[11px] font-semibold text-brand-forest">
+                        {formatVND(v.price)}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="number"
+                        value={v.compareAtPrice ?? ""}
+                        onChange={(e) =>
+                          updateVariant(i, { compareAtPrice: e.target.value ? Number(e.target.value) : null })
+                        }
+                        placeholder="Giá gốc..."
+                        className={cellClass}
+                      />
+                      {v.compareAtPrice ? (
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-[10px] text-slate-400 line-through">
+                            {formatVND(v.compareAtPrice)}
+                          </span>
+                          {discount ? (
+                            <span className="rounded-full bg-rose-50 px-1.5 py-0.2 text-[9px] font-bold text-rose-600 border border-rose-200/60">
+                              -{discount}%
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <div className="mt-1 text-[10px] text-slate-300 italic">Không có giá gốc</div>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="number"
+                        value={v.stockQuantity}
+                        onChange={(e) => updateVariant(i, { stockQuantity: Number(e.target.value) })}
+                        required
+                        className={`${cellClass} ${v.stockQuantity <= 5 ? "text-sale font-bold" : ""}`}
+                      />
+                      <div className="mt-0.5 text-[10px] text-slate-400">
+                        {v.stockQuantity <= 0 ? (
+                          <span className="font-bold text-rose-600">Hết hàng</span>
+                        ) : v.stockQuantity <= 5 ? (
+                          <span className="font-semibold text-amber-600">Sắp hết ({v.stockQuantity})</span>
+                        ) : (
+                          <span>Sẵn hàng</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-center">
+                      {variants.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                          title="Xóa biến thể này"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

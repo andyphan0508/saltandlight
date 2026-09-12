@@ -163,6 +163,9 @@ const BlockItem = ({ block }: BlockItemProps) => {
         </div>
       );
 
+    case "price_note":
+      return null;
+
     default:
       return null;
   }

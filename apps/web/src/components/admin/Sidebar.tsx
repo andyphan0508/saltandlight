@@ -94,31 +94,32 @@ export function Sidebar({
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white select-none transition-all">
+    <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white select-none transition-all shadow-xs">
       {/* 1. Brand Logo Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4.5 bg-gradient-to-b from-slate-50/50 to-transparent">
         <Link href="/admin/dashboard" className="flex items-center gap-2 group">
-          <div className="relative h-10 w-36 transition-transform duration-200 group-hover:scale-105">
+          <div className="relative h-9 w-32 transition-transform duration-200 group-hover:scale-105">
             <Image
               src="/images/logo.png"
               alt="Salt & Light"
               fill
               priority
-              sizes="144px"
+              sizes="128px"
               className="object-contain object-left"
             />
           </div>
         </Link>
-        <span className="rounded-md bg-mint-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-forest border border-mint-200">
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-forest border border-emerald-200/80 shadow-2xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
           Admin
         </span>
       </div>
 
       {/* 2. Navigation Groups */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3.5 py-5">
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3.5 py-5 custom-scrollbar">
         {groups.map((group) => (
           <div key={group.label}>
-            <div className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {group.label}
             </div>
             <div className="space-y-1">
@@ -132,18 +133,18 @@ export function Sidebar({
                     key={item.href}
                     href={item.href}
                     prefetch={false}
-                    className={`group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold tracking-wide transition-all ${
+                    className={`group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold tracking-wide transition-all duration-150 ${
                       isActive
-                        ? "bg-ink text-white shadow-sm font-bold"
-                        : "text-slate-600 hover:bg-slate-100/80 hover:text-ink"
+                        ? "bg-slate-900 text-white shadow-sm font-bold"
+                        : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
                           isActive
-                            ? "bg-white/15 text-white"
-                            : "bg-slate-100/60 text-slate-500 group-hover:bg-mint-100 group-hover:text-brand-forest"
+                            ? "bg-white/15 text-emerald-300"
+                            : "bg-slate-100/80 text-slate-500 group-hover:bg-emerald-50 group-hover:text-brand-forest"
                         }`}
                       >
                         <Icon size={16} />
@@ -152,7 +153,7 @@ export function Sidebar({
                     </div>
 
                     {isActive && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                     )}
                   </Link>
                 );
@@ -163,25 +164,28 @@ export function Sidebar({
       </nav>
 
       {/* 3. Bottom Storefront Quick Link & User Profile Card */}
-      <div className="border-t border-slate-100 p-3.5 space-y-2">
+      <div className="border-t border-slate-100 p-3.5 space-y-2 bg-slate-50/40">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center justify-between rounded-xl border border-slate-200/60 bg-slate-50/70 px-3 py-2 text-[11px] font-bold text-slate-600 hover:bg-mint-50/70 hover:text-brand-forest hover:border-mint-200 transition-all"
+          className="flex items-center justify-between rounded-xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/70 to-mint-50/40 px-3 py-2.5 text-[11px] font-bold text-brand-forest hover:bg-emerald-100/60 hover:border-emerald-300 transition-all shadow-2xs group"
         >
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Cửa hàng trực tuyến
+          <span className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span>Cửa hàng trực tuyến</span>
           </span>
-          <ExternalLink size={12} className="text-slate-400" />
+          <ExternalLink size={12} className="text-slate-400 group-hover:text-brand-forest transition-colors" />
         </Link>
 
-        <div className="flex items-center gap-2.5 rounded-xl bg-slate-50 p-2.5 border border-slate-200/60">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest font-bold text-xs text-white shadow-xs">
+        <div className="flex items-center gap-2.5 rounded-xl bg-white p-2.5 border border-slate-200/80 shadow-2xs">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-brand-forest font-bold text-xs text-white shadow-xs ring-2 ring-emerald-500/20">
             {initial}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-xs font-bold text-ink leading-tight">
+            <div className="truncate text-xs font-bold text-slate-900 leading-tight">
               {displayName}
             </div>
             <div className="truncate text-[10px] font-semibold text-brand-forest">
@@ -192,7 +196,7 @@ export function Sidebar({
             onClick={signOut}
             aria-label="Đăng xuất"
             title="Đăng xuất"
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-sale hover:shadow-xs transition-all"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all"
           >
             <LogOut size={15} />
           </button>
