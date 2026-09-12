@@ -9,32 +9,32 @@ import { useEffect, useRef } from "react";
 const STALE_AFTER_MS = 5 * 60 * 1000;
 
 /** Mount once near the app root. Renders nothing. */
-export function BfcacheReload() {
+export const BfcacheReload = () => {
   const hiddenAtRef = useRef<number | null>(null);
 
   useEffect(() => {
-    function handleVisibilityChange() {
+    const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         hiddenAtRef.current = Date.now();
       }
-    }
+    };
 
-    function handlePageShow(event: PageTransitionEvent) {
+    const onPageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
       const hiddenAt = hiddenAtRef.current;
       const idleMs = hiddenAt ? Date.now() - hiddenAt : Infinity;
       if (idleMs > STALE_AFTER_MS) {
         window.location.reload();
       }
-    }
+    };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("pageshow", handlePageShow);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pageshow", onPageShow);
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("pageshow", handlePageShow);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pageshow", onPageShow);
     };
   }, []);
 
   return null;
-}
+};

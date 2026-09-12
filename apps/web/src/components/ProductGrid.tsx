@@ -1,8 +1,5 @@
-import Link from "next/link";
-import { Button } from "@saltandlight/ui";
 import { ProductCard } from "./ProductCard";
 import { ProductListItem } from "./ProductListItem";
-import { Sparkles } from "./Icons";
 import { UpcomingCollectionBanner } from "./UpcomingCollectionBanner";
 import type { ProductCardData } from "@/lib/types";
 
@@ -12,13 +9,15 @@ const GRID_COLS: Record<string, string> = {
   "4": "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5",
 };
 
-export function ProductGrid({
-  products,
-  view = "4",
-}: {
+interface ProductGridProps {
   products: ProductCardData[];
   view?: "2" | "3" | "4" | "list";
-}) {
+}
+
+export const ProductGrid = ({
+  products,
+  view = "4",
+}: ProductGridProps) => {
   if (products.length === 0) {
     return (
       <div className="my-6">
@@ -49,4 +48,4 @@ export function ProductGrid({
       ))}
     </div>
   );
-}
+};

@@ -440,3 +440,6 @@ export function UsersManager({
     </div>
   );
 }
+
+export const UsersView = UsersManager;
+

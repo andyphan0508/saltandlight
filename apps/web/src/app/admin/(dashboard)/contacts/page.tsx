@@ -1,8 +1,8 @@
 import { prisma } from "@saltandlight/db";
 import {
-  ContactSubmissionsManager,
+  ContactsView,
   type ContactSubmissionItem,
-} from "./ContactSubmissionsManager";
+} from "@/components/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +48,7 @@ export default async function AdminContactsPage({
   ]);
 
   return (
-    <ContactSubmissionsManager
+    <ContactsView
       initialContacts={JSON.parse(JSON.stringify(contacts)) as ContactSubmissionItem[]}
       total={total}
       page={page}

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useCartStore } from "@/lib/cart-store";
-import { useStoreHydrated } from "@/lib/use-store-hydrated";
+import { useCartStore, useStoreHydrated } from "@/stores";
 import type { SiteSettingsData } from "@/lib/site-settings-types";
 import { ShoppingBag, Phone, ZaloIcon } from "./Icons";
 
@@ -21,17 +20,17 @@ export interface CartFabProps {
  * Positioned cleanly in the bottom-right corner, floating above the mobile BottomTabBar,
  * with smooth micro-interactions, responsive labels on desktop hover, and direct routing.
  */
-export function CartFab({ siteSettings }: CartFabProps) {
+export const CartFab = ({ siteSettings }: CartFabProps) => {
   const pathname = usePathname();
   const cartHydrated = useStoreHydrated(useCartStore);
   const cartCount = useCartStore((s) => (cartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
-  const [bumping, setBumping] = useState(false);
+  const [isBumping, setIsBumping] = useState(false);
 
   // Trigger subtle pop/bump animation whenever cart count increments
   useEffect(() => {
     if (cartCount > 0) {
-      setBumping(true);
-      const timer = setTimeout(() => setBumping(false), 500);
+      setIsBumping(true);
+      const timer = setTimeout(() => setIsBumping(false), 500);
       return () => clearTimeout(timer);
     }
   }, [cartCount]);
@@ -113,15 +112,15 @@ export function CartFab({ siteSettings }: CartFabProps) {
             p-2.5 sm:p-3 lg:px-3.5 lg:py-3
             hover:bg-ink-800 hover:shadow-brand-forest/20 hover:ring-4 hover:ring-brand-forest/20 animate-pop-in
             ${cartCount === 0 ? "hidden lg:flex" : "flex"}
-            ${cartCount > 0 && !bumping ? "animate-pulse-glow" : ""}
-            ${bumping ? "scale-110 ring-4 ring-brand-forest/40" : "scale-100"}`}
+            ${cartCount > 0 && !isBumping ? "animate-pulse-glow" : ""}
+            ${isBumping ? "scale-110 ring-4 ring-brand-forest/40" : "scale-100"}`}
         >
           <span className="relative flex items-center justify-center">
             <ShoppingBag size={20} className="transition-transform duration-300 group-hover:scale-110" />
             {cartCount > 0 && (
               <span
                 className={`absolute -right-2.5 -top-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1.5 text-[10px] font-bold text-white shadow-md border-2 border-ink transition-transform duration-300 ${
-                  bumping ? "scale-125 animate-bounce-soft" : "scale-100"
+                  isBumping ? "scale-125 animate-bounce-soft" : "scale-100"
                 }`}
               >
                 {cartCount}

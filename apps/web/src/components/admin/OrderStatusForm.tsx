@@ -13,13 +13,13 @@ const STATUSES = [
   ["refunded", "Đã hoàn tiền"],
 ] as const;
 
-export function OrderStatusForm({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
+export const OrderStatusForm = ({ orderId, currentStatus }: { orderId: string; currentStatus: string }) => {
   const router = useRouter();
-  const [saving, setSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSaving(true);
+    setIsSaving(true);
     const form = new FormData(e.currentTarget);
     await fetch(`/api/admin/orders/${orderId}/status`, {
       method: "PATCH",
@@ -29,13 +29,13 @@ export function OrderStatusForm({ orderId, currentStatus }: { orderId: string; c
         note: form.get("note") || undefined,
       }),
     });
-    setSaving(false);
+    setIsSaving(false);
     router.refresh();
     (e.target as HTMLFormElement).reset();
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-3">
       <select
         name="status"
         defaultValue={currentStatus}
@@ -52,9 +52,9 @@ export function OrderStatusForm({ orderId, currentStatus }: { orderId: string; c
         placeholder="Ghi chú nội bộ (tùy chọn)"
         className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-sm"
       />
-      <Button type="submit" disabled={saving} size="sm">
-        {saving ? "Đang lưu…" : "Cập nhật trạng thái"}
+      <Button type="submit" disabled={isSaving} size="sm">
+        {isSaving ? "Đang lưu…" : "Cập nhật trạng thái"}
       </Button>
     </form>
   );
-}
+};

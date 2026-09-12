@@ -3,7 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "./Icons";
 
-function pageList(current: number, totalPages: number): (number | "…")[] {
+interface PaginationProps {
+  total: number;
+  pageSize: number;
+}
+
+const getPageList = (current: number, totalPages: number): (number | "…")[] => {
   if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
   const pages = new Set<number>([1, 2, totalPages - 1, totalPages, current - 1, current, current + 1]);
   const sorted = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
@@ -15,9 +20,9 @@ function pageList(current: number, totalPages: number): (number | "…")[] {
     prev = p;
   }
   return out;
-}
+};
 
-export function Pagination({ total, pageSize }: { total: number; pageSize: number }) {
+export const Pagination = ({ total, pageSize }: PaginationProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,24 +32,24 @@ export function Pagination({ total, pageSize }: { total: number; pageSize: numbe
 
   if (totalPages <= 1) return null;
 
-  function go(p: number) {
+  const onGoToPage = (p: number) => {
     const params = new URLSearchParams(searchParams.toString());
     if (p > 1) params.set("page", String(p));
     else params.delete("page");
     router.push(`${pathname}?${params.toString()}`, { scroll: true });
-  }
+  };
 
   return (
     <nav className="mt-10 flex items-center justify-center gap-1.5">
       <button
-        onClick={() => go(page - 1)}
+        onClick={() => onGoToPage(page - 1)}
         disabled={page <= 1}
         aria-label="Trang trước"
         className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-30"
       >
         <ChevronLeft size={16} />
       </button>
-      {pageList(page, totalPages).map((p, i) =>
+      {getPageList(page, totalPages).map((p, i) =>
         p === "…" ? (
           <span key={`e-${i}`} className="px-1 text-sm text-ink/40">
             …
@@ -52,7 +57,7 @@ export function Pagination({ total, pageSize }: { total: number; pageSize: numbe
         ) : (
           <button
             key={p}
-            onClick={() => go(p)}
+            onClick={() => onGoToPage(p)}
             className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
               p === page ? "bg-ink text-white" : "text-ink/60 hover:bg-mint-100 hover:text-ink"
             }`}
@@ -62,7 +67,7 @@ export function Pagination({ total, pageSize }: { total: number; pageSize: numbe
         ),
       )}
       <button
-        onClick={() => go(page + 1)}
+        onClick={() => onGoToPage(page + 1)}
         disabled={page >= totalPages}
         aria-label="Trang sau"
         className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-30"
@@ -71,4 +76,4 @@ export function Pagination({ total, pageSize }: { total: number; pageSize: numbe
       </button>
     </nav>
   );
-}
+};

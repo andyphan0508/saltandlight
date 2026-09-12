@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export function HomeAboutIntro() {
+export const HomeAboutIntro = () => {
   return (
     <section className="relative overflow-hidden py-8 sm:py-12">
       <div className="w-full px-4 text-center">
@@ -34,6 +34,4 @@ export function HomeAboutIntro() {
       </div>
     </section>
   );
-}
-
-
+};

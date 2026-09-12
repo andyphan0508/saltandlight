@@ -614,3 +614,6 @@ export function PromotionsManager({
     </div>
   );
 }
+
+export const PromotionsView = PromotionsManager;
+

@@ -35,7 +35,7 @@ interface TurnstileWidgetProps {
 }
 
 export const TurnstileWidget = forwardRef<TurnstileWidgetRef, TurnstileWidgetProps>(
-  function TurnstileWidget({ onVerify, onExpire, onError, className = "" }, ref) {
+  ({ onVerify, onExpire, onError, className = "" }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
 
@@ -51,28 +51,28 @@ export const TurnstileWidget = forwardRef<TurnstileWidgetRef, TurnstileWidgetPro
       const siteKey =
         process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
-      let mounted = true;
+      let isMounted = true;
 
-      function renderWidget() {
+      const renderWidget = () => {
         if (!containerRef.current || !window.turnstile || widgetIdRef.current) return;
         try {
           widgetIdRef.current = window.turnstile.render(containerRef.current, {
             sitekey: siteKey,
             theme: "light",
             callback: (token: string) => {
-              if (mounted) onVerify(token);
+              if (isMounted) onVerify(token);
             },
             "expired-callback": () => {
-              if (mounted) onExpire?.();
+              if (isMounted) onExpire?.();
             },
             "error-callback": () => {
-              if (mounted) onError?.();
+              if (isMounted) onError?.();
             },
           });
         } catch (err) {
           console.warn("[turnstile] render error:", err);
         }
-      }
+      };
 
       // Check if script is already present
       const SCRIPT_ID = "cf-turnstile-script";
@@ -85,7 +85,7 @@ export const TurnstileWidget = forwardRef<TurnstileWidgetRef, TurnstileWidgetPro
         script.async = true;
         script.defer = true;
         script.onload = () => {
-          if (mounted) renderWidget();
+          if (isMounted) renderWidget();
         };
         document.head.appendChild(script);
       } else if (window.turnstile) {
@@ -94,12 +94,12 @@ export const TurnstileWidget = forwardRef<TurnstileWidgetRef, TurnstileWidgetPro
         const prevOnload = script.onload;
         script.onload = (e) => {
           if (prevOnload) (prevOnload as any)(e);
-          if (mounted) renderWidget();
+          if (isMounted) renderWidget();
         };
       }
 
       return () => {
-        mounted = false;
+        isMounted = false;
         if (typeof window !== "undefined" && window.turnstile && widgetIdRef.current) {
           try {
             window.turnstile.remove(widgetIdRef.current);
@@ -118,3 +118,5 @@ export const TurnstileWidget = forwardRef<TurnstileWidgetRef, TurnstileWidgetPro
     );
   }
 );
+
+TurnstileWidget.displayName = "TurnstileWidget";

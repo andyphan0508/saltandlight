@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSearchModalStore } from "@/lib/search-store";
+import { useSearchModalStore } from "@/stores";
 import { formatVND } from "@saltandlight/domain";
 import { Search, X, ArrowRight } from "./Icons";
 import type { ProductCardData } from "@/lib/types";
@@ -15,7 +15,7 @@ import type { ProductCardData } from "@/lib/types";
  * `backdrop-blur-md` would otherwise collapse this overlay's `inset-0` down
  * to the header's own box instead of the full viewport.
  */
-export function SearchSpotlight() {
+export const SearchSpotlight = () => {
   const open = useSearchModalStore((s) => s.open);
   const setOpen = useSearchModalStore((s) => s.setOpen);
   const router = useRouter();
@@ -23,7 +23,7 @@ export function SearchSpotlight() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ProductCardData[]>([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -47,10 +47,10 @@ export function SearchSpotlight() {
     if (!query.trim()) {
       setResults([]);
       setTotal(0);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
-    setLoading(true);
+    setIsLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
@@ -59,25 +59,25 @@ export function SearchSpotlight() {
         setTotal(data.total ?? 0);
         setActiveIndex(-1);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }, 300);
     return () => clearTimeout(debounceRef.current);
   }, [query, open]);
 
-  function close() {
+  const onClose = () => {
     setOpen(false);
-  }
+  };
 
-  function goToFullResults() {
+  const onGoToFullResults = () => {
     if (!query.trim()) return;
     router.push(`/san-pham?q=${encodeURIComponent(query.trim())}`);
-    close();
-  }
+    onClose();
+  };
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  const onInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
-      close();
+      onClose();
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       setActiveIndex((i) => Math.min(i + 1, results.length - 1));
@@ -87,20 +87,20 @@ export function SearchSpotlight() {
     } else if (e.key === "Enter") {
       if (activeIndex >= 0 && results[activeIndex]) {
         router.push(`/san-pham/${results[activeIndex]!.slug}`);
-        close();
+        onClose();
       } else {
-        goToFullResults();
+        onGoToFullResults();
       }
     }
-  }
+  };
 
   useEffect(() => {
     if (!open) return;
-    function onKeyDown(e: KeyboardEvent) {
+    const onWindowKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    };
+    document.addEventListener("keydown", onWindowKeyDown);
+    return () => document.removeEventListener("keydown", onWindowKeyDown);
   }, [open, setOpen]);
 
   if (!open) return null;
@@ -109,7 +109,7 @@ export function SearchSpotlight() {
     <div className="fixed inset-0 z-[60] flex justify-center px-4 pt-[12vh] sm:pt-[16vh]">
       <div
         className="fixed inset-0 bg-ink/40 backdrop-blur-sm animate-in fade-in duration-150"
-        onClick={close}
+        onClick={onClose}
       />
 
       <div className="relative flex h-fit max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-150">
@@ -119,16 +119,16 @@ export function SearchSpotlight() {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={onInputKeyDown}
             placeholder="Tìm áo thun, túi tote, câu Kinh Thánh..."
             className="w-full bg-transparent text-base text-ink placeholder-ink/35 focus:outline-none"
           />
-          {loading && (
+          {isLoading && (
             <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-ink/20 border-t-ink/60" />
           )}
           <button
             type="button"
-            onClick={close}
+            onClick={onClose}
             aria-label="Đóng tìm kiếm"
             className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-ink/40 hover:bg-ink/5 hover:text-ink"
           >
@@ -145,7 +145,7 @@ export function SearchSpotlight() {
                     <li key={p.id}>
                       <Link
                         href={`/san-pham/${p.slug}`}
-                        onClick={close}
+                        onClick={onClose}
                         onMouseEnter={() => setActiveIndex(i)}
                         className={`flex items-center gap-3 px-5 py-2.5 transition-colors ${
                           activeIndex === i ? "bg-mint-50" : "hover:bg-mint-50/60"
@@ -167,7 +167,7 @@ export function SearchSpotlight() {
                 {total > results.length && (
                   <button
                     type="button"
-                    onClick={goToFullResults}
+                    onClick={onGoToFullResults}
                     className="flex w-full items-center justify-between border-t border-ink/10 px-5 py-3 text-xs font-bold uppercase tracking-wide text-brand-forest hover:bg-mint-50"
                   >
                     <span>Xem tất cả {total} kết quả</span>
@@ -175,7 +175,7 @@ export function SearchSpotlight() {
                   </button>
                 )}
               </>
-            ) : !loading ? (
+            ) : !isLoading ? (
               <p className="px-5 py-8 text-center text-sm text-ink/45">
                 Không tìm thấy sản phẩm nào cho &ldquo;{query}&rdquo;
               </p>
@@ -185,4 +185,4 @@ export function SearchSpotlight() {
       </div>
     </div>
   );
-}
+};

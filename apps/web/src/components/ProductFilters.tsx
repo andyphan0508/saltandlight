@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronDown,
@@ -9,7 +9,6 @@ import {
   X,
   Check,
   RotateCcw,
-  Sparkles,
 } from "./Icons";
 
 interface CategoryOption {
@@ -19,6 +18,12 @@ interface CategoryOption {
   count: number;
 }
 
+interface ProductFiltersProps {
+  categories: CategoryOption[];
+  sizes: string[];
+  totalCount: number;
+}
+
 const SORT_OPTIONS = [
   { value: "latest", label: "Mới nhất" },
   { value: "price-asc", label: "Giá: Thấp đến cao" },
@@ -26,29 +31,25 @@ const SORT_OPTIONS = [
   { value: "name-asc", label: "Tên: A-Z" },
 ] as const;
 
-function parseList(param: string | null): string[] {
+const parseList = (param: string | null): string[] => {
   return param ? param.split(",").filter(Boolean) : [];
-}
+};
 
-export function ProductFilters({
+export const ProductFilters = ({
   categories,
   sizes,
   totalCount,
-}: {
-  categories: CategoryOption[];
-  sizes: string[];
-  totalCount: number;
-}) {
+}: ProductFiltersProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Desktop accordions
-  const [categoriesOpen, setCategoriesOpen] = useState(true);
-  const [sizesOpen, setSizesOpen] = useState(true);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isSizesOpen, setIsSizesOpen] = useState(true);
 
   // Mobile BottomSheet state
-  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const activeCategories = parseList(searchParams.get("categories"));
   const activeSizes = parseList(searchParams.get("sizes"));
@@ -68,7 +69,7 @@ export function ProductFilters({
 
   // Lock body scroll when mobile filter sheet is open
   useEffect(() => {
-    if (bottomSheetOpen) {
+    if (isBottomSheetOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -76,59 +77,59 @@ export function ProductFilters({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [bottomSheetOpen]);
+  }, [isBottomSheetOpen]);
 
-  function updateParams(mutate: (params: URLSearchParams) => void) {
+  const onUpdateParams = (mutate: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
     mutate(params);
     params.delete("page");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }
+  };
 
-  function toggleCategory(slug: string) {
-    updateParams((params) => {
+  const onToggleCategory = (slug: string) => {
+    onUpdateParams((params) => {
       const next = activeCategories.includes(slug)
         ? activeCategories.filter((s) => s !== slug)
         : [...activeCategories, slug];
       if (next.length) params.set("categories", next.join(","));
       else params.delete("categories");
     });
-  }
+  };
 
-  function setSingleCategory(slug: string | null) {
-    updateParams((params) => {
+  const onSetSingleCategory = (slug: string | null) => {
+    onUpdateParams((params) => {
       if (slug) params.set("categories", slug);
       else params.delete("categories");
     });
-  }
+  };
 
-  function toggleSize(size: string) {
-    updateParams((params) => {
+  const onToggleSize = (size: string) => {
+    onUpdateParams((params) => {
       const next = activeSizes.includes(size)
         ? activeSizes.filter((s) => s !== size)
         : [...activeSizes, size];
       if (next.length) params.set("sizes", next.join(","));
       else params.delete("sizes");
     });
-  }
+  };
 
-  function toggleOnSale() {
-    updateParams((params) => {
+  const onToggleOnSale = () => {
+    onUpdateParams((params) => {
       if (onSale) params.delete("onSale");
       else params.set("onSale", "1");
     });
-  }
+  };
 
-  function setSort(sortValue: string) {
-    updateParams((params) => {
+  const onSetSort = (sortValue: string) => {
+    onUpdateParams((params) => {
       if (sortValue === "latest") params.delete("sort");
       else params.set("sort", sortValue);
     });
-  }
+  };
 
-  function clearAll() {
+  const onClearAll = () => {
     router.push(pathname, { scroll: false });
-  }
+  };
 
   return (
     <>
@@ -140,7 +141,7 @@ export function ProductFilters({
         <div className="overflow-x-auto no-scrollbar flex items-center gap-2 py-1 -mx-4 px-4">
           <button
             type="button"
-            onClick={() => setSingleCategory(null)}
+            onClick={() => onSetSingleCategory(null)}
             className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all active-press ${
               activeCategories.length === 0
                 ? "bg-ink text-white shadow-sm"
@@ -159,7 +160,7 @@ export function ProductFilters({
               <button
                 key={c.id}
                 type="button"
-                onClick={() => setSingleCategory(isSelected && activeCategories.length === 1 ? null : c.slug)}
+                onClick={() => onSetSingleCategory(isSelected && activeCategories.length === 1 ? null : c.slug)}
                 className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all active-press ${
                   isSelected
                     ? "bg-brand-forest text-white shadow-sm"
@@ -181,7 +182,7 @@ export function ProductFilters({
             {/* Filter & Sort BottomSheet Trigger */}
             <button
               type="button"
-              onClick={() => setBottomSheetOpen(true)}
+              onClick={() => setIsBottomSheetOpen(true)}
               className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all active-press shadow-xs ${
                 hasActiveFilters
                   ? "border-brand-forest bg-mint-50 text-brand-forest font-bold"
@@ -200,7 +201,7 @@ export function ProductFilters({
             {/* Quick On-Sale Toggle Button */}
             <button
               type="button"
-              onClick={toggleOnSale}
+              onClick={onToggleOnSale}
               className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-bold transition-all active-press ${
                 onSale
                   ? "border-sale bg-rose-50 text-sale shadow-xs font-bold"
@@ -214,7 +215,7 @@ export function ProductFilters({
           {/* Quick Sort Preview Indicator */}
           <button
             type="button"
-            onClick={() => setBottomSheetOpen(true)}
+            onClick={() => setIsBottomSheetOpen(true)}
             className="flex items-center gap-1 text-xs font-semibold text-ink/60 hover:text-ink active-press"
           >
             <span>{currentSortObj.label}</span>
@@ -226,12 +227,12 @@ export function ProductFilters({
       {/* ========================================================================= */}
       {/* MOBILE NATIVE BOTTOMSHEET (Filter & Sort Selection)                      */}
       {/* ========================================================================= */}
-      {bottomSheetOpen && (
+      {isBottomSheetOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
           {/* Dimmed Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
-            onClick={() => setBottomSheetOpen(false)}
+            onClick={() => setIsBottomSheetOpen(false)}
             aria-hidden="true"
           />
 
@@ -245,7 +246,7 @@ export function ProductFilters({
             {/* Drag Handle */}
             <div
               className="flex justify-center pt-3 pb-1 cursor-pointer flex-shrink-0"
-              onClick={() => setBottomSheetOpen(false)}
+              onClick={() => setIsBottomSheetOpen(false)}
             >
               <div className="h-1.5 w-12 rounded-full bg-ink/20 hover:bg-ink/40 transition-colors" />
             </div>
@@ -263,7 +264,7 @@ export function ProductFilters({
                 {hasActiveFilters && (
                   <button
                     type="button"
-                    onClick={clearAll}
+                    onClick={onClearAll}
                     className="flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold text-sale hover:bg-rose-50 active-press"
                   >
                     <RotateCcw size={12} />
@@ -272,7 +273,7 @@ export function ProductFilters({
                 )}
                 <button
                   type="button"
-                  onClick={() => setBottomSheetOpen(false)}
+                  onClick={() => setIsBottomSheetOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-ink/5 text-ink/70 hover:bg-ink/10 active-press"
                   aria-label="Đóng bộ lọc"
                 >
@@ -295,7 +296,7 @@ export function ProductFilters({
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => setSort(opt.value)}
+                        onClick={() => onSetSort(opt.value)}
                         className={`flex items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all active-press border ${
                           isSelected
                             ? "bg-ink text-white border-ink shadow-sm"
@@ -319,7 +320,7 @@ export function ProductFilters({
                   {activeCategories.length > 0 && (
                     <button
                       type="button"
-                      onClick={() => setSingleCategory(null)}
+                      onClick={() => onSetSingleCategory(null)}
                       className="text-[11px] font-bold text-brand-forest hover:underline"
                     >
                       Chọn tất cả
@@ -330,7 +331,7 @@ export function ProductFilters({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setSingleCategory(null)}
+                    onClick={() => onSetSingleCategory(null)}
                     className={`flex items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all active-press border ${
                       activeCategories.length === 0
                         ? "bg-brand-forest text-white border-brand-forest shadow-sm"
@@ -347,7 +348,7 @@ export function ProductFilters({
                       <button
                         key={c.id}
                         type="button"
-                        onClick={() => toggleCategory(c.slug)}
+                        onClick={() => onToggleCategory(c.slug)}
                         className={`flex items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all active-press border ${
                           isChecked
                             ? "bg-brand-forest text-white border-brand-forest shadow-sm"
@@ -375,7 +376,7 @@ export function ProductFilters({
                         <button
                           key={size}
                           type="button"
-                          onClick={() => toggleSize(size)}
+                          onClick={() => onToggleSize(size)}
                           className={`rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all active-press ${
                             isSelected
                               ? "border-ink bg-ink text-white shadow-sm"
@@ -405,7 +406,7 @@ export function ProductFilters({
                   <input
                     type="checkbox"
                     checked={onSale}
-                    onChange={toggleOnSale}
+                    onChange={onToggleOnSale}
                     className="h-5 w-5 rounded-md accent-brand-forest"
                   />
                 </label>
@@ -416,7 +417,7 @@ export function ProductFilters({
             <div className="border-t border-ink/5 bg-[#FDFBF7] p-4 flex-shrink-0">
               <button
                 type="button"
-                onClick={() => setBottomSheetOpen(false)}
+                onClick={() => setIsBottomSheetOpen(false)}
                 className="w-full rounded-2xl bg-ink py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-ink/90 active-press"
               >
                 Áp Dụng Bộ Lọc
@@ -434,7 +435,7 @@ export function ProductFilters({
           <input
             type="checkbox"
             checked={onSale}
-            onChange={toggleOnSale}
+            onChange={onToggleOnSale}
             className="h-4 w-4 rounded accent-brand-forest"
           />
           <span className="font-semibold text-xs text-ink">Chỉ hiện sản phẩm đang giảm giá</span>
@@ -442,14 +443,14 @@ export function ProductFilters({
 
         <FilterSection
           title="Danh mục sản phẩm"
-          open={categoriesOpen}
-          onToggle={() => setCategoriesOpen((v) => !v)}
+          open={isCategoriesOpen}
+          onToggle={() => setIsCategoriesOpen((v) => !v)}
         >
           <FilterRow
             label="Tất cả sản phẩm"
             count={totalCount}
             checked={activeCategories.length === 0}
-            onChange={() => setSingleCategory(null)}
+            onChange={() => onSetSingleCategory(null)}
           />
           {categories.map((c) => (
             <FilterRow
@@ -457,13 +458,13 @@ export function ProductFilters({
               label={c.name}
               count={c.count}
               checked={activeCategories.includes(c.slug)}
-              onChange={() => toggleCategory(c.slug)}
+              onChange={() => onToggleCategory(c.slug)}
             />
           ))}
         </FilterSection>
 
         {sizes.length > 0 && (
-          <FilterSection title="Kích thước" open={sizesOpen} onToggle={() => setSizesOpen((v) => !v)}>
+          <FilterSection title="Kích thước" open={isSizesOpen} onToggle={() => setIsSizesOpen((v) => !v)}>
             <div className="flex flex-wrap gap-2 pt-1">
               {sizes.map((size) => {
                 const active = activeSizes.includes(size);
@@ -471,7 +472,7 @@ export function ProductFilters({
                   <button
                     key={size}
                     type="button"
-                    onClick={() => toggleSize(size)}
+                    onClick={() => onToggleSize(size)}
                     className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all active-press ${
                       active
                         ? "border-ink bg-ink text-white shadow-xs"
@@ -489,7 +490,7 @@ export function ProductFilters({
         {hasActiveFilters && (
           <button
             type="button"
-            onClick={clearAll}
+            onClick={onClearAll}
             className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand-forest hover:underline pt-1"
           >
             <RotateCcw size={13} />
@@ -499,19 +500,21 @@ export function ProductFilters({
       </aside>
     </>
   );
+};
+
+interface FilterSectionProps {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
 }
 
-function FilterSection({
+const FilterSection = ({
   title,
   open,
   onToggle,
   children,
-}: {
-  title: string;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
+}: FilterSectionProps) => {
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-card">
       <button
@@ -524,19 +527,21 @@ function FilterSection({
       {open && <div className="mt-3 space-y-2.5">{children}</div>}
     </div>
   );
-}
+};
 
-function FilterRow({
-  label,
-  count,
-  checked,
-  onChange,
-}: {
+interface FilterRowProps {
   label: string;
   count: number;
   checked: boolean;
   onChange: () => void;
-}) {
+}
+
+const FilterRow = ({
+  label,
+  count,
+  checked,
+  onChange,
+}: FilterRowProps) => {
   return (
     <label className="flex cursor-pointer items-center justify-between gap-2 text-xs font-medium text-ink/75 hover:text-ink">
       <span className="flex items-center gap-2.5">
@@ -551,4 +556,4 @@ function FilterRow({
       <span className="text-[11px] text-ink/40">({count})</span>
     </label>
   );
-}
+};

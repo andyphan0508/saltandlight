@@ -1,5 +1,5 @@
 import { prisma } from "@saltandlight/db";
-import { CategoryManager, type CategoryItem } from "./CategoryManager";
+import { CategoriesView, type CategoryItem } from "@/components/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +55,7 @@ export default async function AdminCategoriesPage({
   ]);
 
   return (
-    <CategoryManager
+    <CategoriesView
       initialCategories={JSON.parse(JSON.stringify(categories)) as CategoryItem[]}
       parentOptions={parentOptions}
       total={total}

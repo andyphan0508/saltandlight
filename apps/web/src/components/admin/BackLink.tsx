@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft } from "./Icons";
 
-export function BackLink({ href, label }: { href: string; label: string }) {
+export const BackLink = ({ href, label }: { href: string; label: string }) => {
   return (
     <Link
       href={href}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, type TouchEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "./Icons";
@@ -42,7 +42,11 @@ const DEFAULT_SLIDES: BannerData[] = [
   },
 ];
 
-export function HeroSlider({ banners }: { banners?: BannerData[] }) {
+interface HeroSliderProps {
+  banners?: BannerData[];
+}
+
+export const HeroSlider = ({ banners }: HeroSliderProps) => {
   const slides = banners && banners.length > 0 ? banners : DEFAULT_SLIDES;
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -51,37 +55,37 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
 
   const total = slides.length;
 
-  const nextSlide = useCallback(() => {
+  const onNextSlide = useCallback(() => {
     setCurrent((prev) => (prev + 1) % total);
   }, [total]);
 
-  const prevSlide = useCallback(() => {
+  const onPrevSlide = useCallback(() => {
     setCurrent((prev) => (prev - 1 + total) % total);
   }, [total]);
 
   // Autoplay - slowed down to 7.5s for a calm, seamless experience
   useEffect(() => {
     if (isPaused || total <= 1) return;
-    const timer = setInterval(nextSlide, 7500);
+    const timer = setInterval(onNextSlide, 7500);
     return () => clearInterval(timer);
-  }, [isPaused, nextSlide, total]);
+  }, [isPaused, onNextSlide, total]);
 
   // Touch Swipe Handlers for Mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const onTouchStart = (e: TouchEvent) => {
     const touch = e.targetTouches[0];
     if (touch) touchStartX.current = touch.clientX;
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const onTouchMove = (e: TouchEvent) => {
     const touch = e.targetTouches[0];
     if (touch) touchEndX.current = touch.clientX;
   };
 
-  const handleTouchEnd = () => {
+  const onTouchEnd = () => {
     if (touchStartX.current === null || touchEndX.current === null) return;
     const distance = touchStartX.current - touchEndX.current;
-    if (distance > 50) nextSlide();
-    if (distance < -50) prevSlide();
+    if (distance > 50) onNextSlide();
+    if (distance < -50) onPrevSlide();
     touchStartX.current = null;
     touchEndX.current = null;
   };
@@ -91,9 +95,9 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
       className="relative w-full overflow-hidden select-none bg-slate-950"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Full-width Panoramic Widescreen Slide Viewport */}
       <div className="relative w-full h-[340px] sm:h-[440px] md:h-[500px] lg:h-[560px] xl:h-[620px]">
@@ -200,7 +204,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
         <>
           <button
             type="button"
-            onClick={prevSlide}
+            onClick={onPrevSlide}
             aria-label="Slide trước"
             className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white shadow-lg backdrop-blur-md border border-white/15 transition-all active:scale-90"
           >
@@ -208,7 +212,7 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
           </button>
           <button
             type="button"
-            onClick={nextSlide}
+            onClick={onNextSlide}
             aria-label="Slide tiếp theo"
             className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white shadow-lg backdrop-blur-md border border-white/15 transition-all active:scale-90"
           >
@@ -235,4 +239,4 @@ export function HeroSlider({ banners }: { banners?: BannerData[] }) {
       )}
     </div>
   );
-}
+};

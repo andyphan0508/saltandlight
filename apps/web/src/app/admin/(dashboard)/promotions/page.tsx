@@ -1,6 +1,6 @@
 import { prisma } from "@saltandlight/db";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { PromotionsManager } from "@/components/admin/PromotionsManager";
+import { PromotionsView } from "@/components/admin";
 import { toPlain } from "@/lib/serialize";
 
 export const dynamic = "force-dynamic";
@@ -52,7 +52,7 @@ export default async function AdminPromotionsPage({
         subtitle="Quản lý các đợt ưu đãi, mức giảm giá và sản phẩm áp dụng đồng bộ toàn hệ thống"
       />
 
-      <PromotionsManager
+      <PromotionsView
         initialPromotions={promotions}
         products={products}
         total={total}

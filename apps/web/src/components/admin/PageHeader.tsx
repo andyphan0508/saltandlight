@@ -1,6 +1,6 @@
 import { Calendar } from "./Icons";
 
-export function PageHeader({
+export const PageHeader = ({
   title,
   subtitle,
   action,
@@ -8,7 +8,7 @@ export function PageHeader({
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
-}) {
+}) => {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>

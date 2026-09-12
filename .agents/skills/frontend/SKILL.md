@@ -16,6 +16,7 @@ description: >-
 4. **State + Backend free-tier** — đọc `references/state-management-zustand.md` và `references/free-tier-stack.md` khi task có state phức tạp hoặc cần backend.
 5. **Performance + bảo mật** — đọc `references/performance-security.md`, áp checklist trước khi coi task là xong.
 6. **Tự review** — chạy qua `references/final-checklist.md` như một QA thật sự trước khi trả kết quả.
+7. **Kiểm tra interface** — đọc file `.ts` trong folder `types` để biết interface của API trước khi code.
 
 ## 1. Thiết kế trực quan — không được AI-generic
 
@@ -29,7 +30,9 @@ Chi tiết đầy đủ (bảng màu ví dụ, quy tắc typography, cách viế
 
 ## 2. Kiến trúc source — `/components` + `index.tsx` mỏng
 
-Nguyên tắc cốt lõi: **`index.tsx` không chứa logic**, chỉ import component/hook/function và truyền props xuống. Toàn bộ business logic, side-effect, style nằm trong các file con của `/components`.
+Nguyên tắc cốt lõi: **`index.tsx` không chứa logic**, chỉ import component/hook/function và truyền props xuống. Toàn bộ business logic, side-effect, style nằm trong các file con của `/components`. Các tên của tất cả các cây thư mục phải được viết bằng tiếng anh đồng nhất hết. Ví dụ `src/app/admin/users/page.tsx` được phép gọi `<UsersView />` thay vì tự viết code trong `page.tsx`. Tên gọi `chinh-sach` thì phải gọi là `policy` chứ không được gọi là `chinh-sach`. Áp dụng trong toàn source code
+
+Nguyên tắc function component hay dùng arrow function, ví dụ `const Button = () => { ... }`. Và các function nếu là 1 action hoặc tính năng nào đó thì thường hay có tiền tố là `on`, ví dụ `onLogin`, `onLogout`, `onRegister`. Còn function trả về kết quả boolean thì hay có tiền tố là `is`, ví dụ `isLoggedIn`, `isSubmitting`, `isValid`.
 
 ```
 src/

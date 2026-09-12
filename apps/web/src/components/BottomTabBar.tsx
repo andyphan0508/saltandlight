@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCartStore } from "@/lib/cart-store";
-import { useWishlistStore } from "@/lib/wishlist-store";
-import { useMobileMenuStore } from "@/lib/mobile-menu-store";
-import { useStoreHydrated } from "@/lib/use-store-hydrated";
+import {
+  useCartStore,
+  useWishlistStore,
+  useMobileMenuStore,
+  useStoreHydrated,
+} from "@/stores";
 import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
 
 /**
@@ -14,7 +16,7 @@ import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
  * descendants, which would pin this to the bottom of the header instead of
  * the viewport if it lived inside it.
  */
-export function BottomTabBar() {
+export const BottomTabBar = () => {
   const pathname = usePathname();
   const cartHydrated = useStoreHydrated(useCartStore);
   const wishlistHydrated = useStoreHydrated(useWishlistStore);
@@ -52,9 +54,9 @@ export function BottomTabBar() {
       </button>
     </nav>
   );
-}
+};
 
-function TabLink({
+const TabLink = ({
   href,
   label,
   active,
@@ -66,7 +68,7 @@ function TabLink({
   active: boolean;
   badge?: number;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <Link
       href={href}
@@ -86,4 +88,4 @@ function TabLink({
       {active && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-ink" />}
     </Link>
   );
-}
+};

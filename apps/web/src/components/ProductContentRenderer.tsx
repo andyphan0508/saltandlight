@@ -1,31 +1,40 @@
 import Image from "next/image";
 import { Check, Sparkles, Heart, CrossIcon, Gift, Truck, ShieldCheck, Star } from "./Icons";
 import {
-  isProductContentBlocks,
   parseProductContent,
   type ProductContentBlock,
 } from "@/lib/product-content";
 
-export function ProductContentRenderer({
-  content,
-}: {
+interface ProductContentRendererProps {
   content?: string | null;
-}) {
-  if (!content) return null;
-
-  const blocks = parseProductContent(content);
-  if (blocks.length === 0) return null;
-
-  return (
-    <div className="space-y-4 text-xs sm:text-sm text-ink/85 leading-relaxed">
-      {blocks.map((block) => (
-        <BlockItem key={block.id} block={block} />
-      ))}
-    </div>
-  );
 }
 
-function BlockItem({ block }: { block: ProductContentBlock }) {
+const renderCalloutIcon = (iconName: string) => {
+  switch (iconName) {
+    case "Sparkles":
+      return <Sparkles size={20} className="text-brand-forest" />;
+    case "Heart":
+      return <Heart size={20} className="text-rose-500" />;
+    case "Gift":
+      return <Gift size={20} className="text-amber-600" />;
+    case "Truck":
+      return <Truck size={20} className="text-blue-600" />;
+    case "ShieldCheck":
+      return <ShieldCheck size={20} className="text-emerald-600" />;
+    case "Star":
+      return <Star size={20} className="text-amber-500" />;
+    case "CrossIcon":
+      return <CrossIcon size={20} className="text-brand-forest" />;
+    default:
+      return iconName || "💡";
+  }
+};
+
+interface BlockItemProps {
+  block: ProductContentBlock;
+}
+
+const BlockItem = ({ block }: BlockItemProps) => {
   switch (block.type) {
     case "paragraph":
       return (
@@ -157,25 +166,21 @@ function BlockItem({ block }: { block: ProductContentBlock }) {
     default:
       return null;
   }
-}
+};
 
-function renderCalloutIcon(iconName: string) {
-  switch (iconName) {
-    case "Sparkles":
-      return <Sparkles size={20} className="text-brand-forest" />;
-    case "Heart":
-      return <Heart size={20} className="text-rose-500" />;
-    case "Gift":
-      return <Gift size={20} className="text-amber-600" />;
-    case "Truck":
-      return <Truck size={20} className="text-blue-600" />;
-    case "ShieldCheck":
-      return <ShieldCheck size={20} className="text-emerald-600" />;
-    case "Star":
-      return <Star size={20} className="text-amber-500" />;
-    case "CrossIcon":
-      return <CrossIcon size={20} className="text-brand-forest" />;
-    default:
-      return iconName || "💡";
-  }
-}
+export const ProductContentRenderer = ({
+  content,
+}: ProductContentRendererProps) => {
+  if (!content) return null;
+
+  const blocks = parseProductContent(content);
+  if (blocks.length === 0) return null;
+
+  return (
+    <div className="space-y-4 text-xs sm:text-sm text-ink/85 leading-relaxed">
+      {blocks.map((block) => (
+        <BlockItem key={block.id} block={block} />
+      ))}
+    </div>
+  );
+};

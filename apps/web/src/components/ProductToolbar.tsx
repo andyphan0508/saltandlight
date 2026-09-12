@@ -17,15 +17,17 @@ const SORT_OPTIONS = [
   { value: "name-asc", label: "Tên: A-Z" },
 ] as const;
 
-export function ProductToolbar({
-  total,
-  from,
-  to,
-}: {
+interface ProductToolbarProps {
   total: number;
   from: number;
   to: number;
-}) {
+}
+
+export const ProductToolbar = ({
+  total,
+  from,
+  to,
+}: ProductToolbarProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -33,13 +35,13 @@ export function ProductToolbar({
   const view = searchParams.get("view") ?? "3";
   const sort = searchParams.get("sort") ?? "latest";
 
-  function setParam(key: string, value: string, defaultValue: string) {
+  const onSetParam = (key: string, value: string, defaultValue: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value === defaultValue) params.delete(key);
     else params.set(key, value);
     if (key === "sort") params.delete("page");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 border-b border-ink/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -54,7 +56,7 @@ export function ProductToolbar({
                 type="button"
                 aria-label={opt.label}
                 aria-pressed={active}
-                onClick={() => setParam("view", opt.value, "3")}
+                onClick={() => onSetParam("view", opt.value, "3")}
                 className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
                   active ? "bg-ink text-white" : "text-ink/40 hover:text-ink"
                 }`}
@@ -76,7 +78,7 @@ export function ProductToolbar({
         <select
           id="sort"
           value={sort}
-          onChange={(e) => setParam("sort", e.target.value, "latest")}
+          onChange={(e) => onSetParam("sort", e.target.value, "latest")}
           className="rounded-full border border-ink/15 bg-white px-3.5 py-2 text-xs font-semibold text-ink focus:border-brand-forest focus:outline-none"
         >
           {SORT_OPTIONS.map((opt) => (
@@ -88,10 +90,10 @@ export function ProductToolbar({
       </div>
     </div>
   );
-}
+};
 
-export function useProductView(): "2" | "3" | "4" | "list" {
+export const useProductView = (): "2" | "3" | "4" | "list" => {
   const searchParams = useSearchParams();
   const view = searchParams.get("view") ?? "3";
   return (["2", "3", "4", "list"] as const).includes(view as never) ? (view as never) : "3";
-}
+};

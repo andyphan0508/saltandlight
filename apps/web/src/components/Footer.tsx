@@ -5,16 +5,15 @@ import {
   Phone,
   Mail,
   MapPin,
-  ShieldCheck,
-  Truck,
-  RefreshCw,
-  Sparkles,
 } from "./Icons";
 
-export function Footer({ siteSettings = DEFAULT_SITE_SETTINGS }: { siteSettings?: SiteSettingsData }) {
+interface FooterProps {
+  siteSettings?: SiteSettingsData;
+}
+
+export const Footer = ({ siteSettings = DEFAULT_SITE_SETTINGS }: FooterProps) => {
   return (
     <footer className="mt-20 border-t border-ink/10 bg-mint-50/70">
-
       {/* Main Footer Links - Aligned with saltandlight.com.vn */}
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-5">
         {/* Col 1: Brand Info */}
@@ -90,5 +89,4 @@ export function Footer({ siteSettings = DEFAULT_SITE_SETTINGS }: { siteSettings?
       </div>
     </footer>
   );
-}
-
+};

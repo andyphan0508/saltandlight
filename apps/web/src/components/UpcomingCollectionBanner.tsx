@@ -14,14 +14,14 @@ export interface UpcomingCollectionBannerProps {
  * Reusable banner component for upcoming collections or empty product states,
  * styled with a dotted grid background and illustration.
  */
-export function UpcomingCollectionBanner({
+export const UpcomingCollectionBanner = ({
   title = "BỘ SƯU TẬP MỚI SẮP ĐƯỢC RA MẮT",
   categoryName,
   description,
   ctaLabel = "KHÁM PHÁ SẢN PHẨM",
   ctaHref = "/san-pham",
   className = "",
-}: UpcomingCollectionBannerProps) {
+}: UpcomingCollectionBannerProps) => {
   const effectiveDescription =
     description ||
     (categoryName
@@ -68,4 +68,4 @@ export function UpcomingCollectionBanner({
       </div>
     </div>
   );
-}
+};

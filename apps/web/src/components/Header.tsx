@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useWishlistStore } from "@/lib/wishlist-store";
-import { useMobileMenuStore } from "@/lib/mobile-menu-store";
-import { useSearchModalStore } from "@/lib/search-store";
-import { useStoreHydrated } from "@/lib/use-store-hydrated";
+import {
+  useWishlistStore,
+  useMobileMenuStore,
+  useSearchModalStore,
+  useStoreHydrated,
+} from "@/stores";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { useCustomer } from "@/lib/use-customer";
 import { Logo } from "./Logo";
@@ -28,7 +30,7 @@ export interface ActivePromotionInfo {
   discountValue: number | string;
 }
 
-export function Header({
+export const Header = ({
   categories,
   activePromotion,
   siteSettings = DEFAULT_SITE_SETTINGS,
@@ -36,7 +38,7 @@ export function Header({
   categories: CategoryNavItem[];
   activePromotion?: ActivePromotionInfo | null;
   siteSettings?: SiteSettingsData;
-}) {
+}) => {
   const pathname = usePathname();
   const { customer } = useCustomer();
   const navLeft = siteSettings.headerNavItems.left;
@@ -46,22 +48,22 @@ export function Header({
 
   const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
   const setSearchOpen = useSearchModalStore((s) => s.setOpen);
-  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMobileMenuOpen(false);
-    setCategoryMenuOpen(false);
+    setIsCategoryMenuOpen(false);
   }, [pathname, setMobileMenuOpen]);
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    const onClickOutside = (e: MouseEvent) => {
       if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target as Node)) {
-        setCategoryMenuOpen(false);
+        setIsCategoryMenuOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
@@ -152,26 +154,26 @@ export function Header({
               <div ref={categoryMenuRef} className="relative">
                 <button
                   type="button"
-                  onClick={() => setCategoryMenuOpen((v) => !v)}
+                  onClick={() => setIsCategoryMenuOpen((v) => !v)}
                   className={`flex items-center gap-1 rounded-full px-3 xl:px-4 py-1.5 text-[11px] xl:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                    isCategoryActive && !categoryMenuOpen
+                    isCategoryActive && !isCategoryMenuOpen
                       ? "bg-ink text-white shadow-sm"
                       : "text-ink/85 hover:bg-ink/5 hover:text-ink"
                   }`}
-                  aria-expanded={categoryMenuOpen}
+                  aria-expanded={isCategoryMenuOpen}
                 >
                   Danh mục
                   <ChevronDown
                     size={13}
-                    className={`transition-transform ${categoryMenuOpen ? "rotate-180" : ""}`}
+                    className={`transition-transform ${isCategoryMenuOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
-                {categoryMenuOpen && (
+                {isCategoryMenuOpen && (
                   <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-ink/10 bg-white p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
                     <Link
                       href="/san-pham"
-                      onClick={() => setCategoryMenuOpen(false)}
+                      onClick={() => setIsCategoryMenuOpen(false)}
                       className="block rounded-xl px-3 py-2 text-xs font-bold uppercase text-ink hover:bg-mint-50"
                     >
                       Tất cả sản phẩm
@@ -181,7 +183,7 @@ export function Header({
                       <Link
                         key={c.id}
                         href={`/san-pham?categories=${c.slug}`}
-                        onClick={() => setCategoryMenuOpen(false)}
+                        onClick={() => setIsCategoryMenuOpen(false)}
                         className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink/75 hover:bg-mint-50 hover:text-ink"
                       >
                         <span>{c.name}</span>

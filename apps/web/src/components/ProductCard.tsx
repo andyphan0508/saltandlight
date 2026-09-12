@@ -5,16 +5,16 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/stores";
 import { Heart, Star, ShoppingBag } from "./Icons";
 import type { ProductCardData } from "@/lib/types";
 
-export function ProductCard({ product }: { product: ProductCardData }) {
+export const ProductCard = ({ product }: { product: ProductCardData }) => {
   const isWished = useWishlistStore((s) => s.has(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggle);
   const discount = calcDiscountPercent(product.minPrice, product.maxCompareAtPrice);
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const onToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product.id);
@@ -74,7 +74,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         {/* Wishlist Button - compact */}
         <button
           type="button"
-          onClick={handleWishlist}
+          onClick={onToggleWishlist}
           aria-pressed={isWished}
           aria-label={isWished ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
           className={`absolute right-3.5 top-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200 shadow-sm active-press ${

@@ -11,13 +11,15 @@ import {
 } from "@/lib/error-classification";
 import StorefrontLoading from "./loading";
 
-export default function Error({
-  error,
-  reset,
-}: {
+interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}
+
+const ErrorPage = ({
+  error,
+  reset,
+}: ErrorProps) => {
   const isRouterCorrupted = isRouterCorruptionError(error?.message);
 
   const [bufferState] = useState(() => {
@@ -63,13 +65,13 @@ export default function Error({
     return <StorefrontLoading />;
   }
 
-  const handleManualRetry = () => {
+  const onManualRetry = () => {
     const routeKey = typeof window !== "undefined" ? window.location.pathname : "storefront";
     resetRetryBuffer(routeKey);
     reset();
   };
 
-  const handleReload = () => {
+  const onReload = () => {
     const routeKey = typeof window !== "undefined" ? window.location.pathname : "storefront";
     resetRetryBuffer(routeKey);
     if (typeof window !== "undefined") {
@@ -90,10 +92,10 @@ export default function Error({
         {error.digest && <p className="text-xs text-ink/40">Mã lỗi: {error.digest}</p>}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button onClick={handleManualRetry} variant="primary" size="md">
+        <Button onClick={onManualRetry} variant="primary" size="md">
           Thử lại
         </Button>
-        <Button onClick={handleReload} variant="secondary" size="md">
+        <Button onClick={onReload} variant="secondary" size="md">
           Tải lại trang
         </Button>
         <Link href="/">
@@ -104,4 +106,6 @@ export default function Error({
       </div>
     </div>
   );
-}
+};
+
+export default ErrorPage;

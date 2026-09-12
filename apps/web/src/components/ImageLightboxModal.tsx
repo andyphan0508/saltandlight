@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type TouchEvent } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "./Icons";
@@ -13,20 +13,20 @@ interface ImageLightboxModalProps {
   onClose: () => void;
 }
 
-export function ImageLightboxModal({
+export const ImageLightboxModal = ({
   images,
   initialIndex = 0,
   productName,
   isOpen,
   onClose,
-}: ImageLightboxModalProps) {
-  const [mounted, setMounted] = useState(false);
+}: ImageLightboxModalProps) => {
+  const [isMounted, setIsMounted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -43,13 +43,13 @@ export function ImageLightboxModal({
     };
   }, [isOpen, initialIndex]);
 
-  const nextImage = useCallback(() => {
+  const onNextImage = useCallback(() => {
     if (images.length <= 1) return;
     setCurrentIndex((prev) => (prev + 1) % images.length);
     setZoomLevel(1);
   }, [images.length]);
 
-  const prevImage = useCallback(() => {
+  const onPrevImage = useCallback(() => {
     if (images.length <= 1) return;
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     setZoomLevel(1);
@@ -58,36 +58,36 @@ export function ImageLightboxModal({
   // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") nextImage();
-      if (e.key === "ArrowLeft") prevImage();
+      if (e.key === "ArrowRight") onNextImage();
+      if (e.key === "ArrowLeft") onPrevImage();
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose, nextImage, prevImage]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onClose, onNextImage, onPrevImage]);
 
-  if (!mounted || !isOpen || images.length === 0) return null;
+  if (!isMounted || !isOpen || images.length === 0) return null;
 
   const current = images[currentIndex] ?? images[0];
   if (!current) return null;
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const onTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.touches[0]?.clientX ?? null);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const onTouchEnd = (e: TouchEvent) => {
     if (touchStartX === null) return;
     const touchEndX = e.changedTouches[0]?.clientX ?? 0;
     const diff = touchStartX - touchEndX;
     if (Math.abs(diff) > 50) {
-      if (diff > 0) nextImage();
-      else prevImage();
+      if (diff > 0) onNextImage();
+      else onPrevImage();
     }
     setTouchStartX(null);
   };
 
-  const toggleZoom = () => {
+  const onToggleZoom = () => {
     setZoomLevel((prev) => (prev === 1 ? 1.6 : 1));
   };
 
@@ -116,7 +116,7 @@ export function ImageLightboxModal({
           {/* Zoom toggle button */}
           <button
             type="button"
-            onClick={toggleZoom}
+            onClick={onToggleZoom}
             className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/15 shadow-lg transition-all active:scale-95"
             title={zoomLevel === 1 ? "Phóng to" : "Thu nhỏ"}
           >
@@ -141,15 +141,15 @@ export function ImageLightboxModal({
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         {/* Navigation Buttons (desktop & tablet) */}
         {images.length > 1 && (
           <>
             <button
               type="button"
-              onClick={prevImage}
+              onClick={onPrevImage}
               className="absolute left-1 sm:left-4 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md border border-white/15 shadow-xl transition-all active:scale-90"
               title="Ảnh trước (←)"
             >
@@ -157,7 +157,7 @@ export function ImageLightboxModal({
             </button>
             <button
               type="button"
-              onClick={nextImage}
+              onClick={onNextImage}
               className="absolute right-1 sm:right-4 z-30 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md border border-white/15 shadow-xl transition-all active:scale-90"
               title="Ảnh tiếp theo (→)"
             >
@@ -169,7 +169,7 @@ export function ImageLightboxModal({
         {/* Center Image Container: Centered in browser viewport, scaling per device */}
         <div
           className="relative max-h-[70vh] sm:max-h-[76vh] w-[94vw] sm:w-[85vw] max-w-3xl h-full flex items-center justify-center transition-transform duration-200 cursor-zoom-in rounded-3xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-2 sm:p-4"
-          onClick={toggleZoom}
+          onClick={onToggleZoom}
           style={{ transform: `scale(${zoomLevel})` }}
         >
           <Image
@@ -213,4 +213,4 @@ export function ImageLightboxModal({
     </div>,
     document.body
   );
-}
+};

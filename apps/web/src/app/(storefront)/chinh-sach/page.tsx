@@ -1,4 +1,5 @@
-import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
+import { type PageBlockData } from "@/components/blocks/BlockRenderer";
+import { PolicyView } from "@/components/policy";
 import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 
@@ -68,11 +69,5 @@ export default async function PolicyPage({
 
   const effectiveBlocks = blocks && blocks.length > 0 ? blocks : DEFAULT_POLICY_BLOCKS;
 
-  return (
-    <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-12 animate-slide-up-fade">
-      {effectiveBlocks.map((block) => (
-        <BlockRenderer key={block.id} block={block} />
-      ))}
-    </div>
-  );
+  return <PolicyView blocks={effectiveBlocks} />;
 }

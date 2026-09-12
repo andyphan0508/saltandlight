@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge, Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
-import { useCartStore } from "@/lib/cart-store";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useCartStore, useWishlistStore } from "@/stores";
 import {
   ShoppingBag,
   Heart,
@@ -34,7 +33,7 @@ export interface VariantPlain {
   stockQuantity: number;
 }
 
-export function ProductBuyBox({
+export const ProductBuyBox = ({
   productId,
   productName,
   variants,
@@ -44,12 +43,12 @@ export function ProductBuyBox({
   productName?: string;
   variants: VariantPlain[];
   description?: string | null;
-}) {
+}) => {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setIsMounted(true);
   }, []);
 
   const colors = useMemo(
@@ -64,8 +63,8 @@ export function ProductBuyBox({
   const [color, setColor] = useState<string | null>(colors[0] ?? null);
   const [size, setSize] = useState<string | null>(sizes[0] ?? null);
   const [quantity, setQuantity] = useState(1);
-  const [justAdded, setJustAdded] = useState(false);
-  const [showSizeModal, setShowSizeModal] = useState(false);
+  const [isJustAdded, setIsJustAdded] = useState(false);
+  const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
 
   const specsTables = useMemo(() => {
     if (!description) return [];
@@ -77,18 +76,18 @@ export function ProductBuyBox({
 
   // Prevent scroll when modal is open and handle ESC key
   useEffect(() => {
-    if (showSizeModal) {
+    if (isSizeModalOpen) {
       document.body.style.overflow = "hidden";
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") setShowSizeModal(false);
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setIsSizeModalOpen(false);
       };
-      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keydown", onKeyDown);
       return () => {
         document.body.style.overflow = "";
-        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keydown", onKeyDown);
       };
     }
-  }, [showSizeModal]);
+  }, [isSizeModalOpen]);
 
   const selected =
     variants.find((v) => (color ? v.color === color : true) && (size ? v.size === size : true)) ??
@@ -104,11 +103,11 @@ export function ProductBuyBox({
   const outOfStock = selected.stockQuantity <= 0;
   const savings = selected.compareAtPrice ? selected.compareAtPrice - selected.price : 0;
 
-  const handleAddToCart = () => {
+  const onAddToCart = () => {
     if (outOfStock) return;
     add(selected.id, quantity);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 2200);
+    setIsJustAdded(true);
+    setTimeout(() => setIsJustAdded(false), 2200);
 
     const variantLabel = [
       selected.size ? `Size ${selected.size}` : null,
@@ -122,13 +121,13 @@ export function ProductBuyBox({
     });
   };
 
-  const handleBuyNow = () => {
+  const onBuyNow = () => {
     if (outOfStock) return;
     add(selected.id, quantity);
     router.push("/thanh-toan");
   };
 
-  const handleToggleWishlist = () => {
+  const onToggleWishlist = () => {
     toggleWishlist(productId);
     if (!isWished) {
       toast.success("Đã lưu vào yêu thích ❤️", {
@@ -211,7 +210,7 @@ export function ProductBuyBox({
             {specsTables.length > 0 && (
               <button
                 type="button"
-                onClick={() => setShowSizeModal(true)}
+                onClick={() => setIsSizeModalOpen(true)}
                 className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors flex-shrink-0 flex items-center gap-1 active-press"
               >
                 <span>📏 Bảng size</span>
@@ -277,7 +276,7 @@ export function ProductBuyBox({
 
           <button
             type="button"
-            onClick={handleToggleWishlist}
+            onClick={onToggleWishlist}
             className={`flex h-11 items-center gap-2 rounded-2xl border px-4 text-xs font-bold transition-all active-press ${
               isWished
                 ? "border-rose-300 bg-rose-50 text-sale shadow-sm"
@@ -297,10 +296,10 @@ export function ProductBuyBox({
             variant="outline"
             size="lg"
             disabled={outOfStock}
-            onClick={handleAddToCart}
+            onClick={onAddToCart}
             className="w-full h-12 flex items-center justify-center gap-2 active-press rounded-2xl text-xs sm:text-sm font-bold border-ink/20 hover:border-ink hover:bg-mint-50/50"
           >
-            {justAdded ? (
+            {isJustAdded ? (
               <>
                 <Check size={18} className="text-emerald-600 animate-bounce-soft" />
                 <span className="text-emerald-700 font-bold">Đã thêm vào giỏ!</span>
@@ -317,7 +316,7 @@ export function ProductBuyBox({
             variant="primary"
             size="lg"
             disabled={outOfStock}
-            onClick={handleBuyNow}
+            onClick={onBuyNow}
             className="w-full h-12 flex items-center justify-center gap-2 bg-ink text-white hover:bg-ink-800 shadow-md active-press rounded-2xl text-xs sm:text-sm font-bold tracking-wide"
           >
             {outOfStock ? "Tạm hết hàng" : "Mua ngay — Nhận ưu đãi"}
@@ -348,13 +347,14 @@ export function ProductBuyBox({
       </div>
 
       {/* Size Chart Modal rendered via Portal directly to body */}
-      {showSizeModal &&
+      {isMounted &&
+        isSizeModalOpen &&
         specsTables.length > 0 &&
         createPortal(
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <div
               className="fixed inset-0 bg-ink/50 backdrop-blur-xs transition-opacity animate-fade-in"
-              onClick={() => setShowSizeModal(false)}
+              onClick={() => setIsSizeModalOpen(false)}
               aria-hidden="true"
             />
             <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 my-auto max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
@@ -364,7 +364,7 @@ export function ProductBuyBox({
                 </h3>
                 <button
                   type="button"
-                  onClick={() => setShowSizeModal(false)}
+                  onClick={() => setIsSizeModalOpen(false)}
                   className="rounded-full p-2 text-ink/50 hover:bg-ink/5 hover:text-ink transition-colors"
                   title="Đóng (ESC)"
                 >
@@ -409,7 +409,7 @@ export function ProductBuyBox({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowSizeModal(false)}
+                  onClick={() => setIsSizeModalOpen(false)}
                   className="rounded-xl px-5 py-2 text-xs font-bold"
                 >
                   Đã hiểu &amp; Đóng
@@ -421,4 +421,4 @@ export function ProductBuyBox({
         )}
     </div>
   );
-}
+};

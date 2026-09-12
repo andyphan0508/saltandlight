@@ -2,16 +2,22 @@
 
 import { useState, useRef, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
-import { Check, ShieldCheck, Phone, Mail } from "./Icons";
+import { Check } from "./Icons";
 import { TurnstileWidget, type TurnstileWidgetRef } from "./TurnstileWidget";
 
-export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
+interface ContactFormProps {
+  type: "contact" | "custom_order";
+}
+
+export const ContactForm = ({ type }: ContactFormProps) => {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState("");
   const turnstileRef = useRef<TurnstileWidgetRef>(null);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const isSending = status === "sending";
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(null);
 
@@ -61,7 +67,7 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
       turnstileRef.current?.reset();
       setTurnstileToken("");
     }
-  }
+  };
 
   if (status === "sent") {
     return (
@@ -80,7 +86,7 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <div>
         <label className="text-xs font-bold uppercase tracking-wider text-ink/70">
           Họ và tên của bạn <span className="text-sale">*</span>
@@ -155,12 +161,12 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
 
       <Button
         type="submit"
-        disabled={status === "sending"}
+        disabled={isSending}
         variant="primary"
         size="lg"
         className="w-full shadow-md py-3.5"
       >
-        {status === "sending" ? "Đang gửi yêu cầu…" : "Gửi thông tin cho chúng mình"}
+        {isSending ? "Đang gửi yêu cầu…" : "Gửi thông tin cho chúng mình"}
       </Button>
 
       {errorMessage && (
@@ -170,4 +176,4 @@ export function ContactForm({ type }: { type: "contact" | "custom_order" }) {
       )}
     </form>
   );
-}
+};

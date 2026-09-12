@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMobileMenuStore } from "@/lib/mobile-menu-store";
+import { useMobileMenuStore } from "@/stores";
 import { useCustomer } from "@/lib/use-customer";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { Logo } from "./Logo";
@@ -16,13 +16,13 @@ interface CategoryNavItem {
   count: number;
 }
 
-export function MobileDrawer({
+export const MobileDrawer = ({
   categories,
   siteSettings = DEFAULT_SITE_SETTINGS,
 }: {
   categories: CategoryNavItem[];
   siteSettings?: SiteSettingsData;
-}) {
+}) => {
   const pathname = usePathname();
   const { customer, signOut } = useCustomer();
   const navItems = [...siteSettings.headerNavItems.left, ...siteSettings.headerNavItems.right];
@@ -45,11 +45,11 @@ export function MobileDrawer({
 
   // Handle ESC key
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
-    }
-    if (open) window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    };
+    if (open) window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, setOpen]);
 
   if (!open) return null;

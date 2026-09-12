@@ -26,7 +26,7 @@ const NavigationBufferContext = createContext<NavigationBufferContextType>({
 
 export const useNavigationBuffer = () => useContext(NavigationBufferContext);
 
-function NavigationBufferInner() {
+const NavigationBufferInner = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -41,7 +41,7 @@ function NavigationBufferInner() {
   const prevPathRef = useRef(pathname);
   const prevParamsRef = useRef(searchParams?.toString());
 
-  const stopBuffer = useCallback(() => {
+  const onStopBuffer = useCallback(() => {
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
 
@@ -53,7 +53,7 @@ function NavigationBufferInner() {
     }, 180);
   }, []);
 
-  const startBuffer = useCallback(
+  const onStartBuffer = useCallback(
     (text = "Đang tải trang...") => {
       setBufferText(text);
       setIsBuffering(true);
@@ -79,10 +79,10 @@ function NavigationBufferInner() {
       // Buffer safety timer: 10s gives enough buffer for Cloudflare/DB cold boot
       if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
       safetyTimeoutRef.current = setTimeout(() => {
-        stopBuffer();
+        onStopBuffer();
       }, 10000);
     },
-    [stopBuffer]
+    [onStopBuffer]
   );
 
   // When pathname or searchParams ACTUALLY change, the destination route mounted:
@@ -95,9 +95,9 @@ function NavigationBufferInner() {
     if (hasPathChanged || hasParamsChanged) {
       prevPathRef.current = pathname;
       prevParamsRef.current = currentParams;
-      stopBuffer();
+      onStopBuffer();
     }
-  }, [pathname, searchParams, stopBuffer]);
+  }, [pathname, searchParams, onStopBuffer]);
 
   // Clean up all timers on unmount
   useEffect(() => {
@@ -110,7 +110,7 @@ function NavigationBufferInner() {
 
   // Intercept internal link clicks with rapid-click debouncing
   useEffect(() => {
-    const handleAnchorClick = (e: MouseEvent) => {
+    const onAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const anchor = target.closest("a");
       if (!anchor) return;
@@ -139,20 +139,20 @@ function NavigationBufferInner() {
           return;
         }
 
-        startBuffer("Đang mở trang...");
+        onStartBuffer("Đang mở trang...");
       }
     };
 
-    document.addEventListener("click", handleAnchorClick, { capture: true });
+    document.addEventListener("click", onAnchorClick, { capture: true });
     return () => {
-      document.removeEventListener("click", handleAnchorClick, { capture: true });
+      document.removeEventListener("click", onAnchorClick, { capture: true });
     };
-  }, [startBuffer]);
+  }, [onStartBuffer]);
 
   if (!isBuffering && progress === 0) return null;
 
   return (
-    <NavigationBufferContext.Provider value={{ isBuffering, startBuffer, stopBuffer }}>
+    <NavigationBufferContext.Provider value={{ isBuffering, startBuffer: onStartBuffer, stopBuffer: onStopBuffer }}>
       {/* 1. Top Loading Progress Bar - ALWAYS non-blocking */}
       <div className="fixed top-0 left-0 right-0 z-[9999] h-[3.5px] bg-transparent pointer-events-none select-none">
         <div
@@ -204,14 +204,14 @@ function NavigationBufferInner() {
       )}
     </NavigationBufferContext.Provider>
   );
-}
+};
 
-export function NavigationBuffer() {
+export const NavigationBuffer = () => {
   return (
     <Suspense fallback={null}>
       <NavigationBufferInner />
     </Suspense>
   );
-}
+};
 
 export default NavigationBuffer;

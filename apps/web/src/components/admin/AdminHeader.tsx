@@ -8,7 +8,7 @@ import { SITE_URL } from "@/lib/admin/site-url";
 import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut, KeyRound } from "./Icons";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
-export function AdminHeader({
+export const AdminHeader = ({
   email,
   fullName,
   role
@@ -16,24 +16,24 @@ export function AdminHeader({
   email: string;
   fullName?: string | null;
   role: string;
-}) {
+}) => {
   const pathname = usePathname();
   const router = useRouter();
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const displayName = fullName || email.split("@")[0] || email;
   const initial = displayName.charAt(0).toUpperCase();
 
-  async function handleSignOut() {
+  const onSignOut = async () => {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.push("/admin/login");
     router.refresh();
-  }
+  };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/admin/orders?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -90,7 +90,7 @@ export function AdminHeader({
 
         {/* Global Quick Search */}
         <form
-          onSubmit={handleSearchSubmit}
+          onSubmit={onSearchSubmit}
           className="relative hidden md:flex items-center w-full max-w-xs"
         >
           <input
@@ -146,7 +146,7 @@ export function AdminHeader({
         <div className="relative">
           <button
             type="button"
-            onClick={() => setProfileOpen(!profileOpen)}
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-2.5 rounded-full p-1 hover:bg-slate-100 transition-colors"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-forest font-bold text-xs text-white shadow-xs">
@@ -163,11 +163,11 @@ export function AdminHeader({
             <ChevronDown size={14} className="text-slate-400 hidden sm:block" />
           </button>
 
-          {profileOpen && (
+          {isProfileOpen && (
             <>
               <div
                 className="fixed inset-0 z-40"
-                onClick={() => setProfileOpen(false)}
+                onClick={() => setIsProfileOpen(false)}
               />
               <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="border-b border-slate-100 px-3 py-2">
@@ -178,8 +178,8 @@ export function AdminHeader({
                   <button
                     type="button"
                     onClick={() => {
-                      setProfileOpen(false);
-                      setChangePasswordOpen(true);
+                      setIsProfileOpen(false);
+                      setIsChangePasswordOpen(true);
                     }}
                     className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                   >
@@ -197,7 +197,7 @@ export function AdminHeader({
                 </div>
                 <div className="border-t border-slate-100 pt-1">
                   <button
-                    onClick={handleSignOut}
+                    onClick={onSignOut}
                     className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-sale hover:bg-sale-light/40 transition-colors"
                   >
                     <LogOut size={14} />
@@ -211,10 +211,10 @@ export function AdminHeader({
       </div>
 
       <ChangePasswordModal
-        isOpen={changePasswordOpen}
-        onClose={() => setChangePasswordOpen(false)}
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
         isSelf={true}
       />
     </header>
   );
-}
+};

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
-import { UsersManager } from "@/components/admin/UsersManager";
+import { UsersView } from "@/components/admin";
 import { PageHeader } from "@/components/admin/PageHeader";
 
 const PAGE_SIZE = 15;
@@ -28,7 +28,7 @@ export default async function UsersPage({
   return (
     <div>
       <PageHeader title="Nhân viên" subtitle="Chỉ chủ shop (owner) mới quản lý được tài khoản nhân viên" />
-      <UsersManager
+      <UsersView
         users={users}
         total={total}
         page={page}

@@ -4,14 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge, Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/stores";
 import { Heart } from "./Icons";
 import type { ProductCardData } from "@/lib/types";
 
-export function ProductListItem({ product }: { product: ProductCardData }) {
+interface ProductListItemProps {
+  product: ProductCardData;
+}
+
+export const ProductListItem = ({ product }: ProductListItemProps) => {
   const isWished = useWishlistStore((s) => s.has(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggle);
   const discount = calcDiscountPercent(product.minPrice, product.maxCompareAtPrice);
+
+  const onToggleWishlist = () => {
+    toggleWishlist(product.id);
+  };
 
   return (
     <div className="flex gap-4 rounded-2xl border border-ink/5 bg-white p-3.5 shadow-card transition-shadow hover:shadow-card-hover sm:gap-6 sm:p-4">
@@ -49,7 +57,7 @@ export function ProductListItem({ product }: { product: ProductCardData }) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => toggleWishlist(product.id)}
+              onClick={onToggleWishlist}
               aria-pressed={isWished}
               aria-label="Yêu thích"
               className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
@@ -68,4 +76,4 @@ export function ProductListItem({ product }: { product: ProductCardData }) {
       </div>
     </div>
   );
-}
+};

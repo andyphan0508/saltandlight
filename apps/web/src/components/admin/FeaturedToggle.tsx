@@ -4,22 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function FeaturedToggle({
+export const FeaturedToggle = ({
   productId,
   initialFeatured,
 }: {
   productId: string;
   initialFeatured: boolean;
-}) {
+}) => {
   const router = useRouter();
   const [isFeatured, setIsFeatured] = useState(initialFeatured);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleToggle = async () => {
-    if (loading) return;
+  const onToggle = async () => {
+    if (isLoading) return;
     const nextState = !isFeatured;
     setIsFeatured(nextState); // optimistic update
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const res = await fetch(`/api/admin/products/${productId}/featured`, {
@@ -40,7 +40,7 @@ export function FeaturedToggle({
       setIsFeatured(!nextState);
       toast.error("Lỗi kết nối mạng khi cập nhật trạng thái nổi bật");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -49,11 +49,11 @@ export function FeaturedToggle({
       type="button"
       role="switch"
       aria-checked={isFeatured}
-      onClick={handleToggle}
-      disabled={loading}
+      onClick={onToggle}
+      disabled={isLoading}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-forest focus:ring-offset-2 ${
         isFeatured ? "bg-emerald-600" : "bg-slate-200"
-      } ${loading ? "opacity-60 cursor-wait" : ""}`}
+      } ${isLoading ? "opacity-60 cursor-wait" : ""}`}
       title={isFeatured ? "Đang là Sản phẩm Nổi bật (nhấn để tắt)" : "Nhấn để bật làm Sản phẩm Nổi bật"}
     >
       <span className="sr-only">Toggle featured status</span>
@@ -65,4 +65,4 @@ export function FeaturedToggle({
       />
     </button>
   );
-}
+};

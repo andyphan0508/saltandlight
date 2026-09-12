@@ -1,0 +1,76 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@saltandlight/ui";
+import { useWishlistStore, useStoreHydrated } from "@/stores";
+import { ProductGrid } from "@/components/ProductGrid";
+import { Heart } from "@/components/Icons";
+import type { ProductCardData } from "@/lib/types";
+
+export const WishlistView = () => {
+  const productIds = useWishlistStore((s) => s.productIds);
+  const isHydrated = useStoreHydrated(useWishlistStore);
+  const [products, setProducts] = useState<ProductCardData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Wait for the persisted wishlist to load from localStorage first —
+    // otherwise this fires with the pre-hydration empty default and flashes
+    // the "no favorites" empty state even when the wishlist isn't empty.
+    if (!isHydrated) return;
+    if (productIds.length === 0) {
+      setProducts([]);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    fetch(`/api/products?ids=${productIds.join(",")}`)
+      .then((r) => r.json())
+      .then((data) => setProducts(data.products ?? []))
+      .finally(() => setIsLoading(false));
+  }, [isHydrated, productIds]);
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-8 animate-slide-up-fade">
+      <div className="flex items-center justify-between border-b border-ink/10 pb-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">
+            Sưu tập cá nhân
+          </span>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase text-ink mt-1">
+            Sản Phẩm Yêu Thích ({isHydrated ? productIds.length : "…"})
+          </h1>
+        </div>
+        <Link href="/san-pham" className="text-xs font-bold uppercase hover:underline text-ink/70">
+          Khám phá thêm →
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="py-20 text-center text-xs text-ink/50">Đang tải danh sách yêu thích…</div>
+      ) : products.length === 0 ? (
+        <div className="rounded-3xl bg-white p-12 text-center shadow-card border border-ink/5 max-w-lg mx-auto space-y-4">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-sale shadow-sm">
+            <Heart size={28} />
+          </div>
+          <h3 className="font-display text-lg font-bold uppercase text-ink">
+            Chưa có sản phẩm yêu thích nào
+          </h3>
+          <p className="text-xs text-ink/60">
+            Hãy nhấn vào biểu tượng trái tim ở góc mỗi sản phẩm để lưu lại những mẫu áo bạn yêu thích nhé!
+          </p>
+          <div className="pt-2">
+            <Link href="/san-pham">
+              <Button variant="primary" size="md">
+                Khám phá sản phẩm ngay
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <ProductGrid products={products} />
+      )}
+    </div>
+  );
+};

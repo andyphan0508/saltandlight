@@ -1,11 +1,4 @@
-import {
-  Truck,
-  Sparkles,
-  Gift,
-  RefreshCw,
-  CrossIcon,
-  ShieldCheck,
-} from "./Icons";
+import { Truck } from "./Icons";
 
 const HIGHLIGHTS = [
   { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
@@ -16,7 +9,7 @@ const HIGHLIGHTS = [
   { icon: Truck, text: "ĐỒNG GIÁ SHIP 19K TOÀN QUỐC" },
 ];
 
-export function MarqueeBanner() {
+export const MarqueeBanner = () => {
   return (
     <div className="overflow-hidden bg-ink py-2 text-white border-y border-ink/20 select-none">
       <div className="flex w-max animate-marquee gap-8 whitespace-nowrap text-[11px] font-bold tracking-widest uppercase">
@@ -35,4 +28,4 @@ export function MarqueeBanner() {
       </div>
     </div>
   );
-}
+};

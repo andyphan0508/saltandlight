@@ -1,6 +1,6 @@
 import React from "react";
 
-export function CuteAmbientBackground() {
+export const CuteAmbientBackground = () => {
   return (
     <div
       aria-hidden="true"
@@ -134,5 +134,6 @@ export function CuteAmbientBackground() {
       />
     </div>
   );
-}
+};
+
 export default CuteAmbientBackground;
