@@ -5,6 +5,7 @@ import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Sparkles } from "@/components/admin/Icons";
 import { PAGE_SLUGS, type PageSlug } from "@/lib/admin/schemas";
+import { getOrSeedPageBlocks } from "@/lib/page-block-defaults";
 import { BlockList } from "./BlockList";
 
 export const dynamic = "force-dynamic";
@@ -31,10 +32,7 @@ export default async function PageBuilderPage({
 
   const page: PageSlug = isPageSlug(searchParams.page || "") ? (searchParams.page as PageSlug) : "home";
 
-  const blocks = await prisma.pageBlock.findMany({
-    where: { page },
-    orderBy: { sortOrder: "asc" },
-  });
+  const blocks = await getOrSeedPageBlocks(page);
 
   return (
     <div className="space-y-6">

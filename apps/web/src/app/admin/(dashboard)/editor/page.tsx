@@ -4,6 +4,8 @@ import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { PAGE_SLUGS, type PageSlug } from "@/lib/admin/schemas";
 import { ElementorEditorClient } from "./ElementorEditorClient";
 
+import { getOrSeedPageBlocks } from "@/lib/page-block-defaults";
+
 export const dynamic = "force-dynamic";
 
 function isPageSlug(value: string): value is PageSlug {
@@ -22,10 +24,7 @@ export default async function EditorPage({
     ? (searchParams.page as PageSlug)
     : "home";
 
-  const blocks = await prisma.pageBlock.findMany({
-    where: { page },
-    orderBy: { sortOrder: "asc" },
-  });
+  const blocks = await getOrSeedPageBlocks(page);
 
   return (
     <div className="-m-4 sm:-m-6 lg:-m-8 xl:-m-10 2xl:-m-12 h-[calc(100vh-4rem)] overflow-hidden flex flex-col">

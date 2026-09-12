@@ -4,6 +4,7 @@ import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { revalidatePageBlocks } from "@/lib/admin/page-blocks";
 import { pageBlockCreateSchema, PAGE_SLUGS } from "@/lib/admin/schemas";
+import { getOrSeedPageBlocks } from "@/lib/page-block-defaults";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,7 @@ export async function GET(req: NextRequest) {
     if (!PAGE_SLUGS.includes(page as never)) {
       return NextResponse.json({ error: "Trang không hợp lệ" }, { status: 400 });
     }
-    const blocks = await prisma.pageBlock.findMany({
-      where: { page },
-      orderBy: { sortOrder: "asc" },
-    });
+    const blocks = await getOrSeedPageBlocks(page);
     return NextResponse.json({ blocks });
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");

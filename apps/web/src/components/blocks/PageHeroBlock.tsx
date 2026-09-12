@@ -3,13 +3,18 @@ import { BlockIcon } from "./icon-map";
 export interface PageHeroContent {
   icon?: string;
   eyebrow?: string;
-  title: string;
+  title?: string;
+  headline?: string;
   subtitle?: string;
+  subheadline?: string;
   quote?: string;
   quoteRef?: string;
 }
 
 export function PageHeroBlock({ content }: { content: PageHeroContent }) {
+  const title = content.title || content.headline || "";
+  const subtitle = content.subtitle || content.subheadline;
+
   return (
     <div className="text-center space-y-4">
       {content.icon && (
@@ -21,10 +26,10 @@ export function PageHeroBlock({ content }: { content: PageHeroContent }) {
         <span className="text-xs font-bold uppercase tracking-widest text-brand-forest">{content.eyebrow}</span>
       )}
       <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase text-ink tracking-tight">
-        {content.title}
+        {title}
       </h1>
-      {content.subtitle && (
-        <p className="text-sm text-ink/70 max-w-xl mx-auto">{content.subtitle}</p>
+      {subtitle && (
+        <p className="text-sm text-ink/70 max-w-xl mx-auto">{subtitle}</p>
       )}
       {content.quote && (
         <p className="text-sm sm:text-base text-ink/75 max-w-2xl mx-auto leading-relaxed">

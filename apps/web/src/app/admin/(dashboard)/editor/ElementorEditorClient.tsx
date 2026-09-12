@@ -116,8 +116,18 @@ export function ElementorEditorClient({
 
       if (data.type === "storefront:ready") {
         setIframeReady(true);
-      } else if (data.type === "block:select" && data.blockId) {
-        const target = blocks.find((b) => b.id === data.blockId);
+      } else if (data.type === "block:select" && (data.blockId || data.blockType)) {
+        let target = blocks.find((b) => b.id === data.blockId);
+        if (!target && data.blockType) {
+          target = blocks.find((b) => b.type === data.blockType);
+        }
+        if (!target && typeof data.blockId === "string") {
+          if (data.blockId.includes("hero")) {
+            target = blocks.find((b) => b.type === "PAGE_HERO");
+          } else if (data.blockId.includes("step") || data.blockId.includes("card")) {
+            target = blocks.find((b) => b.type === "FEATURE_CARDS");
+          }
+        }
         if (target) {
           setEditingBlock(target);
           setActiveTab("edit");
@@ -239,19 +249,36 @@ export function ElementorEditorClient({
   // Seed default blocks if page is empty
   async function handleSeedDefaultBlocks() {
     setIsSeeding(true);
-    const typesToSeed =
-      DEFAULT_PAGE_BLOCK_TYPES[currentPage] || ["FEATURE_CARDS", "FEATURED_PRODUCTS"];
     try {
+      // First try dedicated seed-defaults endpoint with rich pre-configured templates
+      const res = await fetch("/api/admin/page-blocks/seed-defaults", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page: currentPage }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.blocks && data.blocks.length > 0) {
+          setBlocks((prev) => [...prev, ...data.blocks]);
+          toast.success(`Đã khởi tạo ${data.blocks.length} khối mẫu chuẩn cho trang!`);
+          setIframeKey((k) => k + 1);
+          return;
+        }
+      }
+
+      // Fallback for pages without specialized pre-configured defaults
+      const typesToSeed =
+        DEFAULT_PAGE_BLOCK_TYPES[currentPage] || ["FEATURE_CARDS", "FEATURED_PRODUCTS"];
       const createdBlocks: PageBlockItem[] = [];
       for (const type of typesToSeed) {
         const content = defaultContent(type);
-        const res = await fetch("/api/admin/page-blocks", {
+        const postRes = await fetch("/api/admin/page-blocks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ page: currentPage, type, content }),
         });
-        if (res.ok) {
-          const data = await res.json();
+        if (postRes.ok) {
+          const data = await postRes.json();
           createdBlocks.push(data.block);
         }
       }

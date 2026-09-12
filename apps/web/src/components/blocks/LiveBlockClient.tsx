@@ -52,11 +52,11 @@ export function LiveBlockClient({
       if (!data || typeof data !== "object") return;
 
       if (data.type === "block:select") {
-        setIsSelected(data.blockId === blockId);
-      } else if (data.type === "block:scroll" && data.blockId === blockId) {
+        setIsSelected(data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType));
+      } else if (data.type === "block:scroll" && (data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType))) {
         setIsSelected(true);
         wrapperRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else if (data.type === "block:preview" && data.blockId === blockId) {
+      } else if (data.type === "block:preview" && (data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType))) {
         setPreviewContent(data.content);
       } else if (data.type === "block:reload") {
         window.location.reload();
@@ -77,7 +77,7 @@ export function LiveBlockClient({
       window.removeEventListener("message", handleMessage);
       document.removeEventListener("click", handleAnchorClick, { capture: true });
     };
-  }, [blockId]);
+  }, [blockId, blockType]);
 
   if (!isEditorMode) {
     return <>{children}</>;
@@ -121,7 +121,7 @@ export function LiveBlockClient({
         e.preventDefault();
         e.stopPropagation();
         setIsSelected(true);
-        window.parent.postMessage({ type: "block:select", blockId }, "*");
+        window.parent.postMessage({ type: "block:select", blockId, blockType }, "*");
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

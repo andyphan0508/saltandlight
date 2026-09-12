@@ -16,7 +16,7 @@ export type PageBlockTypeValue = (typeof PAGE_BLOCK_TYPES)[number];
 export const BLOCK_TYPE_LABELS: Record<PageBlockTypeValue, string> = {
   FEATURED_PRODUCTS: "Sản phẩm nổi bật (Bán chạy / Nổi bật nhất)",
   PRODUCT_LIST: "Danh sách sản phẩm (Theo danh mục / Bộ sưu tập theo mùa)",
-  FEATURE_CARDS: "Khung tiện ích & cam kết (Giao hàng, đổi trả, bảo hành)",
+  FEATURE_CARDS: "Khung tiện ích, cam kết & Quy trình các bước",
   STORY_BANNER: "Khung câu chuyện thương hiệu & Lời Chúa",
   PROMO_CTA: "Khung ưu đãi / Đặt in áo & quà tặng theo yêu cầu",
   TESTIMONIALS: "Khối cảm nhận & Đánh giá của khách hàng",
