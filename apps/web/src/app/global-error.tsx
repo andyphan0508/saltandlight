@@ -70,7 +70,7 @@ export default function GlobalError({
               gap: "1.25rem",
               padding: "1.5rem",
               textAlign: "center",
-              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
             }}
           >
             <div
@@ -135,7 +135,7 @@ export default function GlobalError({
             gap: "1rem",
             padding: "1.5rem",
             textAlign: "center",
-            fontFamily: "system-ui, -apple-system, sans-serif",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
             backgroundColor: "#FAF7F2",
             color: "#18181b",
           }}

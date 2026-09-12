@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ import {
   Check,
   Eye,
 } from "@/components/admin/Icons";
+import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
 import { SITE_URL, getStorefrontUrl } from "@/lib/admin/site-url";
 import { BannerCropModal } from "@/components/admin/BannerCropModal";
@@ -44,9 +45,23 @@ const GRADIENT_PRESETS = [
 
 const DEFAULT_GRADIENT = "from-brand-forest/90 via-emerald-800/80 to-slate-950";
 
-export function BannerManager({ initialBanners }: { initialBanners: BannerItem[] }) {
+export function BannerManager({
+  initialBanners,
+  total,
+  page,
+  pageSize,
+}: {
+  initialBanners: BannerItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}) {
   const router = useRouter();
   const [banners, setBanners] = useState<BannerItem[]>(initialBanners);
+
+  useEffect(() => {
+    setBanners(initialBanners);
+  }, [initialBanners]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
@@ -378,6 +393,17 @@ export function BannerManager({ initialBanners }: { initialBanners: BannerItem[]
           </div>
         )}
       </div>
+
+      {total > 0 && (
+        <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs p-4">
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            basePath="/admin/banners"
+          />
+        </div>
+      )}
 
       {/* Modal Add / Edit */}
       {isModalOpen && (

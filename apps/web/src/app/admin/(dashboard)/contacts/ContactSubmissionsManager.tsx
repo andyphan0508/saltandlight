@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Phone,
   Mail,
@@ -13,6 +14,7 @@ import {
   MessageSquare,
   Tag,
 } from "@/components/admin/Icons";
+import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
 
 export interface ContactSubmissionItem {
@@ -49,14 +51,44 @@ const STATUS_CONFIG: Record<
 
 export function ContactSubmissionsManager({
   initialContacts,
+  total,
+  page,
+  pageSize,
+  counts,
+  currentFilters,
 }: {
   initialContacts: ContactSubmissionItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  counts: { all: number; new: number; in_progress: number; closed: number };
+  currentFilters: { q: string; status: string; type: string };
 }) {
+  const router = useRouter();
   const [contacts, setContacts] = useState<ContactSubmissionItem[]>(initialContacts);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [search, setSearch] = useState(currentFilters.q);
   const [selectedContact, setSelectedContact] = useState<ContactSubmissionItem | null>(null);
+
+  useEffect(() => {
+    setContacts(initialContacts);
+  }, [initialContacts]);
+
+  useEffect(() => {
+    setSearch(currentFilters.q);
+  }, [currentFilters.q]);
+
+  function applyFilters(newFilters: { q?: string; status?: string; type?: string }) {
+    const params = new URLSearchParams();
+    const qVal = newFilters.q !== undefined ? newFilters.q : search;
+    const statusVal = newFilters.status !== undefined ? newFilters.status : currentFilters.status;
+    const typeVal = newFilters.type !== undefined ? newFilters.type : currentFilters.type;
+
+    if (qVal && qVal.trim()) params.set("q", qVal.trim());
+    if (statusVal && statusVal !== "all") params.set("status", statusVal);
+    if (typeVal && typeVal !== "all") params.set("type", typeVal);
+    const qs = params.toString();
+    router.push(`/admin/contacts${qs ? `?${qs}` : ""}`);
+  }
 
   async function handleUpdateStatus(id: string, newStatus: "new" | "in_progress" | "closed") {
     try {
@@ -71,7 +103,11 @@ export function ContactSubmissionsManager({
       setContacts((prev) =>
         prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
       );
+      if (selectedContact?.id === id) {
+        setSelectedContact((prev) => (prev ? { ...prev, status: newStatus } : null));
+      }
       toast.success(`Đã chuyển sang "${STATUS_CONFIG[newStatus]?.label}"!`);
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra";
       toast.error(msg);
@@ -89,6 +125,7 @@ export function ContactSubmissionsManager({
       setContacts((prev) => prev.filter((c) => c.id !== id));
       if (selectedContact?.id === id) setSelectedContact(null);
       toast.success("Đã xóa yêu cầu liên hệ!");
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Lỗi khi xóa";
       toast.error(msg);
@@ -102,25 +139,6 @@ export function ContactSubmissionsManager({
     if (digits.startsWith("0")) return digits;
     return `0${digits}`;
   }
-
-  const filtered = contacts.filter((c) => {
-    if (statusFilter !== "all" && c.status !== statusFilter) return false;
-    if (typeFilter !== "all" && c.type !== typeFilter) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      return (
-        c.fullName.toLowerCase().includes(q) ||
-        (c.phone && c.phone.toLowerCase().includes(q)) ||
-        (c.email && c.email.toLowerCase().includes(q)) ||
-        c.message.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
-
-  const countNew = contacts.filter((c) => c.status === "new").length;
-  const countInProgress = contacts.filter((c) => c.status === "in_progress").length;
-  const countClosed = contacts.filter((c) => c.status === "closed").length;
 
   return (
     <div className="space-y-6">
@@ -138,9 +156,13 @@ export function ContactSubmissionsManager({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <button
           type="button"
-          onClick={() => setStatusFilter("new")}
+          onClick={() =>
+            applyFilters({
+              status: currentFilters.status === "new" ? "all" : "new",
+            })
+          }
           className={`rounded-2xl p-4 sm:p-5 border text-left transition-all ${
-            statusFilter === "new"
+            currentFilters.status === "new"
               ? "bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20 shadow-xs"
               : "bg-white border-slate-200/80 hover:border-slate-300 shadow-xs"
           }`}
@@ -150,17 +172,21 @@ export function ContactSubmissionsManager({
               Yêu cầu mới chưa xử lý
             </span>
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-800 font-bold text-xs">
-              {countNew}
+              {counts.new}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900">{countNew}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{counts.new}</div>
         </button>
 
         <button
           type="button"
-          onClick={() => setStatusFilter("in_progress")}
+          onClick={() =>
+            applyFilters({
+              status: currentFilters.status === "in_progress" ? "all" : "in_progress",
+            })
+          }
           className={`rounded-2xl p-4 sm:p-5 border text-left transition-all ${
-            statusFilter === "in_progress"
+            currentFilters.status === "in_progress"
               ? "bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20 shadow-xs"
               : "bg-white border-slate-200/80 hover:border-slate-300 shadow-xs"
           }`}
@@ -170,17 +196,21 @@ export function ContactSubmissionsManager({
               Đang hỗ trợ / Xử lý
             </span>
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-800 font-bold text-xs">
-              {countInProgress}
+              {counts.in_progress}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900">{countInProgress}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{counts.in_progress}</div>
         </button>
 
         <button
           type="button"
-          onClick={() => setStatusFilter("closed")}
+          onClick={() =>
+            applyFilters({
+              status: currentFilters.status === "closed" ? "all" : "closed",
+            })
+          }
           className={`rounded-2xl p-4 sm:p-5 border text-left transition-all ${
-            statusFilter === "closed"
+            currentFilters.status === "closed"
               ? "bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
               : "bg-white border-slate-200/80 hover:border-slate-300 shadow-xs"
           }`}
@@ -190,49 +220,59 @@ export function ContactSubmissionsManager({
               Đã hoàn tất
             </span>
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
-              {countClosed}
+              {counts.closed}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900">{countClosed}</div>
+          <div className="mt-2 text-2xl font-bold text-slate-900">{counts.closed}</div>
         </button>
       </div>
 
       {/* 3. Filters & Search */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl bg-white p-3 border border-slate-200/80 shadow-xs">
-        <div className="flex flex-1 items-center gap-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyFilters({ q: search });
+          }}
+          className="flex flex-1 items-center gap-2"
+        >
           <Search size={16} className="text-slate-400 ml-2 flex-shrink-0" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm theo họ tên, số điện thoại, email hoặc nội dung tin nhắn…"
+            placeholder="Tìm theo họ tên, số điện thoại, email hoặc nội dung tin nhắn… (nhấn Enter)"
             className="w-full text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
           />
           {search && (
             <button
-              onClick={() => setSearch("")}
+              type="button"
+              onClick={() => {
+                setSearch("");
+                applyFilters({ q: "" });
+              }}
               className="p-1 text-slate-400 hover:text-slate-600"
             >
               <X size={15} />
             </button>
           )}
-        </div>
+        </form>
 
         <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            value={currentFilters.status}
+            onChange={(e) => applyFilters({ status: e.target.value })}
             className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none"
           >
-            <option value="all">Tất cả trạng thái ({contacts.length})</option>
-            <option value="new">Chưa xử lý ({countNew})</option>
-            <option value="in_progress">Đang xử lý ({countInProgress})</option>
-            <option value="closed">Đã hoàn tất ({countClosed})</option>
+            <option value="all">Tất cả trạng thái ({counts.all})</option>
+            <option value="new">Chưa xử lý ({counts.new})</option>
+            <option value="in_progress">Đang xử lý ({counts.in_progress})</option>
+            <option value="closed">Đã hoàn tất ({counts.closed})</option>
           </select>
 
           <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
+            value={currentFilters.type}
+            onChange={(e) => applyFilters({ type: e.target.value })}
             className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none"
           >
             <option value="all">Tất cả loại yêu cầu</option>
@@ -257,7 +297,7 @@ export function ContactSubmissionsManager({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filtered.length === 0 ? (
+              {contacts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400">
                     <MessageSquare size={32} className="mx-auto mb-2 opacity-40" />
@@ -267,7 +307,7 @@ export function ContactSubmissionsManager({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => {
+                contacts.map((item) => {
                   const cleanPhone = getCleanPhone(item.phone);
                   const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.new;
                   const dateStr = new Date(item.createdAt).toLocaleString("vi-VN", {
@@ -397,6 +437,20 @@ export function ContactSubmissionsManager({
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="border-t border-slate-100 p-4">
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            basePath="/admin/contacts"
+            searchParams={{
+              q: currentFilters.q || undefined,
+              status: currentFilters.status !== "all" ? currentFilters.status : undefined,
+              type: currentFilters.type !== "all" ? currentFilters.type : undefined,
+            }}
+          />
         </div>
       </div>
 

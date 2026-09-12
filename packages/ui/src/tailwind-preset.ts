@@ -58,8 +58,9 @@ export const saltAndLightPreset: Partial<Config> = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        sans: ["var(--font-sans)", "var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "sans-serif"],
+        sans: ["var(--font-sans)", "var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "SF Mono", "Menlo", "Consolas", "Liberation Mono", "monospace"],
       },
       borderRadius: {
         pill: "999px",

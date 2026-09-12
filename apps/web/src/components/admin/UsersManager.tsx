@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "./Icons";
 import { ChangePasswordModal } from "./ChangePasswordModal";
+import { Pagination } from "./Pagination";
 
 interface AdminUserRow {
   id: string;
@@ -28,9 +29,15 @@ interface AdminUserRow {
 
 export function UsersManager({
   users,
+  total,
+  page,
+  pageSize,
   currentUserId,
 }: {
   users: AdminUserRow[];
+  total: number;
+  page: number;
+  pageSize: number;
   currentUserId: string;
 }) {
   const router = useRouter();
@@ -292,7 +299,7 @@ export function UsersManager({
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-card">
         <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
           <h3 className="font-display font-bold text-sm text-ink uppercase tracking-wide">
-            Danh sách tài khoản ({users.length})
+            Danh sách tài khoản ({total})
           </h3>
         </div>
 
@@ -408,6 +415,15 @@ export function UsersManager({
               })}
             </tbody>
           </table>
+        </div>
+
+        <div className="border-t border-slate-100 p-4">
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            basePath="/admin/users"
+          />
         </div>
       </div>
 

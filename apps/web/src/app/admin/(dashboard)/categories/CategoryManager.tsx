@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import {
@@ -14,6 +15,7 @@ import {
   Tag,
   LayoutGrid,
 } from "@/components/admin/Icons";
+import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
 import { slugify } from "@/lib/slugify";
 
@@ -26,11 +28,53 @@ export interface CategoryItem {
   _count?: { products: number };
 }
 
-export function CategoryManager({ initialCategories }: { initialCategories: CategoryItem[] }) {
+export interface ParentCategoryOption {
+  id: string;
+  name: string;
+  parentId: string | null;
+}
+
+export function CategoryManager({
+  initialCategories,
+  parentOptions,
+  total,
+  page,
+  pageSize,
+  currentQ,
+  stats,
+}: {
+  initialCategories: CategoryItem[];
+  parentOptions: ParentCategoryOption[];
+  total: number;
+  page: number;
+  pageSize: number;
+  currentQ: string;
+  stats: {
+    totalCategories: number;
+    totalProducts: number;
+    topLevelCategories: number;
+  };
+}) {
+  const router = useRouter();
   const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(currentQ);
   const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    setCategories(initialCategories);
+  }, [initialCategories]);
+
+  useEffect(() => {
+    setSearch(currentQ);
+  }, [currentQ]);
+
+  function applySearch(q: string) {
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    const qs = params.toString();
+    router.push(`/admin/categories${qs ? `?${qs}` : ""}`);
+  }
 
   // Form states
   const [formName, setFormName] = useState("");
@@ -109,6 +153,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
         toast.success("Tạo danh mục mới thành công!");
       }
       handleCloseModal();
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Thao tác thất bại";
       toast.error(msg);
@@ -138,26 +183,12 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
 
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
       toast.success("Đã xóa danh mục!");
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Lỗi khi xóa";
       toast.error(msg);
     }
   }
-
-  const filteredCategories = categories.filter((c) => {
-    const q = search.toLowerCase().trim();
-    if (!q) return true;
-    return (
-      c.name.toLowerCase().includes(q) ||
-      c.slug.toLowerCase().includes(q) ||
-      (c.parent?.name && c.parent.name.toLowerCase().includes(q))
-    );
-  });
-
-  const totalProducts = categories.reduce(
-    (sum, c) => sum + (c._count?.products || 0),
-    0
-  );
 
   return (
     <div className="space-y-6">
@@ -187,7 +218,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <LayoutGrid size={22} />
           </div>
           <div>
-            <div className="text-2xl font-bold text-slate-900">{categories.length}</div>
+            <div className="text-2xl font-bold text-slate-900">{stats.totalCategories}</div>
             <div className="text-xs font-semibold text-slate-500">Tổng số danh mục</div>
           </div>
         </div>
@@ -197,7 +228,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <Package size={22} />
           </div>
           <div>
-            <div className="text-2xl font-bold text-slate-900">{totalProducts}</div>
+            <div className="text-2xl font-bold text-slate-900">{stats.totalProducts}</div>
             <div className="text-xs font-semibold text-slate-500">Sản phẩm đã phân loại</div>
           </div>
         </div>
@@ -208,7 +239,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
           </div>
           <div>
             <div className="text-2xl font-bold text-slate-900">
-              {categories.filter((c) => !c.parentId).length}
+              {stats.topLevelCategories}
             </div>
             <div className="text-xs font-semibold text-slate-500">Danh mục chính (Cấp 1)</div>
           </div>
@@ -216,24 +247,34 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
       </div>
 
       {/* 3. Search Bar */}
-      <div className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-slate-200/80 shadow-xs">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          applySearch(search);
+        }}
+        className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-slate-200/80 shadow-xs"
+      >
         <Search size={18} className="text-slate-400 ml-2" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm danh mục theo tên, đường dẫn (slug) hoặc danh mục cha..."
+          placeholder="Tìm danh mục theo tên, đường dẫn (slug) hoặc danh mục cha… (nhấn Enter)"
           className="w-full text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
         />
         {search && (
           <button
-            onClick={() => setSearch("")}
+            type="button"
+            onClick={() => {
+              setSearch("");
+              applySearch("");
+            }}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
             <X size={16} />
           </button>
         )}
-      </div>
+      </form>
 
       {/* 4. Category Table / List */}
       <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
@@ -249,7 +290,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredCategories.length === 0 ? (
+              {categories.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-slate-400">
                     <LayoutGrid size={32} className="mx-auto mb-2 opacity-40" />
@@ -259,7 +300,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                   </td>
                 </tr>
               ) : (
-                filteredCategories.map((cat) => (
+                categories.map((cat) => (
                   <tr key={cat.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="py-4 pl-6 pr-4 font-bold text-slate-900">
                       <div className="flex items-center gap-2.5">
@@ -327,6 +368,16 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="border-t border-slate-100 p-4">
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            basePath="/admin/categories"
+            searchParams={{ q: currentQ || undefined }}
+          />
         </div>
       </div>
 
@@ -401,7 +452,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 bg-white focus:border-brand-forest focus:outline-none"
                 >
                   <option value="">-- Không thuộc danh mục nào (Đây là danh mục chính) --</option>
-                  {categories
+                  {parentOptions
                     .filter((c) => !editingCategory || c.id !== editingCategory.id)
                     .map((c) => (
                       <option key={c.id} value={c.id}>

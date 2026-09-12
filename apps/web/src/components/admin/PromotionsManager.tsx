@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatVND } from "@saltandlight/domain";
 import { Button } from "@saltandlight/ui";
@@ -16,6 +16,7 @@ import {
   Sparkles,
   Percent,
 } from "./Icons";
+import { Pagination } from "./Pagination";
 
 export interface PromotionItem {
   id: string;
@@ -40,12 +41,22 @@ export interface ProductOption {
 export function PromotionsManager({
   initialPromotions,
   products,
+  total,
+  page,
+  pageSize,
 }: {
   initialPromotions: PromotionItem[];
   products: ProductOption[];
+  total: number;
+  page: number;
+  pageSize: number;
 }) {
   const router = useRouter();
   const [promotions, setPromotions] = useState<PromotionItem[]>(initialPromotions);
+
+  useEffect(() => {
+    setPromotions(initialPromotions);
+  }, [initialPromotions]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<PromotionItem | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -218,7 +229,7 @@ export function PromotionsManager({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-lg font-bold uppercase text-ink">
-            Danh Sách Chương Trình ({promotions.length})
+            Danh Sách Chương Trình ({total})
           </h2>
           <p className="text-xs text-ink/60 mt-0.5">
             Tạo và quản lý các đợt giảm giá, khuyến mãi đồng bộ trên toàn hệ thống
@@ -359,6 +370,17 @@ export function PromotionsManager({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {total > 0 && (
+        <div className="rounded-3xl border border-ink/10 bg-white p-4">
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            basePath="/admin/promotions"
+          />
         </div>
       )}
 

@@ -5,11 +5,22 @@ import { toPlain } from "@/lib/serialize";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPromotionsPage() {
-  const [promotionsData, productsData] = await Promise.all([
+const PAGE_SIZE = 15;
+
+export default async function AdminPromotionsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Math.max(1, Number(searchParams.page) || 1);
+
+  const [promotionsData, total, productsData] = await Promise.all([
     prisma.promotion.findMany({
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
     }),
+    prisma.promotion.count(),
     prisma.product.findMany({
       where: { status: "published" },
       select: {
@@ -41,7 +52,13 @@ export default async function AdminPromotionsPage() {
         subtitle="Quản lý các đợt ưu đãi, mức giảm giá và sản phẩm áp dụng đồng bộ toàn hệ thống"
       />
 
-      <PromotionsManager initialPromotions={promotions} products={products} />
+      <PromotionsManager
+        initialPromotions={promotions}
+        products={products}
+        total={total}
+        page={page}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 }

@@ -8,7 +8,7 @@ const inter = Inter({
   subsets: ["latin", "vietnamese"],
   variable: "--font-inter",
   display: "swap",
-  fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+  fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "sans-serif"],
 });
 
 export const viewport: Viewport = {
