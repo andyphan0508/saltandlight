@@ -17,6 +17,8 @@ export interface FooterColumn {
 
 export type LogoSize = "sm" | "md" | "lg";
 
+import { DEFAULT_CARE_GUIDES, type CareGuide } from "./care-guide-types";
+
 export interface HeaderNavItems {
   left: NavLinkItem[];
   right: NavLinkItem[];
@@ -34,6 +36,7 @@ export interface SiteSettingsData {
   footerAddress: string;
   footerSocialLinks: FooterSocialLink[];
   footerColumns: FooterColumn[];
+  careGuides: CareGuide[];
 }
 
 /**
@@ -87,6 +90,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
       ],
     },
   ],
+  careGuides: DEFAULT_CARE_GUIDES,
 };
 
 /** Tailwind size classes for the header/footer logo, keyed by the admin-picked preset. */
@@ -118,6 +122,7 @@ export function resolveSiteSettings(row?: {
   footerAddress?: string | null;
   footerSocialLinks?: unknown;
   footerColumns?: unknown;
+  careGuides?: unknown;
 } | null): SiteSettingsData {
   if (!row) return DEFAULT_SITE_SETTINGS;
   const logoSize: LogoSize =
@@ -137,5 +142,9 @@ export function resolveSiteSettings(row?: {
     footerAddress: row.footerAddress || DEFAULT_SITE_SETTINGS.footerAddress,
     footerSocialLinks: (row.footerSocialLinks as FooterSocialLink[]) || DEFAULT_SITE_SETTINGS.footerSocialLinks,
     footerColumns: (row.footerColumns as FooterColumn[]) || DEFAULT_SITE_SETTINGS.footerColumns,
+    careGuides:
+      Array.isArray(row.careGuides) && row.careGuides.length > 0
+        ? (row.careGuides as CareGuide[])
+        : DEFAULT_CARE_GUIDES,
   };
 }

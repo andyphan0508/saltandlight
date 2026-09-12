@@ -176,7 +176,15 @@ export const ProductContentRenderer = ({
 }: ProductContentRendererProps) => {
   if (!content) return null;
 
-  const blocks = parseProductContent(content);
+  const rawBlocks = parseProductContent(content);
+  // Filter out legacy hardcoded care blocks now handled uniformly by Global Care Guide
+  const blocks = rawBlocks.filter((b) => {
+    if (b.id && b.id.includes("default-care-")) return false;
+    if (b.type === "heading" && /hướng dẫn bảo quản|hướng dẫn giặt/i.test(b.text)) return false;
+    if (b.type === "callout" && /giặt áo|phơi & ủi|phơi áo/i.test(b.title)) return false;
+    return true;
+  });
+
   if (blocks.length === 0) return null;
 
   return (

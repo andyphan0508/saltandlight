@@ -21,10 +21,10 @@ export function isProductContentBlocks(raw?: string | null): boolean {
 }
 
 /**
- * Danh sách các khối nội dung chuẩn từng được hardcode trên web:
+ * Danh sách các khối nội dung chuẩn cho từng sản phẩm:
  * 1. Điểm nổi bật (Heading + Bullet list)
  * 2. Bảng quy đổi size áo (Heading + Specs table)
- * 3. Hướng dẫn bảo quản áo cotton (Heading + 2 Callouts Giặt & Phơi)
+ * (Lưu ý: Hướng dẫn giặt ủi & bảo quản đã được chuyển sang quản lý tập trung ở Setting Global)
  */
 export function getDefaultProductSections(): ProductContentBlock[] {
   const ts = Date.now();
@@ -60,28 +60,6 @@ export function getDefaultProductSections(): ProductContentBlock[] {
         { label: "Size L", value: "1m68 - 1m76 | 63 - 72 kg | Dài 72cm / Rộng 54cm" },
         { label: "Size XL", value: "1m75 - 1m85 | 73 - 85 kg | Dài 75cm / Rộng 57cm" },
       ],
-    },
-    {
-      id: `default-care-h-${ts}`,
-      type: "heading",
-      level: 2,
-      text: "Hướng Dẫn Bảo Quản Áo Cotton",
-    },
-    {
-      id: `default-care-wash-${ts}`,
-      type: "callout",
-      icon: "🧼",
-      title: "Giặt áo",
-      body: "Nên lộn trái áo khi giặt, không ngâm lâu trong chất tẩy mạnh.",
-      variant: "mint",
-    },
-    {
-      id: `default-care-dry-${ts}`,
-      type: "callout",
-      icon: "👔",
-      title: "Phơi & Ủi",
-      body: "Phơi trong bóng râm mát. Không ủi trực tiếp lên hình in.",
-      variant: "blue",
     },
   ];
 }

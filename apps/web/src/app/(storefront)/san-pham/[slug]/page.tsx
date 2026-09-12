@@ -8,6 +8,10 @@ import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ChevronRight } from "@/components/Icons";
 import { ProductContentRenderer } from "@/components/ProductContentRenderer";
+import { ProductCareGuideSection } from "@/components/ProductCareGuideSection";
+import { getCachedSiteSettings } from "@/lib/queries";
+import { resolveSiteSettings } from "@/lib/site-settings-types";
+import { resolveProductCareGuide } from "@/lib/care-guide-types";
 
 export const revalidate = 120;
 

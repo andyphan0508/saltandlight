@@ -437,6 +437,7 @@ model SiteSettings {
   footerAddress     String?  @map("footer_address")
   footerSocialLinks Json?    @map("footer_social_links") // [{platform, url}]
   footerColumns     Json?    @map("footer_columns") // [{title, items:[{label,href}]}]
+  careGuides        Json?    @map("care_guides") // [{id, title, subtitle, scopeType, categoryIds, productIds, items, isActive}]
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("site_settings")
