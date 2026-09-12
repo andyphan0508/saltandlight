@@ -199,6 +199,9 @@ export function ElementorEditorClient({
       toast.success(nextState ? "Đã hiện khối" : "Đã ẩn khối");
       setIframeKey((k) => k + 1);
     } catch {
+      setBlocks((prev) =>
+        prev.map((b) => (b.id === block.id ? { ...b, isVisible: block.isVisible } : b))
+      );
       toast.error("Lỗi khi cập nhật trạng thái");
     }
   }
@@ -317,9 +320,13 @@ export function ElementorEditorClient({
     setIframeKey((k) => k + 1);
   }
 
-  // Scroll to block in canvas
+  // Scroll and select block in canvas
   function scrollToBlockInCanvas(blockId: string) {
     if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        { type: "block:select", blockId },
+        "*"
+      );
       iframeRef.current.contentWindow.postMessage(
         { type: "block:scroll", blockId },
         "*"

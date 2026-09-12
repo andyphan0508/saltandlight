@@ -14,10 +14,12 @@ export interface ContactInfoContent {
 }
 
 export function ContactInfoBlock({ content }: { content: ContactInfoContent }) {
+  const items = Array.isArray(content?.items) ? content.items : [];
+
   return (
     <div className="space-y-4">
       <div className="rounded-3xl bg-white p-6 shadow-card border border-ink/5 space-y-5">
-        {content.items.map((item, i) => (
+        {items.map((item, i) => (
           <div key={i} className="flex items-start gap-4">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-mint-100 text-brand-forest">
               <BlockIcon name={item.icon} size={18} />

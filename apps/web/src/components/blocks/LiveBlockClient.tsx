@@ -51,12 +51,18 @@ export function LiveBlockClient({
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
+      const isTarget = data.blockId
+        ? data.blockId === blockId
+        : Boolean(data.blockType) && data.blockType === blockType;
+
       if (data.type === "block:select") {
-        setIsSelected(data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType));
-      } else if (data.type === "block:scroll" && (data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType))) {
-        setIsSelected(true);
-        wrapperRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else if (data.type === "block:preview" && (data.blockId === blockId || (Boolean(data.blockType) && data.blockType === blockType))) {
+        setIsSelected(Boolean(isTarget));
+      } else if (data.type === "block:scroll") {
+        setIsSelected(Boolean(isTarget));
+        if (isTarget) {
+          wrapperRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      } else if (data.type === "block:preview" && isTarget) {
         setPreviewContent(data.content);
       } else if (data.type === "block:reload") {
         window.location.reload();

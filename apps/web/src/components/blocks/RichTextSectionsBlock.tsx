@@ -11,8 +11,9 @@ export interface RichTextSectionsContent {
 }
 
 export function RichTextSectionsBlock({ content }: { content: RichTextSectionsContent }) {
-  const noteSections = content.sections.filter((s) => s.style === "note");
-  const mainSections = content.sections.filter((s) => s.style !== "note");
+  const sections = Array.isArray(content?.sections) ? content.sections : [];
+  const noteSections = sections.filter((s) => s.style === "note");
+  const mainSections = sections.filter((s) => s.style !== "note");
 
   return (
     <>

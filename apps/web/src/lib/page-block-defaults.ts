@@ -9,6 +9,153 @@ export interface DefaultBlockDefinition {
 }
 
 export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
+  home: [
+    {
+      type: "FEATURED_PRODUCTS",
+      content: {
+        eyebrow: "Bộ sưu tập đặc biệt",
+        headline: "Sản Phẩm Theo Mùa",
+        sourceType: "category",
+        categorySlug: "mua-giang-sinh",
+        categoryName: "Mùa giáng sinh",
+        ctaLabel: "Xem tất cả",
+        ctaHref: "/san-pham?categories=mua-giang-sinh",
+        count: 8,
+        displayMode: "grid",
+        allowViewAll: true,
+        viewAllMode: "link",
+      },
+    },
+    {
+      type: "FEATURED_PRODUCTS",
+      content: {
+        eyebrow: "Thời trang nam nữ",
+        headline: "Áo Thun Người Lớn",
+        sourceType: "category",
+        categorySlug: "ao-thun-nguoi-lon",
+        categoryName: "Áo thun người lớn",
+        ctaLabel: "Xem tất cả",
+        ctaHref: "/san-pham?categories=ao-thun-nguoi-lon",
+        count: 8,
+        displayMode: "grid",
+        allowViewAll: true,
+        viewAllMode: "link",
+      },
+    },
+    {
+      type: "FEATURED_PRODUCTS",
+      content: {
+        eyebrow: "Dành cho thiếu nhi & gia đình",
+        headline: "Áo Thun Trẻ Em",
+        sourceType: "category",
+        categorySlug: "ao-thun-cho-be",
+        categoryName: "Áo thun cho bé",
+        ctaLabel: "Xem tất cả",
+        ctaHref: "/san-pham?categories=ao-thun-cho-be",
+        count: 8,
+        displayMode: "grid",
+        allowViewAll: true,
+        viewAllMode: "link",
+      },
+    },
+    {
+      type: "FEATURED_PRODUCTS",
+      content: {
+        eyebrow: "Quà tặng & Phụ kiện",
+        headline: "Sản Phẩm Khác",
+        sourceType: "category",
+        categorySlug: "tui-tote-canvas",
+        categoryName: "Túi tote canvas",
+        ctaLabel: "Xem tất cả",
+        ctaHref: "/san-pham?categories=tui-tote-canvas",
+        count: 8,
+        displayMode: "grid",
+        allowViewAll: true,
+        viewAllMode: "link",
+      },
+    },
+  ],
+  "gioi-thieu": [
+    {
+      type: "PAGE_HERO",
+      content: {
+        icon: "CrossIcon",
+        eyebrow: "Về chúng tôi",
+        title: "Salt & Light",
+        subtitle: "Đó cũng là lí do Salt & Light được ra đời — Mang Lời Chúa vào cuộc sống thường nhật qua thời trang Cơ Đốc chất lượng và ý nghĩa.",
+        quote: "Các ngươi là sự sáng của thế gian. Một cái thành ở trên núi thì không thể khuất được.",
+        quoteRef: "Ma-thi-ơ 5:14",
+      },
+    },
+    {
+      type: "FEATURE_CARDS",
+      content: {
+        style: "numbered",
+        headline: "3 Giá Trị Cốt Lõi Của Salt & Light",
+        subtitle: "Những nguyên tắc định hình sản phẩm và dịch vụ của chúng mình",
+        items: [
+          {
+            number: "01",
+            title: "Tôn Vinh Chúa",
+            description: "Mọi thông điệp và thiết kế đều hướng lòng người về tình yêu thương của Chúa.",
+          },
+          {
+            number: "02",
+            title: "Chất Lượng Tận Tâm",
+            description: "Chất vải 100% Cotton thoáng mát, đường may chuẩn chỉ và in sắc nét.",
+          },
+          {
+            number: "03",
+            title: "Đồng Hành Cùng Bạn",
+            description: "Sẵn sàng hỗ trợ các Hội Thánh, Trại Hè và Ban Thanh Niên trên mọi nẻo đường.",
+          },
+        ],
+      },
+    },
+    {
+      type: "CTA_BANNER",
+      content: {
+        headline: "Bạn đã sẵn sàng cùng Salt & Light lan tỏa Sự Sáng?",
+        buttons: [
+          { label: "Khám phá sản phẩm", href: "/san-pham", variant: "primary" },
+          { label: "Liên hệ chúng mình", href: "/lien-he", variant: "outline" },
+        ],
+      },
+    },
+  ],
+  "lien-he": [
+    {
+      type: "PAGE_HERO",
+      content: {
+        icon: "Phone",
+        eyebrow: "Kết Nối Cùng Salt & Light",
+        title: "Liên Hệ Với Chúng Mình",
+        subtitle: "Bạn cần tư vấn size, đặt hàng số lượng lớn cho Hội thánh, hay có bất kỳ thắc mắc nào? Đội ngũ Salt & Light luôn sẵn sàng hỗ trợ bạn.",
+      },
+    },
+    {
+      type: "CONTACT_INFO",
+      content: {
+        items: [
+          { icon: "Phone", label: "Hotline & Zalo Tư Vấn", value: "0847 25 2025", note: "Hỗ trợ 8h00 - 21h00 hàng ngày" },
+          { icon: "Mail", label: "Email Hỗ Trợ", value: "saltandlight.vn@gmail.com", note: "Phản hồi trong 24 giờ làm việc" },
+          { icon: "MapPin", label: "Địa Chỉ", value: "TP. Hồ Chí Minh", note: "Giao hàng toàn quốc" },
+        ],
+        quote: "Hãy siêng năng mà chớ làm biếng; phải có lòng sốt sắng; phải hầu việc Chúa.",
+        quoteRef: "Rô-ma 12:11",
+      },
+    },
+    {
+      type: "CTA_BANNER",
+      content: {
+        headline: "Cần đặt may áo đồng phục cho Ban Ngành hoặc Hội Thánh?",
+        buttons: [
+          { label: "Đặt may theo yêu cầu", href: "/dat-theo-yeu-cau", variant: "primary" },
+          { label: "Xem sản phẩm có sẵn", href: "/san-pham", variant: "outline" },
+        ],
+      },
+    },
+  ],
   "dat-theo-yeu-cau": [
     {
       type: "PAGE_HERO",

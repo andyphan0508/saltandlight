@@ -39,20 +39,20 @@ export type PageSlug = (typeof PAGE_SLUGS)[number];
 const featureCardItemSchema = z.object({
   icon: z.string().min(1).optional(),
   number: z.string().optional(),
-  title: z.string().min(1),
-  description: z.string().min(1),
+  title: z.string().trim().min(1, "Vui lòng nhập tiêu đề mục"),
+  description: z.string().trim().min(1, "Vui lòng nhập nội dung mô tả"),
 });
 
 const featureCardsContentSchema = z.object({
   style: z.enum(["row", "card", "numbered"]).default("row"),
   headline: z.string().optional(),
   subtitle: z.string().optional(),
-  items: z.array(featureCardItemSchema).min(1),
+  items: z.array(featureCardItemSchema).min(1, "Cần có ít nhất 1 mục hiển thị"),
 });
 
 const featuredProductsContentSchema = z.object({
   eyebrow: z.string().optional(),
-  headline: z.string().min(1),
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề chính của khối"),
   ctaLabel: z.string().default("Xem tất cả"),
   ctaHref: z.string().default("/san-pham"),
   count: z.number().int().min(1).max(36).default(8),
@@ -68,9 +68,9 @@ const featuredProductsContentSchema = z.object({
 
 const storyBannerContentSchema = z.object({
   icon: z.string().optional(),
-  quote: z.string().min(1),
+  quote: z.string().trim().min(1, "Vui lòng nhập câu trích dẫn hoặc thông điệp"),
   quoteRef: z.string().optional(),
-  body: z.string().min(1),
+  body: z.string().trim().min(1, "Vui lòng nhập nội dung câu chuyện / giới thiệu chi tiết"),
   ctaLabel: z.string().optional(),
   ctaHref: z.string().optional(),
 });
@@ -78,72 +78,72 @@ const storyBannerContentSchema = z.object({
 const promoCtaContentSchema = z.object({
   badge: z.string().optional(),
   icon: z.string().optional(),
-  headline: z.string().min(1),
-  body: z.string().min(1),
-  bullets: z.array(z.string().min(1)).default([]),
-  ctaLabel: z.string().min(1),
-  ctaHref: z.string().min(1),
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề thông điệp"),
+  body: z.string().trim().min(1, "Vui lòng nhập nội dung mô tả"),
+  bullets: z.array(z.string()).default([]),
+  ctaLabel: z.string().trim().min(1, "Vui lòng nhập chữ trên nút bấm"),
+  ctaHref: z.string().trim().min(1, "Vui lòng nhập đường dẫn khi bấm nút"),
 });
 
 const testimonialItemSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().min(1, "Vui lòng nhập họ tên khách hàng"),
   role: z.string().optional(),
-  rating: z.number().int().min(1).max(5),
+  rating: z.number().int().min(1).max(5).default(5),
   product: z.string().optional(),
-  comment: z.string().min(1),
+  comment: z.string().trim().min(1, "Vui lòng nhập nhận xét của khách hàng"),
 });
 
 const testimonialsContentSchema = z.object({
   eyebrow: z.string().optional(),
-  headline: z.string().min(1),
-  items: z.array(testimonialItemSchema).min(1),
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề khối cảm nhận"),
+  items: z.array(testimonialItemSchema).min(1, "Cần có ít nhất 1 nhận xét của khách hàng"),
 });
 
 const pageHeroContentSchema = z.object({
   icon: z.string().optional(),
   eyebrow: z.string().optional(),
-  title: z.string().min(1),
+  title: z.string().trim().min(1, "Vui lòng nhập tiêu đề lớn của trang"),
   subtitle: z.string().optional(),
   quote: z.string().optional(),
   quoteRef: z.string().optional(),
 });
 
 const richTextSectionSchema = z.object({
-  heading: z.string().min(1),
-  paragraphs: z.array(z.string().min(1)).default([]),
-  bullets: z.array(z.string().min(1)).default([]),
-  cards: z.array(z.object({ title: z.string().min(1), description: z.string().min(1) })).default([]),
+  heading: z.string().trim().min(1, "Vui lòng nhập tiêu đề phần này"),
+  paragraphs: z.array(z.string()).default([]),
+  bullets: z.array(z.string()).default([]),
+  cards: z.array(z.object({ title: z.string().default(""), description: z.string().default("") })).default([]),
   style: z.enum(["default", "note"]).optional(),
 });
 
 const richTextSectionsContentSchema = z.object({
-  sections: z.array(richTextSectionSchema).min(1),
+  sections: z.array(richTextSectionSchema).min(1, "Cần có ít nhất 1 phần nội dung"),
 });
 
 const contactInfoItemSchema = z.object({
-  icon: z.string().min(1),
-  label: z.string().min(1),
-  value: z.string().min(1),
+  icon: z.string().min(1).default("Phone"),
+  label: z.string().trim().min(1, "Vui lòng nhập tên kênh liên hệ"),
+  value: z.string().trim().min(1, "Vui lòng nhập nội dung thông tin liên hệ"),
   note: z.string().optional(),
 });
 
 const contactInfoContentSchema = z.object({
-  items: z.array(contactInfoItemSchema).min(1),
+  items: z.array(contactInfoItemSchema).min(1, "Cần có ít nhất 1 thông tin liên hệ"),
   quote: z.string().optional(),
   quoteRef: z.string().optional(),
 });
 
 const ctaBannerContentSchema = z.object({
-  headline: z.string().min(1),
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề lời kêu gọi"),
   buttons: z
     .array(
       z.object({
-        label: z.string().min(1),
-        href: z.string().min(1),
+        label: z.string().trim().min(1, "Vui lòng nhập chữ trên nút bấm"),
+        href: z.string().trim().min(1, "Vui lòng nhập đường dẫn liên kết"),
         variant: z.enum(["primary", "outline"]).default("primary"),
       }),
     )
-    .min(1),
+    .min(1, "Cần có ít nhất 1 nút hành động"),
 });
 
 export const pageBlockContentSchema = z.discriminatedUnion("type", [

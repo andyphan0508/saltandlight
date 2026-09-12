@@ -15,13 +15,14 @@ export interface FeatureCardsContent {
 }
 
 export function FeatureCardsBlock({ content }: { content: FeatureCardsContent }) {
-  const style = content.style || "row";
+  const style = content?.style || "row";
+  const items = Array.isArray(content?.items) ? content.items : [];
 
   if (style === "row") {
     return (
       <section className="mx-auto max-w-7xl px-4">
         <div className="grid gap-4 sm:gap-6 rounded-3xl bg-white p-5 sm:p-8 shadow-card border border-ink/5 sm:grid-cols-2 lg:grid-cols-4">
-          {content.items.map((item, i) => (
+          {items.map((item, i) => (
             <div
               key={i}
               className="group flex items-start gap-3.5 sm:gap-4 p-3 rounded-2xl transition-all duration-300 hover:bg-mint-50/60 hover:-translate-y-0.5 active-press"
@@ -44,9 +45,9 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
 
   if (style === "numbered") {
     const gridCols =
-      content.items.length === 4
+      items.length === 4
         ? "sm:grid-cols-2 lg:grid-cols-4"
-        : content.items.length === 2
+        : items.length === 2
         ? "sm:grid-cols-2"
         : "sm:grid-cols-3";
 
@@ -61,7 +62,7 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
           </div>
         )}
         <div className={`grid gap-6 ${gridCols} text-center sm:text-left`}>
-          {content.items.map((item, i) => (
+          {items.map((item, i) => (
             <div key={i} className="rounded-2xl bg-white p-6 shadow-sm border border-ink/5 space-y-2">
               {item.number && <span className="font-display text-2xl font-bold text-brand-forest">{item.number}</span>}
               <h3 className="font-bold text-sm uppercase text-ink">{item.title}</h3>
@@ -76,7 +77,7 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
   // "card"
   return (
     <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {content.items.map((item, i) => (
+      {items.map((item, i) => (
         <div key={i} className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 space-y-3 sm:space-y-4">
           <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-mint-100 text-brand-forest">
             <BlockIcon name={item.icon} size={20} />
