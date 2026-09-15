@@ -1,5 +1,6 @@
 import { prisma } from "@saltandlight/db";
-import { CategoryManager, type CategoryItem } from "./components/CategoryManager";
+import type { CategoryItem } from "@/interfaces/category";
+import { CategoryManager } from "./components/CategoryManager";
 
 const PAGE_SIZE = 15;
 
