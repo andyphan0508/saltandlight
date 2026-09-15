@@ -2,7 +2,8 @@
 
 import { Modal } from "@/components/Modal";
 import { ExternalLink, Mail, Phone, X } from "@/components/admin/Icons";
-import { CONTACT_STATUSES, normalizeVietnamesePhone } from "@/helpers/contact-submissions";
+import { CONTACT_STATUSES } from "@/helpers/contact-submissions";
+import { normalizeVietnamesePhone } from "@/helpers/phone";
 import type { ContactStatus, ContactSubmissionItem } from "@/interfaces/contact";
 
 interface ContactDetailModalProps {

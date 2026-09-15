@@ -1,7 +1,8 @@
 "use client";
 
 import { ExternalLink, Mail, MessageSquare, Phone, Tag, Trash2 } from "@/components/admin/Icons";
-import { CONTACT_STATUSES, contactStatusOf, normalizeVietnamesePhone } from "@/helpers/contact-submissions";
+import { CONTACT_STATUSES, contactStatusOf } from "@/helpers/contact-submissions";
+import { normalizeVietnamesePhone } from "@/helpers/phone";
 import type { ContactStatus, ContactSubmissionItem } from "@/interfaces/contact";
 
 interface ContactRowProps {

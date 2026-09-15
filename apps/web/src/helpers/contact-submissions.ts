@@ -9,14 +9,6 @@ export const CONTACT_STATUSES: { value: ContactStatus; label: string; badgeClass
 export const contactStatusOf = (status: string) =>
   CONTACT_STATUSES.find((s) => s.value === status) ?? CONTACT_STATUSES[0]!;
 
-/** Local Vietnamese number for tel:/Zalo links ("+84 912…" → "0912…"); null when there is no phone. */
-export const normalizeVietnamesePhone = (phone: string | null) => {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("84") && digits.length === 11) return `0${digits.slice(2)}`;
-  return digits.startsWith("0") ? digits : `0${digits}`;
-};
-
 /** Admin contacts URL for the given filters; blank values and "all" are left out. */
 export const contactsFilterHref = ({ q, status, type }: ContactFilters) => {
   const params = new URLSearchParams();

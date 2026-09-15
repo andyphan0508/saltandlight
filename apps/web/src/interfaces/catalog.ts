@@ -28,3 +28,13 @@ export interface CategoryOption {
   slug: string;
   count: number;
 }
+
+/** A purchasable product variant as the product page's buy box sees it. */
+export interface ProductVariantOption {
+  id: string;
+  color: string | null;
+  size: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  stockQuantity: number;
+}

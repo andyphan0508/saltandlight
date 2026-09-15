@@ -1,190 +1,62 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useWishlistStore } from "@/stores/wishlist-store";
+import type { CategoryOption } from "@/interfaces/catalog";
+import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/interfaces/site-settings";
 import { useMobileMenuStore } from "@/stores/mobile-menu-store";
 import { useSearchModalStore } from "@/stores/search-store";
-import { useStoreHydrated } from "@/stores/use-store-hydrated";
-import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/interfaces/site-settings";
-import { useCustomer } from "@/hooks/use-customer";
+import { CategoryDropdown } from "./header/CategoryDropdown";
+import { HeaderActions } from "./header/HeaderActions";
+import { HeaderNavLinks } from "./header/HeaderNavLinks";
+import { TopBar } from "./header/TopBar";
+import { Search } from "./Icons";
 import { Logo } from "./Logo";
 import { MarqueeBanner } from "./MarqueeBanner";
-import { Heart, Search, Phone, Truck, ChevronDown, Sparkles, User } from "./Icons";
 
-interface CategoryNavItem {
-  id: string;
-  name: string;
-  slug: string;
-  count: number;
+interface HeaderProps {
+  categories: CategoryOption[];
+  siteSettings?: SiteSettingsData;
 }
 
-export const Header = ({
-  categories,
-  siteSettings = DEFAULT_SITE_SETTINGS,
-}: {
-  categories: CategoryNavItem[];
-  siteSettings?: SiteSettingsData;
-}) => {
+export const Header = ({ categories, siteSettings = DEFAULT_SITE_SETTINGS }: HeaderProps) => {
   const pathname = usePathname();
-  const { customer } = useCustomer();
-  const navLeft = siteSettings.headerNavItems.left;
-  const navRight = siteSettings.headerNavItems.right;
-  const wishlistCount = useWishlistStore((s) => s.productIds.length);
-  const isWishlistHydrated = useStoreHydrated(useWishlistStore);
-
-  const setMobileMenuOpen = useMobileMenuStore((s) => s.setIsOpen);
-  const setSearchOpen = useSearchModalStore((s) => s.setIsOpen);
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const categoryMenuRef = useRef<HTMLDivElement>(null);
+  const setIsMobileMenuOpen = useMobileMenuStore((s) => s.setIsOpen);
+  const setIsSearchOpen = useSearchModalStore((s) => s.setIsOpen);
+  const { left, right } = siteSettings.headerNavItems;
 
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setIsCategoryMenuOpen(false);
-  }, [pathname, setMobileMenuOpen]);
-
-  useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target as Node)) {
-        setIsCategoryMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
-
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  const isCategoryActive = pathname.startsWith("/san-pham") || pathname.startsWith("/danh-muc");
+    setIsMobileMenuOpen(false);
+  }, [pathname, setIsMobileMenuOpen]);
 
   return (
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md transition-all border-b border-ink/5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-      {/* Top micro announcement bar - Visible on both Mobile and Desktop */}
-      <div className="border-b border-ink/5 bg-mint-50/90 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs text-ink/80">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-forest/10 text-brand-forest flex-shrink-0">
-              <Truck size={12} />
-            </span>
-            <span className="font-bold text-brand-forest truncate block text-[11px] sm:text-xs uppercase tracking-wider">
-              Đồng giá ship 19K toàn quốc
-            </span>
-          </div>
-          <div className="hidden lg:flex items-center gap-6">
-            <Link
-              href="/tra-cuu-don-hang"
-              className="inline-flex items-center gap-1.5 font-semibold text-ink/70 hover:text-ink transition-colors"
-            >
-              <Truck size={14} />
-              <span>Tra cứu đơn hàng</span>
-            </Link>
-            {(() => {
-              const phone = siteSettings?.footerPhone || "0847 25 2025";
-              const digits = phone.replace(/\D/g, "");
-              const localPhone =
-                digits.startsWith("84") && digits.length === 11
-                  ? `0${digits.slice(2)}`
-                  : digits.startsWith("0")
-                  ? digits
-                  : `0${digits || "847252025"}`;
-              return (
-                <a
-                  href={`tel:${localPhone}`}
-                  className="inline-flex items-center gap-1.5 font-semibold text-ink/70 hover:text-ink transition-colors"
-                >
-                  <Phone size={13} />
-                  <span>Hotline: {phone}</span>
-                </a>
-              );
-            })()}
-          </div>
-        </div>
-      </div>
+      <TopBar phone={siteSettings.footerPhone || DEFAULT_SITE_SETTINGS.footerPhone} />
 
       {/*
-        3-column grid (1fr / auto / logo / auto / 1fr) keeps the logo
-        mathematically centered regardless of how much content sits in the
-        left/right columns — a flex justify-between row can't guarantee
-        that once the two sides hold different content (e.g. once the cart
-        button moved out to a FAB, the old flex layout skewed off-center).
+        3-column grid (1fr / auto / 1fr) keeps the logo mathematically centered
+        regardless of how much content sits in the left/right columns — a flex
+        justify-between row can't guarantee that once the two sides differ.
       */}
       <div className="mx-auto max-w-7xl px-3 sm:px-4 py-2.5 sm:py-3">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          {/* Left column */}
           <div className="flex items-center gap-1 justify-self-start">
-            {/* Mobile: search trigger */}
             <button
               type="button"
-              onClick={() => setSearchOpen(true)}
+              onClick={() => setIsSearchOpen(true)}
               className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-ink/5 lg:hidden"
               aria-label="Tìm kiếm sản phẩm"
             >
               <Search size={19} />
             </button>
 
-            {/* Desktop nav (left) */}
             <nav className="hidden items-center gap-1 lg:flex">
-              {navLeft.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-full px-3 xl:px-4 py-1.5 text-[11px] xl:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                    isActive(item.href)
-                      ? "bg-ink text-white shadow-sm"
-                      : "text-ink/85 hover:bg-ink/5 hover:text-ink"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Danh mục dropdown */}
-              <div ref={categoryMenuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsCategoryMenuOpen((v) => !v)}
-                  className={`flex items-center gap-1 rounded-full px-3 xl:px-4 py-1.5 text-[11px] xl:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                    isCategoryActive && !isCategoryMenuOpen
-                      ? "bg-ink text-white shadow-sm"
-                      : "text-ink/85 hover:bg-ink/5 hover:text-ink"
-                  }`}
-                  aria-expanded={isCategoryMenuOpen}
-                >
-                  Danh mục
-                  <ChevronDown
-                    size={13}
-                    className={`transition-transform ${isCategoryMenuOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {isCategoryMenuOpen && (
-                  <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-ink/10 bg-white p-2 shadow-xl animate-fade-in">
-                    <Link
-                      href="/san-pham"
-                      onClick={() => setIsCategoryMenuOpen(false)}
-                      className="block rounded-xl px-3 py-2 text-xs font-bold uppercase text-ink hover:bg-mint-50"
-                    >
-                      Tất cả sản phẩm
-                    </Link>
-                    <div className="my-1 border-t border-ink/5" />
-                    {categories.map((c) => (
-                      <Link
-                        key={c.id}
-                        href={`/san-pham?categories=${c.slug}`}
-                        onClick={() => setIsCategoryMenuOpen(false)}
-                        className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink/75 hover:bg-mint-50 hover:text-ink"
-                      >
-                        <span>{c.name}</span>
-                        <span className="text-[10px] text-ink/35">{c.count}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <HeaderNavLinks items={left} pathname={pathname} />
+              <CategoryDropdown categories={categories} />
             </nav>
           </div>
 
-          {/* Center: logo */}
           <Link href="/" className="flex flex-shrink-0 items-center justify-self-center group py-1">
             <div className="transition-transform duration-200 group-hover:scale-105">
               <Logo
@@ -197,63 +69,11 @@ export const Header = ({
             </div>
           </Link>
 
-          {/* Right column */}
           <div className="flex items-center gap-1 justify-self-end sm:gap-2">
             <nav className="hidden items-center gap-1 lg:flex">
-              {navRight.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-full px-3 xl:px-4 py-1.5 text-[11px] xl:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                    isActive(item.href)
-                      ? "bg-ink text-white shadow-sm"
-                      : "text-ink/85 hover:bg-ink/5 hover:text-ink"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <HeaderNavLinks items={right} pathname={pathname} />
             </nav>
-
-            {/* Desktop search trigger */}
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="hidden h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-ink/5 lg:flex"
-              aria-label="Tìm kiếm sản phẩm"
-            >
-              <Search size={18} />
-            </button>
-
-            {/* Wishlist */}
-            <Link
-              href="/yeu-thich"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-ink/5 transition-all"
-              aria-label="Sản phẩm yêu thích"
-            >
-              <Heart size={20} />
-              {isWishlistHydrated && wishlistCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-bold text-white shadow-sm">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Customer Account / Login */}
-            <Link
-              href={customer ? "/tai-khoan" : "/dang-nhap"}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-ink/5 transition-all active-press"
-              aria-label={customer ? `Tài khoản (${customer.fullName})` : "Đăng nhập tài khoản"}
-              title={customer ? `Xin chào, ${customer.fullName}` : "Đăng nhập tài khoản"}
-            >
-              {customer ? (
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-white text-[11px] font-bold shadow-xs ring-2 ring-mint-200">
-                  {customer.fullName.trim().charAt(0).toUpperCase()}
-                </div>
-              ) : (
-                <User size={19} />
-              )}
-            </Link>
+            <HeaderActions />
           </div>
         </div>
       </div>
@@ -261,4 +81,4 @@ export const Header = ({
       <MarqueeBanner />
     </header>
   );
-}
+};
