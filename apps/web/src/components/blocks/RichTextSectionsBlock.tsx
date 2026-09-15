@@ -10,7 +10,7 @@ export interface RichTextSectionsContent {
   sections: Section[];
 }
 
-export function RichTextSectionsBlock({ content }: { content: RichTextSectionsContent }) {
+export const RichTextSectionsBlock = ({ content }: { content: RichTextSectionsContent }) => {
   const sections = Array.isArray(content?.sections) ? content.sections : [];
   const noteSections = sections.filter((s) => s.style === "note");
   const mainSections = sections.filter((s) => s.style !== "note");
@@ -61,4 +61,4 @@ export function RichTextSectionsBlock({ content }: { content: RichTextSectionsCo
       ))}
     </>
   );
-}
+};

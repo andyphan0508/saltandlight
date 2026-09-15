@@ -3,7 +3,7 @@ import { prisma } from "@saltandlight/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export const GET = async (req: NextRequest) => {
   try {
     const ids = req.nextUrl.searchParams.get("ids");
     const categorySlug = req.nextUrl.searchParams.get("category") ?? undefined;
@@ -62,4 +62,4 @@ export async function GET(req: NextRequest) {
     console.error("GET /api/products error:", err);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
-}
+};

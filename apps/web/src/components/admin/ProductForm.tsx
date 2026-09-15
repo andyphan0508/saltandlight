@@ -74,12 +74,12 @@ export interface ProductFormInitial {
   variants: VariantRow[];
 }
 
-function skuify(...parts: string[]) {
+const skuify = (...parts: string[]) => {
   return parts
     .filter(Boolean)
     .map((p) => slugify(p).toUpperCase())
     .join("-");
-}
+};
 
 const inputClass =
   "w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none";
@@ -96,7 +96,7 @@ const emptyVariant: VariantRow = {
   isActive: true,
 };
 
-export function ProductForm({
+export const ProductForm = ({
   categories,
   promotions = [],
   initial,
@@ -104,7 +104,7 @@ export function ProductForm({
   categories: Category[];
   promotions?: PromotionOption[];
   initial?: ProductFormInitial;
-}) {
+}) => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -123,7 +123,7 @@ export function ProductForm({
   );
   const [uploadingCount, setUploadingCount] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [quickColors, setQuickColors] = useState("");
@@ -138,12 +138,12 @@ export function ProductForm({
     () => readPriceNote(parseProductContent(initial?.description)) ?? DEFAULT_PRICE_NOTE,
   );
 
-  function updateVariant(index: number, patch: Partial<VariantRow>) {
+  const updateVariant = (index: number, patch: Partial<VariantRow>) => {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)));
-  }
+  };
 
   // ── Images: multi-upload with automatic ~200kb-500kb compression ───
-  async function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const onFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
     setUploadingCount(files.length);
@@ -162,13 +162,13 @@ export function ProductForm({
     }
     setImages((prev) => [...prev, ...uploaded].map((img, i) => ({ ...img, sortOrder: i })));
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }
+  };
 
-  function removeImage(index: number) {
+  const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index).map((img, i) => ({ ...img, sortOrder: i })));
-  }
+  };
 
-  function reorderImages(from: number, to: number) {
+  const reorderImages = (from: number, to: number) => {
     setImages((prev) => {
       const next = [...prev];
       const [moved] = next.splice(from, 1);
@@ -176,10 +176,10 @@ export function ProductForm({
       next.splice(to, 0, moved);
       return next.map((img, i) => ({ ...img, sortOrder: i }));
     });
-  }
+  };
 
   // ── Quick variant generator (Color × Size) ───────────────────────
-  function generateVariants() {
+  const generateVariants = () => {
     const colors = quickColors.split(",").map((c) => c.trim()).filter(Boolean);
     const rawSizes = quickSizes.split(",").map((s) => s.trim()).filter(Boolean);
     const sizes = sortSizes(rawSizes);
@@ -209,10 +209,10 @@ export function ProductForm({
       const isBlank = prev.length === 1 && !prev[0]!.sku && !prev[0]!.color && !prev[0]!.size;
       return isBlank ? generated : [...prev, ...generated];
     });
-  }
+  };
 
   // ── Quick discount tool ───────────────────────────────────────────
-  function applyDiscount() {
+  const applyDiscount = () => {
     setVariants((prev) =>
       prev.map((v) => {
         const base = v.compareAtPrice ?? v.price;
@@ -220,18 +220,18 @@ export function ProductForm({
         return { ...v, compareAtPrice: base, price: Math.round((base * (1 - discountPct / 100)) / 1000) * 1000 };
       }),
     );
-  }
+  };
 
-  function clearDiscount() {
+  const clearDiscount = () => {
     setVariants((prev) =>
       prev.map((v) => (v.compareAtPrice ? { ...v, price: v.compareAtPrice, compareAtPrice: null } : v)),
     );
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSaving(true);
+    setIsSaving(true);
 
     const finalSlug = slug || slugify(name) || `san-pham-${Date.now()}`;
 
@@ -269,12 +269,12 @@ export function ProductForm({
       setError(message);
       toast.error(message);
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6">
       {/* Basic info */}
       <Section title="Thông tin cơ bản" icon={<Package size={16} />}>
         <div className="grid gap-5 md:grid-cols-2">
@@ -392,7 +392,7 @@ export function ProductForm({
               type="file"
               multiple
               accept="image/jpeg,image/png,image/webp"
-              onChange={handleFilesChange}
+              onChange={onFilesChange}
               className="hidden"
             />
           </label>
@@ -778,10 +778,10 @@ export function ProductForm({
       )}
 
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={saving}>
-          {saving ? "Đang lưu…" : initial?.id ? "Lưu thay đổi" : "Tạo sản phẩm"}
+        <Button type="submit" disabled={isSaving}>
+          {isSaving ? "Đang lưu…" : initial?.id ? "Lưu thay đổi" : "Tạo sản phẩm"}
         </Button>
       </div>
     </form>
   );
-}
+};

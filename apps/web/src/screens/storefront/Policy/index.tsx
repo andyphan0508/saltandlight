@@ -49,11 +49,11 @@ const DEFAULT_POLICY_BLOCKS: PageBlockData[] = [
   },
 ];
 
-export default async function PolicyPage({
+const PolicyPage = async ({
   searchParams,
 }: {
   searchParams?: { editor?: string };
-}) {
+}) => {
   let blocks: PageBlockData[] = [];
   try {
     const isEditor = searchParams?.editor === "1";
@@ -68,4 +68,6 @@ export default async function PolicyPage({
   const effectiveBlocks = blocks && blocks.length > 0 ? blocks : DEFAULT_POLICY_BLOCKS;
 
   return <PolicyView blocks={effectiveBlocks} />;
-}
+};
+
+export default PolicyPage;

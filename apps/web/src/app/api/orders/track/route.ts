@@ -4,7 +4,7 @@ import { trackOrderSchema } from "@saltandlight/domain";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
   const parsed = trackOrderSchema.safeParse(body);
   if (!parsed.success) {
@@ -31,4 +31,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ order });
-}
+};

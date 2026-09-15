@@ -5,7 +5,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const admin = await getCurrentAdminUser();
   if (!admin) redirect("/admin/login?unauthorized=true");
 
@@ -25,4 +25,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;

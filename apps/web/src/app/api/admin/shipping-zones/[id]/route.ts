@@ -7,7 +7,7 @@ import { invalidateMemoryCache } from "@/server/memory-cache";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner"]);
 
@@ -27,4 +27,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};

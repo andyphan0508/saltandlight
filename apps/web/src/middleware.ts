@@ -33,7 +33,7 @@ const RULES: Record<string, [number, number]> = {
 
 const DEFAULT_RULE: [number, number] = [60, 60];
 
-export async function middleware(req: NextRequest) {
+export const middleware = async (req: NextRequest) => {
   const path = req.nextUrl.pathname;
 
   // 1. Handle Admin Authentication & Protection
@@ -185,4 +185,4 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+};

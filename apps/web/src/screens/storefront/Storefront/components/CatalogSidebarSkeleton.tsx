@@ -1,4 +1,4 @@
-export function CatalogSidebarSkeleton() {
+export const CatalogSidebarSkeleton = () => {
   return (
     <>
       {/* Mobile Skeleton */}
@@ -34,4 +34,4 @@ export function CatalogSidebarSkeleton() {
       </div>
     </>
   );
-}
+};

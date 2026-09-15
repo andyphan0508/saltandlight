@@ -53,7 +53,7 @@ export const ProductFilters = ({
 
   const activeCategories = parseList(searchParams.get("categories"));
   const activeSizes = parseList(searchParams.get("sizes"));
-  const onSale = searchParams.get("onSale") === "1";
+  const isOnSale = searchParams.get("onSale") === "1";
   const activeSort = searchParams.get("sort") ?? "latest";
 
   const currentSortObj = SORT_OPTIONS.find((s) => s.value === activeSort) ?? SORT_OPTIONS[0];
@@ -62,7 +62,7 @@ export const ProductFilters = ({
   const activeFilterCount =
     activeCategories.length +
     activeSizes.length +
-    (onSale ? 1 : 0) +
+    (isOnSale ? 1 : 0) +
     (activeSort !== "latest" ? 1 : 0);
 
   const hasActiveFilters = activeFilterCount > 0;
@@ -115,7 +115,7 @@ export const ProductFilters = ({
 
   const onToggleOnSale = () => {
     onUpdateParams((params) => {
-      if (onSale) params.delete("onSale");
+      if (isOnSale) params.delete("onSale");
       else params.set("onSale", "1");
     });
   };
@@ -203,7 +203,7 @@ export const ProductFilters = ({
               type="button"
               onClick={onToggleOnSale}
               className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-bold transition-all active-press ${
-                onSale
+                isOnSale
                   ? "border-sale bg-rose-50 text-sale shadow-xs font-bold"
                   : "border-ink/15 bg-white text-ink/70 hover:bg-ink/5"
               }`}
@@ -405,7 +405,7 @@ export const ProductFilters = ({
                   </div>
                   <input
                     type="checkbox"
-                    checked={onSale}
+                    checked={isOnSale}
                     onChange={onToggleOnSale}
                     className="h-5 w-5 rounded-md accent-brand-forest"
                   />
@@ -434,7 +434,7 @@ export const ProductFilters = ({
         <label className="flex cursor-pointer items-center gap-2.5 rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/75 shadow-card hover:border-ink/25 transition-colors">
           <input
             type="checkbox"
-            checked={onSale}
+            checked={isOnSale}
             onChange={onToggleOnSale}
             className="h-4 w-4 rounded accent-brand-forest"
           />
@@ -443,7 +443,7 @@ export const ProductFilters = ({
 
         <FilterSection
           title="Danh mục sản phẩm"
-          open={isCategoriesOpen}
+          isOpen={isCategoriesOpen}
           onToggle={() => setIsCategoriesOpen((v) => !v)}
         >
           <FilterRow
@@ -464,17 +464,17 @@ export const ProductFilters = ({
         </FilterSection>
 
         {sizes.length > 0 && (
-          <FilterSection title="Kích thước" open={isSizesOpen} onToggle={() => setIsSizesOpen((v) => !v)}>
+          <FilterSection title="Kích thước" isOpen={isSizesOpen} onToggle={() => setIsSizesOpen((v) => !v)}>
             <div className="flex flex-wrap gap-2 pt-1">
               {sizes.map((size) => {
-                const active = activeSizes.includes(size);
+                const isActive = activeSizes.includes(size);
                 return (
                   <button
                     key={size}
                     type="button"
                     onClick={() => onToggleSize(size)}
                     className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all active-press ${
-                      active
+                      isActive
                         ? "border-ink bg-ink text-white shadow-xs"
                         : "border-ink/15 bg-white text-ink/70 hover:border-ink/40"
                     }`}
@@ -504,14 +504,14 @@ export const ProductFilters = ({
 
 interface FilterSectionProps {
   title: string;
-  open: boolean;
+  isOpen: boolean;
   onToggle: () => void;
   children: ReactNode;
 }
 
 const FilterSection = ({
   title,
-  open,
+  isOpen,
   onToggle,
   children,
 }: FilterSectionProps) => {
@@ -522,9 +522,9 @@ const FilterSection = ({
         className="flex w-full items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-ink"
       >
         {title}
-        {open ? <ChevronUp size={16} className="text-ink/40" /> : <ChevronDown size={16} className="text-ink/40" />}
+        {isOpen ? <ChevronUp size={16} className="text-ink/40" /> : <ChevronDown size={16} className="text-ink/40" />}
       </button>
-      {open && <div className="mt-3 space-y-2.5">{children}</div>}
+      {isOpen && <div className="mt-3 space-y-2.5">{children}</div>}
     </div>
   );
 };

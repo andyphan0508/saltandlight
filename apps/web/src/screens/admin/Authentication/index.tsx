@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
 import { Mail, Lock, Eye, EyeOff, AlertTriangle } from "@/components/admin/Icons";
 
-export default function LoginPage() {
+const LoginPage = () => {
   return (
     <Suspense
       fallback={
@@ -18,19 +18,21 @@ export default function LoginPage() {
       <LoginForm />
     </Suspense>
   );
-}
+};
 
-function LoginForm() {
+export default LoginPage;
+
+const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setIsLoading(true);
 
     const form = new FormData(e.currentTarget);
     const email = String(form.get("email") || "").trim();
@@ -42,7 +44,7 @@ function LoginForm() {
       password,
     });
 
-    setLoading(false);
+    setIsLoading(false);
 
     if (signInError) {
       setError("Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại.");
@@ -52,7 +54,7 @@ function LoginForm() {
     const nextUrl = searchParams.get("next") || "/admin/dashboard";
     router.push(nextUrl);
     router.refresh();
-  }
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-[#091512] via-[#0e1d19] to-[#0a1210] px-4 py-12 overflow-hidden select-none">
@@ -122,7 +124,7 @@ function LoginForm() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4.5">
+        <form onSubmit={onSubmit} className="mt-6 space-y-4.5">
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Email đăng nhập
@@ -152,7 +154,7 @@ function LoginForm() {
               </div>
               <input
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type={isPasswordVisible ? "text" : "password"}
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
@@ -160,12 +162,12 @@ function LoginForm() {
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
                 tabIndex={-1}
-                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                aria-label={isPasswordVisible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {isPasswordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
@@ -173,10 +175,10 @@ function LoginForm() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="w-full rounded-2xl bg-gradient-to-r from-brand-forest via-emerald-800 to-brand-forest py-3.5 text-sm font-bold text-white shadow-[0_10px_25px_-5px_rgba(27,67,50,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(27,67,50,0.5)] hover:brightness-105 active:scale-[0.99] disabled:opacity-70 transition-all flex items-center justify-center gap-2"
             >
-              {loading ? (
+              {isLoading ? (
                 <>
                   <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                   <span>Đang xác thực bảo mật…</span>
@@ -211,4 +213,4 @@ function LoginForm() {
       </div>
     </div>
   );
-}
+};

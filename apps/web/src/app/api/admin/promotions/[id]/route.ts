@@ -7,10 +7,10 @@ import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(
+export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } },
-) {
+) => {
   try {
     await requireAdmin();
     const {
@@ -23,7 +23,7 @@ export async function PATCH(
       endDate,
       isActive,
       productIds,
-      applyPrices,
+      applyPrices: shouldApplyPrices,
     } = promotionUpdateSchema.parse(await req.json());
 
     const data: Record<string, unknown> = {};
@@ -42,7 +42,7 @@ export async function PATCH(
       data,
     });
 
-    if (applyPrices && updated.productIds.length > 0) {
+    if (shouldApplyPrices && updated.productIds.length > 0) {
       const numDiscount = Number(updated.discountValue);
       for (const pId of updated.productIds) {
         const variants = await prisma.productVariant.findMany({
@@ -93,18 +93,18 @@ export async function PATCH(
       }
     }
 
-    if (applyPrices && updated.productIds.length > 0) invalidateProductCaches();
+    if (shouldApplyPrices && updated.productIds.length > 0) invalidateProductCaches();
 
     return NextResponse.json({ promotion: updated });
   } catch (err) {
     return apiError(err, "Không thể cập nhật chương trình");
   }
-}
+};
 
-export async function DELETE(
+export const DELETE = async (
   req: NextRequest,
   { params }: { params: { id: string } },
-) {
+) => {
   try {
     await requireAdmin();
     await prisma.promotion.delete({
@@ -114,4 +114,4 @@ export async function DELETE(
   } catch (err) {
     return apiError(err, "Không thể xóa chương trình");
   }
-}
+};

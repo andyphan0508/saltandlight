@@ -6,7 +6,7 @@ import { getClientIp } from "@/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
   const parsed = contactFormSchema.safeParse(body);
   if (!parsed.success) {
@@ -34,4 +34,4 @@ export async function POST(req: NextRequest) {
     console.error("Contact submission error:", err);
     return NextResponse.json({ error: "Không thể lưu thông tin liên hệ lúc này." }, { status: 500 });
   }
-}
+};

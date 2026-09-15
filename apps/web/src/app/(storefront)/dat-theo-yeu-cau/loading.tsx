@@ -1,4 +1,4 @@
-export default function CustomOrderLoading() {
+const CustomOrderLoading = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16 space-y-16 animate-pulse">
       {/* Header Skeleton */}
@@ -49,4 +49,6 @@ export default function CustomOrderLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default CustomOrderLoading;

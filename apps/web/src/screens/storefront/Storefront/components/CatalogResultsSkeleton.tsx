@@ -4,7 +4,7 @@ const GRID_COLS: Record<string, string> = {
   "4": "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
 };
 
-export function CatalogResultsSkeleton({ view = "3" }: { view?: string }) {
+export const CatalogResultsSkeleton = ({ view = "3" }: { view?: string }) => {
   return (
     <div className="animate-pulse">
       <div className="flex items-center justify-between border-b border-ink/10 pb-5">
@@ -22,4 +22,4 @@ export function CatalogResultsSkeleton({ view = "3" }: { view?: string }) {
       </div>
     </div>
   );
-}
+};

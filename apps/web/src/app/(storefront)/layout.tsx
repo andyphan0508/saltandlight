@@ -11,7 +11,7 @@ import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/server/q
 import { toPlain } from "@/helpers/serialize";
 import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/interfaces/site-settings";
 
-export default async function StorefrontLayout({ children }: { children: React.ReactNode }) {
+const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => {
   let navCategories: any[] = [];
   let siteSettings: SiteSettingsData = DEFAULT_SITE_SETTINGS;
   try {
@@ -47,4 +47,6 @@ export default async function StorefrontLayout({ children }: { children: React.R
       <CartFab siteSettings={siteSettings} />
     </>
   );
-}
+};
+
+export default StorefrontLayout;

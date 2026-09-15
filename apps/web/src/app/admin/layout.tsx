@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AdminBaseLayout({ children }: { children: React.ReactNode }) {
+const AdminBaseLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-ink antialiased selection:bg-mint-300 selection:text-ink">
       <Toaster richColors position="top-right" duration={3500} closeButton />
@@ -21,4 +21,6 @@ export default function AdminBaseLayout({ children }: { children: React.ReactNod
       {children}
     </div>
   );
-}
+};
+
+export default AdminBaseLayout;

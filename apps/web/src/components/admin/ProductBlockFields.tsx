@@ -8,13 +8,13 @@ const inputClass =
   "w-full rounded-xl border border-slate-200 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-brand-forest focus:outline-none";
 
 /** Input fields for one description block, by block type. */
-export function ProductBlockFields({
+export const ProductBlockFields = ({
   block,
   onChange,
 }: {
   block: ProductContentBlock;
   onChange: (patch: Partial<ProductContentBlock>) => void;
-}) {
+}) => {
   switch (block.type) {
     case "paragraph":
       return (
@@ -97,9 +97,9 @@ export function ProductBlockFields({
     default:
       return null;
   }
-}
+};
 
-function BulletListFields({ items, onChange }: { items: string[]; onChange: (items: string[]) => void }) {
+const BulletListFields = ({ items, onChange }: { items: string[]; onChange: (items: string[]) => void }) => {
   return (
     <div className="space-y-2">
       {items.map((item, idx) => (
@@ -133,4 +133,4 @@ function BulletListFields({ items, onChange }: { items: string[]; onChange: (ite
       </button>
     </div>
   );
-}
+};

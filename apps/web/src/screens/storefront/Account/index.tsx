@@ -32,28 +32,28 @@ interface CustomerOrder {
   statusHistory: StatusHistoryItem[];
 }
 
-export default function AccountPage() {
+const AccountPage = () => {
   const router = useRouter();
-  const { customer, loading: authLoading, signOut } = useCustomer();
+  const { customer, isLoading: isAuthLoading, onSignOut } = useCustomer();
 
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [isOrdersLoading, setIsOrdersLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
   const [copiedOrder, setCopiedOrder] = useState<string | null>(null);
 
   // Auth guard: redirect to /dang-nhap if unauthenticated
   useEffect(() => {
-    if (!authLoading && !customer) {
+    if (!isAuthLoading && !customer) {
       router.replace("/dang-nhap?next=/tai-khoan");
     }
-  }, [authLoading, customer, router]);
+  }, [isAuthLoading, customer, router]);
 
   // Fetch orders when authenticated
   useEffect(() => {
     if (!customer) return;
 
-    let mounted = true;
-    setOrdersLoading(true);
+    let isMounted = true;
+    setIsOrdersLoading(true);
 
     fetch("/api/customer/orders", {
       headers: { "Cache-Control": "no-cache" },
@@ -63,18 +63,18 @@ export default function AccountPage() {
         return res.json();
       })
       .then((data) => {
-        if (mounted) {
+        if (isMounted) {
           setOrders(Array.isArray(data?.orders) ? data.orders : []);
-          setOrdersLoading(false);
+          setIsOrdersLoading(false);
         }
       })
       .catch((err) => {
         console.warn("Fetch customer orders error:", err);
-        if (mounted) setOrdersLoading(false);
+        if (isMounted) setIsOrdersLoading(false);
       });
 
     return () => {
-      mounted = false;
+      isMounted = false;
     };
   }, [customer]);
 
@@ -85,7 +85,7 @@ export default function AccountPage() {
     }));
   };
 
-  const handleCopy = (orderNumber: string) => {
+  const onCopy = (orderNumber: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(orderNumber);
       setCopiedOrder(orderNumber);
@@ -93,12 +93,12 @@ export default function AccountPage() {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
+  const onLogout = async () => {
+    await onSignOut();
     router.push("/");
   };
 
-  if (authLoading || (!customer && ordersLoading)) {
+  if (isAuthLoading || (!customer && isOrdersLoading)) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16 space-y-8 animate-pulse">
         <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 flex items-center gap-4">
@@ -163,7 +163,7 @@ export default function AccountPage() {
           </Link>
           <button
             type="button"
-            onClick={handleSignOut}
+            onClick={onLogout}
             className="inline-flex items-center gap-1.5 rounded-2xl border border-ink/15 bg-white px-3.5 py-2 text-xs font-bold text-ink/75 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors active-press"
           >
             <LogOut size={14} />
@@ -189,7 +189,7 @@ export default function AccountPage() {
       </div>
 
       {/* Orders List */}
-      {ordersLoading ? (
+      {isOrdersLoading ? (
         <div className="space-y-4 animate-pulse">
           {[1, 2].map((i) => (
             <div key={i} className="h-44 rounded-3xl bg-white p-6 shadow-card border border-ink/5" />
@@ -252,7 +252,7 @@ export default function AccountPage() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => handleCopy(order.orderNumber)}
+                        onClick={() => onCopy(order.orderNumber)}
                         className="rounded-lg p-1 text-ink/40 hover:bg-ink/5 hover:text-ink transition-colors"
                         title="Sao chép mã đơn"
                       >
@@ -396,4 +396,6 @@ export default function AccountPage() {
       )}
     </div>
   );
-}
+};
+
+export default AccountPage;

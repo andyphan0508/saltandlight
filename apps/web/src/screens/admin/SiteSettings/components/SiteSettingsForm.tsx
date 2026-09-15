@@ -24,11 +24,11 @@ const LOGO_SIZE_OPTIONS: { value: LogoSize; label: string }[] = [
   { value: "lg", label: "Lớn" },
 ];
 
-function useImageUpload(onUploaded: (url: string) => void) {
+const useImageUpload = (onUploaded: (url: string) => void) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsUploading(true);
@@ -41,12 +41,12 @@ function useImageUpload(onUploaded: (url: string) => void) {
       setIsUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
-  }
+  };
 
-  return { inputRef, isUploading, handleFile };
-}
+  return { inputRef, isUploading, onFile };
+};
 
-function LogoUploadField({
+const LogoUploadField = ({
   label,
   imageUrl,
   onUploaded,
@@ -58,8 +58,8 @@ function LogoUploadField({
   onUploaded: (url: string) => void;
   onClear?: () => void;
   clearLabel?: string;
-}) {
-  const { inputRef, isUploading, handleFile } = useImageUpload(onUploaded);
+}) => {
+  const { inputRef, isUploading, onFile } = useImageUpload(onUploaded);
   return (
     <div>
       <label className="block text-xs font-bold text-slate-700 mb-1.5">{label}</label>
@@ -72,7 +72,7 @@ function LogoUploadField({
           )}
         </div>
         <div className="flex-1 space-y-1.5">
-          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} className="hidden" />
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={onFile} className="hidden" />
           <Button
             type="button"
             variant="outline"
@@ -92,22 +92,22 @@ function LogoUploadField({
       </div>
     </div>
   );
-}
+};
 
-function newNavLink(): NavLinkItem {
+const newNavLink = (): NavLinkItem => {
   return { label: "", href: "/" };
-}
+};
 
-function NavLinkFields({ item, update }: { item: NavLinkItem; update: (patch: Partial<NavLinkItem>) => void }) {
+const NavLinkFields = ({ item, update }: { item: NavLinkItem; update: (patch: Partial<NavLinkItem>) => void }) => {
   return (
     <div className="grid grid-cols-2 gap-2">
       <TextField label="Tên mục" value={item.label} onChange={(v) => update({ label: v })} placeholder="Trang chủ" />
       <TextField label="Đường dẫn" value={item.href} onChange={(v) => update({ href: v })} placeholder="/" />
     </div>
   );
-}
+};
 
-export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSettingsData }) {
+export const SiteSettingsForm = ({ initialSettings }: { initialSettings: SiteSettingsData }) => {
   const router = useRouter();
   const [tab, setTab] = useState<"header" | "footer">("header");
 
@@ -128,7 +128,7 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
@@ -158,10 +158,10 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6">
       {error && (
         <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">{error}</div>
       )}
@@ -257,7 +257,7 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
                   onClear={() => setFooterLogoUrl(logoUrl)}
                   clearLabel="Gỡ ảnh, dùng chung logo header"
                 />
-                <TextField label="Đoạn giới thiệu thương hiệu" value={footerBrandText} onChange={setFooterBrandText} multiline />
+                <TextField label="Đoạn giới thiệu thương hiệu" value={footerBrandText} onChange={setFooterBrandText} isMultiline />
               </div>
 
               <div className="rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs space-y-4">
@@ -349,10 +349,10 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
       </div>
     </form>
   );
-}
+};
 
 /** Scaled-down mock of the real Header — mirrors Header.tsx's structure, not an iframe of the live site. */
-function HeaderPreview({
+const HeaderPreview = ({
   logoUrl,
   logoSize,
   navLeft,
@@ -362,7 +362,7 @@ function HeaderPreview({
   logoSize: LogoSize;
   navLeft: NavLinkItem[];
   navRight: NavLinkItem[];
-}) {
+}) => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-xl border border-ink/10 bg-white p-3">
@@ -387,10 +387,10 @@ function HeaderPreview({
       <p className="mt-3 text-center text-[10px] text-slate-400">Bản xem trước thu nhỏ — kích thước thật sẽ lớn hơn trên desktop.</p>
     </div>
   );
-}
+};
 
 /** Scaled-down mock of the real Footer. */
-function FooterPreview({
+const FooterPreview = ({
   logoUrl,
   brandText,
   phone,
@@ -406,7 +406,7 @@ function FooterPreview({
   address: string;
   socialLinks: FooterSocialLink[];
   columns: FooterColumn[];
-}) {
+}) => {
   return (
     <div className="p-4">
       <div className="rounded-xl border border-ink/10 bg-mint-50/70 p-4 space-y-4">
@@ -446,4 +446,4 @@ function FooterPreview({
       <p className="mt-3 text-center text-[10px] text-slate-400">Bản xem trước thu nhỏ.</p>
     </div>
   );
-}
+};

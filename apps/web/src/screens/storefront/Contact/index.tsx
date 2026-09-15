@@ -8,11 +8,11 @@ export const metadata = {
   description: "Thông tin liên hệ và gửi tin nhắn hỗ trợ tới Salt & Light.",
 };
 
-export default async function ContactPage({
+const ContactPage = async ({
   searchParams,
 }: {
   searchParams?: { editor?: string };
-}) {
+}) => {
   let blocks: PageBlockData[] = [];
   try {
     const isEditor = searchParams?.editor === "1";
@@ -112,4 +112,6 @@ export default async function ContactPage({
       )}
     </div>
   );
-}
+};
+
+export default ContactPage;

@@ -3,12 +3,12 @@
 import { create } from "zustand";
 
 interface SearchModalState {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
 /** Shared between Header's search triggers (desktop + mobile) and SearchSpotlight. */
 export const useSearchModalStore = create<SearchModalState>()((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
+  isOpen: false,
+  setIsOpen: (open) => set({ isOpen: open }),
 }));

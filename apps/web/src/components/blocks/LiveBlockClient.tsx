@@ -19,13 +19,13 @@ export interface LiveBlockClientProps {
   children: React.ReactNode;
 }
 
-export function LiveBlockClient({
+export const LiveBlockClient = ({
   blockId,
   blockType,
   blockLabel,
   initialContent,
   children,
-}: LiveBlockClientProps) {
+}: LiveBlockClientProps) => {
   const [isEditorMode, setIsEditorMode] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -34,12 +34,12 @@ export function LiveBlockClient({
 
   useEffect(() => {
     // Only activate if inside an iframe and with ?editor=1 query
-    const inIframe = typeof window !== "undefined" && window.self !== window.top;
+    const isInIframe = typeof window !== "undefined" && window.self !== window.top;
     const isEditorParam =
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("editor") === "1";
 
-    if (!inIframe || !isEditorParam) {
+    if (!isInIframe || !isEditorParam) {
       return;
     }
 
@@ -47,7 +47,7 @@ export function LiveBlockClient({
     // Notify parent admin frame that storefront is loaded
     window.parent.postMessage({ type: "storefront:ready" }, "*");
 
-    function handleMessage(event: MessageEvent) {
+    const onMessage = (event: MessageEvent) => {
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
@@ -67,21 +67,21 @@ export function LiveBlockClient({
       } else if (data.type === "block:reload") {
         window.location.reload();
       }
-    }
+    };
 
-    function handleAnchorClick(e: MouseEvent) {
+    const onAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       const anchor = target?.closest("a");
       if (anchor) {
         e.preventDefault();
       }
-    }
-    document.addEventListener("click", handleAnchorClick, { capture: true });
+    };
+    document.addEventListener("click", onAnchorClick, { capture: true });
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener("message", onMessage);
     return () => {
-      window.removeEventListener("message", handleMessage);
-      document.removeEventListener("click", handleAnchorClick, { capture: true });
+      window.removeEventListener("message", onMessage);
+      document.removeEventListener("click", onAnchorClick, { capture: true });
     };
   }, [blockId, blockType]);
 
@@ -92,7 +92,7 @@ export function LiveBlockClient({
   // If live preview content is being edited, dynamically render the client block
   const currentContent = previewContent || initialContent;
 
-  function renderDynamicBlock() {
+  const renderDynamicBlock = () => {
     if (!previewContent) return children;
 
     switch (blockType) {
@@ -116,7 +116,7 @@ export function LiveBlockClient({
         // For server components (e.g. FeaturedProducts), return children until reload
         return children;
     }
-  }
+  };
 
   return (
     <div
@@ -151,4 +151,4 @@ export function LiveBlockClient({
       {renderDynamicBlock()}
     </div>
   );
-}
+};

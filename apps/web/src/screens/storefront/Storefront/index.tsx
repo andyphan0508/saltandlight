@@ -13,7 +13,7 @@ export const metadata = {
     "Khám phá bộ sưu tập áo thun Cơ Đốc, túi tote canvas và quà tặng đức tin cao cấp tại Salt & Light.",
 };
 
-export default async function ProductsPage({ searchParams }: { searchParams: CatalogSearchParams }) {
+const ProductsPage = async ({ searchParams }: { searchParams: CatalogSearchParams }) => {
   const filters = parseCatalogParams(searchParams);
   const resultsKey = JSON.stringify(filters);
 
@@ -47,5 +47,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Cat
       </div>
     </div>
   );
-}
+};
+
+export default ProductsPage;
 

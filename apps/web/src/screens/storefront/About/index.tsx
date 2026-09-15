@@ -11,11 +11,11 @@ export const metadata = {
     "Đó cũng là lí do Salt & Light được ra đời — Mang Lời Chúa vào cuộc sống thường nhật qua thời trang Cơ Đốc chất lượng và ý nghĩa.",
 };
 
-export default async function AboutPage({
+const AboutPage = async ({
   searchParams,
 }: {
   searchParams?: { editor?: string };
-}) {
+}) => {
   let blocks: PageBlockData[] = [];
   try {
     const isEditor = searchParams?.editor === "1";
@@ -114,4 +114,6 @@ export default async function AboutPage({
       </div>
     </div>
   );
-}
+};
+
+export default AboutPage;

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { ChevronRight } from "@/components/Icons";
 
-export function CatalogHero({
+export const CatalogHero = ({
   query,
   categoryName,
 }: {
   query?: string;
   categoryName?: string;
-}) {
+}) => {
   const title = query
     ? `Kết quả tìm kiếm: "${query}"`
     : categoryName
@@ -41,5 +41,5 @@ export function CatalogHero({
       </p>
     </div>
   );
-}
+};
 

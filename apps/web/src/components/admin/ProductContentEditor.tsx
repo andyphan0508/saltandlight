@@ -29,7 +29,7 @@ const PALETTE: { type: EditableBlockType; label: string; icon: IconComponent }[]
   { type: "image", label: "Ảnh minh họa", icon: ImagePlus },
 ];
 
-function newBlock(type: EditableBlockType): ProductContentBlock {
+const newBlock = (type: EditableBlockType): ProductContentBlock => {
   const id = crypto.randomUUID();
   switch (type) {
     case "paragraph":
@@ -43,38 +43,38 @@ function newBlock(type: EditableBlockType): ProductContentBlock {
     case "image":
       return { id, type, url: "", caption: "" };
   }
-}
+};
 
 /**
  * Editor for a product's own description blocks. Content shared by a whole
  * category (care guides, size charts, highlights) is managed in /admin/product-guides.
  */
-export function ProductContentEditor({
+export const ProductContentEditor = ({
   blocks,
   onChange,
 }: {
   blocks: ProductContentBlock[];
   onChange: (blocks: ProductContentBlock[]) => void;
-}) {
+}) => {
   const [tab, setTab] = useState<"edit" | "preview">("edit");
 
-  function update(id: string, patch: Partial<ProductContentBlock>) {
+  const update = (id: string, patch: Partial<ProductContentBlock>) => {
     onChange(blocks.map((b) => (b.id === id ? ({ ...b, ...patch } as ProductContentBlock) : b)));
-  }
+  };
 
-  function move(index: number, offset: -1 | 1) {
+  const move = (index: number, offset: -1 | 1) => {
     const target = index + offset;
     if (target < 0 || target >= blocks.length) return;
     const next = [...blocks];
     [next[index], next[target]] = [next[target]!, next[index]!];
     onChange(next);
-  }
+  };
 
-  function duplicate(index: number) {
+  const duplicate = (index: number) => {
     const next = [...blocks];
     next.splice(index + 1, 0, { ...structuredClone(blocks[index]!), id: crypto.randomUUID() });
     onChange(next);
-  }
+  };
 
   return (
     <div className="rounded-2xl border border-ink/15 bg-slate-50/50 p-4 sm:p-5 space-y-4">
@@ -165,9 +165,9 @@ export function ProductContentEditor({
       )}
     </div>
   );
-}
+};
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+const TabButton = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) => {
   return (
     <button
       type="button"
@@ -179,9 +179,9 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
       {children}
     </button>
   );
-}
+};
 
-function IconButton({
+const IconButton = ({
   title,
   disabled,
   danger,
@@ -193,7 +193,7 @@ function IconButton({
   danger?: boolean;
   onClick: () => void;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <button
       type="button"
@@ -208,4 +208,4 @@ function IconButton({
       {children}
     </button>
   );
-}
+};

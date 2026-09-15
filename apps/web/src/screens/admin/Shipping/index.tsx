@@ -3,7 +3,7 @@ import { getAllProvinces } from "@saltandlight/domain/vn-locations";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ShippingZonesManager } from "./components/ShippingZoneForm";
 
-export default async function ShippingPage() {
+const ShippingPage = async () => {
   const zonesRaw = await prisma.shippingZone.findMany({ include: { methods: true } });
   const provinces = getAllProvinces();
 
@@ -30,4 +30,6 @@ export default async function ShippingPage() {
       <ShippingZonesManager initialZones={zones} provinces={provinces} />
     </div>
   );
-}
+};
+
+export default ShippingPage;

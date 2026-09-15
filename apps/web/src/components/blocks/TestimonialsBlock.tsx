@@ -14,7 +14,7 @@ export interface TestimonialsContent {
   items: TestimonialItem[];
 }
 
-export function TestimonialsBlock({ content }: { content: TestimonialsContent }) {
+export const TestimonialsBlock = ({ content }: { content: TestimonialsContent }) => {
   return (
     <section className="mx-auto max-w-7xl px-4">
       <div className="text-center max-w-2xl mx-auto mb-10">
@@ -55,4 +55,4 @@ export function TestimonialsBlock({ content }: { content: TestimonialsContent })
       </div>
     </section>
   );
-}
+};

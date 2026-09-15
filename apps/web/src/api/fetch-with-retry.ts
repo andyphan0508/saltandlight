@@ -11,20 +11,20 @@ export interface FetchWithRetryOptions extends RequestInit {
 
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503, 504, 524]);
 
-function isRetryableResponse(res: Response): boolean {
+const isRetryableResponse = (res: Response): boolean => {
   return RETRYABLE_STATUS_CODES.has(res.status);
-}
+};
 
-function isRetryableError(error: unknown): boolean {
+const isRetryableError = (error: unknown): boolean => {
   if (!error) return false;
   const msg = error instanceof Error ? error.message : String(error);
   return /network|fetch|timeout|abort|connection|failed/i.test(msg);
-}
+};
 
-export async function fetchWithRetry(
+export const fetchWithRetry = async (
   input: RequestInfo | URL,
   init?: FetchWithRetryOptions,
-): Promise<Response> {
+): Promise<Response> => {
   const {
     retries = 2,
     retryDelayMs = 1200,
@@ -71,4 +71,4 @@ export async function fetchWithRetry(
       throw err;
     }
   }
-}
+};

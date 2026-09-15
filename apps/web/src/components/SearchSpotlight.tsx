@@ -16,8 +16,8 @@ import type { ProductCardData } from "@/interfaces/catalog";
  * to the header's own box instead of the full viewport.
  */
 export const SearchSpotlight = () => {
-  const open = useSearchModalStore((s) => s.open);
-  const setOpen = useSearchModalStore((s) => s.setOpen);
+  const isOpen = useSearchModalStore((s) => s.isOpen);
+  const setIsOpen = useSearchModalStore((s) => s.setIsOpen);
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -30,7 +30,7 @@ export const SearchSpotlight = () => {
 
   // Reset + autofocus each time it opens.
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       setQuery("");
       setResults([]);
       setTotal(0);
@@ -38,11 +38,11 @@ export const SearchSpotlight = () => {
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
-  }, [open]);
+  }, [isOpen]);
 
   // Debounced live search.
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     clearTimeout(debounceRef.current);
     if (!query.trim()) {
       setResults([]);
@@ -63,10 +63,10 @@ export const SearchSpotlight = () => {
       }
     }, 300);
     return () => clearTimeout(debounceRef.current);
-  }, [query, open]);
+  }, [query, isOpen]);
 
   const onClose = () => {
-    setOpen(false);
+    setIsOpen(false);
   };
 
   const onGoToFullResults = () => {
@@ -95,15 +95,15 @@ export const SearchSpotlight = () => {
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const onWindowKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") setIsOpen(false);
     };
     document.addEventListener("keydown", onWindowKeyDown);
     return () => document.removeEventListener("keydown", onWindowKeyDown);
-  }, [open, setOpen]);
+  }, [isOpen, setIsOpen]);
 
-  if (!open) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-center px-4 pt-[12vh] sm:pt-[16vh]">

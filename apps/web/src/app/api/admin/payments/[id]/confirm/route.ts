@@ -7,7 +7,7 @@ import { sendPaymentConfirmedEmail } from "@/server/admin/email";
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(_req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin();
 
@@ -66,4 +66,4 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};

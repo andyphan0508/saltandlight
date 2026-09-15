@@ -10,7 +10,7 @@ import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = async () => {
   try {
     await requireAdmin(["owner", "staff"]);
     const products = await prisma.product.findMany({
@@ -22,9 +22,9 @@ export async function GET() {
   } catch (err) {
     return apiError(err);
   }
-}
+};
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const input = productInputSchema.parse(await req.json());
@@ -80,4 +80,4 @@ export async function POST(req: NextRequest) {
     console.error(err);
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }
-}
+};

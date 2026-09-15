@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { getProductGuides } from "@/server/queries";
 import { ProductGuidesManager } from "./components/ProductGuidesManager";
 
-export default async function ProductGuidesPage() {
+const ProductGuidesPage = async () => {
   const [guides, categories] = await Promise.all([
     getProductGuides(),
     prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -18,4 +18,6 @@ export default async function ProductGuidesPage() {
       <ProductGuidesManager initialGuides={guides} categories={categories} />
     </div>
   );
-}
+};
+
+export default ProductGuidesPage;

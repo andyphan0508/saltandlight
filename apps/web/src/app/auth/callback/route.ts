@@ -5,7 +5,7 @@ import { getAuthenticatedCustomer } from "@/server/customer-auth";
 export const dynamic = "force-dynamic";
 
 /** Supabase OAuth (Google/Facebook) redirects here with `?code=...` after the provider login. */
-export async function GET(req: NextRequest) {
+export const GET = async (req: NextRequest) => {
   const code = req.nextUrl.searchParams.get("code");
   const next = req.nextUrl.searchParams.get("next") || "/tai-khoan";
 
@@ -25,4 +25,4 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.redirect(new URL("/dang-nhap?error=auth", req.url));
-}
+};

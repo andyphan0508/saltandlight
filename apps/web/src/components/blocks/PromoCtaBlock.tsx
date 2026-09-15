@@ -13,7 +13,7 @@ export interface PromoCtaContent {
   ctaHref: string;
 }
 
-export function PromoCtaBlock({ content }: { content: PromoCtaContent }) {
+export const PromoCtaBlock = ({ content }: { content: PromoCtaContent }) => {
   return (
     <section className="mx-auto max-w-7xl px-4">
       <div className="grid gap-8 rounded-3xl bg-white p-8 sm:p-12 shadow-card border border-ink/5 lg:grid-cols-12 items-center">
@@ -51,4 +51,4 @@ export function PromoCtaBlock({ content }: { content: PromoCtaContent }) {
       </div>
     </section>
   );
-}
+};

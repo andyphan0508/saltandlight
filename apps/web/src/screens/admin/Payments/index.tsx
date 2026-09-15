@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { PaymentActions } from "./components/PaymentActions";
 import { Wallet, CheckCircle } from "@/components/admin/Icons";
 
-export default async function PaymentsPage() {
+const PaymentsPage = async () => {
   const payments = await prisma.paymentTransaction.findMany({
     where: { status: "awaiting_confirmation" },
     orderBy: { createdAt: "asc" },
@@ -85,4 +85,6 @@ export default async function PaymentsPage() {
       </div>
     </div>
   );
-}
+};
+
+export default PaymentsPage;

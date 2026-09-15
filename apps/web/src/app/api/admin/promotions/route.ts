@@ -7,7 +7,7 @@ import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     await requireAdmin();
     const {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       endDate,
       isActive,
       productIds,
-      applyPrices,
+      applyPrices: shouldApplyPrices,
     } = promotionCreateSchema.parse(await req.json());
 
     const promotion = await prisma.promotion.create({
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     });
 
     // If admin requested updating actual variant prices directly
-    if (applyPrices && productIds.length > 0) {
+    if (shouldApplyPrices && productIds.length > 0) {
       for (const pId of productIds) {
         const variants = await prisma.productVariant.findMany({
           where: { productId: pId, isActive: true },
@@ -89,10 +89,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (applyPrices && productIds.length > 0) invalidateProductCaches();
+    if (shouldApplyPrices && productIds.length > 0) invalidateProductCaches();
 
     return NextResponse.json({ promotion });
   } catch (err) {
     return apiError(err, "Không thể tạo chương trình khuyến mãi");
   }
-}
+};

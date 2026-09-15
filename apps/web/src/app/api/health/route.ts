@@ -3,7 +3,7 @@ import { prisma } from "@saltandlight/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = async () => {
   try {
     const start = Date.now();
     const categoriesCount = await prisma.category.count();
@@ -12,4 +12,4 @@ export async function GET() {
     console.error("GET /api/health error:", err);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
-}
+};

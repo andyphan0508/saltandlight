@@ -45,7 +45,7 @@ export const ShippingZonesManager = ({
 
   const [name, setName] = useState("");
   const [selectedCodes, setSelectedCodes] = useState<number[]>([]);
-  const [nationwide, setNationwide] = useState(false);
+  const [isNationwide, setIsNationwide] = useState(false);
   const [fee, setFee] = useState<number | "">(0);
   const [hasFreeShipping, setHasFreeShipping] = useState(false);
   const [freeThreshold, setFreeThreshold] = useState<number | "">("");
@@ -56,7 +56,7 @@ export const ShippingZonesManager = ({
   const onOpenCreate = () => {
     setName("");
     setSelectedCodes([]);
-    setNationwide(false);
+    setIsNationwide(false);
     setFee(0);
     setHasFreeShipping(false);
     setFreeThreshold("");
@@ -90,7 +90,7 @@ export const ShippingZonesManager = ({
       setError("Vui lòng nhập tên chính sách");
       return;
     }
-    if (!nationwide && selectedCodes.length === 0) {
+    if (!isNationwide && selectedCodes.length === 0) {
       setError("Vui lòng chọn ít nhất 1 tỉnh/thành hoặc đánh dấu Toàn quốc");
       return;
     }
@@ -119,7 +119,7 @@ export const ShippingZonesManager = ({
     try {
       const data = await adminFetch<{ zone: ZoneItem }>("/api/admin/shipping-zones", {
         method: "POST",
-        body: { name, provinceCodes: nationwide ? [] : selectedCodes, methods },
+        body: { name, provinceCodes: isNationwide ? [] : selectedCodes, methods },
       });
 
       toast.success("Tạo chính sách vận chuyển thành công!");
@@ -266,14 +266,14 @@ export const ShippingZonesManager = ({
             <label className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer mb-2">
               <input
                 type="checkbox"
-                checked={nationwide}
-                onChange={(e) => setNationwide(e.target.checked)}
+                checked={isNationwide}
+                onChange={(e) => setIsNationwide(e.target.checked)}
                 className="h-4 w-4 rounded accent-brand-forest"
               />
               Áp dụng Toàn quốc (mặc định khi khách chưa có chính sách riêng)
             </label>
 
-            {!nationwide && (
+            {!isNationwide && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-ink">

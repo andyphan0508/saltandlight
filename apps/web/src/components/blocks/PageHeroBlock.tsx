@@ -11,7 +11,7 @@ export interface PageHeroContent {
   quoteRef?: string;
 }
 
-export function PageHeroBlock({ content }: { content: PageHeroContent }) {
+export const PageHeroBlock = ({ content }: { content: PageHeroContent }) => {
   const title = content.title || content.headline || "";
   const subtitle = content.subtitle || content.subheadline;
 
@@ -44,4 +44,4 @@ export function PageHeroBlock({ content }: { content: PageHeroContent }) {
       )}
     </div>
   );
-}
+};

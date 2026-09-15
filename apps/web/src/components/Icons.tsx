@@ -11,6 +11,7 @@ const OUTLINE: SvgAttrs = { fill: "none", stroke: "currentColor", strokeWidth: "
 
 /** Builds a 24×24 icon; `attrs` replaces the default outline style (filled or thinner-stroke icons). */
 const icon = (children: ReactNode, attrs: SvgAttrs = OUTLINE) =>
+  // eslint-disable-next-line func-style -- a named function gives every icon a React displayName
   function Icon({ size = 20, className = "", ...props }: IconProps) {
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" {...attrs} className={className} {...props}>

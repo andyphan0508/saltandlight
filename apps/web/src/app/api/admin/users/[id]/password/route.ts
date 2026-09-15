@@ -12,10 +12,10 @@ const schema = z.object({
   password: adminPasswordSchema,
 });
 
-export async function POST(
+export const POST = async (
   req: NextRequest,
   { params }: { params: { id: string } },
-) {
+) => {
   try {
     const admin = await requireAdmin(["owner"]);
     const { password } = schema.parse(await req.json());
@@ -93,4 +93,4 @@ export async function POST(
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};

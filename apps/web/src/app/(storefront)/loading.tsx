@@ -1,6 +1,6 @@
 import { CrossIcon, Sparkles } from "@/components/Icons";
 
-export default function Loading() {
+const Loading = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 space-y-10 animate-pulse">
       {/* Banner Skeleton */}
@@ -22,4 +22,6 @@ export default function Loading() {
       </div>
     </div>
   );
-}
+};
+
+export default Loading;

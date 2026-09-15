@@ -16,7 +16,7 @@ export const CartView = () => {
   const cartLines = useCartStore((s) => s.lines);
   const setQuantity = useCartStore((s) => s.setQuantity);
   const remove = useCartStore((s) => s.remove);
-  const hydrated = useStoreHydrated(useCartStore);
+  const isHydrated = useStoreHydrated(useCartStore);
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +58,7 @@ export const CartView = () => {
   // Re-fetches the full quote only when the SET of items in the cart changes
   const lineIdsKey = cartLines.map((l) => l.productVariantId).sort().join(",");
   useEffect(() => {
-    if (!hydrated) return;
+    if (!isHydrated) return;
     if (cartLines.length === 0) {
       setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
       setIsLoading(false);
@@ -67,7 +67,7 @@ export const CartView = () => {
     setIsLoading(true);
     fetchQuote(cartLines).finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, lineIdsKey]);
+  }, [isHydrated, lineIdsKey]);
 
   useEffect(() => {
     return () => {
@@ -105,7 +105,7 @@ export const CartView = () => {
   const totalItemCount = lines.reduce((s, l) => s + (l.quantity ?? 1), 0);
 
   // If store is not hydrated, or is loading items for the first time without a quote yet
-  if (!hydrated || (isLoading && !quote && cartLines.length > 0)) {
+  if (!isHydrated || (isLoading && !quote && cartLines.length > 0)) {
     return <CartSkeleton />;
   }
 

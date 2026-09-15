@@ -4,14 +4,14 @@ import { formatVND } from "@saltandlight/domain";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Salt & Light <no-reply@saltandlight.com.vn>";
 
-export async function sendOrderCreatedEmail(opts: {
+export const sendOrderCreatedEmail = async (opts: {
   orderId: string;
   orderNumber: string;
   customerName: string;
   customerEmail: string | null;
   customerPhone: string;
   total: number;
-}) {
+}) => {
   if (!resend) return; // email not configured in this environment (e.g. local dev)
 
   const sends: Promise<unknown>[] = [];
@@ -47,4 +47,4 @@ export async function sendOrderCreatedEmail(opts: {
   }
 
   await Promise.allSettled(sends);
-}
+};

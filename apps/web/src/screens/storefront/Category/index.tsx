@@ -8,14 +8,16 @@ const SLUG_ALIASES: Record<string, string> = {
   "set-qua-ao-tui": "ao-thun-nguoi-lon",
 };
 
-export default function CategoryPage({
+const CategoryPage = ({
   params,
   searchParams,
 }: {
   params: { slug: string };
   searchParams?: CatalogSearchParams;
-}) {
+}) => {
   const targetSlug = SLUG_ALIASES[params.slug] || params.slug;
   return <ProductsPage searchParams={{ ...searchParams, categories: targetSlug }} />;
-}
+};
+
+export default CategoryPage;
 

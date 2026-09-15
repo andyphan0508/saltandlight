@@ -63,13 +63,13 @@ const DEFAULT_PAGE_BLOCK_TYPES: Record<string, PageBlockTypeValue[]> = {
   "dat-theo-yeu-cau": ["PAGE_HERO", "FEATURE_CARDS", "RICH_TEXT_SECTIONS", "CTA_BANNER"],
 };
 
-export function ElementorEditorClient({
+export const ElementorEditorClient = ({
   initialPage = "home",
   initialBlocks = [],
 }: {
   initialPage: string;
   initialBlocks: PageBlockItem[];
-}) {
+}) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [blocks, setBlocks] = useState<PageBlockItem[]>(initialBlocks);
@@ -77,7 +77,7 @@ export function ElementorEditorClient({
   const [editingBlock, setEditingBlock] = useState<PageBlockItem | null>(null);
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [iframeKey, setIframeKey] = useState(0);
-  const [iframeReady, setIframeReady] = useState(false);
+  const [isIframeReady, setIsIframeReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -92,7 +92,7 @@ export function ElementorEditorClient({
   );
 
   // Sync state when page changes via dropdown
-  async function switchPage(newSlug: string) {
+  const switchPage = async (newSlug: string) => {
     if (newSlug === currentPage) return;
     setCurrentPage(newSlug);
     setEditingBlock(null);
@@ -104,16 +104,16 @@ export function ElementorEditorClient({
     } catch {
       toast.error("Không thể tải danh sách khối");
     }
-  }
+  };
 
   // Handle postMessage communication from iframe
   useEffect(() => {
-    function handleWindowMessage(event: MessageEvent) {
+    const onWindowMessage = (event: MessageEvent) => {
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
       if (data.type === "storefront:ready") {
-        setIframeReady(true);
+        setIsIframeReady(true);
       } else if (data.type === "block:select" && (data.blockId || data.blockType)) {
         let target = blocks.find((b) => b.id === data.blockId);
         if (!target && data.blockType) {
@@ -134,14 +134,14 @@ export function ElementorEditorClient({
           });
         }
       }
-    }
+    };
 
-    window.addEventListener("message", handleWindowMessage);
-    return () => window.removeEventListener("message", handleWindowMessage);
+    window.addEventListener("message", onWindowMessage);
+    return () => window.removeEventListener("message", onWindowMessage);
   }, [blocks]);
 
   // Reorder persistence
-  async function handleDragEnd(event: DragEndEvent) {
+  const onDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id || isReordering) return;
 
@@ -171,17 +171,17 @@ export function ElementorEditorClient({
     } finally {
       setIsReordering(false);
     }
-  }
+  };
 
   // Toggle Visibility
-  async function handleToggleVisible(block: PageBlockItem) {
-    const nextState = !block.isVisible;
+  const onToggleVisible = async (block: PageBlockItem) => {
+    const isNextVisible = !block.isVisible;
     setBlocks((prev) =>
-      prev.map((b) => (b.id === block.id ? { ...b, isVisible: nextState } : b))
+      prev.map((b) => (b.id === block.id ? { ...b, isVisible: isNextVisible } : b))
     );
     try {
-      await adminFetch(`/api/admin/page-blocks/${block.id}`, { method: "PATCH", body: { isVisible: nextState } });
-      toast.success(nextState ? "Đã hiện khối" : "Đã ẩn khối");
+      await adminFetch(`/api/admin/page-blocks/${block.id}`, { method: "PATCH", body: { isVisible: isNextVisible } });
+      toast.success(isNextVisible ? "Đã hiện khối" : "Đã ẩn khối");
       setIframeKey((k) => k + 1);
     } catch {
       setBlocks((prev) =>
@@ -189,10 +189,10 @@ export function ElementorEditorClient({
       );
       toast.error("Lỗi khi cập nhật trạng thái");
     }
-  }
+  };
 
   // Delete Block
-  async function handleDeleteBlock(blockId: string) {
+  const onDeleteBlock = async (blockId: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa khối này không?")) return;
     setIsDeleting(blockId);
     try {
@@ -209,10 +209,10 @@ export function ElementorEditorClient({
     } finally {
       setIsDeleting(null);
     }
-  }
+  };
 
   // Add block from palette
-  async function handleAddFromPalette(type: PageBlockTypeValue) {
+  const onAddFromPalette = async (type: PageBlockTypeValue) => {
     try {
       const content = defaultContent(type);
       const { block: newBlock } = await adminFetch<{ block: PageBlockItem }>("/api/admin/page-blocks", {
@@ -227,10 +227,10 @@ export function ElementorEditorClient({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lỗi tạo khối");
     }
-  }
+  };
 
   // Seed default blocks if page is empty
-  async function handleSeedDefaultBlocks() {
+  const onSeedDefaultBlocks = async () => {
     setIsSeeding(true);
     try {
       // First try dedicated seed-defaults endpoint with rich pre-configured templates
@@ -266,10 +266,10 @@ export function ElementorEditorClient({
     } finally {
       setIsSeeding(false);
     }
-  }
+  };
 
   // Live preview message to iframe when form fields change
-  function handleLivePreviewChange(content: Record<string, any>) {
+  const onLivePreviewChange = (content: Record<string, any>) => {
     if (editingBlock && iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         {
@@ -280,10 +280,10 @@ export function ElementorEditorClient({
         "*"
       );
     }
-  }
+  };
 
   // Block saved handler
-  function handleBlockSaved(savedBlock: PageBlockItem) {
+  const onBlockSaved = (savedBlock: PageBlockItem) => {
     setBlocks((prev) =>
       prev.map((b) => (b.id === savedBlock.id ? savedBlock : b))
     );
@@ -291,10 +291,10 @@ export function ElementorEditorClient({
     toast.success("Đã lưu khối thành công!");
     // Sync iframe server state
     setIframeKey((k) => k + 1);
-  }
+  };
 
   // Scroll and select block in canvas
-  function scrollToBlockInCanvas(blockId: string) {
+  const scrollToBlockInCanvas = (blockId: string) => {
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         { type: "block:select", blockId },
@@ -305,7 +305,7 @@ export function ElementorEditorClient({
         "*"
       );
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-full w-full bg-slate-900 overflow-hidden select-none">
@@ -482,7 +482,7 @@ export function ElementorEditorClient({
                     <div className="flex flex-col gap-2 pt-2">
                       <Button
                         type="button"
-                        onClick={handleSeedDefaultBlocks}
+                        onClick={onSeedDefaultBlocks}
                         disabled={isSeeding}
                         className="!bg-brand-forest text-white text-xs font-bold rounded-xl px-4 py-2 w-full shadow-xs active:scale-95 transition-all"
                       >
@@ -502,7 +502,7 @@ export function ElementorEditorClient({
                   <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
+                    onDragEnd={onDragEnd}
                   >
                     <SortableContext
                       items={blocks.map((b) => b.id)}
@@ -519,8 +519,8 @@ export function ElementorEditorClient({
                               setActiveTab("edit");
                               scrollToBlockInCanvas(block.id);
                             }}
-                            onToggleVisible={() => handleToggleVisible(block)}
-                            onDelete={() => handleDeleteBlock(block.id)}
+                            onToggleVisible={() => onToggleVisible(block)}
+                            onDelete={() => onDeleteBlock(block.id)}
                             isDeleting={isDeleting === block.id}
                           />
                         ))}
@@ -545,10 +545,10 @@ export function ElementorEditorClient({
                     page={currentPage}
                     block={editingBlock}
                     defaultType={editingBlock.type}
-                    embedded={true}
+                    isEmbedded={true}
                     onClose={() => setActiveTab("navigator")}
-                    onSaved={handleBlockSaved}
-                    onChangePreview={handleLivePreviewChange}
+                    onSaved={onBlockSaved}
+                    onChangePreview={onLivePreviewChange}
                   />
                 ) : (
                   <div className="py-16 px-6 text-center space-y-3">
@@ -599,7 +599,7 @@ export function ElementorEditorClient({
                     return (
                       <div
                         key={tmpl.type}
-                        onClick={() => handleAddFromPalette(tmpl.type)}
+                        onClick={() => onAddFromPalette(tmpl.type)}
                         className="group relative flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 cursor-pointer hover:border-brand-forest hover:shadow-xs hover:bg-mint-50/40 transition-all text-left"
                       >
                         <span
@@ -662,10 +662,10 @@ export function ElementorEditorClient({
       </div>
     </div>
   );
-}
+};
 
 // Sortable block row inside Elementor Navigator
-function ElementorBlockRow({
+const ElementorBlockRow = ({
   block,
   isActive,
   onSelect,
@@ -679,7 +679,7 @@ function ElementorBlockRow({
   onToggleVisible: () => void;
   onDelete: () => void;
   isDeleting: boolean;
-}) {
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
   });
@@ -757,9 +757,9 @@ function ElementorBlockRow({
       </button>
     </div>
   );
-}
+};
 
-function blockPreviewSnippet(block: PageBlockItem): string {
+const blockPreviewSnippet = (block: PageBlockItem): string => {
   const c = block.content || {};
   if (typeof c.headline === "string" && c.headline) return c.headline;
   if (typeof c.title === "string" && c.title) return c.title;
@@ -768,4 +768,4 @@ function blockPreviewSnippet(block: PageBlockItem): string {
   if (Array.isArray(c.items)) return `${c.items.length} mục`;
   if (Array.isArray(c.sections)) return `${c.sections.length} phần`;
   return "";
-}
+};

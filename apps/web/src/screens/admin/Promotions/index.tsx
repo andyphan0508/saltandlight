@@ -5,11 +5,11 @@ import { toPlain } from "@/helpers/serialize";
 
 const PAGE_SIZE = 15;
 
-export default async function AdminPromotionsPage({
+const AdminPromotionsPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string };
-}) {
+}) => {
   const page = Math.max(1, Number(searchParams.page) || 1);
 
   const [promotionsData, total, productsData] = await Promise.all([
@@ -59,4 +59,6 @@ export default async function AdminPromotionsPage({
       />
     </div>
   );
-}
+};
+
+export default AdminPromotionsPage;

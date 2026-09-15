@@ -11,7 +11,7 @@ export interface StoryBannerContent {
   ctaHref?: string;
 }
 
-export function StoryBannerBlock({ content }: { content: StoryBannerContent }) {
+export const StoryBannerBlock = ({ content }: { content: StoryBannerContent }) => {
   return (
     <section className="mx-auto max-w-7xl px-4">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-forest to-brand-new p-8 sm:p-14 text-white shadow-xl">
@@ -43,4 +43,4 @@ export function StoryBannerBlock({ content }: { content: StoryBannerContent }) {
       </div>
     </section>
   );
-}
+};

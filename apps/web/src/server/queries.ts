@@ -21,7 +21,7 @@ const SORT_ORDER_BY: Record<SortOption, Prisma.ProductOrderByWithRelationInput> 
   "name-asc": { name: "asc" },
 };
 
-function toCardData(p: {
+const toCardData = (p: {
   id: string;
   name: string;
   slug: string;
@@ -30,7 +30,7 @@ function toCardData(p: {
   images: { url: string }[];
   minPrice: Prisma.Decimal | null;
   maxCompareAtPrice: Prisma.Decimal | null;
-}): ProductCardData {
+}): ProductCardData => {
   return {
     id: p.id,
     name: p.name,
@@ -41,7 +41,7 @@ function toCardData(p: {
     minPrice: p.minPrice ? Number(p.minPrice) : 0,
     maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
   };
-}
+};
 
 /**
  * Filtering, sorting and pagination all happen at the DB level (indexed
@@ -53,10 +53,10 @@ function toCardData(p: {
  * packages/domain) specifically so price sort doesn't need to touch the
  * variants table at read time.
  */
-export async function listPublishedProducts(
+export const listPublishedProducts = async (
   filters: ProductListFilters = {},
-): Promise<{ products: ProductCardData[]; total: number }> {
-  const { categorySlugs, sizes, onSale, query, sort = "latest", page = 1, pageSize = 12 } = filters;
+): Promise<{ products: ProductCardData[]; total: number }> => {
+  const { categorySlugs, sizes, onSale: isOnSale, query, sort = "latest", page = 1, pageSize = 12 } = filters;
 
   const where: Prisma.ProductWhereInput = {
     status: "published",
@@ -70,7 +70,7 @@ export async function listPublishedProducts(
         }
       : {}),
     ...(sizes?.length ? { variants: { some: { isActive: true, size: { in: sizes } } } } : {}),
-    ...(onSale ? { variants: { some: { isActive: true, compareAtPrice: { not: null } } } } : {}),
+    ...(isOnSale ? { variants: { some: { isActive: true, compareAtPrice: { not: null } } } } : {}),
   };
 
   const [rows, total] = await Promise.all([
@@ -94,10 +94,10 @@ export async function listPublishedProducts(
   ]);
 
   return { products: rows.map(toCardData), total };
-}
+};
 
 /** Category list with a live count of published products in each — for the sidebar filter. */
-export async function listCategoriesWithCounts() {
+export const listCategoriesWithCounts = async () => {
   const [categories, counts, totalPublished] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.groupBy({
@@ -112,19 +112,19 @@ export async function listCategoriesWithCounts() {
     categories: categories.map((c) => ({ ...c, count: countMap.get(c.id) ?? 0 })),
     totalPublished,
   };
-}
+};
 
 /** Distinct sizes across active variants of published products — for the sidebar size filter. */
-export async function listAvailableSizes(): Promise<string[]> {
+export const listAvailableSizes = async (): Promise<string[]> => {
   const rows = await prisma.productVariant.findMany({
     where: { isActive: true, size: { not: null }, product: { status: "published" } },
     select: { size: true },
     distinct: ["size"],
   });
   return sortSizes(rows.map((r) => r.size!).filter(Boolean));
-}
+};
 
-export async function getProductBySlug(slug: string) {
+export const getProductBySlug = async (slug: string) => {
   return prisma.product.findFirst({
     where: { slug, status: "published" },
     include: {
@@ -133,13 +133,13 @@ export async function getProductBySlug(slug: string) {
       variants: { where: { isActive: true }, orderBy: [{ color: "asc" }, { size: "asc" }] },
     },
   });
-}
+};
 
-export async function getRelatedProducts(
+export const getRelatedProducts = async (
   categoryId: string,
   excludeId: string,
   limit = 4,
-): Promise<ProductCardData[]> {
+): Promise<ProductCardData[]> => {
   const rows = await prisma.product.findMany({
     where: { status: "published", categoryId, id: { not: excludeId } },
     take: limit,
@@ -156,7 +156,7 @@ export async function getRelatedProducts(
   });
 
   return rows.map(toCardData);
-}
+};
 
 // ── High-Performance Cached Queries (Worker-isolate memory cache) ──
 //
@@ -280,52 +280,52 @@ export const getCachedShippingZones = () =>
   });
 
 /** List active banners for homepage slider */
-export async function listBanners() {
+export const listBanners = async () => {
   return prisma.banner.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
-}
+};
 
 /** Cached active banners for hero slider (cached 60s) */
 export const getCachedBanners = () =>
   withMemoryCache("homepage-hero-banners", 60, () => listBanners());
 
 /** List visible content blocks for a page, in display order */
-export async function listPageBlocks(page: string) {
+export const listPageBlocks = async (page: string) => {
   return prisma.pageBlock.findMany({
     where: { page, isVisible: true },
     orderBy: { sortOrder: "asc" },
   });
-}
+};
 
 /** Cached page blocks (cached 60s) */
 export const getCachedPageBlocks = (page: string) =>
   withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page));
 
 /** Admin-configured QR image / transfer note / thank-you-only toggle shown on the order confirmation page */
-export async function getPaymentSettings() {
+export const getPaymentSettings = async () => {
   return prisma.paymentSettings.findUnique({ where: { id: "default" } });
-}
+};
 
 /** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
 export const getCachedPaymentSettings = () =>
   withMemoryCache("payment-settings", 300, () => getPaymentSettings());
 
 /** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
-export async function getSiteSettings() {
+export const getSiteSettings = async () => {
   return prisma.siteSettings.findUnique({ where: { id: "default" } });
-}
+};
 
 /** Cached site settings (cached 300s — this rarely changes). */
 export const getCachedSiteSettings = () =>
   withMemoryCache("site-settings", 300, () => getSiteSettings());
 
 /** Category-level product guides (care, size charts, highlights), stored on the site_settings row. */
-export async function getProductGuides() {
+export const getProductGuides = async () => {
   const row = await prisma.siteSettings.findUnique({ where: { id: "default" }, select: { careGuides: true } });
   return parseProductGuides(row?.careGuides);
-}
+};
 
 /** Cached product guides (60s; the admin save clears the entry on its own isolate immediately). */
 export const getCachedProductGuides = () =>

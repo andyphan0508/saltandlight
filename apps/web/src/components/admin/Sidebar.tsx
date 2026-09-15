@@ -71,7 +71,7 @@ const OWNER_GROUP = {
   ],
 };
 
-export function Sidebar({
+export const Sidebar = ({
   role,
   email,
   fullName,
@@ -79,16 +79,16 @@ export function Sidebar({
   role: string;
   email: string;
   fullName?: string | null;
-}) {
+}) => {
   const pathname = usePathname();
   const router = useRouter();
 
-  async function signOut() {
+  const signOut = async () => {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.push("/admin/login");
     router.refresh();
-  }
+  };
 
   const groups = role === "owner" ? [...NAV_GROUPS, OWNER_GROUP] : NAV_GROUPS;
   const displayName = fullName || email.split("@")[0] || email;
@@ -205,4 +205,4 @@ export function Sidebar({
       </div>
     </aside>
   );
-}
+};

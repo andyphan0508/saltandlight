@@ -19,7 +19,7 @@ const bannerUpdateSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -54,9 +54,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     return apiError(err, "Không thể cập nhật banner");
   }
-}
+};
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner"]);
     const banner = await prisma.banner.delete({
@@ -78,4 +78,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   } catch (err) {
     return apiError(err, "Không thể xóa banner");
   }
-}
+};

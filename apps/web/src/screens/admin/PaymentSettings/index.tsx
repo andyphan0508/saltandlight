@@ -4,7 +4,7 @@ import { getCurrentAdminUser } from "@/server/admin/auth";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { PaymentSettingsForm } from "./components/PaymentSettingsForm";
 
-export default async function PaymentSettingsPage() {
+const PaymentSettingsPage = async () => {
   const admin = await getCurrentAdminUser();
   if (!admin) redirect("/admin/login");
 
@@ -30,4 +30,6 @@ export default async function PaymentSettingsPage() {
       />
     </div>
   );
-}
+};
+
+export default PaymentSettingsPage;

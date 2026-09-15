@@ -7,13 +7,13 @@
  * function reference isn't serializable across the RSC boundary. Pulled out
  * into its own small Client Component, same pattern as FeaturedToggle.tsx.
  */
-export function CategoryFilterSelect({
+export const CategoryFilterSelect = ({
   categoryId,
   categories,
 }: {
   categoryId?: string;
   categories: { id: string; name: string }[];
-}) {
+}) => {
   return (
     <select
       name="category"
@@ -31,4 +31,4 @@ export function CategoryFilterSelect({
       ))}
     </select>
   );
-}
+};

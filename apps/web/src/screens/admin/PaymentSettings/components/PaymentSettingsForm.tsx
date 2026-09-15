@@ -27,7 +27,7 @@ export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: Paym
 
   const [qrImageUrl, setQrImageUrl] = useState(initialSettings?.qrImageUrl ?? "");
   const [transferNote, setTransferNote] = useState(initialSettings?.transferNote ?? DEFAULT_TRANSFER_NOTE);
-  const [showThankYouOnly, setShowThankYouOnly] = useState(initialSettings?.showThankYouOnly ?? false);
+  const [isThankYouOnly, setIsThankYouOnly] = useState(initialSettings?.showThankYouOnly ?? false);
   const [thankYouMessage, setThankYouMessage] = useState(initialSettings?.thankYouMessage ?? DEFAULT_THANK_YOU);
 
   const [isUploading, setIsUploading] = useState(false);
@@ -65,7 +65,7 @@ export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: Paym
         body: {
           qrImageUrl: qrImageUrl.trim() || null,
           transferNote: transferNote.trim() || null,
-          showThankYouOnly,
+          showThankYouOnly: isThankYouOnly,
           thankYouMessage: thankYouMessage.trim() || null,
         },
       });
@@ -98,21 +98,21 @@ export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: Paym
           </div>
           <button
             type="button"
-            onClick={() => setShowThankYouOnly((v) => !v)}
+            onClick={() => setIsThankYouOnly((v) => !v)}
             className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
-              showThankYouOnly ? "bg-brand-forest" : "bg-slate-200"
+              isThankYouOnly ? "bg-brand-forest" : "bg-slate-200"
             }`}
-            aria-pressed={showThankYouOnly}
+            aria-pressed={isThankYouOnly}
           >
             <span
               className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                showThankYouOnly ? "translate-x-6" : "translate-x-1"
+                isThankYouOnly ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
         </div>
 
-        {showThankYouOnly && (
+        {isThankYouOnly && (
           <div className="mt-4 pt-4 border-t border-slate-100">
             <label className="block text-xs font-bold text-slate-700 mb-1">Nội dung lời cảm ơn</label>
             <textarea
@@ -126,7 +126,7 @@ export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: Paym
       </div>
 
       {/* QR & transfer note — only meaningful when the switch above is off */}
-      <div className={`rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs space-y-4 ${showThankYouOnly ? "opacity-50" : ""}`}>
+      <div className={`rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs space-y-4 ${isThankYouOnly ? "opacity-50" : ""}`}>
         <h3 className="text-sm font-bold text-ink">Mã QR &amp; hướng dẫn chuyển khoản</h3>
 
         <div>

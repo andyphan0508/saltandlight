@@ -3,11 +3,11 @@ import { ContactSubmissionsManager, type ContactSubmissionItem } from "./compone
 
 const PAGE_SIZE = 15;
 
-export default async function AdminContactsPage({
+const AdminContactsPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string; q?: string; status?: string; type?: string };
-}) {
+}) => {
   const page = Math.max(1, Number(searchParams.page) || 1);
   const q = searchParams.q?.trim();
   const status = searchParams.status?.trim();
@@ -61,4 +61,6 @@ export default async function AdminContactsPage({
       }}
     />
   );
-}
+};
+
+export default AdminContactsPage;

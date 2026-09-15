@@ -12,7 +12,7 @@ const toneClasses: Record<Tone, { bg: string; text: string; border: string }> = 
   ink: { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-200" },
 };
 
-export function StatCard({
+export const StatCard = ({
   label,
   value,
   icon,
@@ -28,7 +28,7 @@ export function StatCard({
   trend?: { value: string; positive: boolean };
   suffix?: string;
   subtext?: string;
-}) {
+}) => {
   const t = toneClasses[tone];
 
   return (
@@ -81,4 +81,4 @@ export function StatCard({
       </div>
     </div>
   );
-}
+};

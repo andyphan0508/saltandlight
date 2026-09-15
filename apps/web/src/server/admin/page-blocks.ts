@@ -2,7 +2,7 @@ import { revalidateTag } from "next/cache";
 import { invalidateMemoryCache } from "@/server/memory-cache";
 
 /** Busts the storefront's cached block list for one page — call after every write. */
-export function revalidatePageBlocks(page: string) {
+export const revalidatePageBlocks = (page: string) => {
   try {
     invalidateMemoryCache(`page-blocks-${page}`);
     invalidateMemoryCache("page-blocks");
@@ -11,4 +11,4 @@ export function revalidatePageBlocks(page: string) {
   } catch {
     // revalidateTag throws outside a request context (e.g. during scripts) — safe to ignore
   }
-}
+};

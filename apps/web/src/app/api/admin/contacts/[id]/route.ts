@@ -10,7 +10,7 @@ const patchSchema = z.object({
   status: z.enum(["new", "in_progress", "closed"]),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { id } = params;
@@ -39,9 +39,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     return apiError(err, "Không thể cập nhật yêu cầu liên hệ");
   }
-}
+};
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { id } = params;
@@ -65,4 +65,4 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   } catch (err) {
     return apiError(err, "Không thể xóa yêu cầu liên hệ");
   }
-}
+};

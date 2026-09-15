@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { BackLink } from "@/components/admin/BackLink";
 import { toPlain } from "@/helpers/serialize";
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+const EditProductPage = async ({ params }: { params: { id: string } }) => {
   const [product, categories, promotions] = await Promise.all([
     prisma.product.findUnique({
       where: { id: params.id },
@@ -58,4 +58,6 @@ export default async function EditProductPage({ params }: { params: { id: string
       />
     </div>
   );
-}
+};
+
+export default EditProductPage;

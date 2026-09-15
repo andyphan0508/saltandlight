@@ -53,11 +53,11 @@ const DEFAULT_CUSTOM_ORDER_BLOCKS: PageBlockData[] = [
   },
 ];
 
-export default async function CustomOrderPage({
+const CustomOrderPage = async ({
   searchParams,
 }: {
   searchParams?: { editor?: string };
-}) {
+}) => {
   let blocks: PageBlockData[] = [];
   try {
     const isEditor = searchParams?.editor === "1";
@@ -120,4 +120,6 @@ export default async function CustomOrderPage({
       </div>
     </div>
   );
-}
+};
+
+export default CustomOrderPage;

@@ -16,7 +16,7 @@ const MIME_EXT_MAP = {
  * trusting it alone would let anyone upload arbitrary bytes with a spoofed
  * "image/png" label into public storage.
  */
-function detectImageType(bytes: Uint8Array): keyof typeof MIME_EXT_MAP | null {
+const detectImageType = (bytes: Uint8Array): keyof typeof MIME_EXT_MAP | null => {
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
   if (
     bytes[0] === 0x89 &&
@@ -43,11 +43,11 @@ function detectImageType(bytes: Uint8Array): keyof typeof MIME_EXT_MAP | null {
     return "image/webp";
   }
   return null;
-}
+};
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     await requireAdmin();
 
@@ -84,4 +84,4 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};

@@ -18,7 +18,7 @@ const ACTION_LABEL: Record<string, { label: string; className: string }> = {
   "admin_user.update": { label: "Cập nhật quyền hạn", className: "bg-slate-100 text-slate-700 border-slate-200" },
 };
 
-export default async function AuditLogPage({ searchParams }: { searchParams: { page?: string } }) {
+const AuditLogPage = async ({ searchParams }: { searchParams: { page?: string } }) => {
   const current = await getCurrentAdminUser();
   if (!current || current.role !== "owner") redirect("/admin/dashboard");
 
@@ -101,4 +101,6 @@ export default async function AuditLogPage({ searchParams }: { searchParams: { p
       </div>
     </div>
   );
-}
+};
+
+export default AuditLogPage;

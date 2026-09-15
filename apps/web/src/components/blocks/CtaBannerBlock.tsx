@@ -12,7 +12,7 @@ export interface CtaBannerContent {
   buttons: CtaButton[];
 }
 
-export function CtaBannerBlock({ content }: { content: CtaBannerContent }) {
+export const CtaBannerBlock = ({ content }: { content: CtaBannerContent }) => {
   const buttons = Array.isArray(content?.buttons) ? content.buttons : [];
 
   return (
@@ -29,4 +29,4 @@ export function CtaBannerBlock({ content }: { content: CtaBannerContent }) {
       </div>
     </div>
   );
-}
+};

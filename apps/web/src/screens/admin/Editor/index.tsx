@@ -5,15 +5,15 @@ import { ElementorEditorClient } from "./components/ElementorEditorClient";
 
 import { getOrSeedPageBlocks } from "@/server/admin/page-block-defaults";
 
-function isPageSlug(value: string): value is PageSlug {
+const isPageSlug = (value: string): value is PageSlug => {
   return (PAGE_SLUGS as readonly string[]).includes(value);
-}
+};
 
-export default async function EditorPage({
+const EditorPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string };
-}) {
+}) => {
   const admin = await getCurrentAdminUser();
   if (!admin) redirect("/admin/login");
 
@@ -31,4 +31,6 @@ export default async function EditorPage({
       />
     </div>
   );
-}
+};
+
+export default EditorPage;

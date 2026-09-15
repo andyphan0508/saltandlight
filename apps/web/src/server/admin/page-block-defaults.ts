@@ -276,7 +276,7 @@ export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
  * Ensures blocks exist for a page. If the page is completely empty and defaults exist,
  * automatically seeds them into the database and returns them.
  */
-export async function getOrSeedPageBlocks(page: string) {
+export const getOrSeedPageBlocks = async (page: string) => {
   const existing = await prisma.pageBlock.findMany({
     where: { page },
     orderBy: { sortOrder: "asc" },
@@ -313,4 +313,4 @@ export async function getOrSeedPageBlocks(page: string) {
   }
 
   return created;
-}
+};

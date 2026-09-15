@@ -9,13 +9,13 @@ import { createSupabaseBrowserClient } from "@/api/supabase-client";
 import { useCustomer } from "@/hooks/use-customer";
 import { GoogleIcon, FacebookIcon, ArrowRight, ShieldCheck, ShoppingBag, Sparkles, Check } from "@/components/Icons";
 
-function LoginPageContent() {
+const LoginPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams?.get("next") || "/tai-khoan";
   const errorParam = searchParams?.get("error");
 
-  const { customer, loading: authLoading } = useCustomer();
+  const { customer, isLoading: isAuthLoading } = useCustomer();
   const [oauthLoading, setOauthLoading] = useState<"google" | "facebook" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(
     errorParam === "auth"
@@ -23,7 +23,7 @@ function LoginPageContent() {
       : null
   );
 
-  async function handleOAuth(provider: "google" | "facebook") {
+  const onOAuth = async (provider: "google" | "facebook") => {
     setErrorMessage(null);
     setOauthLoading(provider);
 
@@ -50,7 +50,7 @@ function LoginPageContent() {
       setErrorMessage("Có lỗi xảy ra khi kết nối máy chủ xác thực. Vui lòng thử lại.");
       setOauthLoading(null);
     }
-  }
+  };
 
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:py-16 animate-slide-up-fade">
@@ -86,7 +86,7 @@ function LoginPageContent() {
         )}
 
         {/* If user is already logged in */}
-        {!authLoading && customer ? (
+        {!isAuthLoading && customer ? (
           <div className="rounded-2xl bg-mint-50 p-5 border border-mint-200 text-center space-y-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-forest text-white font-bold text-lg">
               {customer.fullName.charAt(0).toUpperCase()}
@@ -112,7 +112,7 @@ function LoginPageContent() {
             <button
               type="button"
               disabled={oauthLoading !== null}
-              onClick={() => handleOAuth("google")}
+              onClick={() => onOAuth("google")}
               className="flex w-full items-center justify-center gap-3 rounded-2xl border border-ink/15 bg-white px-4 py-3 text-xs sm:text-sm font-bold text-ink shadow-xs hover:bg-ink/5 active-press transition-all disabled:opacity-60"
             >
               <GoogleIcon size={20} />
@@ -127,7 +127,7 @@ function LoginPageContent() {
             <button
               type="button"
               disabled={oauthLoading !== null}
-              onClick={() => handleOAuth("facebook")}
+              onClick={() => onOAuth("facebook")}
               className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#1877F2] px-4 py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[#166fe5] active-press transition-all disabled:opacity-60"
             >
               <FacebookIcon size={20} />
@@ -169,9 +169,9 @@ function LoginPageContent() {
       </div>
     </div>
   );
-}
+};
 
-export default function LoginPage() {
+const LoginPage = () => {
   return (
     <Suspense
       fallback={
@@ -185,4 +185,6 @@ export default function LoginPage() {
       <LoginPageContent />
     </Suspense>
   );
-}
+};
+
+export default LoginPage;

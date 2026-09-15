@@ -1,4 +1,4 @@
-export default function CartLoading() {
+const CartLoading = () => {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12 space-y-8 animate-pulse">
       {/* Title */}
@@ -51,4 +51,6 @@ export default function CartLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default CartLoading;

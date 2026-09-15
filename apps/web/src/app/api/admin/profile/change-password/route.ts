@@ -11,7 +11,7 @@ const changePasswordSchema = z.object({
   newPassword: adminPasswordSchema,
 });
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await getCurrentAdminUser();
     if (!admin) {
@@ -79,4 +79,4 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};

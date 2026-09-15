@@ -2,7 +2,7 @@ import { Check } from "./Icons";
 import type { ProductGuide, ProductGuideItem } from "@/helpers/product-guides";
 
 /** Category-level guides (care, size chart, highlights…) shown under a product's description. */
-export function ProductGuides({ guides }: { guides: ProductGuide[] }) {
+export const ProductGuides = ({ guides }: { guides: ProductGuide[] }) => {
   if (guides.length === 0) return null;
   return (
     <div className="space-y-8">
@@ -11,9 +11,9 @@ export function ProductGuides({ guides }: { guides: ProductGuide[] }) {
       ))}
     </div>
   );
-}
+};
 
-export function ProductGuideSection({ guide }: { guide: ProductGuide }) {
+export const ProductGuideSection = ({ guide }: { guide: ProductGuide }) => {
   if (guide.items.length === 0) return null;
 
   return (
@@ -30,9 +30,9 @@ export function ProductGuideSection({ guide }: { guide: ProductGuide }) {
       {guide.layout === "table" && <GuideTable items={guide.items} />}
     </section>
   );
-}
+};
 
-function GuideCards({ items }: { items: ProductGuideItem[] }) {
+const GuideCards = ({ items }: { items: ProductGuideItem[] }) => {
   return (
     <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
       {items.map((item, idx) => (
@@ -50,9 +50,9 @@ function GuideCards({ items }: { items: ProductGuideItem[] }) {
       ))}
     </div>
   );
-}
+};
 
-function GuideList({ items }: { items: ProductGuideItem[] }) {
+const GuideList = ({ items }: { items: ProductGuideItem[] }) => {
   return (
     <ul className="space-y-2">
       {items.map((item, idx) => (
@@ -65,9 +65,9 @@ function GuideList({ items }: { items: ProductGuideItem[] }) {
       ))}
     </ul>
   );
-}
+};
 
-export function GuideTable({ items }: { items: ProductGuideItem[] }) {
+export const GuideTable = ({ items }: { items: ProductGuideItem[] }) => {
   return (
     <div className="overflow-hidden rounded-2xl border border-ink/10 shadow-xs bg-white">
       <table className="w-full text-left text-xs sm:text-sm">
@@ -82,4 +82,4 @@ export function GuideTable({ items }: { items: ProductGuideItem[] }) {
       </table>
     </div>
   );
-}
+};

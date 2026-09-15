@@ -1,4 +1,4 @@
-export default function AccountLoading() {
+const AccountLoading = () => {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12 space-y-8 animate-pulse">
       {/* Profile Card Skeleton */}
@@ -50,4 +50,6 @@ export default function AccountLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default AccountLoading;

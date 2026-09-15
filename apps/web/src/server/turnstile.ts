@@ -1,7 +1,7 @@
 const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /** Verifies a Cloudflare Turnstile token server-side. Never trust a client-supplied "verified" flag. */
-export async function verifyTurnstileToken(token: string, remoteIp?: string | null): Promise<boolean> {
+export const verifyTurnstileToken = async (token: string, remoteIp?: string | null): Promise<boolean> => {
   const secret =
     process.env.TURNSTILE_SECRET_KEY ||
     (process.env.NODE_ENV !== "production" ? "1x0000000000000000000000000000000AA" : undefined);
@@ -25,4 +25,4 @@ export async function verifyTurnstileToken(token: string, remoteIp?: string | nu
     console.error("[turnstile] verification request failed:", err);
     return false;
   }
-}
+};

@@ -4,7 +4,7 @@ import { getCachedPublishedProducts } from "@/server/queries";
 export const dynamic = "force-dynamic";
 
 /** Lightweight preview results for the Spotlight-style search overlay — full results live at /san-pham?q=. */
-export async function GET(req: NextRequest) {
+export const GET = async (req: NextRequest) => {
   const q = req.nextUrl.searchParams.get("q")?.trim();
   if (!q) {
     return NextResponse.json(
@@ -18,4 +18,4 @@ export async function GET(req: NextRequest) {
     { products, total },
     { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
   );
-}
+};

@@ -24,7 +24,7 @@ const VALID_SORTS: SortOption[] = ["latest", "price-asc", "price-desc", "name-as
 const VALID_VIEWS = ["2", "3", "4", "list"] as const;
 
 /** Single source of truth for turning the route's raw searchParams into typed filters. */
-export function parseCatalogParams(searchParams: CatalogSearchParams): CatalogFilters {
+export const parseCatalogParams = (searchParams: CatalogSearchParams): CatalogFilters => {
   const rawCategories = searchParams.categories ?? (searchParams as { category?: string | string[] }).category;
   const categoriesStr = Array.isArray(rawCategories) ? rawCategories.join(",") : (rawCategories || "");
   const rawSizes = searchParams.sizes;
@@ -45,4 +45,4 @@ export function parseCatalogParams(searchParams: CatalogSearchParams): CatalogFi
     view: (VALID_VIEWS.includes(viewVal as never) ? viewVal : "3") as CatalogFilters["view"],
     page: Math.max(1, Number(pageVal) || 1),
   };
-}
+};

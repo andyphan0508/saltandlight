@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export function NavigationProgress() {
+export const NavigationProgress = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -52,7 +52,7 @@ export function NavigationProgress() {
 
   // Intercept internal link clicks for instant feedback
   useEffect(() => {
-    const handleAnchorClick = (e: MouseEvent) => {
+    const onAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const anchor = target.closest("a");
       if (!anchor) return;
@@ -77,9 +77,9 @@ export function NavigationProgress() {
       }
     };
 
-    document.addEventListener("click", handleAnchorClick, { capture: true });
+    document.addEventListener("click", onAnchorClick, { capture: true });
     return () =>
-      document.removeEventListener("click", handleAnchorClick, { capture: true });
+      document.removeEventListener("click", onAnchorClick, { capture: true });
   }, []);
 
   if (!isLoading && progress === 0) return null;
@@ -95,4 +95,4 @@ export function NavigationProgress() {
       />
     </div>
   );
-}
+};

@@ -16,8 +16,8 @@ export interface PageBlockData {
   content: any;
 }
 
-export function BlockRenderer({ block }: { block: PageBlockData }) {
-  function renderInner() {
+export const BlockRenderer = ({ block }: { block: PageBlockData }) => {
+  const renderInner = () => {
     switch (block.type) {
       case "FEATURE_CARDS":
         return <FeatureCardsBlock content={block.content} />;
@@ -41,7 +41,7 @@ export function BlockRenderer({ block }: { block: PageBlockData }) {
       default:
         return null;
     }
-  }
+  };
 
   const inner = renderInner();
   if (!inner) return null;
@@ -58,4 +58,4 @@ export function BlockRenderer({ block }: { block: PageBlockData }) {
       {inner}
     </LiveBlockClient>
   );
-}
+};

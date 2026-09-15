@@ -1,4 +1,4 @@
-export function slugify(name: string): string {
+export const slugify = (name: string): string => {
   return name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -7,4 +7,4 @@ export function slugify(name: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-}
+};

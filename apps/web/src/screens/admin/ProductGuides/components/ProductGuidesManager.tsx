@@ -9,7 +9,7 @@ import type { ProductGuide } from "@/helpers/product-guides";
 import { GuideEditor, LAYOUT_LABELS, type CategoryOption } from "./GuideEditor";
 import { adminFetch } from "@/api/admin-fetch";
 
-function newGuide(): ProductGuide {
+const newGuide = (): ProductGuide => {
   return {
     id: crypto.randomUUID(),
     title: "Hướng dẫn mới",
@@ -19,16 +19,16 @@ function newGuide(): ProductGuide {
     items: [{ icon: "✨", title: "", content: "" }],
     isActive: true,
   };
-}
+};
 
 /** Guide list + persistence. Editing a single guide is delegated to GuideEditor. */
-export function ProductGuidesManager({
+export const ProductGuidesManager = ({
   initialGuides,
   categories,
 }: {
   initialGuides: ProductGuide[];
   categories: CategoryOption[];
-}) {
+}) => {
   const [guides, setGuides] = useState(initialGuides);
   const [savedJson, setSavedJson] = useState(() => JSON.stringify(initialGuides));
   const [selectedId, setSelectedId] = useState<string | null>(initialGuides[0]?.id ?? null);
@@ -38,23 +38,23 @@ export function ProductGuidesManager({
   const isDirty = JSON.stringify(guides) !== savedJson;
   const knownCategoryIds = new Set(categories.map((c) => c.id));
 
-  function updateSelected(patch: Partial<ProductGuide>) {
+  const updateSelected = (patch: Partial<ProductGuide>) => {
     setGuides((prev) => prev.map((g) => (g.id === selectedId ? { ...g, ...patch } : g)));
-  }
+  };
 
-  function addGuide() {
+  const addGuide = () => {
     const guide = newGuide();
     setGuides((prev) => [...prev, guide]);
     setSelectedId(guide.id);
-  }
+  };
 
-  function removeGuide(id: string) {
+  const removeGuide = (id: string) => {
     if (!confirm("Xóa hướng dẫn này? Thay đổi chỉ áp dụng sau khi bấm Lưu.")) return;
     setGuides((prev) => prev.filter((g) => g.id !== id));
     if (selectedId === id) setSelectedId(null);
-  }
+  };
 
-  function moveGuide(index: number, offset: -1 | 1) {
+  const moveGuide = (index: number, offset: -1 | 1) => {
     setGuides((prev) => {
       const target = index + offset;
       if (target < 0 || target >= prev.length) return prev;
@@ -62,9 +62,9 @@ export function ProductGuidesManager({
       [next[index], next[target]] = [next[target]!, next[index]!];
       return next;
     });
-  }
+  };
 
-  async function save() {
+  const save = async () => {
     setIsSaving(true);
     try {
       const data = await adminFetch<{ guides: typeof guides }>("/api/admin/product-guides", { method: "PUT", body: { guides } });
@@ -76,7 +76,7 @@ export function ProductGuidesManager({
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -184,4 +184,4 @@ export function ProductGuidesManager({
       </div>
     </div>
   );
-}
+};

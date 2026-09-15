@@ -2,7 +2,7 @@ import { ADMIN_ORDER_STATUS as STATUS_META } from "@/helpers/order-status-styles
 
 const STATUS_ORDER = Object.keys(STATUS_META);
 
-export function StatusBreakdown({ counts }: { counts: Record<string, number> }) {
+export const StatusBreakdown = ({ counts }: { counts: Record<string, number> }) => {
   const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
 
   return (
@@ -36,4 +36,4 @@ export function StatusBreakdown({ counts }: { counts: Record<string, number> }) 
       })}
     </div>
   );
-}
+};

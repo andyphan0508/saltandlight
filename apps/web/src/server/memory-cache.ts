@@ -9,7 +9,7 @@ const memoryStore = new Map<string, CacheEntry<any>>();
 const MAX_ENTRIES = 1000;
 
 /** Bound memory use — sweep expired entries, then evict oldest-inserted if still over cap. */
-function gc(now: number) {
+const gc = (now: number) => {
   if (memoryStore.size < MAX_ENTRIES) return;
   for (const [k, v] of memoryStore) {
     if (v.expiresAt <= now) memoryStore.delete(k);
@@ -19,7 +19,7 @@ function gc(now: number) {
     if (oldestKey === undefined) break;
     memoryStore.delete(oldestKey);
   }
-}
+};
 
 /**
  * Wraps an async fetcher with an in-memory cache and Stale-While-Revalidate fallback.
@@ -27,11 +27,11 @@ function gc(now: number) {
  * If the fetcher fails (e.g. transient DB timeout during rapid clicks),
  * returns the last known good value to preserve 100% uptime.
  */
-export async function withMemoryCache<T>(
+export const withMemoryCache = async <T>(
   key: string,
   ttlSeconds: number,
   fetcher: () => Promise<T>
-): Promise<T> {
+): Promise<T> => {
   const now = Date.now();
   const entry = memoryStore.get(key);
 
@@ -54,12 +54,12 @@ export async function withMemoryCache<T>(
     }
     throw err;
   }
-}
+};
 
 /**
  * Invalidate in-memory cache entries by prefix or clear all.
  */
-export function invalidateMemoryCache(prefix?: string): void {
+export const invalidateMemoryCache = (prefix?: string): void => {
   if (!prefix) {
     memoryStore.clear();
     return;
@@ -69,4 +69,4 @@ export function invalidateMemoryCache(prefix?: string): void {
       memoryStore.delete(key);
     }
   }
-}
+};

@@ -3,7 +3,7 @@ import { Check, CrossIcon } from "./Icons";
 import type { ProductContentBlock } from "@/helpers/product-content";
 
 /** Renders a product's own description blocks. Category guides render separately (ProductGuides). */
-export function ProductContentRenderer({ blocks }: { blocks: ProductContentBlock[] }) {
+export const ProductContentRenderer = ({ blocks }: { blocks: ProductContentBlock[] }) => {
   if (blocks.length === 0) return null;
 
   return (
@@ -13,9 +13,9 @@ export function ProductContentRenderer({ blocks }: { blocks: ProductContentBlock
       ))}
     </div>
   );
-}
+};
 
-function BlockItem({ block }: { block: ProductContentBlock }) {
+const BlockItem = ({ block }: { block: ProductContentBlock }) => {
   switch (block.type) {
     case "paragraph":
       return <p className="whitespace-pre-line leading-relaxed text-ink/80">{block.content}</p>;
@@ -88,4 +88,4 @@ function BlockItem({ block }: { block: ProductContentBlock }) {
     default:
       return null;
   }
-}
+};

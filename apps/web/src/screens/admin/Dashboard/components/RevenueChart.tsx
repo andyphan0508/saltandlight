@@ -1,6 +1,6 @@
 import { formatVND } from "@saltandlight/domain";
 
-export function RevenueChart({ series }: { series: { date: string; total: number }[] }) {
+export const RevenueChart = ({ series }: { series: { date: string; total: number }[] }) => {
   const max = Math.max(1, ...series.map((s) => s.total));
   const totalRevenue = series.reduce((sum, s) => sum + s.total, 0);
   const avgDaily = Math.round(totalRevenue / Math.max(1, series.length));
@@ -65,4 +65,4 @@ export function RevenueChart({ series }: { series: { date: string; total: number
       </div>
     </div>
   );
-}
+};

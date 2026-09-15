@@ -24,16 +24,16 @@ export const MobileDrawer = ({
   siteSettings?: SiteSettingsData;
 }) => {
   const pathname = usePathname();
-  const { customer, signOut } = useCustomer();
+  const { customer, onSignOut } = useCustomer();
   const navItems = [...siteSettings.headerNavItems.left, ...siteSettings.headerNavItems.right];
-  const open = useMobileMenuStore((s) => s.open);
-  const setOpen = useMobileMenuStore((s) => s.setOpen);
+  const isOpen = useMobileMenuStore((s) => s.isOpen);
+  const setIsOpen = useMobileMenuStore((s) => s.setIsOpen);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   // Lock body scroll when BottomSheet is open
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -41,25 +41,25 @@ export const MobileDrawer = ({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [isOpen]);
 
   // Handle ESC key
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") setIsOpen(false);
     };
-    if (open) window.addEventListener("keydown", onKeyDown);
+    if (isOpen) window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, setOpen]);
+  }, [isOpen, setIsOpen]);
 
-  if (!open) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
       {/* Dimmed Blurred Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
-        onClick={() => setOpen(false)}
+        onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
@@ -73,7 +73,7 @@ export const MobileDrawer = ({
         {/* Drag Pill Handle */}
         <div
           className="flex justify-center pt-3 pb-2 cursor-pointer flex-shrink-0"
-          onClick={() => setOpen(false)}
+          onClick={() => setIsOpen(false)}
         >
           <div className="h-1.5 w-12 rounded-full bg-ink/20 hover:bg-ink/40 transition-colors" />
         </div>
@@ -95,7 +95,7 @@ export const MobileDrawer = ({
 
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={() => setIsOpen(false)}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-ink/5 text-ink/70 hover:bg-ink/10 active-press"
             aria-label="Đóng menu"
           >
@@ -111,7 +111,7 @@ export const MobileDrawer = ({
               <div className="flex items-center justify-between gap-3">
                 <Link
                   href="/tai-khoan"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 min-w-0 flex-1 active-press"
                 >
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-forest text-white font-bold text-sm ring-2 ring-mint-200">
@@ -125,8 +125,8 @@ export const MobileDrawer = ({
                 <button
                   type="button"
                   onClick={async () => {
-                    await signOut();
-                    setOpen(false);
+                    await onSignOut();
+                    setIsOpen(false);
                   }}
                   className="rounded-xl p-2 text-ink/40 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                   title="Đăng xuất"
@@ -137,7 +137,7 @@ export const MobileDrawer = ({
             ) : (
               <Link
                 href="/dang-nhap"
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 active-press"
               >
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
@@ -160,7 +160,7 @@ export const MobileDrawer = ({
                 </span>
                 <Link
                   href="/san-pham"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   className="text-xs font-bold text-brand-forest hover:underline"
                 >
                   Xem tất cả
@@ -170,7 +170,7 @@ export const MobileDrawer = ({
               <div className="grid grid-cols-2 gap-2">
                 <Link
                   href="/san-pham"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2.5 rounded-2xl border border-ink/10 bg-white p-3 shadow-xs active-press"
                 >
                   <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-mint-100 text-brand-forest">
@@ -186,7 +186,7 @@ export const MobileDrawer = ({
                   <Link
                     key={c.id}
                     href={`/san-pham?categories=${c.slug}`}
-                    onClick={() => setOpen(false)}
+                    onClick={() => setIsOpen(false)}
                     className="flex items-center gap-2.5 rounded-2xl border border-ink/10 bg-white p-3 shadow-xs active-press"
                   >
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
@@ -209,20 +209,20 @@ export const MobileDrawer = ({
             </div>
 
             {navItems.map((item) => {
-              const active = isActive(item.href);
+              const isCurrent = isActive(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   className={`flex items-center justify-between rounded-2xl px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all active-press ${
-                    active
+                    isCurrent
                       ? "bg-ink text-white shadow-sm"
                       : "bg-white border border-ink/5 text-ink/80 hover:bg-ink/5 hover:text-ink"
                   }`}
                 >
                   <span>{item.label}</span>
-                  <ChevronRight size={16} className={active ? "text-white" : "text-ink/30"} />
+                  <ChevronRight size={16} className={isCurrent ? "text-white" : "text-ink/30"} />
                 </Link>
               );
             })}
@@ -237,7 +237,7 @@ export const MobileDrawer = ({
             <div className="grid grid-cols-1 gap-2 text-xs">
               <Link
                 href="/tra-cuu-don-hang"
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between rounded-xl px-2 py-1.5 font-semibold text-ink hover:bg-mint-50 transition-colors active-press"
               >
                 <div className="flex items-center gap-2.5">
@@ -249,7 +249,7 @@ export const MobileDrawer = ({
 
               <Link
                 href="/chinh-sach"
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between rounded-xl px-2 py-1.5 font-semibold text-ink hover:bg-mint-50 transition-colors active-press"
               >
                 <div className="flex items-center gap-2.5">

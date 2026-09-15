@@ -1,4 +1,4 @@
-export default function ProductDetailLoading() {
+const ProductDetailLoading = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 space-y-16 animate-pulse">
       {/* Breadcrumbs Skeleton */}
@@ -72,4 +72,6 @@ export default function ProductDetailLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default ProductDetailLoading;

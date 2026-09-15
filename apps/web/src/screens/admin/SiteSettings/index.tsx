@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { resolveSiteSettings } from "@/interfaces/site-settings";
 import { SiteSettingsForm } from "./components/SiteSettingsForm";
 
-export default async function SiteSettingsPage() {
+const SiteSettingsPage = async () => {
   const admin = await getCurrentAdminUser();
   if (!admin) redirect("/admin/login");
 
@@ -21,4 +21,6 @@ export default async function SiteSettingsPage() {
       <SiteSettingsForm initialSettings={initialSettings} />
     </div>
   );
-}
+};
+
+export default SiteSettingsPage;

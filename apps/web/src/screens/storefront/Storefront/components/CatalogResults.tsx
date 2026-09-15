@@ -11,7 +11,7 @@ const PAGE_SIZE = 12;
  * The catalog query is cached with unstable_cache and tags: ["products"]
  * so category/page switches stream instantly with near-zero database latency.
  */
-export async function CatalogResults({ filters }: { filters: CatalogFilters }) {
+export const CatalogResults = async ({ filters }: { filters: CatalogFilters }) => {
   const { products, total } = await getCachedPublishedProducts({
     query: filters.query,
     categorySlugs: filters.categorySlugs,
@@ -35,4 +35,4 @@ export async function CatalogResults({ filters }: { filters: CatalogFilters }) {
       <Pagination total={total} pageSize={PAGE_SIZE} />
     </>
   );
-}
+};

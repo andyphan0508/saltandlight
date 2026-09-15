@@ -6,11 +6,11 @@ import { PageHeader } from "@/components/admin/PageHeader";
 
 const PAGE_SIZE = 15;
 
-export default async function UsersPage({
+const UsersPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string };
-}) {
+}) => {
   const current = await getCurrentAdminUser();
   if (!current || current.role !== "owner") redirect("/admin/dashboard");
 
@@ -37,4 +37,6 @@ export default async function UsersPage({
       />
     </div>
   );
-}
+};
+
+export default UsersPage;

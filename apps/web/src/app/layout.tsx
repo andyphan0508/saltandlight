@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   themeColor: "#FAF7F2",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
+export const generateMetadata = async (): Promise<Metadata> => {
   let faviconUrl: string | null = null;
   try {
     const settings = await getCachedSiteSettings();
@@ -37,9 +37,9 @@ export async function generateMetadata(): Promise<Metadata> {
       "Thời trang và quà tặng Cơ Đốc chính hãng: Áo thun 100% Cotton, túi tote canvas in lời Kinh Thánh. Đồng giá ship 19K toàn quốc.",
     ...(faviconUrl ? { icons: { icon: faviconUrl } } : {}),
   };
-}
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="vi" className={`${inter.variable} ${inter.className} overflow-x-hidden font-sans`}>
       <body className="flex min-h-screen flex-col font-sans overflow-x-hidden w-full max-w-full text-ink bg-cream antialiased selection:bg-mint-200 selection:text-brand-forest">
@@ -48,4 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

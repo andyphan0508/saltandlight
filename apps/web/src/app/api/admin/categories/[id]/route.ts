@@ -14,7 +14,7 @@ const updateCategorySchema = z.object({
   parentId: z.string().uuid().nullable().optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { id } = params;
@@ -69,9 +69,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     return apiError(err, "Không thể cập nhật danh mục");
   }
-}
+};
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { id } = params;
@@ -121,4 +121,4 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   } catch (err) {
     return apiError(err, "Không thể xóa danh mục");
   }
-}
+};

@@ -69,11 +69,11 @@ const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
   },
 ];
 
-export default async function HomePage({
+const HomePage = async ({
   searchParams,
 }: {
   searchParams?: { editor?: string };
-}) {
+}) => {
   let blocks: PageBlockData[] = [];
   let banners: BannerData[] = [];
   try {
@@ -99,4 +99,6 @@ export default async function HomePage({
       ))}
     </div>
   );
-}
+};
+
+export default HomePage;

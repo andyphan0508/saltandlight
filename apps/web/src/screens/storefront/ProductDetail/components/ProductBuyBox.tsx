@@ -73,12 +73,12 @@ export const ProductBuyBox = ({
   if (!selected) return null;
 
   const discount = calcDiscountPercent(selected.price, selected.compareAtPrice);
-  const outOfStock = selected.stockQuantity <= 0;
+  const isOutOfStock = selected.stockQuantity <= 0;
   const savings = selected.compareAtPrice ? selected.compareAtPrice - selected.price : 0;
   const note = (priceNote ?? DEFAULT_PRICE_NOTE).trim();
 
   const onAddToCart = () => {
-    if (outOfStock) return;
+    if (isOutOfStock) return;
     add(selected.id, quantity);
     setIsJustAdded(true);
     setTimeout(() => setIsJustAdded(false), 2200);
@@ -96,7 +96,7 @@ export const ProductBuyBox = ({
   };
 
   const onBuyNow = () => {
-    if (outOfStock) return;
+    if (isOutOfStock) return;
     add(selected.id, quantity);
     router.push("/thanh-toan");
   };
@@ -150,7 +150,7 @@ export const ProductBuyBox = ({
           </div>
           <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
             {colors.map((c) => {
-              const active = c === color;
+              const isActive = c === color;
               const isDark = c.toLowerCase().includes("đen") || c.toLowerCase().includes("black");
               return (
                 <button
@@ -158,7 +158,7 @@ export const ProductBuyBox = ({
                   type="button"
                   onClick={() => setColor(c)}
                   className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold transition-all active-press ${
-                    active
+                    isActive
                       ? "border-ink bg-ink text-white shadow-sm ring-2 ring-ink/20"
                       : "border-ink/15 bg-white text-ink hover:border-ink/40"
                   }`}
@@ -195,14 +195,14 @@ export const ProductBuyBox = ({
           </div>
           <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
             {sizes.map((s) => {
-              const active = s === size;
+              const isActive = s === size;
               return (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setSize(s)}
                   className={`flex h-10 sm:h-11 min-w-10 sm:min-w-11 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-all active-press ${
-                    active
+                    isActive
                       ? "border-ink bg-ink text-white shadow-sm ring-2 ring-ink/20"
                       : "border-ink/15 bg-white text-ink hover:border-ink/40"
                   }`}
@@ -220,7 +220,7 @@ export const ProductBuyBox = ({
         <div className="flex items-center justify-between text-xs text-ink/70 gap-2">
           <span className="font-bold uppercase tracking-wider flex-shrink-0">Số lượng</span>
           <span className="flex-shrink-0">
-            {outOfStock ? (
+            {isOutOfStock ? (
               <span className="font-bold text-sale">Hết hàng</span>
             ) : (
               <span className="text-brand-forest font-semibold flex items-center gap-1.5">
@@ -271,7 +271,7 @@ export const ProductBuyBox = ({
           <Button
             variant="outline"
             size="lg"
-            disabled={outOfStock}
+            disabled={isOutOfStock}
             onClick={onAddToCart}
             className="w-full h-12 flex items-center justify-center gap-2 active-press rounded-2xl text-xs sm:text-sm font-bold border-ink/20 hover:border-ink hover:bg-mint-50/50"
           >
@@ -291,11 +291,11 @@ export const ProductBuyBox = ({
           <Button
             variant="primary"
             size="lg"
-            disabled={outOfStock}
+            disabled={isOutOfStock}
             onClick={onBuyNow}
             className="w-full h-12 flex items-center justify-center gap-2 bg-ink text-white hover:bg-ink-800 shadow-md active-press rounded-2xl text-xs sm:text-sm font-bold tracking-wide"
           >
-            {outOfStock ? "Tạm hết hàng" : "Mua ngay — Nhận ưu đãi"}
+            {isOutOfStock ? "Tạm hết hàng" : "Mua ngay — Nhận ưu đãi"}
           </Button>
         </div>
       </div>

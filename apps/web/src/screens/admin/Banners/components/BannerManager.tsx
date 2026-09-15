@@ -117,15 +117,15 @@ export const BannerManager = ({
   };
 
   const onToggleActive = async (banner: BannerItem) => {
-    const nextActive = !banner.isActive;
+    const isNextActive = !banner.isActive;
     // Optimistic update
     setBanners((prev) =>
-      prev.map((b) => (b.id === banner.id ? { ...b, isActive: nextActive } : b)),
+      prev.map((b) => (b.id === banner.id ? { ...b, isActive: isNextActive } : b)),
     );
 
     try {
-      await adminFetch(`/api/admin/banners/${banner.id}`, { method: "PATCH", body: { isActive: nextActive } });
-      toast.success(nextActive ? "Đã bật hiển thị banner trên trang chủ!" : "Đã tắt hiển thị banner!");
+      await adminFetch(`/api/admin/banners/${banner.id}`, { method: "PATCH", body: { isActive: isNextActive } });
+      toast.success(isNextActive ? "Đã bật hiển thị banner trên trang chủ!" : "Đã tắt hiển thị banner!");
       router.refresh();
     } catch {
       // Revert on error

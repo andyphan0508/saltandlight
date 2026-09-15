@@ -57,5 +57,5 @@ export const useCustomer = () => {
   useEffect(onStart, []);
   const customer = useCustomerStore((s) => s.customer);
   const isLoading = useCustomerStore((s) => s.isLoading);
-  return { customer, loading: isLoading, signOut: onSignOut, mutate: onRefreshCustomer };
+  return { customer, isLoading, onSignOut };
 };

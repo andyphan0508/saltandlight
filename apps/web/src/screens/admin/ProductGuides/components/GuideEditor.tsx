@@ -24,7 +24,7 @@ const selectClass =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none";
 
 /** Form for one guide: details, target categories and content rows. */
-export function GuideEditor({
+export const GuideEditor = ({
   guide,
   categories,
   onChange,
@@ -32,7 +32,7 @@ export function GuideEditor({
   guide: ProductGuide;
   categories: CategoryOption[];
   onChange: (patch: Partial<ProductGuide>) => void;
-}) {
+}) => {
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -93,9 +93,9 @@ export function GuideEditor({
       />
     </div>
   );
-}
+};
 
-function CategoryChecklist({
+const CategoryChecklist = ({
   categories,
   selectedIds,
   onChange,
@@ -103,10 +103,10 @@ function CategoryChecklist({
   categories: CategoryOption[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
-}) {
-  function toggle(id: string, checked: boolean) {
+}) => {
+  const toggle = (id: string, checked: boolean) => {
     onChange(checked ? [...selectedIds, id] : selectedIds.filter((selected) => selected !== id));
-  }
+  };
 
   return (
     <fieldset>
@@ -116,19 +116,19 @@ function CategoryChecklist({
       </p>
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => {
-          const checked = selectedIds.includes(category.id);
+          const isChecked = selectedIds.includes(category.id);
           return (
             <label
               key={category.id}
               className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                checked
+                isChecked
                   ? "border-brand-forest bg-mint-50 text-brand-forest"
                   : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
               }`}
             >
               <input
                 type="checkbox"
-                checked={checked}
+                checked={isChecked}
                 onChange={(e) => toggle(category.id, e.target.checked)}
                 className="h-3.5 w-3.5 accent-brand-forest"
               />
@@ -140,10 +140,10 @@ function CategoryChecklist({
       </div>
     </fieldset>
   );
-}
+};
 
 /** Row fields differ by layout: list uses content only, table uses title/content as its two columns. */
-function GuideItemFields({
+const GuideItemFields = ({
   layout,
   item,
   update,
@@ -151,7 +151,7 @@ function GuideItemFields({
   layout: GuideLayout;
   item: ProductGuideItem;
   update: (patch: Partial<ProductGuideItem>) => void;
-}) {
+}) => {
   if (layout === "list") {
     return (
       <div className="pr-6">
@@ -190,7 +190,7 @@ function GuideItemFields({
           placeholder="VD: Giặt áo đúng cách"
         />
       </div>
-      <TextField label="Nội dung" multiline value={item.content} onChange={(content) => update({ content })} />
+      <TextField label="Nội dung" isMultiline value={item.content} onChange={(content) => update({ content })} />
     </div>
   );
-}
+};

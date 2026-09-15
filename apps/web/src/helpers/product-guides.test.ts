@@ -6,9 +6,9 @@ const TEE = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
 const BABY_TEE = "9b2e1c3a-5d4f-4a6b-8c7d-0e1f2a3b4c5d";
 const TOTE = "3f1d2c4b-6a5e-4d7c-9b8a-1e2f3a4b5c6d";
 
-function guide(overrides: Partial<ProductGuide>): ProductGuide {
+const guide = (overrides: Partial<ProductGuide>): ProductGuide => {
   return { id: "g", title: "Guide", subtitle: "", layout: "cards", categoryIds: [], items: [], isActive: true, ...overrides };
-}
+};
 
 test("guidesForCategory matches the category or its parent and skips inactive guides", () => {
   const guides = [

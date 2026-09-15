@@ -26,15 +26,15 @@ export interface FeaturedProductsContent {
   viewAllMode?: "link" | "modal";
 }
 
-export async function FeaturedProductsBlock({
+export const FeaturedProductsBlock = async ({
   content,
 }: {
   content: FeaturedProductsContent;
-}) {
+}) => {
   const count = content.count ?? 8;
   const sourceType = content.sourceType || "all";
   const displayMode = content.displayMode || "grid";
-  const allowViewAll = content.allowViewAll ?? true;
+  const isViewAllAllowed = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || "link";
 
   let products: ProductCardData[] = [];
@@ -51,7 +51,7 @@ export async function FeaturedProductsBlock({
       }
 
       if (content.categoryId || resolvedCategorySlug) {
-        const takeLimit = allowViewAll && viewAllMode === "modal" ? 100 : count;
+        const takeLimit = isViewAllAllowed && viewAllMode === "modal" ? 100 : count;
         const categoryWhere = content.categoryId
           ? { categoryId: content.categoryId }
           : { category: { slug: resolvedCategorySlug } };
@@ -150,7 +150,7 @@ export async function FeaturedProductsBlock({
         </div>
 
         {/* View All Action */}
-        {allowViewAll && (
+        {isViewAllAllowed && (
           <div>
             {viewAllMode === "modal" ? (
               <ProductListModal
@@ -184,4 +184,4 @@ export async function FeaturedProductsBlock({
       )}
     </section>
   );
-}
+};

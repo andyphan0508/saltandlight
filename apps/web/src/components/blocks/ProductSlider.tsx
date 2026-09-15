@@ -5,14 +5,14 @@ import { ProductCard } from "@/components/ProductCard";
 import { ChevronLeft, ChevronRight } from "@/components/Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
 
-export function ProductSlider({ products }: { products: ProductCardData[] }) {
+export const ProductSlider = ({ products }: { products: ProductCardData[] }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  function scroll(direction: "left" | "right") {
+  const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -320 : 320;
     scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
-  }
+  };
 
   return (
     <div className="relative group/slider">
@@ -52,4 +52,4 @@ export function ProductSlider({ products }: { products: ProductCardData[] }) {
       </div>
     </div>
   );
-}
+};

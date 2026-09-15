@@ -16,11 +16,11 @@ import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
  */
 export const BottomTabBar = () => {
   const pathname = usePathname();
-  const cartHydrated = useStoreHydrated(useCartStore);
-  const wishlistHydrated = useStoreHydrated(useWishlistStore);
-  const cartCount = useCartStore((s) => (cartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
-  const wishlistCount = useWishlistStore((s) => (wishlistHydrated ? s.productIds.length : 0));
-  const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
+  const isCartHydrated = useStoreHydrated(useCartStore);
+  const isWishlistHydrated = useStoreHydrated(useWishlistStore);
+  const cartCount = useCartStore((s) => (isCartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
+  const wishlistCount = useWishlistStore((s) => (isWishlistHydrated ? s.productIds.length : 0));
+  const setMobileMenuOpen = useMobileMenuStore((s) => s.setIsOpen);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 

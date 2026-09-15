@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 const SETTINGS_ID = "default";
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -37,4 +37,4 @@ export async function PATCH(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Không thể lưu cài đặt");
   }
-}
+};

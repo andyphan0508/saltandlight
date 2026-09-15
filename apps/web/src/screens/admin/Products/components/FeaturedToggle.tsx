@@ -18,16 +18,16 @@ export const FeaturedToggle = ({
 
   const onToggle = async () => {
     if (isLoading) return;
-    const nextState = !isFeatured;
-    setIsFeatured(nextState); // optimistic update
+    const isNextFeatured = !isFeatured;
+    setIsFeatured(isNextFeatured); // optimistic update
     setIsLoading(true);
 
     try {
-      await adminFetch(`/api/admin/products/${productId}/featured`, { method: "PATCH", body: { isFeatured: nextState } });
-      toast.success(nextState ? "Đã bật: Sản phẩm được đưa lên mục Nổi Bật!" : "Đã tắt trạng thái nổi bật");
+      await adminFetch(`/api/admin/products/${productId}/featured`, { method: "PATCH", body: { isFeatured: isNextFeatured } });
+      toast.success(isNextFeatured ? "Đã bật: Sản phẩm được đưa lên mục Nổi Bật!" : "Đã tắt trạng thái nổi bật");
       router.refresh();
     } catch (err) {
-      setIsFeatured(!nextState); // revert optimistic update
+      setIsFeatured(!isNextFeatured); // revert optimistic update
       toast.error(err instanceof Error ? err.message : "Không thể cập nhật trạng thái nổi bật");
     } finally {
       setIsLoading(false);

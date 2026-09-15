@@ -7,7 +7,7 @@ import { pageBlockUpdateSchema } from "@/helpers/admin-schemas";
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -35,9 +35,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     return apiError(err, "Không thể cập nhật block");
   }
-}
+};
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export const DELETE = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const block = await prisma.pageBlock.delete({ where: { id: params.id } });
@@ -56,4 +56,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   } catch (err) {
     return apiError(err, "Không thể xóa block");
   }
-}
+};

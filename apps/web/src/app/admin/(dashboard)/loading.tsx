@@ -1,4 +1,4 @@
-export default function DashboardSubLoading() {
+const DashboardSubLoading = () => {
   return (
     <div className="space-y-6 animate-pulse">
       {/* Page Header Skeleton */}
@@ -54,4 +54,6 @@ export default function DashboardSubLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default DashboardSubLoading;

@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
-export default function AdminRootPage() {
+const AdminRootPage = () => {
   redirect("/admin/dashboard");
-}
+};
+
+export default AdminRootPage;

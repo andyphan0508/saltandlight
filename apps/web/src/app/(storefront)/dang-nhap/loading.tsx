@@ -1,4 +1,4 @@
-export default function LoginLoading() {
+const LoginLoading = () => {
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:py-16 animate-pulse">
       <div className="text-center space-y-3">
@@ -22,4 +22,6 @@ export default function LoginLoading() {
       </div>
     </div>
   );
-}
+};
+
+export default LoginLoading;

@@ -22,7 +22,7 @@ const KNOWN_TYPES = new Set<string>(["paragraph", "heading", "bullet_list", "quo
  * Stored description → blocks. Plain-text (legacy) descriptions become a single
  * paragraph; retired block types (callout, specs_table) are dropped.
  */
-export function parseProductContent(raw?: string | null): ProductContentBlock[] {
+export const parseProductContent = (raw?: string | null): ProductContentBlock[] => {
   const text = raw?.trim();
   if (!text) return [];
   if (text.startsWith("[")) {
@@ -38,25 +38,25 @@ export function parseProductContent(raw?: string | null): ProductContentBlock[] 
     }
   }
   return [{ id: "description", type: "paragraph", content: text }];
-}
+};
 
-export function serializeProductContent(blocks: ProductContentBlock[]): string {
+export const serializeProductContent = (blocks: ProductContentBlock[]): string => {
   return JSON.stringify(blocks);
-}
+};
 
 /** Admin-set promo line for the price box; `null` = never set, so the storefront shows DEFAULT_PRICE_NOTE. */
-export function readPriceNote(blocks: ProductContentBlock[]): string | null {
+export const readPriceNote = (blocks: ProductContentBlock[]): string | null => {
   for (const block of blocks) if (block.type === "price_note") return block.text;
   return null;
-}
+};
 
 /** Replaces any price note with `text`. An empty note is kept so admins can hide the line. */
-export function withPriceNote(blocks: ProductContentBlock[], text: string): ProductContentBlock[] {
+export const withPriceNote = (blocks: ProductContentBlock[], text: string): ProductContentBlock[] => {
   return [{ id: "price-note", type: "price_note", text: text.trim() }, ...blocks.filter((b) => b.type !== "price_note")];
-}
+};
 
 /** First ~160 characters of readable text, for meta descriptions. */
-export function contentToPlainText(blocks: ProductContentBlock[]): string {
+export const contentToPlainText = (blocks: ProductContentBlock[]): string => {
   return blocks
     .map((block) => {
       switch (block.type) {
@@ -75,4 +75,4 @@ export function contentToPlainText(blocks: ProductContentBlock[]): string {
     .filter(Boolean)
     .join(" ")
     .slice(0, 160);
-}
+};

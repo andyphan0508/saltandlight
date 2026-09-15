@@ -8,7 +8,7 @@ import { PAGE_DEFAULT_BLOCKS } from "@/server/admin/page-block-defaults";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -58,4 +58,4 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Không thể khởi tạo khối mẫu");
   }
-}
+};

@@ -1,3 +1,23 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "parserOptions": { "project": "./tsconfig.json" },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "func-style": ["error", "expression"],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "types": ["boolean"],
+        "format": ["PascalCase"],
+        "prefix": ["is", "has", "can", "should", "was", "did", "will", "are"]
+      },
+      {
+        "selector": ["variable", "function"],
+        "filter": { "regex": "^handle[A-Z]", "match": true },
+        "format": null,
+        "custom": { "regex": "^handle[A-Z]", "match": false }
+      }
+    ]
+  }
 }

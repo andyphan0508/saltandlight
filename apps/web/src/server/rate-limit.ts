@@ -49,9 +49,9 @@ class MemoryLimiter implements Limiter {
     }
 
     entry.count += 1;
-    const success = entry.count <= this.max;
+    const isAllowed = entry.count <= this.max;
     return {
-      success,
+      success: isAllowed,
       limit: this.max,
       remaining: Math.max(0, this.max - entry.count),
       resetMs: entry.resetAt - now,
@@ -98,7 +98,7 @@ const limiters = new Map<string, Limiter>();
  * serverless/edge instances); otherwise falls back to the in-memory limiter
  * above so protection works out of the box on a fresh deploy.
  */
-export function getRateLimiter(name: string, max: number, windowSeconds: number): Limiter {
+export const getRateLimiter = (name: string, max: number, windowSeconds: number): Limiter => {
   const cacheKey = `${name}:${max}:${windowSeconds}`;
   let limiter = limiters.get(cacheKey);
   if (!limiter) {
@@ -106,17 +106,17 @@ export function getRateLimiter(name: string, max: number, windowSeconds: number)
     limiters.set(cacheKey, limiter);
   }
   return limiter;
-}
+};
 
 /**
  * Best-effort client IP. `cf-connecting-ip` is set by Cloudflare's edge itself
  * (not client-controllable) so it's checked first; `x-forwarded-for` is a
  * spoofable fallback for non-Cloudflare environments (e.g. local dev).
  */
-export function getClientIp(req: Request): string {
+export const getClientIp = (req: Request): string => {
   const cfIp = req.headers.get("cf-connecting-ip");
   if (cfIp) return cfIp.trim();
   const xff = req.headers.get("x-forwarded-for");
   if (xff) return (xff.split(",")[0] || xff).trim();
   return req.headers.get("x-real-ip") || "unknown";
-}
+};

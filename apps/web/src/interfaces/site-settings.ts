@@ -106,7 +106,7 @@ export const LOGO_SIZE_CLASSES: Record<LogoSize, { header: string; footer: strin
 };
 
 /** Merges a (possibly partial/null) DB row with the hardcoded defaults above. */
-export function resolveSiteSettings(row?: {
+export const resolveSiteSettings = (row?: {
   logoUrl?: string | null;
   logoSize?: string | null;
   footerLogoUrl?: string | null;
@@ -118,7 +118,7 @@ export function resolveSiteSettings(row?: {
   footerAddress?: string | null;
   footerSocialLinks?: unknown;
   footerColumns?: unknown;
-} | null): SiteSettingsData {
+} | null): SiteSettingsData => {
   if (!row) return DEFAULT_SITE_SETTINGS;
   const logoSize: LogoSize =
     row.logoSize === "sm" || row.logoSize === "md" || row.logoSize === "lg"
@@ -138,4 +138,4 @@ export function resolveSiteSettings(row?: {
     footerSocialLinks: (row.footerSocialLinks as FooterSocialLink[]) || DEFAULT_SITE_SETTINGS.footerSocialLinks,
     footerColumns: (row.footerColumns as FooterColumn[]) || DEFAULT_SITE_SETTINGS.footerColumns,
   };
-}
+};

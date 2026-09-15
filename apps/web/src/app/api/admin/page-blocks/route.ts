@@ -8,7 +8,7 @@ import { getOrSeedPageBlocks } from "@/server/admin/page-block-defaults";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export const GET = async (req: NextRequest) => {
   try {
     await requireAdmin(["owner", "staff"]);
     const page = req.nextUrl.searchParams.get("page") || "home";
@@ -20,9 +20,9 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -56,4 +56,4 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Không thể tạo block");
   }
-}
+};

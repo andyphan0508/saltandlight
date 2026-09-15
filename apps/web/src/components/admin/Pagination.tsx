@@ -10,7 +10,7 @@ export interface PaginationProps {
   searchParams?: Record<string, string | undefined>;
 }
 
-function hrefFor(basePath: string, page: number, searchParams?: Record<string, string | undefined>) {
+const hrefFor = (basePath: string, page: number, searchParams?: Record<string, string | undefined>) => {
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(searchParams ?? {})) {
     if (v) params.set(k, v);
@@ -18,9 +18,9 @@ function hrefFor(basePath: string, page: number, searchParams?: Record<string, s
   if (page > 1) params.set("page", String(page));
   const qs = params.toString();
   return qs ? `${basePath}?${qs}` : basePath;
-}
+};
 
-export function Pagination({ page, pageSize, total, basePath, searchParams }: PaginationProps) {
+export const Pagination = ({ page, pageSize, total, basePath, searchParams }: PaginationProps) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   if (total === 0) return null;
 
@@ -64,9 +64,9 @@ export function Pagination({ page, pageSize, total, basePath, searchParams }: Pa
       )}
     </div>
   );
-}
+};
 
-function PageLink({
+const PageLink = ({
   href,
   active,
   disabled,
@@ -77,7 +77,7 @@ function PageLink({
   active?: boolean;
   disabled?: boolean;
   children: React.ReactNode;
-} & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
   if (disabled) {
     return (
       <span className="flex h-8 w-8 items-center justify-center rounded-lg text-ink/20">
@@ -96,4 +96,4 @@ function PageLink({
       {children}
     </Link>
   );
-}
+};

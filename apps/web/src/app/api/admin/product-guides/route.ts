@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({ guides: productGuidesSchema });
 
 /** Replaces the whole guide list (it's small, and array order is the display order). */
-export async function PUT(req: NextRequest) {
+export const PUT = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { guides } = bodySchema.parse(await req.json());
@@ -37,4 +37,4 @@ export async function PUT(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Không thể lưu hướng dẫn sản phẩm");
   }
-}
+};

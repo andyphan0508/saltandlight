@@ -5,28 +5,28 @@ import { Plus, Trash2 } from "./Icons";
 
 /** Shared small form primitives for admin editing UIs (page-blocks, site settings, ...). */
 
-export function TextField({
+export const TextField = ({
   label,
   value,
   onChange,
-  multiline,
+  isMultiline,
   placeholder,
   required,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  multiline?: boolean;
+  isMultiline?: boolean;
   placeholder?: string;
   required?: boolean;
-}) {
+}) => {
   return (
     <div>
       <label className="block text-xs font-bold text-slate-700 mb-1">
         {label}
         {required && <span className="text-rose-500"> *</span>}
       </label>
-      {multiline ? (
+      {isMultiline ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -44,9 +44,9 @@ export function TextField({
       )}
     </div>
   );
-}
+};
 
-export function ArrayEditor<T extends Record<string, any>>({
+export const ArrayEditor = <T extends Record<string, any>>({
   label,
   items,
   onChange,
@@ -58,16 +58,16 @@ export function ArrayEditor<T extends Record<string, any>>({
   onChange: (items: T[]) => void;
   newItem: () => T;
   renderItem: (item: T, update: (patch: Partial<T>) => void, index: number) => React.ReactNode;
-}) {
-  function update(index: number, patch: Partial<T>) {
+}) => {
+  const update = (index: number, patch: Partial<T>) => {
     onChange(items.map((it, i) => (i === index ? { ...it, ...patch } : it)));
-  }
-  function remove(index: number) {
+  };
+  const remove = (index: number) => {
     onChange(items.filter((_, i) => i !== index));
-  }
-  function add() {
+  };
+  const add = () => {
     onChange([...items, newItem()]);
-  }
+  };
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -93,7 +93,7 @@ export function ArrayEditor<T extends Record<string, any>>({
       </div>
     </div>
   );
-}
+};
 
 /** White card with an uppercase heading, used by the product form and order detail page. */
 export const Section = ({

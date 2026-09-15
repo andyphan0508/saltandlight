@@ -23,8 +23,8 @@ export interface CartFabProps {
  */
 export const CartFab = ({ siteSettings }: CartFabProps) => {
   const pathname = usePathname();
-  const cartHydrated = useStoreHydrated(useCartStore);
-  const cartCount = useCartStore((s) => (cartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
+  const isCartHydrated = useStoreHydrated(useCartStore);
+  const cartCount = useCartStore((s) => (isCartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
   const [isBumping, setIsBumping] = useState(false);
 
   // Trigger subtle pop/bump animation whenever cart count increments

@@ -19,7 +19,7 @@ const DEFAULT_TRANSFER_NOTE =
 const DEFAULT_THANK_YOU =
   "Cảm ơn quý khách đã đặt đơn, quý khách vui lòng check điện thoại shop sẽ liên hệ bạn nhé.";
 
-export function OrderConfirmationContent({
+export const OrderConfirmationContent = ({
   orderNumber,
   total,
   transferContent,
@@ -31,7 +31,7 @@ export function OrderConfirmationContent({
   transferContent: string;
   qrUrl: string | null;
   settings: PaymentSettingsProps | null;
-}) {
+}) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, key: string) => {
@@ -40,7 +40,7 @@ export function OrderConfirmationContent({
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  const showThankYouOnly = settings?.showThankYouOnly ?? false;
+  const isThankYouOnly = settings?.showThankYouOnly ?? false;
   const effectiveQrUrl = settings?.qrImageUrl || qrUrl;
   const transferNote = settings?.transferNote || DEFAULT_TRANSFER_NOTE;
   const thankYouMessage = settings?.thankYouMessage || DEFAULT_THANK_YOU;
@@ -63,7 +63,7 @@ export function OrderConfirmationContent({
         </div>
       </div>
 
-      {showThankYouOnly ? (
+      {isThankYouOnly ? (
         /* Thank-you-only mode: skip QR/bank details, shop will follow up manually */
         <div className="rounded-3xl bg-mint-50 p-8 sm:p-12 border border-mint-200 space-y-3">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-brand-forest shadow-sm">
@@ -175,9 +175,9 @@ export function OrderConfirmationContent({
       </div>
     </div>
   );
-}
+};
 
-function CopyField({
+const CopyField = ({
   label,
   value,
   copied,
@@ -189,7 +189,7 @@ function CopyField({
   copied: boolean;
   onCopy: () => void;
   highlight?: boolean;
-}) {
+}) => {
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-3.5 flex items-center justify-between shadow-sm">
       <div>
@@ -221,4 +221,4 @@ function CopyField({
       </button>
     </div>
   );
-}
+};

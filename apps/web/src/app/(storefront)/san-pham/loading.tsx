@@ -6,7 +6,7 @@ import { CatalogResultsSkeleton } from "@/screens/storefront/Storefront/componen
  * any server data is fetched) — the granular <Suspense> boundaries inside
  * page.tsx take over from here once the RSC payload starts streaming.
  */
-export default function Loading() {
+const Loading = () => {
   return (
     <div className="mx-auto max-w-7xl animate-pulse px-4 py-8 sm:py-10">
       <div className="h-3 w-32 rounded bg-ink/5" />
@@ -21,4 +21,6 @@ export default function Loading() {
       </div>
     </div>
   );
-}
+};
+
+export default Loading;

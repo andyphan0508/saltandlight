@@ -13,7 +13,7 @@ export interface ContactInfoContent {
   quoteRef?: string;
 }
 
-export function ContactInfoBlock({ content }: { content: ContactInfoContent }) {
+export const ContactInfoBlock = ({ content }: { content: ContactInfoContent }) => {
   const items = Array.isArray(content?.items) ? content.items : [];
 
   return (
@@ -41,4 +41,4 @@ export function ContactInfoBlock({ content }: { content: ContactInfoContent }) {
       )}
     </div>
   );
-}
+};

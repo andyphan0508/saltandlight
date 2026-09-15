@@ -12,7 +12,7 @@ const featuredSchema = z.object({
   isFeatured: z.boolean(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json();
@@ -39,4 +39,4 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     return apiError(err, "Không thể cập nhật trạng thái nổi bật");
   }
-}
+};

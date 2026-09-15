@@ -5,9 +5,9 @@
 // reset() re-renders the same broken router, so only a full reload recovers.
 const ROUTER_CORRUPTION_PATTERN = /parallelRoutes|missing bootstrap script/i;
 
-export function isRouterCorruptionError(message: string | undefined | null): boolean {
+export const isRouterCorruptionError = (message: string | undefined | null): boolean => {
   return ROUTER_CORRUPTION_PATTERN.test(message || "");
-}
+};
 
 interface RetryBufferEntry {
   count: number;
@@ -20,11 +20,11 @@ const retryBufferMap = new Map<string, RetryBufferEntry>();
 export const MAX_RETRY_ATTEMPTS = 3;
 export const RETRY_WINDOW_MS = 14000; // 14s buffer window for cold boots
 
-export function getRetryBufferState(key: string = "default"): {
+export const getRetryBufferState = (key: string = "default"): {
   shouldRetry: boolean;
   attempt: number;
   delayMs: number;
-} {
+} => {
   if (typeof window === "undefined") {
     return { shouldRetry: false, attempt: 0, delayMs: 0 };
   }
@@ -47,12 +47,12 @@ export function getRetryBufferState(key: string = "default"): {
   }
 
   return { shouldRetry: false, attempt: entry.count, delayMs: 0 };
-}
+};
 
-export function resetRetryBuffer(key?: string): void {
+export const resetRetryBuffer = (key?: string): void => {
   if (key) {
     retryBufferMap.delete(key);
   } else {
     retryBufferMap.clear();
   }
-}
+};

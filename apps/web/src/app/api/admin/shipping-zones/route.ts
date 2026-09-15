@@ -21,7 +21,7 @@ const bodySchema = z.object({
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner"]);
     const body = bodySchema.parse(await req.json());
@@ -60,4 +60,4 @@ export async function POST(req: NextRequest) {
     console.error(err);
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }
-}
+};

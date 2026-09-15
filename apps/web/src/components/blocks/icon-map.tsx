@@ -30,7 +30,7 @@ export const BLOCK_ICONS: Record<string, (props: IconProps) => JSX.Element> = {
   Check,
 };
 
-export function BlockIcon({ name, ...props }: { name?: string | null } & IconProps) {
+export const BlockIcon = ({ name, ...props }: { name?: string | null } & IconProps) => {
   const Icon = (name && BLOCK_ICONS[name]) || Sparkles;
   return <Icon {...props} />;
-}
+};

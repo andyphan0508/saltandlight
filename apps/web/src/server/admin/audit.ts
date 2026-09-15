@@ -1,12 +1,12 @@
 import { prisma, Prisma } from "@saltandlight/db";
 
-export async function logAudit(opts: {
+export const logAudit = async (opts: {
   adminUserId: string;
   action: string;
   entityType: string;
   entityId: string;
   metadata?: Record<string, unknown>;
-}) {
+}) => {
   await prisma.auditLog.create({
     data: {
       adminUserId: opts.adminUserId,
@@ -16,4 +16,4 @@ export async function logAudit(opts: {
       metadata: opts.metadata as Prisma.InputJsonValue | undefined,
     },
   });
-}
+};

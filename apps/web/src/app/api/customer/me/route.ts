@@ -3,7 +3,7 @@ import { getAuthenticatedCustomer } from "@/server/customer-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = async () => {
   try {
     const customer = await getAuthenticatedCustomer();
     if (!customer) return NextResponse.json({ customer: null }, { status: 401 });
@@ -20,4 +20,4 @@ export async function GET() {
     console.error("GET /api/customer/me error:", err);
     return NextResponse.json({ error: "Không thể tải thông tin tài khoản" }, { status: 500 });
   }
-}
+};

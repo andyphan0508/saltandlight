@@ -14,7 +14,7 @@ import { ChevronRight } from "@/components/Icons";
 
 const DEFAULT_META_DESCRIPTION = "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light.";
 
-export async function generateStaticParams() {
+export const generateStaticParams = async () => {
   try {
     const products = await prisma.product.findMany({
       where: { status: "published" },
@@ -26,13 +26,13 @@ export async function generateStaticParams() {
     console.error("generateStaticParams /san-pham/[slug] error:", err);
     return [];
   }
-}
+};
 
-export async function generateMetadata({
+export const generateMetadata = async ({
   params
 }: {
   params: { slug: string };
-}) {
+}) => {
   try {
     const product = await getCachedProductBySlug(params.slug);
     return {
@@ -48,13 +48,13 @@ export async function generateMetadata({
       description: DEFAULT_META_DESCRIPTION
     };
   }
-}
+};
 
-export default async function ProductDetailPage({
+const ProductDetailPage = async ({
   params
 }: {
   params: { slug: string };
-}) {
+}) => {
   const product = await getCachedProductBySlug(params.slug);
   if (!product) notFound();
 
@@ -178,4 +178,6 @@ export default async function ProductDetailPage({
       )}
     </div>
   );
-}
+};
+
+export default ProductDetailPage;

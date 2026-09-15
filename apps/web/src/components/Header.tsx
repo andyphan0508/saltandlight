@@ -32,10 +32,10 @@ export const Header = ({
   const navLeft = siteSettings.headerNavItems.left;
   const navRight = siteSettings.headerNavItems.right;
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
-  const wishlistHydrated = useStoreHydrated(useWishlistStore);
+  const isWishlistHydrated = useStoreHydrated(useWishlistStore);
 
-  const setMobileMenuOpen = useMobileMenuStore((s) => s.setOpen);
-  const setSearchOpen = useSearchModalStore((s) => s.setOpen);
+  const setMobileMenuOpen = useMobileMenuStore((s) => s.setIsOpen);
+  const setSearchOpen = useSearchModalStore((s) => s.setIsOpen);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
@@ -232,7 +232,7 @@ export const Header = ({
               aria-label="Sản phẩm yêu thích"
             >
               <Heart size={20} />
-              {wishlistHydrated && wishlistCount > 0 && (
+              {isWishlistHydrated && wishlistCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-sale px-1 text-[10px] font-bold text-white shadow-sm">
                   {wishlistCount}
                 </span>

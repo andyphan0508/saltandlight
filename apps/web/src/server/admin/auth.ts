@@ -17,7 +17,7 @@ export class AuthError extends Error {
  * `err.flatten()` for structured per-field errors keep that shape instead —
  * this is only for routes that already returned a single error string.
  */
-export function apiError(err: unknown, fallbackMessage = "Có lỗi xảy ra") {
+export const apiError = (err: unknown, fallbackMessage = "Có lỗi xảy ra") => {
   if (err instanceof AuthError) {
     return NextResponse.json({ error: err.message }, { status: err.status });
   }
@@ -29,7 +29,7 @@ export function apiError(err: unknown, fallbackMessage = "Có lỗi xảy ra") {
   }
   console.error(fallbackMessage, err);
   return NextResponse.json({ error: fallbackMessage }, { status: 500 });
-}
+};
 
 /**
  * Memoized per request: queries Supabase auth and admin_users once per HTTP request
@@ -110,7 +110,7 @@ const getAuthenticatedAdmin = cache(async () => {
  * active — a Supabase user alone isn't enough, since staff accounts are
  * only ever created by inviting through this app (no public sign-up).
  */
-export async function requireAdmin(allowedRoles?: ("owner" | "staff")[]) {
+export const requireAdmin = async (allowedRoles?: ("owner" | "staff")[]) => {
   const adminUser = await getAuthenticatedAdmin();
 
   if (!adminUser) throw new AuthError(401, "Chưa đăng nhập");
@@ -124,7 +124,7 @@ export async function requireAdmin(allowedRoles?: ("owner" | "staff")[]) {
   }
 
   return adminUser;
-}
+};
 
 export const getCurrentAdminUser = cache(async () => {
   try {

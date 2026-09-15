@@ -3,8 +3,8 @@
 import { create } from "zustand";
 
 interface MobileMenuState {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
 /**
@@ -14,6 +14,6 @@ interface MobileMenuState {
  * `backdrop-filter` (see Header.tsx), so they can't share local state.
  */
 export const useMobileMenuStore = create<MobileMenuState>()((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
+  isOpen: false,
+  setIsOpen: (open) => set({ isOpen: open }),
 }));

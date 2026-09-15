@@ -14,7 +14,7 @@ const categorySchema = z.object({
   parentId: z.string().uuid().nullable().optional(),
 });
 
-export async function GET(req: NextRequest) {
+export const GET = async (req: NextRequest) => {
   try {
     await requireAdmin(["owner", "staff"]);
     const categories = await prisma.category.findMany({
@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Có lỗi xảy ra");
   }
-}
+};
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const body = await req.json().catch(() => ({}));
@@ -72,4 +72,4 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return apiError(err, "Không thể tạo danh mục");
   }
-}
+};

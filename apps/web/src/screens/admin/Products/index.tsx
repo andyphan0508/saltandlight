@@ -3,11 +3,11 @@ import { ProductsManager, type ProductRow } from "./components/ProductsManager";
 
 const PAGE_SIZE = 10;
 
-export default async function ProductsPage({
+const ProductsPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string; q?: string; status?: string; category?: string };
-}) {
+}) => {
   const page = Math.max(1, Number(searchParams.page) || 1);
   const q = searchParams.q?.trim();
   const status = searchParams.status;
@@ -22,7 +22,7 @@ export default async function ProductsPage({
   let products: ProductRow[] = [];
   let total = 0;
   let categories: { id: string; name: string }[] = [];
-  let loadError = false;
+  let hasLoadError = false;
 
   try {
     [products, total, categories] = await Promise.all([
@@ -49,7 +49,7 @@ export default async function ProductsPage({
     // digest in production) — surfaces in `wrangler tail`/Cloudflare logs
     // instead of only showing up as an unexplained crash for the admin.
     console.error("[admin/products] data fetch failed:", err);
-    loadError = true;
+    hasLoadError = true;
   }
 
   return (
@@ -62,7 +62,9 @@ export default async function ProductsPage({
       status={status}
       categoryId={categoryId}
       categories={categories}
-      loadError={loadError}
+      loadError={hasLoadError}
     />
   );
-}
+};
+
+export default ProductsPage;

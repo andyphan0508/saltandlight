@@ -4,7 +4,7 @@ export interface IconProps extends SVGProps<SVGSVGElement> {
   size?: number | string;
 }
 
-function base(children: React.ReactNode) {
+const base = (children: React.ReactNode) => {
   return function Icon({ size = 20, ...props }: IconProps) {
     return (
       <svg
@@ -22,7 +22,7 @@ function base(children: React.ReactNode) {
       </svg>
     );
   };
-}
+};
 
 export const LayoutGrid = base(
   <>

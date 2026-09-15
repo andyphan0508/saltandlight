@@ -7,7 +7,7 @@ import { Package, History, Users, Truck } from "@/components/admin/Icons";
 import { ADMIN_ORDER_STATUS as STATUS_META } from "@/helpers/order-status-styles";
 import { Section } from "@/components/admin/form-fields";
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
+const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
   const order = await prisma.order.findUnique({
     where: { id: params.id },
     include: {
@@ -124,4 +124,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
       </div>
     </div>
   );
-}
+};
+
+export default OrderDetailPage;

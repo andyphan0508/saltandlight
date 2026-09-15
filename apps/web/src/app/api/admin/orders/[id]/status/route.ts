@@ -12,7 +12,7 @@ const bodySchema = z.object({
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin();
     const body = bodySchema.parse(await req.json());
@@ -54,4 +54,4 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     console.error(err);
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }
-}
+};

@@ -4,7 +4,7 @@
  * targeting ~200KB - 500KB while preserving pristine visual fidelity.
  * 100% automated — seamless for all product and banner image uploads.
  */
-export async function compressImage(
+export const compressImage = async (
   file: File,
   options?: {
     maxWidth?: number;
@@ -12,7 +12,7 @@ export async function compressImage(
     targetMinKb?: number;
     targetMaxKb?: number;
   },
-): Promise<File> {
+): Promise<File> => {
   // If file is SVG or gif (animated), do not compress
   if (file.type === "image/svg+xml" || file.type === "image/gif") {
     return file;
@@ -64,7 +64,7 @@ export async function compressImage(
       ctx.drawImage(img, 0, 0, width, height);
 
       // Iterative quality check to achieve ~200kb - 500kb
-      async function getBlobWithQuality(quality: number): Promise<Blob | null> {
+      const getBlobWithQuality = async (quality: number): Promise<Blob | null> => {
         return new Promise((res) => {
           canvas.toBlob(
             (b) => res(b),
@@ -72,7 +72,7 @@ export async function compressImage(
             quality,
           );
         });
-      }
+      };
 
       try {
         let quality = 0.85;
@@ -119,4 +119,4 @@ export async function compressImage(
 
     img.src = objectUrl;
   });
-}
+};

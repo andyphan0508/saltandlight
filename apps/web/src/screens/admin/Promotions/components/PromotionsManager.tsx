@@ -75,7 +75,7 @@ export const PromotionsManager = ({
   const [endDate, setEndDate] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [applyPrices, setApplyPrices] = useState(false);
+  const [shouldApplyPrices, setShouldApplyPrices] = useState(false);
   const [searchProductQuery, setSearchProductQuery] = useState("");
 
   const onOpenCreate = () => {
@@ -89,7 +89,7 @@ export const PromotionsManager = ({
     setEndDate("");
     setIsActive(true);
     setSelectedProductIds([]);
-    setApplyPrices(false);
+    setShouldApplyPrices(false);
     setError(null);
     setIsModalOpen(true);
   };
@@ -105,20 +105,20 @@ export const PromotionsManager = ({
     setEndDate(promo.endDate ? promo.endDate.slice(0, 10) : "");
     setIsActive(promo.isActive);
     setSelectedProductIds(promo.productIds ?? []);
-    setApplyPrices(false);
+    setShouldApplyPrices(false);
     setError(null);
     setIsModalOpen(true);
   };
 
   const onToggleActive = async (promo: PromotionItem) => {
-    const nextActive = !promo.isActive;
+    const isNextActive = !promo.isActive;
     setPromotions((prev) =>
-      prev.map((p) => (p.id === promo.id ? { ...p, isActive: nextActive } : p)),
+      prev.map((p) => (p.id === promo.id ? { ...p, isActive: isNextActive } : p)),
     );
 
     try {
-      await adminFetch(`/api/admin/promotions/${promo.id}`, { method: "PATCH", body: { isActive: nextActive } });
-      toast.success(nextActive ? "Đã kích hoạt chương trình!" : "Đã tạm dừng chương trình!");
+      await adminFetch(`/api/admin/promotions/${promo.id}`, { method: "PATCH", body: { isActive: isNextActive } });
+      toast.success(isNextActive ? "Đã kích hoạt chương trình!" : "Đã tạm dừng chương trình!");
       router.refresh();
     } catch {
       setPromotions((prev) =>
@@ -182,7 +182,7 @@ export const PromotionsManager = ({
       endDate: endDate || null,
       isActive,
       productIds: selectedProductIds,
-      applyPrices,
+      applyPrices: shouldApplyPrices,
     };
 
     try {
@@ -551,8 +551,8 @@ export const PromotionsManager = ({
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
-                checked={applyPrices}
-                onChange={(e) => setApplyPrices(e.target.checked)}
+                checked={shouldApplyPrices}
+                onChange={(e) => setShouldApplyPrices(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded accent-brand-forest"
               />
               <div>

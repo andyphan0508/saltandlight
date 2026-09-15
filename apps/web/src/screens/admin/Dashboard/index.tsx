@@ -20,7 +20,7 @@ import {
 } from "@/components/admin/Icons";
 import { ADMIN_ORDER_STATUS as STATUS_BADGES } from "@/helpers/order-status-styles";
 
-export default async function DashboardPage() {
+const DashboardPage = async () => {
   const stats = await getDashboardStats();
 
   const [recentOrders, lowStockVariants] = await Promise.all([
@@ -397,4 +397,6 @@ export default async function DashboardPage() {
       )}
     </div>
   );
-}
+};
+
+export default DashboardPage;

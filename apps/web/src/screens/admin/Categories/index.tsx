@@ -3,11 +3,11 @@ import { CategoryManager, type CategoryItem } from "./components/CategoryManager
 
 const PAGE_SIZE = 15;
 
-export default async function AdminCategoriesPage({
+const AdminCategoriesPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string; q?: string };
-}) {
+}) => {
   const page = Math.max(1, Number(searchParams.page) || 1);
   const q = searchParams.q?.trim();
 
@@ -67,4 +67,6 @@ export default async function AdminCategoriesPage({
       }}
     />
   );
-}
+};
+
+export default AdminCategoriesPage;

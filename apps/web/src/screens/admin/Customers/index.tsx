@@ -3,11 +3,11 @@ import { CustomersManager } from "./components/CustomersManager";
 
 const PAGE_SIZE = 15;
 
-export default async function CustomersPage({
+const CustomersPage = async ({
   searchParams,
 }: {
   searchParams: { q?: string; page?: string };
-}) {
+}) => {
   const q = searchParams.q?.trim();
   const page = Math.max(1, Number(searchParams.page) || 1);
 
@@ -47,4 +47,6 @@ export default async function CustomersPage({
       q={q}
     />
   );
-}
+};
+
+export default CustomersPage;

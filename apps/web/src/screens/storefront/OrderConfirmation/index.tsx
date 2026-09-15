@@ -1,13 +1,13 @@
 import { getCachedPaymentSettings } from "@/server/queries";
 import { OrderConfirmationContent, type PaymentSettingsProps } from "./components/OrderConfirmationContent";
 
-export default async function OrderConfirmationPage({
+const OrderConfirmationPage = async ({
   params,
   searchParams,
 }: {
   params: { orderNumber: string };
   searchParams: { total?: string; transferContent?: string; qrUrl?: string };
-}) {
+}) => {
   let settings: PaymentSettingsProps | null = null;
   try {
     settings = await getCachedPaymentSettings();
@@ -24,4 +24,6 @@ export default async function OrderConfirmationPage({
       settings={settings}
     />
   );
-}
+};
+
+export default OrderConfirmationPage;

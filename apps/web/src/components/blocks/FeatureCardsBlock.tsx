@@ -14,7 +14,7 @@ export interface FeatureCardsContent {
   items: FeatureItem[];
 }
 
-export function FeatureCardsBlock({ content }: { content: FeatureCardsContent }) {
+export const FeatureCardsBlock = ({ content }: { content: FeatureCardsContent }) => {
   const style = content?.style || "row";
   const items = Array.isArray(content?.items) ? content.items : [];
 
@@ -88,4 +88,4 @@ export function FeatureCardsBlock({ content }: { content: FeatureCardsContent })
       ))}
     </div>
   );
-}
+};

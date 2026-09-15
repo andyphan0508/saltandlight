@@ -3,7 +3,7 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { BackLink } from "@/components/admin/BackLink";
 
-export default async function NewProductPage() {
+const NewProductPage = async () => {
   const [categories, promotions] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.promotion.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
@@ -25,4 +25,6 @@ export default async function NewProductPage() {
       />
     </div>
   );
-}
+};
+
+export default NewProductPage;

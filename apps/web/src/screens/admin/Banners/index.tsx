@@ -6,11 +6,11 @@ import { BannerManager } from "./components/BannerManager";
 
 const PAGE_SIZE = 20;
 
-export default async function BannersPage({
+const BannersPage = async ({
   searchParams,
 }: {
   searchParams: { page?: string };
-}) {
+}) => {
   const current = await getCurrentAdminUser();
   if (!current) redirect("/admin/login");
 
@@ -39,4 +39,6 @@ export default async function BannersPage({
       />
     </div>
   );
-}
+};
+
+export default BannersPage;

@@ -6,7 +6,7 @@ import { withMemoryCache } from "@/server/memory-cache";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
   const parsed = cartQuoteSchema.safeParse(body);
   if (!parsed.success) {
@@ -84,4 +84,4 @@ export async function POST(req: NextRequest) {
     shippingFee,
     total: subtotal + shippingFee,
   });
-}
+};

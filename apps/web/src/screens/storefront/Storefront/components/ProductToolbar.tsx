@@ -49,16 +49,16 @@ export const ProductToolbar = ({
         <div className="flex items-center gap-1 rounded-full border border-ink/10 bg-white p-1 shadow-card">
           {VIEW_OPTIONS.map((opt) => {
             const Icon = opt.icon;
-            const active = view === opt.value;
+            const isActive = view === opt.value;
             return (
               <button
                 key={opt.value}
                 type="button"
                 aria-label={opt.label}
-                aria-pressed={active}
+                aria-pressed={isActive}
                 onClick={() => onSetParam("view", opt.value, "3")}
                 className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                  active ? "bg-ink text-white" : "text-ink/40 hover:text-ink"
+                  isActive ? "bg-ink text-white" : "text-ink/40 hover:text-ink"
                 }`}
               >
                 <Icon size={15} />

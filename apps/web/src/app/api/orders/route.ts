@@ -12,7 +12,7 @@ import { getAuthenticatedCustomer } from "@/server/customer-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
   const parsed = createOrderSchema.safeParse(body);
   if (!parsed.success) {
@@ -173,4 +173,4 @@ export async function POST(req: NextRequest) {
     transferContent,
     qrUrl,
   });
-}
+};

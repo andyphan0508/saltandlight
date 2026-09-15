@@ -27,7 +27,7 @@ import type { PageBlockItem } from "@/interfaces/page-block";
 import { adminFetch } from "@/api/admin-fetch";
 import { Modal } from "@/components/Modal";
 
-export function defaultContent(type: PageBlockTypeValue): Record<string, any> {
+export const defaultContent = (type: PageBlockTypeValue): Record<string, any> => {
   switch (type) {
     case "FEATURE_CARDS":
       return {
@@ -180,9 +180,9 @@ export function defaultContent(type: PageBlockTypeValue): Record<string, any> {
         ],
       };
   }
-}
+};
 
-export function sanitizeBlockContent(type: PageBlockTypeValue, raw: Record<string, any>): Record<string, any> {
+export const sanitizeBlockContent = (type: PageBlockTypeValue, raw: Record<string, any>): Record<string, any> => {
   const content = { ...raw };
   if (type === "RICH_TEXT_SECTIONS" && Array.isArray(content.sections)) {
     content.sections = content.sections.map((sec: any) => ({
@@ -225,9 +225,9 @@ export function sanitizeBlockContent(type: PageBlockTypeValue, raw: Record<strin
     }));
   }
   return content;
-}
+};
 
-export function validateBlockContent(type: PageBlockTypeValue, content: Record<string, any>): string | null {
+export const validateBlockContent = (type: PageBlockTypeValue, content: Record<string, any>): string | null => {
   switch (type) {
     case "PAGE_HERO":
       if (!content.title?.trim()) return "Vui lòng nhập tiêu đề lớn của trang";
@@ -301,15 +301,15 @@ export function validateBlockContent(type: PageBlockTypeValue, content: Record<s
       break;
   }
   return null;
-}
+};
 
-export function BlockEditForm({
+export const BlockEditForm = ({
   page,
   block,
   defaultType,
   onClose,
   onSaved,
-  embedded = false,
+  isEmbedded = false,
   onChangePreview,
 }: {
   page: string;
@@ -317,9 +317,9 @@ export function BlockEditForm({
   defaultType: PageBlockTypeValue;
   onClose: () => void;
   onSaved: (block: PageBlockItem) => void;
-  embedded?: boolean;
+  isEmbedded?: boolean;
   onChangePreview?: (content: Record<string, any>) => void;
-}) {
+}) => {
   const type = block?.type ?? defaultType;
   const [content, setContent] = useState<Record<string, any>>(block?.content ?? defaultContent(type));
   const [isSaving, setIsSaving] = useState(false);
@@ -331,7 +331,7 @@ export function BlockEditForm({
     }
   }, [block?.id, block?.type]);
 
-  function set(patch: Record<string, any>) {
+  const set = (patch: Record<string, any>) => {
     setContent((prev) => {
       const next = { ...prev, ...patch };
       if (onChangePreview) {
@@ -339,9 +339,9 @@ export function BlockEditForm({
       }
       return next;
     });
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -359,7 +359,7 @@ export function BlockEditForm({
       const method = block ? "PATCH" : "POST";
       const body = block ? { content: sanitized } : { page, type, content: sanitized };
       const data = await adminFetch<{ block: PageBlockItem }>(url, { method, body });
-      if (!embedded) {
+      if (!isEmbedded) {
         toast.success(block ? "Cập nhật khối thành công!" : "Tạo khối mới thành công!");
       }
       onSaved(data.block);
@@ -370,9 +370,9 @@ export function BlockEditForm({
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
-  if (embedded) {
+  if (isEmbedded) {
     return (
       <div className="flex flex-col h-full bg-white">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/80 shrink-0">
@@ -394,7 +394,7 @@ export function BlockEditForm({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+        <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
           {error && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
               {error}
@@ -441,7 +441,7 @@ export function BlockEditForm({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+      <form onSubmit={onSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
         {error && (
           <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
             {error}
@@ -465,9 +465,9 @@ export function BlockEditForm({
       </form>
     </Modal>
   );
-}
+};
 
-function ContentFields({
+const ContentFields = ({
   type,
   content,
   set,
@@ -475,7 +475,7 @@ function ContentFields({
   type: PageBlockTypeValue;
   content: Record<string, any>;
   set: (patch: Record<string, any>) => void;
-}) {
+}) => {
   switch (type) {
     case "FEATURE_CARDS":
       return (
@@ -506,7 +506,7 @@ function ContentFields({
                   <TextField label="Số thứ tự (Ví dụ: 01, 02...)" value={item.number || ""} onChange={(v) => update({ number: v })} />
                 </div>
                 <TextField label="Tiêu đề mục" value={item.title || ""} onChange={(v) => update({ title: v })} required />
-                <TextField label="Nội dung mô tả chi tiết" value={item.description || ""} onChange={(v) => update({ description: v })} multiline required />
+                <TextField label="Nội dung mô tả chi tiết" value={item.description || ""} onChange={(v) => update({ description: v })} isMultiline required />
               </div>
             )}
           />
@@ -521,9 +521,9 @@ function ContentFields({
       return (
         <>
           <IconSelect label="Biểu tượng (Icon)" value={content.icon || ""} onChange={(v) => set({ icon: v })} />
-          <TextField label="Câu trích dẫn hoặc thông điệp ý nghĩa" value={content.quote || ""} onChange={(v) => set({ quote: v })} multiline required />
+          <TextField label="Câu trích dẫn hoặc thông điệp ý nghĩa" value={content.quote || ""} onChange={(v) => set({ quote: v })} isMultiline required />
           <TextField label="Nguồn trích dẫn (Ví dụ: Ma-thi-ơ 5:13-14 hoặc Tác giả)" value={content.quoteRef || ""} onChange={(v) => set({ quoteRef: v })} />
-          <TextField label="Nội dung câu chuyện / Giới thiệu chi tiết" value={content.body || ""} onChange={(v) => set({ body: v })} multiline required />
+          <TextField label="Nội dung câu chuyện / Giới thiệu chi tiết" value={content.body || ""} onChange={(v) => set({ body: v })} isMultiline required />
           <div className="grid grid-cols-2 gap-3">
             <TextField label="Chữ trên nút bấm (Không bắt buộc)" value={content.ctaLabel || ""} onChange={(v) => set({ ctaLabel: v })} />
             <TextField label="Đường dẫn khi bấm nút (Ví dụ: /gioi-thieu)" value={content.ctaHref || ""} onChange={(v) => set({ ctaHref: v })} />
@@ -539,7 +539,7 @@ function ContentFields({
             <IconSelect label="Biểu tượng (Icon)" value={content.icon || ""} onChange={(v) => set({ icon: v })} />
           </div>
           <TextField label="Tiêu đề thông điệp" value={content.headline || ""} onChange={(v) => set({ headline: v })} required />
-          <TextField label="Nội dung mô tả chương trình" value={content.body || ""} onChange={(v) => set({ body: v })} multiline required />
+          <TextField label="Nội dung mô tả chương trình" value={content.body || ""} onChange={(v) => set({ body: v })} isMultiline required />
           <StringListEditor
             label="Các điểm nổi bật / Ưu đãi (Gạch đầu dòng)"
             values={content.bullets || []}
@@ -583,7 +583,7 @@ function ContentFields({
                     />
                   </div>
                 </div>
-                <TextField label="Lời nhận xét chi tiết của khách hàng" value={item.comment || ""} onChange={(v) => update({ comment: v })} multiline required />
+                <TextField label="Lời nhận xét chi tiết của khách hàng" value={item.comment || ""} onChange={(v) => update({ comment: v })} isMultiline required />
               </div>
             )}
           />
@@ -598,8 +598,8 @@ function ContentFields({
             <TextField label="Dòng chữ nhỏ trên tiêu đề (Không bắt buộc)" value={content.eyebrow || ""} onChange={(v) => set({ eyebrow: v })} />
           </div>
           <TextField label="Tiêu đề lớn của trang" value={content.title || ""} onChange={(v) => set({ title: v })} required />
-          <TextField label="Đoạn giới thiệu mở đầu" value={content.subtitle || ""} onChange={(v) => set({ subtitle: v })} multiline />
-          <TextField label="Câu trích dẫn ý nghĩa (Không bắt buộc)" value={content.quote || ""} onChange={(v) => set({ quote: v })} multiline />
+          <TextField label="Đoạn giới thiệu mở đầu" value={content.subtitle || ""} onChange={(v) => set({ subtitle: v })} isMultiline />
+          <TextField label="Câu trích dẫn ý nghĩa (Không bắt buộc)" value={content.quote || ""} onChange={(v) => set({ quote: v })} isMultiline />
           <TextField label="Nguồn câu trích dẫn" value={content.quoteRef || ""} onChange={(v) => set({ quoteRef: v })} />
         </>
       );
@@ -652,7 +652,7 @@ function ContentFields({
               </div>
             )}
           />
-          <TextField label="Câu châm ngôn / Lời Chúa (Không bắt buộc)" value={content.quote || ""} onChange={(v) => set({ quote: v })} multiline />
+          <TextField label="Câu châm ngôn / Lời Chúa (Không bắt buộc)" value={content.quote || ""} onChange={(v) => set({ quote: v })} isMultiline />
           <TextField label="Nguồn câu trích dẫn" value={content.quoteRef || ""} onChange={(v) => set({ quoteRef: v })} />
         </>
       );
@@ -687,7 +687,7 @@ function ContentFields({
         </>
       );
   }
-}
+};
 
 const ICON_PREVIEW_MAP: Record<string, React.ComponentType<{ size?: number | string; className?: string }>> = {
   Truck,
@@ -704,7 +704,7 @@ const ICON_PREVIEW_MAP: Record<string, React.ComponentType<{ size?: number | str
   Check,
 };
 
-function IconSelect({
+const IconSelect = ({
   label,
   value,
   onChange,
@@ -712,7 +712,7 @@ function IconSelect({
   label: string;
   value: string;
   onChange: (v: string) => void;
-}) {
+}) => {
   const SelectedIcon = value ? ICON_PREVIEW_MAP[value] : null;
   return (
     <div>
@@ -738,9 +738,9 @@ function IconSelect({
       </div>
     </div>
   );
-}
+};
 
-function StringListEditor({
+const StringListEditor = ({
   label,
   values,
   onChange,
@@ -750,16 +750,16 @@ function StringListEditor({
   values: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
-}) {
-  function update(i: number, v: string) {
+}) => {
+  const update = (i: number, v: string) => {
     onChange(values.map((x, idx) => (idx === i ? v : x)));
-  }
-  function remove(i: number) {
+  };
+  const remove = (i: number) => {
     onChange(values.filter((_, idx) => idx !== i));
-  }
-  function add() {
+  };
+  const add = () => {
     onChange([...values, ""]);
-  }
+  };
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -785,9 +785,9 @@ function StringListEditor({
       </div>
     </div>
   );
-}
+};
 
-function FeaturedProductsEditor({
+const FeaturedProductsEditor = ({
   content,
   set,
   isProductList,
@@ -795,7 +795,7 @@ function FeaturedProductsEditor({
   content: Record<string, any>;
   set: (patch: Record<string, any>) => void;
   isProductList?: boolean;
-}) {
+}) => {
   const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
@@ -810,7 +810,7 @@ function FeaturedProductsEditor({
   const allowViewAll = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || (isProductList ? "modal" : "link");
 
-  function handleCategorySelect(catId: string) {
+  const onCategorySelect = (catId: string) => {
     const selected = categories.find((c) => c.id === catId);
     if (selected) {
       set({
@@ -824,7 +824,7 @@ function FeaturedProductsEditor({
     } else {
       set({ categoryId: null, categoryName: "", categorySlug: "" });
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -862,7 +862,7 @@ function FeaturedProductsEditor({
             </label>
             <select
               value={content.categoryId || ""}
-              onChange={(e) => handleCategorySelect(e.target.value)}
+              onChange={(e) => onCategorySelect(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
             >
               <option value="">-- Chọn một danh mục hoặc bộ sưu tập --</option>
@@ -1046,6 +1046,6 @@ function FeaturedProductsEditor({
       />
     </div>
   );
-}
+};
 
 

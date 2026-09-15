@@ -39,22 +39,22 @@ export type ProductGuideItem = z.infer<typeof guideItemSchema>;
 export type ProductGuide = z.infer<typeof productGuideSchema>;
 
 /** Stored JSON → guides. Malformed data yields no guides rather than breaking the product page. */
-export function parseProductGuides(raw: unknown): ProductGuide[] {
+export const parseProductGuides = (raw: unknown): ProductGuide[] => {
   const parsed = productGuidesSchema.safeParse(raw ?? []);
   if (!parsed.success) {
     console.error("[product-guides] Ignoring invalid stored guides:", parsed.error.issues[0]);
     return [];
   }
   return parsed.data;
-}
+};
 
 /** Active guides assigned to a product's category or to that category's parent. */
-export function guidesForCategory(
+export const guidesForCategory = (
   guides: ProductGuide[],
   category: { id: string; parentId: string | null } | null | undefined,
-): ProductGuide[] {
+): ProductGuide[] => {
   if (!category) return [];
   // ponytail: checks the category and its direct parent only — walk the full ancestor chain if categories ever nest deeper than two levels.
   const ids = [category.id, category.parentId];
   return guides.filter((guide) => guide.isActive && guide.categoryIds.some((id) => ids.includes(id)));
-}
+};
