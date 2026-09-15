@@ -1,77 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  isRouterCorruptionError,
-  getRetryBufferState,
-  resetRetryBuffer,
-  MAX_RETRY_ATTEMPTS,
-} from "@/lib/error-classification";
+import { useErrorRecovery } from "@/lib/use-error-recovery";
 import DashboardSubLoading from "./loading";
 
-export default function AdminError({
-  error,
-  reset,
-}: {
+interface AdminErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
-  const isRouterCorrupted = isRouterCorruptionError(error?.message);
+}
 
-  const [bufferState] = useState(() => {
-    if (isRouterCorrupted) return { shouldRetry: false, attempt: 0, delayMs: 0 };
-    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
-    return getRetryBufferState(routeKey);
-  });
+const AdminError = ({ error, reset }: AdminErrorProps) => {
+  const { isRetrying, onRetry, onReload } = useErrorRecovery(
+    error,
+    reset,
+    typeof window !== "undefined" ? window.location.pathname : "admin",
+  );
 
-  useEffect(() => {
-    console.error(error);
-    // Corrupted client router (e.g. after the admin tab sat frozen in
-    // bfcache) — reset() re-renders the same broken router, so only a full
-    // reload fixes it.
-    if (isRouterCorrupted) {
-      const timer = setTimeout(() => {
-        window.location.reload();
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-
-    // If in retry buffer during service cold boot
-    if (bufferState.shouldRetry) {
-      const timer = setTimeout(() => {
-        if (bufferState.attempt >= MAX_RETRY_ATTEMPTS) {
-          if (typeof window !== "undefined") {
-            window.location.reload();
-          } else {
-            reset();
-          }
-        } else {
-          reset();
-        }
-      }, bufferState.delayMs);
-
-      return () => clearTimeout(timer);
-    }
-  }, [error, isRouterCorrupted, bufferState, reset]);
-
-  // While in the retry buffer, keep displaying the admin loading skeleton
-  if (bufferState.shouldRetry) {
-    return <DashboardSubLoading />;
-  }
-
-  const handleManualRetry = () => {
-    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
-    resetRetryBuffer(routeKey);
-    reset();
-  };
-
-  const handleReload = () => {
-    const routeKey = typeof window !== "undefined" ? window.location.pathname : "admin";
-    resetRetryBuffer(routeKey);
-    if (typeof window !== "undefined") {
-      window.location.reload();
-    }
-  };
+  // While silently retrying (e.g. Worker cold boot), keep showing the admin loading skeleton.
+  if (isRetrying) return <DashboardSubLoading />;
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-4 text-center">
@@ -87,13 +32,13 @@ export default function AdminError({
       </div>
       <div className="flex items-center gap-3">
         <button
-          onClick={handleManualRetry}
+          onClick={onRetry}
           className="rounded-full bg-brand-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800 transition-colors"
         >
           Thử lại
         </button>
         <button
-          onClick={handleReload}
+          onClick={onReload}
           className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 transition-colors"
         >
           Tải lại trang
@@ -101,4 +46,6 @@ export default function AdminError({
       </div>
     </div>
   );
-}
+};
+
+export default AdminError;

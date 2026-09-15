@@ -1,78 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  isRouterCorruptionError,
-  getRetryBufferState,
-  resetRetryBuffer,
-  MAX_RETRY_ATTEMPTS,
-} from "@/lib/error-classification";
+import { useErrorRecovery } from "@/lib/use-error-recovery";
+
+interface GlobalErrorProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+const pageStyle = {
+  display: "flex",
+  minHeight: "100vh",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "1.5rem",
+  textAlign: "center",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+} as const;
 
 // Catches errors thrown from the root layout itself (e.g. the DB call in
 // RootLayout) — a plain error.tsx can't catch those since it renders
 // *inside* the layout. Must render its own <html>/<body>.
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  const isRouterCorrupted = isRouterCorruptionError(error?.message);
+const GlobalError = ({ error, reset }: GlobalErrorProps) => {
+  const { isRetrying, onRetry, onReload } = useErrorRecovery(error, reset, "global");
 
-  const [bufferState] = useState(() => {
-    if (isRouterCorrupted) return { shouldRetry: false, attempt: 0, delayMs: 0 };
-    return getRetryBufferState("global");
-  });
-
-  useEffect(() => {
-    console.error("[GlobalError]", error);
-
-    // Corrupted client router (e.g. after the tab sat frozen in bfcache) —
-    // reset() re-renders the same broken router, so only a full reload fixes it.
-    if (isRouterCorrupted) {
-      const timer = setTimeout(() => {
-        window.location.reload();
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-
-    // Transient cold boot retry buffer
-    if (bufferState.shouldRetry) {
-      const timer = setTimeout(() => {
-        if (bufferState.attempt >= MAX_RETRY_ATTEMPTS) {
-          if (typeof window !== "undefined") {
-            window.location.reload();
-          } else {
-            reset();
-          }
-        } else {
-          reset();
-        }
-      }, bufferState.delayMs);
-
-      return () => clearTimeout(timer);
-    }
-  }, [error, isRouterCorrupted, bufferState, reset]);
-
-  // While in retry buffer, show clean loading screen
-  if (bufferState.shouldRetry) {
+  if (isRetrying) {
     return (
       <html lang="vi">
         <body style={{ margin: 0, backgroundColor: "#FAF7F2" }}>
-          <div
-            style={{
-              display: "flex",
-              minHeight: "100vh",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "1.25rem",
-              padding: "1.5rem",
-              textAlign: "center",
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-            }}
-          >
+          <div style={{ ...pageStyle, gap: "1.25rem" }}>
             <div
               style={{
                 width: "4rem",
@@ -92,17 +48,8 @@ export default function GlobalError({
                 style={{ width: "2.5rem", height: "2.5rem", objectFit: "contain" }}
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#2E7559",
-                fontSize: "0.875rem",
-                fontWeight: 600,
-              }}
-            >
-              <span>Đang kết nối đến hệ thống...</span>
+            <div style={{ color: "#2E7559", fontSize: "0.875rem", fontWeight: 600 }}>
+              Đang kết nối đến hệ thống...
             </div>
           </div>
         </body>
@@ -110,36 +57,10 @@ export default function GlobalError({
     );
   }
 
-  const handleManualRetry = () => {
-    resetRetryBuffer("global");
-    reset();
-  };
-
-  const handleReload = () => {
-    resetRetryBuffer("global");
-    if (typeof window !== "undefined") {
-      window.location.reload();
-    }
-  };
-
   return (
     <html lang="vi">
       <body style={{ margin: 0, backgroundColor: "#FAF7F2" }}>
-        <div
-          style={{
-            display: "flex",
-            minHeight: "100vh",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "1rem",
-            padding: "1.5rem",
-            textAlign: "center",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-            backgroundColor: "#FAF7F2",
-            color: "#18181b",
-          }}
-        >
+        <div style={{ ...pageStyle, gap: "1rem", backgroundColor: "#FAF7F2", color: "#18181b" }}>
           <div
             style={{
               width: "3.5rem",
@@ -166,7 +87,7 @@ export default function GlobalError({
           )}
           <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
             <button
-              onClick={handleManualRetry}
+              onClick={onRetry}
               style={{
                 borderRadius: "999px",
                 backgroundColor: "#2E7559",
@@ -181,7 +102,7 @@ export default function GlobalError({
               Thử lại
             </button>
             <button
-              onClick={handleReload}
+              onClick={onReload}
               style={{
                 borderRadius: "999px",
                 backgroundColor: "#fff",
@@ -200,4 +121,6 @@ export default function GlobalError({
       </body>
     </html>
   );
-}
+};
+
+export default GlobalError;

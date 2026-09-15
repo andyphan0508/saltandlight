@@ -138,13 +138,6 @@ export const ArrowRight = base(
     <path d="m12 5 7 7-7 7" />
   </>,
 );
-export const ArrowUpRight = base(
-  <>
-    <path d="M7 17L17 7" />
-    <path d="M7 7h10v10" />
-  </>,
-);
-
 export const Search = base(
   <>
     <circle cx="11" cy="11" r="8" />
@@ -272,14 +265,6 @@ export const GripVertical = base(
 
 export const Star = base(
   <path d="M11.53 2.5a.5.5 0 0 1 .94 0l2.4 5.7a.5.5 0 0 0 .42.3l6.15.5a.5.5 0 0 1 .29.88l-4.68 4.02a.5.5 0 0 0-.16.5l1.42 6a.5.5 0 0 1-.75.55l-5.26-3.2a.5.5 0 0 0-.52 0l-5.26 3.2a.5.5 0 0 1-.75-.55l1.42-6a.5.5 0 0 0-.16-.5L1.87 9.88a.5.5 0 0 1 .29-.88l6.15-.5a.5.5 0 0 0 .42-.3Z" />,
-);
-
-export const Menu = base(
-  <>
-    <line x1="4" x2="20" y1="6" y2="6" />
-    <line x1="4" x2="20" y1="12" y2="12" />
-    <line x1="4" x2="20" y1="18" y2="18" />
-  </>,
 );
 
 export const ImageOff = base(
@@ -513,15 +498,6 @@ export const Quote = base(
   <>
     <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
     <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-  </>,
-);
-
-export const Table = base(
-  <>
-    <path d="M12 3v18" />
-    <rect width="18" height="18" x="3" y="3" rx="2" />
-    <path d="M3 9h18" />
-    <path d="M3 15h18" />
   </>,
 );
 

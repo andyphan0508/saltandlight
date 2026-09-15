@@ -1,9 +1,11 @@
 export const revalidate = 60;
 
 import { HomeAboutIntro } from "@/components/HomeAboutIntro";
+import { HeroSlider } from "@/components/HeroSlider";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
+import { getCachedBanners, getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
+import type { BannerData } from "@/lib/types";
 
 const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
   {
@@ -74,12 +76,15 @@ export default async function HomePage({
   searchParams?: { editor?: string };
 }) {
   let blocks: PageBlockData[] = [];
+  let banners: BannerData[] = [];
   try {
     const isEditor = searchParams?.editor === "1";
-    const blocksData = isEditor
-      ? await listPageBlocks("home")
-      : await getCachedPageBlocks("home");
+    const [blocksData, bannerRows] = await Promise.all([
+      isEditor ? listPageBlocks("home") : getCachedPageBlocks("home"),
+      getCachedBanners(),
+    ]);
     blocks = toPlain(blocksData);
+    banners = toPlain(bannerRows);
   } catch (err) {
     console.error("HomePage data fetching error:", err);
   }
@@ -88,6 +93,7 @@ export default async function HomePage({
 
   return (
     <div className="space-y-12 sm:space-y-20 pb-16">
+      {banners.length > 0 && <HeroSlider banners={banners} />}
       <HomeAboutIntro />
       {effectiveBlocks.map((block) => (
         <BlockRenderer key={block.id} block={block} />

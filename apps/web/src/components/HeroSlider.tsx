@@ -6,48 +6,12 @@ import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "./Icons";
 import type { BannerData } from "@/lib/types";
 
-const DEFAULT_SLIDES: BannerData[] = [
-  {
-    id: "default-1",
-    title: "ÁO THUN NGƯỜI LỚN",
-    subtitle: "Form Regular Fit Unisex 100% Cotton 4 chiều, in Lời Chúa sắc nét bền màu",
-    badge: "BÁN CHẠY NHẤT",
-    linkUrl: "/san-pham?categories=ao-thun-nguoi-lon",
-    bgGradient: "from-brand-forest/90 via-emerald-900/80 to-slate-950",
-    imageUrl: null,
-    sortOrder: 1,
-    isActive: true,
-  },
-  {
-    id: "default-2",
-    title: "ÁO THUN CHO BÉ",
-    subtitle: "Cotton tự nhiên mềm mại, thoáng mát, dịu êm an toàn cho làn da nhạy cảm",
-    badge: "DỄ THƯƠNG & Ý NGHĨA",
-    linkUrl: "/san-pham?categories=ao-thun-cho-be",
-    bgGradient: "from-rose-950/90 via-pink-900/80 to-slate-950",
-    imageUrl: null,
-    sortOrder: 2,
-    isActive: true,
-  },
-  {
-    id: "default-3",
-    title: "TÚI TOTE CANVAS",
-    subtitle: "Vải bố dệt mộc dày dặn, quai may chịu lực, in thông điệp Đức Tin đồng hành mỗi ngày",
-    badge: "PHỤ KIỆN THƯỜNG NHẬT",
-    linkUrl: "/san-pham?categories=tui-tote-canvas",
-    bgGradient: "from-amber-950/90 via-stone-900/80 to-zinc-950",
-    imageUrl: null,
-    sortOrder: 3,
-    isActive: true,
-  },
-];
-
 interface HeroSliderProps {
-  banners?: BannerData[];
+  banners: BannerData[];
 }
 
-export const HeroSlider = ({ banners }: HeroSliderProps) => {
-  const slides = banners && banners.length > 0 ? banners : DEFAULT_SLIDES;
+/** Homepage hero slider for the banners managed in Admin → Banner & Slider. */
+export const HeroSlider = ({ banners: slides }: HeroSliderProps) => {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);

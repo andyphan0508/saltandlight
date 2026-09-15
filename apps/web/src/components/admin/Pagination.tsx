@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getPageList } from "@/lib/page-list";
 import { ChevronLeft, ChevronRight } from "./Icons";
 
 export interface PaginationProps {
@@ -17,20 +18,6 @@ function hrefFor(basePath: string, page: number, searchParams?: Record<string, s
   if (page > 1) params.set("page", String(page));
   const qs = params.toString();
   return qs ? `${basePath}?${qs}` : basePath;
-}
-
-function pageList(current: number, totalPages: number): (number | "…")[] {
-  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-  const pages = new Set<number>([1, 2, totalPages - 1, totalPages, current - 1, current, current + 1]);
-  const sorted = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
-  const out: (number | "…")[] = [];
-  let prev = 0;
-  for (const p of sorted) {
-    if (prev && p - prev > 1) out.push("…");
-    out.push(p);
-    prev = p;
-  }
-  return out;
 }
 
 export function Pagination({ page, pageSize, total, basePath, searchParams }: PaginationProps) {
@@ -55,7 +42,7 @@ export function Pagination({ page, pageSize, total, basePath, searchParams }: Pa
           >
             <ChevronLeft size={16} />
           </PageLink>
-          {pageList(page, totalPages).map((p, i) =>
+          {getPageList(page, totalPages).map((p, i) =>
             p === "…" ? (
               <span key={`ellipsis-${i}`} className="px-2 text-xs text-ink/40">
                 …
