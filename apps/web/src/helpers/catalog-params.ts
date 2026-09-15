@@ -1,4 +1,4 @@
-import type { SortOption } from "@/server/queries";
+import { DEFAULT_SORT, isSortOption, type SortOption } from "./catalog-sort";
 
 export interface CatalogSearchParams {
   q?: string;
@@ -20,7 +20,6 @@ export interface CatalogFilters {
   page: number;
 }
 
-const VALID_SORTS: SortOption[] = ["latest", "price-asc", "price-desc", "name-asc"];
 const VALID_VIEWS = ["2", "3", "4", "list"] as const;
 
 /** Single source of truth for turning the route's raw searchParams into typed filters. */
@@ -41,7 +40,7 @@ export const parseCatalogParams = (searchParams: CatalogSearchParams): CatalogFi
     categorySlugs: categoriesStr.split(",").map((s) => s.trim()).filter(Boolean),
     sizes: sizesStr.split(",").map((s) => s.trim()).filter(Boolean),
     onSale: onSaleVal === "1",
-    sort: (VALID_SORTS.includes(sortVal as SortOption) ? sortVal : "latest") as SortOption,
+    sort: isSortOption(sortVal) ? sortVal : DEFAULT_SORT,
     view: (VALID_VIEWS.includes(viewVal as never) ? viewVal : "3") as CatalogFilters["view"],
     page: Math.max(1, Number(pageVal) || 1),
   };

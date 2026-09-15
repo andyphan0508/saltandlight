@@ -17,8 +17,8 @@ const AboutPage = async ({
   searchParams?: { editor?: string };
 }) => {
   let blocks: PageBlockData[] = [];
+  const isEditor = searchParams?.editor === "1";
   try {
-    const isEditor = searchParams?.editor === "1";
     const fetched = isEditor
       ? await listPageBlocks("gioi-thieu")
       : await getCachedPageBlocks("gioi-thieu");

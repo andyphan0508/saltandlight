@@ -542,10 +542,10 @@ export const ElementorEditorClient = ({
               <div className="h-full">
                 {editingBlock ? (
                   <BlockEditForm
+                    key={editingBlock.id}
                     page={currentPage}
                     block={editingBlock}
                     defaultType={editingBlock.type}
-                    isEmbedded={true}
                     onClose={() => setActiveTab("navigator")}
                     onSaved={onBlockSaved}
                     onChangePreview={onLivePreviewChange}

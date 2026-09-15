@@ -14,8 +14,8 @@ const ContactPage = async ({
   searchParams?: { editor?: string };
 }) => {
   let blocks: PageBlockData[] = [];
+  const isEditor = searchParams?.editor === "1";
   try {
-    const isEditor = searchParams?.editor === "1";
     const fetched = isEditor
       ? await listPageBlocks("lien-he")
       : await getCachedPageBlocks("lien-he");

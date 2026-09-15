@@ -2,19 +2,13 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Grid2, Grid3, Grid4, Rows } from "@/components/Icons";
+import { SORT_OPTIONS } from "@/helpers/catalog-sort";
 
 const VIEW_OPTIONS = [
   { value: "2", icon: Grid2, label: "2 cột" },
   { value: "3", icon: Grid3, label: "3 cột" },
   { value: "4", icon: Grid4, label: "4 cột" },
   { value: "list", icon: Rows, label: "Danh sách" },
-] as const;
-
-const SORT_OPTIONS = [
-  { value: "latest", label: "Mới nhất" },
-  { value: "price-asc", label: "Giá: Thấp đến cao" },
-  { value: "price-desc", label: "Giá: Cao đến thấp" },
-  { value: "name-asc", label: "Tên: A-Z" },
 ] as const;
 
 interface ProductToolbarProps {

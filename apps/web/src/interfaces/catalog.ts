@@ -21,3 +21,10 @@ export interface BannerData {
   isActive: boolean;
 }
 
+/** A category shown in the catalog filters, with its published product count. */
+export interface CategoryOption {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+}

@@ -25,7 +25,6 @@ import { TextField, ArrayEditor } from "@/components/admin/form-fields";
 import { ProductPickerModal } from "./ProductPickerModal";
 import type { PageBlockItem } from "@/interfaces/page-block";
 import { adminFetch } from "@/api/admin-fetch";
-import { Modal } from "@/components/Modal";
 
 export const defaultContent = (type: PageBlockTypeValue): Record<string, any> => {
   switch (type) {
@@ -309,7 +308,6 @@ export const BlockEditForm = ({
   defaultType,
   onClose,
   onSaved,
-  isEmbedded = false,
   onChangePreview,
 }: {
   page: string;
@@ -317,19 +315,12 @@ export const BlockEditForm = ({
   defaultType: PageBlockTypeValue;
   onClose: () => void;
   onSaved: (block: PageBlockItem) => void;
-  isEmbedded?: boolean;
   onChangePreview?: (content: Record<string, any>) => void;
 }) => {
   const type = block?.type ?? defaultType;
   const [content, setContent] = useState<Record<string, any>>(block?.content ?? defaultContent(type));
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (block) {
-      setContent(block.content ?? defaultContent(block.type));
-    }
-  }, [block?.id, block?.type]);
 
   const set = (patch: Record<string, any>) => {
     setContent((prev) => {
@@ -359,9 +350,6 @@ export const BlockEditForm = ({
       const method = block ? "PATCH" : "POST";
       const body = block ? { content: sanitized } : { page, type, content: sanitized };
       const data = await adminFetch<{ block: PageBlockItem }>(url, { method, body });
-      if (!isEmbedded) {
-        toast.success(block ? "Cập nhật khối thành công!" : "Tạo khối mới thành công!");
-      }
       onSaved(data.block);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra";
@@ -372,76 +360,28 @@ export const BlockEditForm = ({
     }
   };
 
-  if (isEmbedded) {
-    return (
-      <div className="flex flex-col h-full bg-white">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/80 shrink-0">
-          <div className="min-w-0 flex-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-forest">
-              Chỉnh sửa khối
-            </span>
-            <h3 className="font-bold text-slate-900 text-xs truncate">
-              {BLOCK_TYPE_LABELS[type]}
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-            title="Đóng bảng chỉnh sửa"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          <ContentFields type={type} content={content} set={set} />
-
-          <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs pt-3 pb-1 border-t border-slate-100 flex items-center justify-between gap-2">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl px-3 py-1.5 text-xs font-semibold">
-              Quay lại
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="rounded-xl px-4 py-1.5 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
-            >
-              {isSaving ? "Đang lưu..." : block ? "Lưu khối" : "Tạo khối"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
   return (
-    <Modal
-      isOpen
-      onClose={onClose}
-      labelledBy="block-form-title"
-      className="bg-white max-w-2xl rounded-2xl border border-slate-200 overflow-hidden"
-    >
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-        <h3 id="block-form-title" className="font-bold text-slate-900 text-sm">
-          {block ? "Chỉnh sửa khối" : "Thêm mới"} — {BLOCK_TYPE_LABELS[type]}
-        </h3>
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/80 shrink-0">
+        <div className="min-w-0 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-brand-forest">
+            Chỉnh sửa khối
+          </span>
+          <h3 className="font-bold text-slate-900 text-xs truncate">
+            {BLOCK_TYPE_LABELS[type]}
+          </h3>
+        </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Đóng"
           className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          title="Đóng bảng chỉnh sửa"
         >
-          <X size={18} />
+          <X size={16} />
         </button>
       </div>
 
-      <form onSubmit={onSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+      <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
         {error && (
           <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
             {error}
@@ -450,20 +390,20 @@ export const BlockEditForm = ({
 
         <ContentFields type={type} content={content} set={set} />
 
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-          <Button type="button" variant="outline" onClick={onClose} className="rounded-xl px-4 py-2 text-xs font-semibold">
-            Hủy bỏ
+        <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs pt-3 pb-1 border-t border-slate-100 flex items-center justify-between gap-2">
+          <Button type="button" variant="outline" onClick={onClose} className="rounded-xl px-3 py-1.5 text-xs font-semibold">
+            Quay lại
           </Button>
           <Button
             type="submit"
             disabled={isSaving}
-            className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
+            className="rounded-xl px-4 py-1.5 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
           >
-            {isSaving ? "Đang lưu..." : block ? "Lưu thay đổi" : "Tạo khối mới"}
+            {isSaving ? "Đang lưu..." : block ? "Lưu khối" : "Tạo khối"}
           </Button>
         </div>
       </form>
-    </Modal>
+    </div>
   );
 };
 

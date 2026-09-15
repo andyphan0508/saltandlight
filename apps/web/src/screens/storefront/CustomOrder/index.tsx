@@ -59,8 +59,8 @@ const CustomOrderPage = async ({
   searchParams?: { editor?: string };
 }) => {
   let blocks: PageBlockData[] = [];
+  const isEditor = searchParams?.editor === "1";
   try {
-    const isEditor = searchParams?.editor === "1";
     const fetched = isEditor
       ? await listPageBlocks("dat-theo-yeu-cau")
       : await getCachedPageBlocks("dat-theo-yeu-cau");

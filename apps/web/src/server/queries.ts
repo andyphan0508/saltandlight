@@ -2,7 +2,6 @@ import { prisma, Prisma } from "@saltandlight/db";
 import type { ProductCardData } from "@/interfaces/catalog";
 import { parseProductGuides } from "@/helpers/product-guides";
 
-export type SortOption = "latest" | "price-asc" | "price-desc" | "name-asc";
 
 export interface ProductListFilters {
   categorySlugs?: string[];
@@ -172,6 +171,7 @@ export const getRelatedProducts = async (
 // and CPU-optimization notes from this session for the fuller cache story.
 import { withMemoryCache } from "./memory-cache";
 import { sortSizes } from "@saltandlight/domain";
+import type { SortOption } from "@/helpers/catalog-sort";
 
 /** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
 export const getCachedCategoriesWithCounts = () =>

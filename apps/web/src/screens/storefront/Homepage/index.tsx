@@ -76,8 +76,8 @@ const HomePage = async ({
 }) => {
   let blocks: PageBlockData[] = [];
   let banners: BannerData[] = [];
+  const isEditor = searchParams?.editor === "1";
   try {
-    const isEditor = searchParams?.editor === "1";
     const [blocksData, bannerRows] = await Promise.all([
       isEditor ? listPageBlocks("home") : getCachedPageBlocks("home"),
       getCachedBanners(),
