@@ -6,19 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@saltandlight/ui";
 import { formatVND, ORDER_STATUS_LABELS, type OrderStatusValue } from "@saltandlight/domain";
 import { useCustomer } from "@/lib/use-customer";
-import {
-  User,
-  LogOut,
-  ShoppingBag,
-  Truck,
-  Check,
-  Clock,
-  ChevronDown,
-  Copy,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-} from "@/components/Icons";
+import { LogOut, ShoppingBag, Truck, Clock, ChevronDown, Copy, ArrowRight } from "@/components/Icons";
+import { STOREFRONT_ORDER_STATUS_CLASS as STATUS_BADGE_STYLES } from "@/lib/order-status-styles";
 
 interface OrderItem {
   productNameSnapshot: string;
@@ -42,15 +31,6 @@ interface CustomerOrder {
   items: OrderItem[];
   statusHistory: StatusHistoryItem[];
 }
-
-const STATUS_BADGE_STYLES: Record<OrderStatusValue, string> = {
-  pending_payment: "bg-amber-50 text-amber-800 border-amber-200/80",
-  processing: "bg-blue-50 text-blue-800 border-blue-200/80",
-  on_hold: "bg-orange-50 text-orange-800 border-orange-200/80",
-  completed: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
-  cancelled: "bg-rose-50 text-rose-800 border-rose-200/80",
-  refunded: "bg-zinc-100 text-zinc-700 border-zinc-200/80",
-};
 
 export default function AccountPage() {
   const router = useRouter();

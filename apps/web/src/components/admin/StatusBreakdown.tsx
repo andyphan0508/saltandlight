@@ -1,44 +1,4 @@
-const STATUS_META: Record<
-  string,
-  { label: string; barClass: string; textClass: string; bgClass: string }
-> = {
-  pending_payment: {
-    label: "Chờ thanh toán",
-    barClass: "bg-amber-500",
-    textClass: "text-amber-700",
-    bgClass: "bg-amber-50",
-  },
-  processing: {
-    label: "Đang xử lý",
-    barClass: "bg-sky-500",
-    textClass: "text-sky-700",
-    bgClass: "bg-sky-50",
-  },
-  on_hold: {
-    label: "Tạm giữ",
-    barClass: "bg-slate-400",
-    textClass: "text-slate-700",
-    bgClass: "bg-slate-100",
-  },
-  completed: {
-    label: "Hoàn tất",
-    barClass: "bg-emerald-500",
-    textClass: "text-emerald-700",
-    bgClass: "bg-emerald-50",
-  },
-  cancelled: {
-    label: "Đã hủy",
-    barClass: "bg-slate-300",
-    textClass: "text-slate-500",
-    bgClass: "bg-slate-100",
-  },
-  refunded: {
-    label: "Đã hoàn tiền",
-    barClass: "bg-rose-500",
-    textClass: "text-rose-700",
-    bgClass: "bg-rose-50",
-  },
-};
+import { ADMIN_ORDER_STATUS as STATUS_META } from "@/lib/order-status-styles";
 
 const STATUS_ORDER = Object.keys(STATUS_META);
 

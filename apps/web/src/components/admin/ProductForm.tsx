@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@saltandlight/ui";
-import { formatVND } from "@saltandlight/domain";
+import { formatVND, sortSizes } from "@saltandlight/domain";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/image-compressor";
 import {
@@ -27,6 +27,8 @@ import {
   withPriceNote,
   type ProductContentBlock,
 } from "@/lib/product-content";
+import { slugify } from "@/lib/slugify";
+import { uploadImage } from "@/lib/admin/upload-image";
 
 interface Category {
   id: string;
@@ -68,17 +70,6 @@ export interface ProductFormInitial {
   isFeatured?: boolean;
   images: ImageRow[];
   variants: VariantRow[];
-}
-
-function slugify(name: string) {
-  return name
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/đ/gi, "d")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 }
 
 function skuify(...parts: string[]) {
@@ -161,13 +152,7 @@ export function ProductForm({
       try {
         // Automatically compress image before uploading to 200kb-500kb WebP
         const compressed = await compressImage(file);
-        const form = new FormData();
-        form.append("file", compressed);
-
-        const res = await fetch("/api/admin/media/upload", { method: "POST", body: form });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Tải ảnh thất bại");
-        uploaded.push({ url: data.url, sortOrder: 0 });
+        uploaded.push({ url: await uploadImage(compressed), sortOrder: 0 });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Tải ảnh thất bại");
       }
@@ -193,32 +178,9 @@ export function ProductForm({
 
   // ── Quick variant generator (Color × Size) ───────────────────────
   function generateVariants() {
-    const SIZE_ORDER = [
-      "XS (BABY)",
-      "S (BABY)",
-      "M (BABY)",
-      "L (BABY)",
-      "XS",
-      "S",
-      "M",
-      "L",
-      "XL",
-      "2XL",
-      "XXL",
-      "3XL",
-      "FREE SIZE",
-    ];
     const colors = quickColors.split(",").map((c) => c.trim()).filter(Boolean);
     const rawSizes = quickSizes.split(",").map((s) => s.trim()).filter(Boolean);
-    // Sắp xếp size theo thứ tự chuẩn từ nhỏ đến lớn: XS, S, M, L, XL
-    const sizes = [...rawSizes].sort((a, b) => {
-      const ai = SIZE_ORDER.indexOf(a.trim().toUpperCase());
-      const bi = SIZE_ORDER.indexOf(b.trim().toUpperCase());
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-      return a.localeCompare(b);
-    });
+    const sizes = sortSizes(rawSizes);
 
     const combos: { color: string; size: string }[] = [];
     if (colors.length && sizes.length) {

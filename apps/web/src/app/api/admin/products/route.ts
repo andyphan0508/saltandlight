@@ -6,7 +6,7 @@ import { computePriceRange } from "@saltandlight/domain";
 import { requireAdmin, AuthError, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { productInputSchema } from "@/lib/admin/schemas";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { invalidateProductCaches } from "@/lib/product-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -71,10 +71,7 @@ export async function POST(req: NextRequest) {
     } catch {
       // Background revalidation
     }
-    invalidateMemoryCache("catalog-products-");
-    invalidateMemoryCache("homepage-featured-products-");
-    invalidateMemoryCache("nav-categories-with-counts");
-    invalidateMemoryCache("available-product-sizes");
+    invalidateProductCaches();
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {

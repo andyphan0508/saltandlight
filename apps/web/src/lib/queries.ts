@@ -114,8 +114,6 @@ export async function listCategoriesWithCounts() {
   };
 }
 
-const SIZE_ORDER = ["XS (BABY)", "S (BABY)", "M (BABY)", "L (BABY)", "XS", "S", "M", "L", "XL", "XXL"];
-
 /** Distinct sizes across active variants of published products — for the sidebar size filter. */
 export async function listAvailableSizes(): Promise<string[]> {
   const rows = await prisma.productVariant.findMany({
@@ -123,15 +121,7 @@ export async function listAvailableSizes(): Promise<string[]> {
     select: { size: true },
     distinct: ["size"],
   });
-  const sizes = rows.map((r) => r.size!).filter(Boolean);
-  return sizes.sort((a, b) => {
-    const ai = SIZE_ORDER.indexOf(a.toUpperCase());
-    const bi = SIZE_ORDER.indexOf(b.toUpperCase());
-    if (ai === -1 && bi === -1) return a.localeCompare(b);
-    if (ai === -1) return 1;
-    if (bi === -1) return -1;
-    return ai - bi;
-  });
+  return sortSizes(rows.map((r) => r.size!).filter(Boolean));
 }
 
 export async function getProductBySlug(slug: string) {
@@ -181,6 +171,7 @@ export async function getRelatedProducts(
 // was already doing all the real caching. See docs/fe-spec... discussion
 // and CPU-optimization notes from this session for the fuller cache story.
 import { withMemoryCache } from "./memory-cache";
+import { sortSizes } from "@saltandlight/domain";
 
 /** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
 export const getCachedCategoriesWithCounts = () =>

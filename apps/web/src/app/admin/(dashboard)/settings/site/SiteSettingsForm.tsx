@@ -15,6 +15,7 @@ import type {
   LogoSize,
 } from "@/lib/site-settings-types";
 import { LOGO_SIZE_CLASSES } from "@/lib/site-settings-types";
+import { uploadImage } from "@/lib/admin/upload-image";
 
 const LOGO_SIZE_OPTIONS: { value: LogoSize; label: string }[] = [
   { value: "sm", label: "Nhỏ" },
@@ -30,13 +31,8 @@ function useImageUpload(onUploaded: (url: string) => void) {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const res = await fetch("/api/admin/media/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
-      onUploaded(data.url);
+      onUploaded(await uploadImage(file));
       toast.success("Tải ảnh lên thành công!");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Tải ảnh thất bại");

@@ -6,18 +6,9 @@ import { computePriceRange } from "@saltandlight/domain";
 import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { productInputSchema } from "@/lib/admin/schemas";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { invalidateProductCaches } from "@/lib/product-cache";
 
 export const dynamic = "force-dynamic";
-
-function invalidateProductCaches() {
-  invalidateMemoryCache("catalog-products-");
-  invalidateMemoryCache("homepage-featured-products-");
-  invalidateMemoryCache("product-detail-");
-  invalidateMemoryCache("related-products-");
-  invalidateMemoryCache("nav-categories-with-counts");
-  invalidateMemoryCache("available-product-sizes");
-}
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {

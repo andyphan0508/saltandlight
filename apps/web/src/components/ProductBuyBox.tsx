@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge, Button } from "@saltandlight/ui";
-import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
+import { formatVND, calcDiscountPercent, sortSizes } from "@saltandlight/domain";
 import { useCartStore, useWishlistStore } from "@/stores";
 import { ShoppingBag, Heart, Check, Sparkles } from "./Icons";
 import { SizeChartModal } from "./SizeChartModal";
@@ -19,22 +19,6 @@ export interface VariantPlain {
   compareAtPrice: number | null;
   stockQuantity: number;
 }
-
-const SIZE_ORDER = [
-  "XS (BABY)",
-  "S (BABY)",
-  "M (BABY)",
-  "L (BABY)",
-  "XS",
-  "S",
-  "M",
-  "L",
-  "XL",
-  "2XL",
-  "XXL",
-  "3XL",
-  "FREE SIZE",
-];
 
 export const ProductBuyBox = ({
   productId,
@@ -58,18 +42,10 @@ export const ProductBuyBox = ({
     [variants],
   );
 
-  // Đảo ngược thứ tự size hiển thị: từ nhỏ đến lớn (XS, S, M, L, XL...)
-  const sizes = useMemo(() => {
-    const raw = Array.from(new Set(variants.map((v) => v.size).filter(Boolean))) as string[];
-    return raw.sort((a, b) => {
-      const ai = SIZE_ORDER.indexOf(a.trim().toUpperCase());
-      const bi = SIZE_ORDER.indexOf(b.trim().toUpperCase());
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-      return b.localeCompare(a); // Fallback: đảo ngược thứ tự
-    });
-  }, [variants]);
+  const sizes = useMemo(
+    () => sortSizes(Array.from(new Set(variants.map((v) => v.size).filter(Boolean))) as string[]),
+    [variants],
+  );
 
   const [color, setColor] = useState<string | null>(colors[0] ?? null);
   const [size, setSize] = useState<string | null>(sizes[0] ?? null);

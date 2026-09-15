@@ -4,7 +4,7 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { slugify } from "@/lib/slugify";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { invalidateProductCaches } from "@/lib/product-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -66,8 +66,7 @@ export async function POST(req: NextRequest) {
       metadata: { name: category.name, slug: category.slug },
     });
 
-    invalidateMemoryCache("nav-categories-with-counts");
-    invalidateMemoryCache("catalog-products-");
+    invalidateProductCaches();
 
     return NextResponse.json({ category }, { status: 201 });
   } catch (err) {

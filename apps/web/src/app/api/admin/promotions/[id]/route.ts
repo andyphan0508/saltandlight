@@ -3,16 +3,9 @@ import { prisma } from "@saltandlight/db";
 import { requireAdmin, apiError } from "@/lib/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
 import { promotionUpdateSchema } from "@/lib/admin/schemas";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { invalidateProductCaches } from "@/lib/product-cache";
 
 export const dynamic = "force-dynamic";
-
-function invalidateProductCaches() {
-  invalidateMemoryCache("catalog-products-");
-  invalidateMemoryCache("homepage-featured-products-");
-  invalidateMemoryCache("product-detail-");
-  invalidateMemoryCache("related-products-");
-}
 
 export async function PATCH(
   req: NextRequest,

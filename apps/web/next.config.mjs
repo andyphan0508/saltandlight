@@ -61,12 +61,16 @@ const nextConfig = {
     ].join("; ");
 
     return [
-      {
-        source: "/_next/static/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
+      // Dev chunk URLs aren't content-hashed (e.g. app/layout.js), so an
+      // immutable header there pins stale code in the browser across edits.
+      ...(isProd
+        ? [
+            {
+              source: "/_next/static/:path*",
+              headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+            },
+          ]
+        : []),
       {
         source: "/images/:path*",
         headers: [

@@ -4,3 +4,4 @@ export * from "./order-number";
 export * from "./vietqr";
 export * from "./schemas";
 export * from "./order-status";
+export * from "./sizes";

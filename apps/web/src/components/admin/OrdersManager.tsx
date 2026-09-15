@@ -2,15 +2,7 @@ import Link from "next/link";
 import { formatVND } from "@saltandlight/domain";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Pagination } from "@/components/admin/Pagination";
-
-export const STATUS_META: Record<string, { label: string; className: string }> = {
-  pending_payment: { label: "Chờ thanh toán", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  processing: { label: "Đang xử lý", className: "bg-sky-50 text-sky-700 border-sky-200" },
-  on_hold: { label: "Tạm giữ", className: "bg-slate-100 text-slate-700 border-slate-200" },
-  completed: { label: "Hoàn tất", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  cancelled: { label: "Đã hủy", className: "bg-slate-100 text-slate-500 border-slate-200" },
-  refunded: { label: "Đã hoàn tiền", className: "bg-rose-50 text-rose-700 border-rose-200" },
-};
+import { ADMIN_ORDER_STATUS as STATUS_META } from "@/lib/order-status-styles";
 
 export interface OrderRow {
   id: string;

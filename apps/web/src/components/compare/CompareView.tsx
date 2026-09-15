@@ -5,6 +5,7 @@ import Image from "next/image";
 import { formatVND } from "@saltandlight/domain";
 import { useCompareStore, useStoreHydrated } from "@/stores";
 import type { ProductCardData } from "@/lib/types";
+import { fetchProductsByIds } from "@/lib/fetch-products-by-ids";
 
 interface CompareProduct extends ProductCardData {
   colors: string[];
@@ -40,9 +41,7 @@ export const CompareView = () => {
       setProducts([]);
       return;
     }
-    fetch(`/api/products?ids=${productIds.join(",")}`)
-      .then((r) => r.json())
-      .then((data) => setProducts(data.products));
+    fetchProductsByIds<CompareProduct>(productIds).then(setProducts);
   }, [isHydrated, productIds]);
 
   const onRemove = (productId: string) => {

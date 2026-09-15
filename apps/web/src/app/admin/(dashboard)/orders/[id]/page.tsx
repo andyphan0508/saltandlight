@@ -4,15 +4,7 @@ import { formatVND } from "@saltandlight/domain";
 import { OrderStatusForm } from "@/components/admin/OrderStatusForm";
 import { BackLink } from "@/components/admin/BackLink";
 import { Package, History, Users, Truck } from "@/components/admin/Icons";
-
-const STATUS_META: Record<string, { label: string; className: string }> = {
-  pending_payment: { label: "Chờ thanh toán", className: "bg-gold-100 text-gold-600" },
-  processing: { label: "Đang xử lý", className: "bg-blue-100 text-blue-700" },
-  on_hold: { label: "Tạm giữ", className: "bg-ink/8 text-ink/60" },
-  completed: { label: "Hoàn tất", className: "bg-mint-100 text-brand-forest" },
-  cancelled: { label: "Đã hủy", className: "bg-ink/8 text-ink/40" },
-  refunded: { label: "Đã hoàn tiền", className: "bg-sale-light text-sale" },
-};
+import { ADMIN_ORDER_STATUS as STATUS_META } from "@/lib/order-status-styles";
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({

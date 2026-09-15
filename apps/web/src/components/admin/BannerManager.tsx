@@ -20,6 +20,7 @@ import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
 import { SITE_URL, getStorefrontUrl } from "@/lib/admin/site-url";
 import { BannerCropModal } from "@/components/admin/BannerCropModal";
+import { uploadImage } from "@/lib/admin/upload-image";
 
 export interface BannerItem {
   id: string;
@@ -153,17 +154,8 @@ export function BannerManager({
     setIsUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", croppedFile);
-
     try {
-      const res = await fetch("/api/admin/media/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
-      setImageUrl(data.url);
+      setImageUrl(await uploadImage(croppedFile));
       toast.success("Cắt ảnh và tải banner thành công!");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Tải ảnh thất bại";

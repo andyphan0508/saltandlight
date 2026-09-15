@@ -17,6 +17,7 @@ import {
 } from "./Icons";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { Pagination } from "./Pagination";
+import { toast } from "sonner";
 
 interface AdminUserRow {
   id: string;
@@ -43,8 +44,6 @@ export function UsersManager({
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
   // Form states
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -65,11 +64,6 @@ export function UsersManager({
     }
     setPassword(pwd);
     setShowPassword(true);
-  }
-
-  function showToast(msg: string) {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
   }
 
   async function handleCreateUser(e: FormEvent<HTMLFormElement>) {
@@ -97,7 +91,7 @@ export function UsersManager({
         return;
       }
 
-      showToast(`Đã tạo thành công tài khoản cho ${email}!`);
+      toast.success(`Đã tạo thành công tài khoản cho ${email}!`);
       setEmail("");
       setFullName("");
       setPassword("");
@@ -116,7 +110,7 @@ export function UsersManager({
         body: JSON.stringify({ isActive: !isActive }),
       });
       if (res.ok) {
-        showToast(
+        toast.success(
           isActive
             ? `Đã khóa tài khoản ${userEmail}`
             : `Đã mở khóa tài khoản ${userEmail}`,
@@ -134,13 +128,6 @@ export function UsersManager({
   return (
     <div className="space-y-8">
       {/* Toast feedback */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl bg-brand-forest px-5 py-3.5 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-5">
-          <CheckCircle size={17} className="text-emerald-300" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* Summary stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm flex items-center gap-4">

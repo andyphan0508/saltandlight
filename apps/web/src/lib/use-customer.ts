@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
+import { create } from "zustand";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export interface CustomerData {
@@ -10,62 +11,51 @@ export interface CustomerData {
   phone: string | null;
 }
 
-export function useCustomer() {
-  const [customer, setCustomer] = useState<CustomerData | null>(null);
-  const [loading, setLoading] = useState(true);
+const useCustomerStore = create<{ customer: CustomerData | null; isLoading: boolean }>(() => ({
+  customer: null,
+  isLoading: true,
+}));
 
-  const fetchCustomer = useCallback(async () => {
-    try {
-      const res = await fetch("/api/customer/me", {
-        headers: { "Cache-Control": "no-cache" },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCustomer(data.customer ?? null);
-      } else {
-        setCustomer(null);
-      }
-    } catch {
-      setCustomer(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+const onRefreshCustomer = async () => {
+  try {
+    const res = await fetch("/api/customer/me", { headers: { "Cache-Control": "no-cache" } });
+    const data = res.ok ? await res.json() : null;
+    useCustomerStore.setState({ customer: data?.customer ?? null, isLoading: false });
+  } catch {
+    useCustomerStore.setState({ customer: null, isLoading: false });
+  }
+};
 
-  useEffect(() => {
-    fetchCustomer();
+let hasStarted = false;
 
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-          fetchCustomer();
-        } else if (event === "SIGNED_OUT") {
-          setCustomer(null);
-          setLoading(false);
-        }
-      });
+/** Header, drawer and account pages all call useCustomer(); only the first call fetches and subscribes. */
+const onStart = () => {
+  if (hasStarted) return;
+  hasStarted = true;
+  void onRefreshCustomer();
+  try {
+    createSupabaseBrowserClient().auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") void onRefreshCustomer();
+      else if (event === "SIGNED_OUT") useCustomerStore.setState({ customer: null, isLoading: false });
+    });
+  } catch {
+    // Supabase not configured in this environment
+  }
+};
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    } catch {
-      // safe fallback
-    }
-  }, [fetchCustomer]);
+const onSignOut = async () => {
+  try {
+    await createSupabaseBrowserClient().auth.signOut();
+  } catch (err) {
+    console.warn("SignOut error:", err);
+  } finally {
+    useCustomerStore.setState({ customer: null });
+  }
+};
 
-  const signOut = useCallback(async () => {
-    try {
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.warn("SignOut error:", err);
-    } finally {
-      setCustomer(null);
-    }
-  }, []);
-
-  return { customer, loading, signOut, mutate: fetchCustomer };
-}
+export const useCustomer = () => {
+  useEffect(onStart, []);
+  const customer = useCustomerStore((s) => s.customer);
+  const isLoading = useCustomerStore((s) => s.isLoading);
+  return { customer, loading: isLoading, signOut: onSignOut, mutate: onRefreshCustomer };
+};

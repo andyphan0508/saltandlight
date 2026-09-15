@@ -18,17 +18,9 @@ import {
   ExternalLink,
   Sparkles,
 } from "@/components/admin/Icons";
+import { ADMIN_ORDER_STATUS as STATUS_BADGES } from "@/lib/order-status-styles";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  pending_payment: { label: "Chờ thanh toán", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  processing: { label: "Đang xử lý", className: "bg-sky-50 text-sky-700 border-sky-200" },
-  on_hold: { label: "Tạm giữ", className: "bg-slate-100 text-slate-700 border-slate-200" },
-  completed: { label: "Hoàn tất", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  cancelled: { label: "Đã hủy", className: "bg-slate-100 text-slate-500 border-slate-200" },
-  refunded: { label: "Đã hoàn tiền", className: "bg-rose-50 text-rose-700 border-rose-200" },
-};
 
 export default async function DashboardPage() {
   const stats = await getDashboardStats();

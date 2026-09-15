@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@saltandlight/ui";
 import { Upload, ImageOff, CheckCircle } from "@/components/admin/Icons";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/admin/upload-image";
 
 export interface PaymentSettingsData {
   qrImageUrl: string | null;
@@ -39,14 +40,8 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
     setIsUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/admin/media/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
-      setQrImageUrl(data.url);
+      setQrImageUrl(await uploadImage(file));
       toast.success("Tải mã QR lên thành công!");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Tải ảnh thất bại";

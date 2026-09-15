@@ -4,15 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
 import { formatVND, ORDER_STATUS_LABELS, type OrderStatusValue } from "@saltandlight/domain";
 import { Truck, Check } from "@/components/Icons";
-
-const STATUS_BG: Record<string, string> = {
-  pending_payment: "bg-amber-100 text-amber-900 border-amber-200",
-  processing: "bg-blue-100 text-blue-900 border-blue-200",
-  on_hold: "bg-orange-100 text-orange-900 border-orange-200",
-  completed: "bg-emerald-100 text-emerald-900 border-emerald-200",
-  cancelled: "bg-rose-100 text-rose-900 border-rose-200",
-  refunded: "bg-zinc-100 text-zinc-900 border-zinc-200",
-};
+import { STOREFRONT_ORDER_STATUS_CLASS as STATUS_BG } from "@/lib/order-status-styles";
 
 interface OrderResult {
   orderNumber: string;

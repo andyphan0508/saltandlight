@@ -7,6 +7,7 @@ import { useWishlistStore, useStoreHydrated } from "@/stores";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Heart } from "@/components/Icons";
 import type { ProductCardData } from "@/lib/types";
+import { fetchProductsByIds } from "@/lib/fetch-products-by-ids";
 
 export const WishlistView = () => {
   const productIds = useWishlistStore((s) => s.productIds);
@@ -25,9 +26,8 @@ export const WishlistView = () => {
       return;
     }
     setIsLoading(true);
-    fetch(`/api/products?ids=${productIds.join(",")}`)
-      .then((r) => r.json())
-      .then((data) => setProducts(data.products ?? []))
+    fetchProductsByIds<ProductCardData>(productIds)
+      .then(setProducts)
       .finally(() => setIsLoading(false));
   }, [isHydrated, productIds]);
 
