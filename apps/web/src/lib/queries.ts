@@ -1,5 +1,6 @@
 import { prisma, Prisma } from "@saltandlight/db";
 import type { ProductCardData } from "./types";
+import { parseProductGuides } from "./product-guides";
 
 export type SortOption = "latest" | "price-asc" | "price-desc" | "name-asc";
 
@@ -352,5 +353,15 @@ export async function getSiteSettings() {
 /** Cached site settings (cached 300s — this rarely changes). */
 export const getCachedSiteSettings = () =>
   withMemoryCache("site-settings", 300, () => getSiteSettings());
+
+/** Category-level product guides (care, size charts, highlights), stored on the site_settings row. */
+export async function getProductGuides() {
+  const row = await prisma.siteSettings.findUnique({ where: { id: "default" }, select: { careGuides: true } });
+  return parseProductGuides(row?.careGuides);
+}
+
+/** Cached product guides (60s; the admin save clears the entry on its own isolate immediately). */
+export const getCachedProductGuides = () =>
+  withMemoryCache("product-guides", 60, () => getProductGuides());
 
 

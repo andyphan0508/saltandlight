@@ -1,19 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@saltandlight/db";
-import { getCachedProductBySlug, getCachedRelatedProducts } from "@/lib/queries";
+import { getCachedProductBySlug, getCachedProductGuides, getCachedRelatedProducts } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
+import { contentToPlainText, parseProductContent, readPriceNote } from "@/lib/product-content";
+import { guidesForCategory } from "@/lib/product-guides";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductGrid } from "@/components/ProductGrid";
-import { ChevronRight } from "@/components/Icons";
 import { ProductContentRenderer } from "@/components/ProductContentRenderer";
-import { ProductCareGuideSection } from "@/components/ProductCareGuideSection";
-import { getCachedSiteSettings } from "@/lib/queries";
-import { resolveSiteSettings } from "@/lib/site-settings-types";
-import { resolveProductCareGuide } from "@/lib/care-guide-types";
+import { ProductGuides } from "@/components/ProductGuides";
+import { ChevronRight } from "@/components/Icons";
 
 export const revalidate = 120;
+
+const DEFAULT_META_DESCRIPTION = "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light.";
 
 export async function generateStaticParams() {
   try {
@@ -40,15 +41,13 @@ export async function generateMetadata({
       title: product?.name
         ? `${product.name} · Áo Thun Cơ Đốc Salt & Light`
         : "Sản phẩm",
-      description:
-        product?.description ??
-        "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light."
+      description: contentToPlainText(parseProductContent(product?.description)) || DEFAULT_META_DESCRIPTION
     };
   } catch (err) {
     console.error("generateMetadata /san-pham/[slug] error:", err);
     return {
       title: "Sản phẩm · Salt & Light",
-      description: "Thời trang và quà tặng Lời Chúa chất lượng cao từ Salt & Light."
+      description: DEFAULT_META_DESCRIPTION
     };
   }
 }
@@ -71,9 +70,17 @@ export default async function ProductDetailPage({
     stockQuantity: v.stockQuantity
   }));
 
-  const relatedProducts = plain.categoryId
-    ? toPlain(await getCachedRelatedProducts(plain.categoryId, plain.id, 4))
-    : [];
+  const [relatedProducts, allGuides] = await Promise.all([
+    plain.categoryId
+      ? getCachedRelatedProducts(plain.categoryId, plain.id, 4).then((rows) => toPlain(rows))
+      : [],
+    getCachedProductGuides(),
+  ]);
+
+  const content = parseProductContent(plain.description);
+  const descriptionBlocks = content.filter((block) => block.type !== "price_note");
+  const guides = guidesForCategory(allGuides, plain.category);
+  const sizeCharts = guides.filter((guide) => guide.layout === "table");
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-4 sm:py-10 space-y-8 sm:space-y-12 w-full min-w-0 overflow-x-hidden animate-slide-up-fade">
@@ -135,13 +142,15 @@ export default async function ProductDetailPage({
             productId={plain.id}
             productName={plain.name}
             variants={variants}
-            description={plain.description}
+            priceNote={readPriceNote(content)}
+            sizeCharts={sizeCharts}
           />
 
-          {/* Description & Block Content */}
-          {plain.description && (
-            <div className="border-t border-ink/10 pt-6 w-full min-w-0">
-              <ProductContentRenderer content={plain.description} />
+          {/* Product description + category guides (care, size chart, highlights) */}
+          {(descriptionBlocks.length > 0 || guides.length > 0) && (
+            <div className="border-t border-ink/10 pt-6 w-full min-w-0 space-y-8">
+              <ProductContentRenderer blocks={descriptionBlocks} />
+              <ProductGuides guides={guides} />
             </div>
           )}
         </div>

@@ -18,10 +18,13 @@ import {
   Tag,
   Sparkles,
 } from "./Icons";
-import { ProductNotionEditor } from "./ProductNotionEditor";
+import { ProductContentEditor } from "./ProductContentEditor";
 import {
+  DEFAULT_PRICE_NOTE,
   parseProductContent,
+  readPriceNote,
   serializeProductContent,
+  withPriceNote,
   type ProductContentBlock,
 } from "@/lib/product-content";
 
@@ -114,7 +117,9 @@ export function ProductForm({
 
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? (initial?.name ? slugify(initial.name) : ""));
-  const [description, setDescription] = useState(initial?.description ?? "");
+  const [blocks, setBlocks] = useState<ProductContentBlock[]>(() =>
+    parseProductContent(initial?.description).filter((b) => b.type !== "price_note"),
+  );
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? categories[0]?.id ?? "");
   const [status, setStatus] = useState(initial?.status ?? "draft");
   const [isNew, setIsNew] = useState(initial?.isNew ?? false);
@@ -135,13 +140,10 @@ export function ProductForm({
   const [discountPct, setDiscountPct] = useState(20);
   const [selectedPromotionId, setSelectedPromotionId] = useState<string>("");
 
-  // Thông điệp ưu đãi hiển thị trong khung giá sản phẩm
-  const [priceNote, setPriceNote] = useState<string>(() => {
-    if (!initial?.description) return "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K";
-    const blocks = parseProductContent(initial.description);
-    const noteBlock = blocks.find((b): b is Extract<ProductContentBlock, { type: "price_note" }> => b.type === "price_note");
-    return noteBlock ? noteBlock.text : "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K";
-  });
+  // Thông điệp ưu đãi hiển thị trong khung giá sản phẩm ("" = ẩn dòng này)
+  const [priceNote, setPriceNote] = useState(
+    () => readPriceNote(parseProductContent(initial?.description)) ?? DEFAULT_PRICE_NOTE,
+  );
 
   function updateVariant(index: number, patch: Partial<VariantRow>) {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)));
@@ -269,17 +271,8 @@ export function ProductForm({
 
     const finalSlug = slug || slugify(name) || `san-pham-${Date.now()}`;
 
-    // Lưu thông điệp ưu đãi bảng giá vào danh sách khối mô tả sản phẩm
-    const parsedBlocks = parseProductContent(description);
-    const withoutPriceNote: ProductContentBlock[] = parsedBlocks.filter((b) => b.type !== "price_note");
-    if (priceNote.trim().length > 0) {
-      withoutPriceNote.unshift({
-        id: `price-note-${Date.now()}`,
-        type: "price_note",
-        text: priceNote.trim(),
-      });
-    }
-    const finalDescription = serializeProductContent(withoutPriceNote);
+    // Thông điệp ưu đãi được lưu cùng các khối mô tả (kể cả khi để trống, để ẩn được dòng này)
+    const finalDescription = serializeProductContent(withPriceNote(blocks, priceNote));
 
     const payload = {
       name: name.trim(),
@@ -359,7 +352,7 @@ export function ProductForm({
             </select>
           </Field>
           <div className="md:col-span-2">
-            <ProductNotionEditor value={description} onChange={(val) => setDescription(val)} />
+            <ProductContentEditor blocks={blocks} onChange={setBlocks} />
           </div>
           <div className="md:col-span-2 flex flex-wrap items-center gap-4 pt-1">
             <label className="flex items-center gap-2 text-sm text-ink/70 cursor-pointer">
@@ -563,7 +556,7 @@ export function ProductForm({
             <span className="text-[11px] font-bold text-slate-400">Gợi ý nhanh:</span>
             <button
               type="button"
-              onClick={() => setPriceNote("Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K")}
+              onClick={() => setPriceNote(DEFAULT_PRICE_NOTE)}
               className="rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-semibold text-brand-forest border border-mint-200/80 hover:bg-mint-100 transition-colors"
             >
               ✨ Thiệp Lời Chúa & Freeship 299K

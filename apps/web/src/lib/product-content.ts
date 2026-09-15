@@ -1,99 +1,78 @@
+/**
+ * Product-specific description content, stored as a JSON block array in
+ * `Product.description`. Content shared by a whole category (care guides, size
+ * charts, highlights) lives in `product-guides.ts` instead.
+ */
 export type ProductContentBlock =
   | { id: string; type: "paragraph"; content: string }
   | { id: string; type: "heading"; level: 2 | 3; text: string }
   | { id: string; type: "bullet_list"; items: string[] }
-  | { id: string; type: "callout"; icon: string; title: string; body: string; variant?: "mint" | "amber" | "blue" }
   | { id: string; type: "quote"; quote: string; quoteRef?: string }
-  | { id: string; type: "specs_table"; rows: { label: string; value: string }[] }
   | { id: string; type: "image"; url: string; caption?: string }
-  | { id: string; type: "price_note"; text: string; subtext?: string };
+  | { id: string; type: "price_note"; text: string };
 
-export function isProductContentBlocks(raw?: string | null): boolean {
-  if (!raw || typeof raw !== "string") return false;
-  const trimmed = raw.trim();
-  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return false;
-  try {
-    const parsed = JSON.parse(trimmed);
-    return Array.isArray(parsed);
-  } catch {
-    return false;
-  }
-}
+/** Block types added in the description editor (the price note has its own form field). */
+export type EditableBlockType = Exclude<ProductContentBlock["type"], "price_note">;
+
+export const DEFAULT_PRICE_NOTE = "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K";
+
+const KNOWN_TYPES = new Set<string>(["paragraph", "heading", "bullet_list", "quote", "image", "price_note"]);
 
 /**
- * Danh sách các khối nội dung chuẩn cho từng sản phẩm:
- * 1. Điểm nổi bật (Heading + Bullet list)
- * 2. Bảng quy đổi size áo (Heading + Specs table)
- * (Lưu ý: Hướng dẫn giặt ủi & bảo quản đã được chuyển sang quản lý tập trung ở Setting Global)
+ * Stored description → blocks. Plain-text (legacy) descriptions become a single
+ * paragraph; retired block types (callout, specs_table) are dropped.
  */
-export function getDefaultProductSections(): ProductContentBlock[] {
-  const ts = Date.now();
-  return [
-    {
-      id: `default-hl-h-${ts}`,
-      type: "heading",
-      level: 2,
-      text: "Điểm Nổi Bật Của Sản Phẩm",
-    },
-    {
-      id: `default-hl-list-${ts}`,
-      type: "bullet_list",
-      items: [
-        "Chất liệu 100% Cotton 4 chiều, thấm hút mồ hôi tối đa, thoáng mát.",
-        "Công nghệ in DTG cao cấp, không nứt gãy hoặc phai màu sau khi giặt.",
-        "Form dáng Regular Fit chuẩn Unisex, dễ dàng phối đồ đi học, đi làm, đi nhóm.",
-        "Đóng gói chỉn chu kèm bookmark Lời Chúa và thiệp cảm ơn.",
-      ],
-    },
-    {
-      id: `default-size-h-${ts}`,
-      type: "heading",
-      level: 2,
-      text: "Bảng Quy Đổi Size Áo Chuẩn",
-    },
-    {
-      id: `default-size-tbl-${ts}`,
-      type: "specs_table",
-      rows: [
-        { label: "Size S", value: "1m50 - 1m62 | 42 - 52 kg | Dài 66cm / Rộng 48cm" },
-        { label: "Size M", value: "1m60 - 1m70 | 53 - 62 kg | Dài 69cm / Rộng 51cm" },
-        { label: "Size L", value: "1m68 - 1m76 | 63 - 72 kg | Dài 72cm / Rộng 54cm" },
-        { label: "Size XL", value: "1m75 - 1m85 | 73 - 85 kg | Dài 75cm / Rộng 57cm" },
-      ],
-    },
-  ];
-}
-
 export function parseProductContent(raw?: string | null): ProductContentBlock[] {
-  if (isProductContentBlocks(raw)) {
+  const text = raw?.trim();
+  if (!text) return [];
+  if (text.startsWith("[")) {
     try {
-      const parsed = JSON.parse((raw as string).trim());
+      const parsed: unknown = JSON.parse(text);
       if (Array.isArray(parsed)) {
-        return parsed.map((item, idx) => ({
-          ...item,
-          id: item.id || `block-${idx}-${Date.now()}`,
-        }));
+        return parsed
+          .filter((block) => typeof block?.type === "string" && KNOWN_TYPES.has(block.type))
+          .map((block, index) => ({ ...block, id: block.id || `block-${index}` }));
       }
     } catch {
-      // Fallback below
+      // Not JSON after all — treat it as plain text below.
     }
   }
-
-  // Dữ liệu văn bản thuần legacy hoặc sản phẩm chưa chuyển đổi sang khối:
-  // Tự động giữ đoạn mô tả hiện tại và bổ sung trọn vẹn các phần mặc định (Điểm nổi bật, Size, Hướng dẫn giặt)
-  const blocks: ProductContentBlock[] = [];
-  if (raw && typeof raw === "string" && raw.trim().length > 0) {
-    blocks.push({
-      id: `legacy-desc-${Date.now()}`,
-      type: "paragraph",
-      content: raw.trim(),
-    });
-  }
-
-  return [...blocks, ...getDefaultProductSections()];
+  return [{ id: "description", type: "paragraph", content: text }];
 }
 
 export function serializeProductContent(blocks: ProductContentBlock[]): string {
-  if (!blocks || blocks.length === 0) return "[]";
   return JSON.stringify(blocks);
+}
+
+/** Admin-set promo line for the price box; `null` = never set, so the storefront shows DEFAULT_PRICE_NOTE. */
+export function readPriceNote(blocks: ProductContentBlock[]): string | null {
+  for (const block of blocks) if (block.type === "price_note") return block.text;
+  return null;
+}
+
+/** Replaces any price note with `text`. An empty note is kept so admins can hide the line. */
+export function withPriceNote(blocks: ProductContentBlock[], text: string): ProductContentBlock[] {
+  return [{ id: "price-note", type: "price_note", text: text.trim() }, ...blocks.filter((b) => b.type !== "price_note")];
+}
+
+/** First ~160 characters of readable text, for meta descriptions. */
+export function contentToPlainText(blocks: ProductContentBlock[]): string {
+  return blocks
+    .map((block) => {
+      switch (block.type) {
+        case "paragraph":
+          return block.content;
+        case "heading":
+          return block.text;
+        case "bullet_list":
+          return block.items.join(". ");
+        case "quote":
+          return block.quote;
+        default:
+          return "";
+      }
+    })
+    .filter(Boolean)
+    .join(" ")
+    .slice(0, 160);
 }

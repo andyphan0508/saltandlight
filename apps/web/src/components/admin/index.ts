@@ -17,7 +17,7 @@ export * from "./PageLivePreviewModal";
 export * from "./Pagination";
 export * from "./PaymentActions";
 export * from "./ProductForm";
-export * from "./ProductNotionEditor";
+export * from "./ProductContentEditor";
 export * from "./ProductPickerModal";
 export * from "./ProductsManager";
 export * from "./PromotionsManager";

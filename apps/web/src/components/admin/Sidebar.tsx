@@ -21,6 +21,7 @@ import {
   Tag,
   Globe,
   MessageSquare,
+  BookOpen,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -44,6 +45,7 @@ const NAV_GROUPS: {
     items: [
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
       { href: "/admin/categories", label: "Danh mục", icon: FolderTree },
+      { href: "/admin/product-guides", label: "Hướng dẫn sản phẩm", icon: BookOpen },
       { href: "/admin/promotions", label: "Mã & Khuyến mãi", icon: Tag },
       { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
       { href: "/admin/page-builder", label: "Bố cục trang chủ", icon: LayoutGrid },

@@ -1,24 +1,15 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge, Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { useCartStore, useWishlistStore } from "@/stores";
-import {
-  ShoppingBag,
-  Heart,
-  Check,
-  Sparkles,
-  X,
-} from "./Icons";
-
-import {
-  parseProductContent,
-  type ProductContentBlock,
-} from "@/lib/product-content";
+import { ShoppingBag, Heart, Check, Sparkles } from "./Icons";
+import { SizeChartModal } from "./SizeChartModal";
+import { DEFAULT_PRICE_NOTE } from "@/lib/product-content";
+import type { ProductGuide } from "@/lib/product-guides";
 
 export interface VariantPlain {
   id: string;
@@ -49,19 +40,18 @@ export const ProductBuyBox = ({
   productId,
   productName,
   variants,
-  description,
+  priceNote,
+  sizeCharts,
 }: {
   productId: string;
   productName?: string;
   variants: VariantPlain[];
-  description?: string | null;
+  /** Admin-set promo line: `null` = never set (show the default), "" = hidden. */
+  priceNote: string | null;
+  /** The category's size charts (table-layout guides) for the "Bảng size" dialog. */
+  sizeCharts: ProductGuide[];
 }) => {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const colors = useMemo(
     () => Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[],
@@ -86,6 +76,7 @@ export const ProductBuyBox = ({
   const [quantity, setQuantity] = useState(1);
   const [isJustAdded, setIsJustAdded] = useState(false);
   const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
+  const closeSizeChart = useCallback(() => setIsSizeModalOpen(false), []);
 
   // Tự động cập nhật size khi danh sách sizes thay đổi
   useEffect(() => {
@@ -93,36 +84,6 @@ export const ProductBuyBox = ({
       setSize(sizes[0] ?? null);
     }
   }, [sizes, size]);
-
-  const { specsTables, priceNote } = useMemo(() => {
-    if (!description) return { specsTables: [], priceNote: null };
-    const blocks = parseProductContent(description);
-    const tables = blocks.filter(
-      (b): b is Extract<ProductContentBlock, { type: "specs_table" }> => b.type === "specs_table"
-    );
-    const noteBlock = blocks.find(
-      (b): b is Extract<ProductContentBlock, { type: "price_note" }> => b.type === "price_note"
-    );
-    return {
-      specsTables: tables,
-      priceNote: noteBlock ? noteBlock.text : null,
-    };
-  }, [description]);
-
-  // Prevent scroll when modal is open and handle ESC key
-  useEffect(() => {
-    if (isSizeModalOpen) {
-      document.body.style.overflow = "hidden";
-      const onKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") setIsSizeModalOpen(false);
-      };
-      window.addEventListener("keydown", onKeyDown);
-      return () => {
-        document.body.style.overflow = "";
-        window.removeEventListener("keydown", onKeyDown);
-      };
-    }
-  }, [isSizeModalOpen]);
 
   const selected =
     variants.find((v) => (color ? v.color === color : true) && (size ? v.size === size : true)) ??
@@ -137,6 +98,7 @@ export const ProductBuyBox = ({
   const discount = calcDiscountPercent(selected.price, selected.compareAtPrice);
   const outOfStock = selected.stockQuantity <= 0;
   const savings = selected.compareAtPrice ? selected.compareAtPrice - selected.price : 0;
+  const note = (priceNote ?? DEFAULT_PRICE_NOTE).trim();
 
   const onAddToCart = () => {
     if (outOfStock) return;
@@ -193,14 +155,10 @@ export const ProductBuyBox = ({
             Tiết kiệm {formatVND(savings)} so với giá niêm yết
           </p>
         )}
-        {(priceNote === null || (priceNote && priceNote.trim().length > 0)) && (
+        {note && (
           <div className="mt-3 flex items-start gap-2 text-xs text-brand-forest">
             <Sparkles size={15} className="flex-shrink-0 mt-0.5 text-gold-600" />
-            <span className="leading-snug">
-              {priceNote && priceNote.trim().length > 0
-                ? priceNote
-                : "Tặng kèm thiệp Lời Chúa & Miễn phí vận chuyển cho đơn từ 299K"}
-            </span>
+            <span className="leading-snug">{note}</span>
           </div>
         )}
       </div>
@@ -248,7 +206,7 @@ export const ProductBuyBox = ({
             <span className="text-xs font-bold uppercase tracking-wider text-ink/70 flex-shrink-0">
               Kích thước: <strong className="text-ink">{size}</strong>
             </span>
-            {specsTables.length > 0 && (
+            {sizeCharts.length > 0 && (
               <button
                 type="button"
                 onClick={() => setIsSizeModalOpen(true)}
@@ -365,80 +323,7 @@ export const ProductBuyBox = ({
         </div>
       </div>
 
-
-      {/* Size Chart Modal rendered via Portal directly to body */}
-      {isMounted &&
-        isSizeModalOpen &&
-        specsTables.length > 0 &&
-        createPortal(
-          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-            <div
-              className="fixed inset-0 bg-ink/50 backdrop-blur-xs transition-opacity animate-fade-in"
-              onClick={() => setIsSizeModalOpen(false)}
-              aria-hidden="true"
-            />
-            <div className="relative w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl z-10 my-auto max-h-[90vh] overflow-y-auto animate-pop-in border border-ink/10">
-              <div className="flex items-center justify-between border-b border-ink/10 pb-4">
-                <h3 className="font-display text-lg font-bold uppercase text-ink flex items-center gap-2">
-                  <span>📏 Bảng Thông Số &amp; Quy Đổi Size</span>
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsSizeModalOpen(false)}
-                  className="rounded-full p-2 text-ink/50 hover:bg-ink/5 hover:text-ink transition-colors"
-                  title="Đóng (ESC)"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-4">
-                {specsTables.map((table, tIdx) => (
-                  <div key={table.id || tIdx} className="overflow-hidden rounded-2xl border border-ink/10 shadow-xs">
-                    <table className="w-full text-left text-xs">
-                      <tbody className="divide-y divide-ink/10 bg-white">
-                        {table.rows
-                          .filter((r) => r.label || r.value)
-                          .map((row, rIdx) => (
-                            <tr key={rIdx} className={rIdx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
-                              <td className="p-3 font-bold text-ink/80 w-1/3 sm:w-1/4 border-r border-ink/5">
-                                {row.label}
-                              </td>
-                              <td className="p-3 font-medium text-ink">
-                                {row.value}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ))}
-
-                <div className="rounded-2xl bg-cream p-4 text-xs text-ink/70 border border-ink/5">
-                  <p className="font-bold text-ink flex items-center gap-1.5">
-                    <span>💡 Bạn còn phân vân chưa chắc chắn về size?</span>
-                  </p>
-                  <p className="mt-1 leading-relaxed">
-                    Hãy liên hệ ngay hotline/Zalo <strong>0847 25 2025</strong>, đội ngũ tư vấn sẽ hỗ
-                    trợ bạn chọn size chuẩn và vừa vặn nhất!
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-3 border-t border-ink/10 flex justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsSizeModalOpen(false)}
-                  className="rounded-xl px-5 py-2 text-xs font-bold"
-                >
-                  Đã hiểu &amp; Đóng
-                </Button>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      {isSizeModalOpen && <SizeChartModal charts={sizeCharts} onClose={closeSizeChart} />}
     </div>
   );
 };
