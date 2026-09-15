@@ -1,7 +1,7 @@
 import { prisma } from "@saltandlight/db";
 import { getAllProvinces } from "@saltandlight/domain/vn-locations";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { ShippingZonesManager } from "./components/ShippingZoneForm";
+import { ShippingZonesManager } from "./components/ShippingZonesManager";
 
 const ShippingPage = async () => {
   const zonesRaw = await prisma.shippingZone.findMany({ include: { methods: true } });

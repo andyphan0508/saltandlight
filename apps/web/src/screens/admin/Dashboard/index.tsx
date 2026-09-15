@@ -1,396 +1,66 @@
 import Link from "next/link";
-import { prisma } from "@saltandlight/db";
-import { formatVND } from "@saltandlight/domain";
+import { ArrowRight } from "@/components/admin/Icons";
+import { getLowStockVariants, getRecentOrders } from "@/server/admin/dashboard-lists";
 import { getDashboardStats } from "@/server/admin/stats";
-import { PageHeader } from "@/components/admin/PageHeader";
-import { StatCard } from "./components/StatCard";
+import { DashboardAlerts } from "./components/DashboardAlerts";
+import { DashboardCard } from "./components/DashboardCard";
+import { EditorShortcutCard } from "./components/EditorShortcutCard";
+import { MetricCards } from "./components/MetricCards";
+import { RecentOrdersTable } from "./components/RecentOrdersTable";
 import { RevenueChart } from "./components/RevenueChart";
 import { StatusBreakdown } from "./components/StatusBreakdown";
-import { SITE_URL } from "@/helpers/site-url";
-import {
-  Wallet,
-  ShoppingCart,
-  Package,
-  Users,
-  AlertTriangle,
-  ArrowRight,
-  Plus,
-  ExternalLink,
-  Sparkles,
-} from "@/components/admin/Icons";
-import { ADMIN_ORDER_STATUS as STATUS_BADGES } from "@/helpers/order-status-styles";
-import { MANAGED_PAGES } from "@/helpers/managed-pages";
+import { TopProductsList } from "./components/TopProductsList";
+import { WelcomeBanner } from "./components/WelcomeBanner";
 
 const DashboardPage = async () => {
+  // Stats first, then the two lists: keeps concurrent queries within the small database pool
   const stats = await getDashboardStats();
-
-  const [recentOrders, lowStockVariants] = await Promise.all([
-    prisma.order.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      select: {
-        id: true,
-        orderNumber: true,
-        total: true,
-        status: true,
-        createdAt: true,
-        customer: { select: { fullName: true, phone: true } },
-      },
-    }),
-    prisma.productVariant.findMany({
-      where: { isActive: true, stockQuantity: { lte: 5 } },
-      orderBy: { stockQuantity: "asc" },
-      take: 5,
-      select: {
-        id: true,
-        productId: true,
-        size: true,
-        color: true,
-        stockQuantity: true,
-        product: { select: { name: true } },
-      },
-    }),
-  ]);
+  const [recentOrders, lowStockVariants] = await Promise.all([getRecentOrders(), getLowStockVariants()]);
 
   return (
     <div className="space-y-7 sm:space-y-8">
-      {/* 1. Luno Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ink via-slate-900 to-brand-forest p-7 sm:p-9 text-white shadow-lg">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1 text-xs font-bold text-mint-200 backdrop-blur-sm border border-white/10">
-              <Sparkles size={13} />
-              <span>Bảng Quản Trị Salt &amp; Light 2026</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
-              Chào mừng trở lại, Quản trị viên! 👋
-            </h1>
-            <p className="text-xs sm:text-sm text-white/75 max-w-xl leading-relaxed">
-              Dưới đây là tổng quan hoạt động kinh doanh, tình trạng đơn hàng và doanh số bán hàng của thương hiệu.
-            </p>
-          </div>
+      <WelcomeBanner />
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/admin/products/new"
-              className="inline-flex items-center gap-2 rounded-full bg-mint-300 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-ink hover:bg-white transition-all shadow-sm active:scale-95"
-            >
-              <Plus size={15} />
-              <span>Thêm sản phẩm mới</span>
-            </Link>
-            <a
-              href={SITE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4.5 py-2.5 text-xs font-bold text-white hover:bg-white/25 transition-all backdrop-blur-sm border border-white/10"
-            >
-              <span>Xem storefront</span>
-              <ExternalLink size={13} />
-            </a>
-          </div>
-        </div>
-      </div>
+      <MetricCards stats={stats} />
 
-      {/* 2. Top Metric Stat Cards */}
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Doanh thu tháng này"
-          value={formatVND(stats.monthRevenue)}
-          icon={<Wallet size={19} />}
-          tone="forest"
-          trend={
-            stats.revenueChangePct != null
-              ? {
-                  value: `${Math.abs(stats.revenueChangePct)}% so với tháng trước`,
-                  positive: stats.revenueChangePct >= 0,
-                }
-              : undefined
-          }
-          subtext="Doanh số tính theo tháng hiện tại"
-        />
-        <StatCard
-          label="Đơn hàng tháng này"
-          value={String(stats.monthOrderCount)}
-          icon={<ShoppingCart size={19} />}
-          tone="blue"
-          subtext="Tổng số đơn phát sinh"
-        />
-        <StatCard
-          label="Sản phẩm đang bán"
-          value={String(stats.totalProducts)}
-          icon={<Package size={19} />}
-          tone="gold"
-          subtext="Sản phẩm đang hiển thị"
-        />
-        <StatCard
-          label="Tổng khách hàng"
-          value={String(stats.totalCustomers)}
-          icon={<Users size={19} />}
-          tone="purple"
-          subtext="Khách hàng toàn hệ thống"
-        />
-      </div>
+      <EditorShortcutCard />
 
-      {/* 3. Section: Editor (Elementor Visual Page Builder) */}
-      <div className="relative overflow-hidden rounded-3xl border border-brand-forest/25 bg-gradient-to-br from-white via-mint-50/40 to-emerald-50/60 p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-forest text-white px-3 py-0.5 text-[11px] font-bold shadow-xs">
-                <Sparkles size={12} />
-                <span>Editor</span>
-              </span>
-              <span className="text-[11px] font-bold text-brand-forest bg-mint-100 px-2.5 py-0.5 rounded-md">
-                Chuẩn Elementor WYSIWYG
-              </span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              Trình Dựng Trang Trực Quan (Live Elementor Editor)
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Chỉnh sửa trực tiếp trên giao diện trang web thật của bạn. Click vào bất kỳ khối nào trên trang để sửa nội dung tức thì, kéo-thả sắp xếp khối, và xem trước linh hoạt trên cả Máy tính, Máy tính bảng và Điện thoại.
-            </p>
-
-            {/* Managed Pages Quick Access */}
-            <div className="flex flex-wrap items-center gap-2 pt-1.5">
-              <span className="text-xs font-semibold text-slate-500">Mở nhanh trang:</span>
-              {MANAGED_PAGES.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/admin/editor?page=${p.slug}`}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50 transition-all shadow-2xs"
-                >
-                  {p.label} ({p.path})
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
-            <Link
-              href="/admin/editor"
-              className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-brand-forest px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-brand-forest/90 transition-all shadow-md shadow-brand-forest/20 active:scale-95"
-            >
-              <Sparkles size={16} />
-              <span>Mở Elementor Editor ngay</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Charts & Analytics Grid */}
       <div className="grid gap-6 xl:grid-cols-3">
-        {/* 14-day Revenue Chart */}
-        <div className="luno-card p-6 sm:p-8 rounded-3xl xl:col-span-2">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4.5">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
-                Doanh thu 14 ngày gần nhất
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Biểu đồ tăng trưởng doanh số hàng ngày</p>
-            </div>
-            <span className="rounded-full bg-mint-100 px-3.5 py-1 text-[10px] font-bold text-brand-forest">
-              14 Ngày Qua
-            </span>
-          </div>
-          <div className="mt-5">
-            <RevenueChart series={stats.revenueSeries} />
-          </div>
-        </div>
+        <DashboardCard
+          title="Doanh thu 14 ngày gần nhất"
+          subtitle="Biểu đồ tăng trưởng doanh số hàng ngày"
+          className="xl:col-span-2"
+          aside={<span className="rounded-full bg-mint-100 px-3.5 py-1 text-[10px] font-bold text-brand-forest">14 Ngày Qua</span>}
+        >
+          <RevenueChart series={stats.revenueSeries} />
+        </DashboardCard>
 
-        {/* Order Status Breakdown */}
-        <div className="luno-card p-6 sm:p-8 rounded-3xl">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4.5">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
-                Đơn hàng theo trạng thái
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Tỷ lệ phân bổ trạng thái</p>
-            </div>
-          </div>
-          <div className="mt-5">
-            <StatusBreakdown counts={stats.statusCounts} />
-          </div>
-        </div>
+        <DashboardCard title="Đơn hàng theo trạng thái" subtitle="Tỷ lệ phân bổ trạng thái">
+          <StatusBreakdown counts={stats.statusCounts} />
+        </DashboardCard>
       </div>
 
-      {/* 4. Recent Orders & Best Selling Products */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent Orders */}
-        <div className="luno-card p-6 sm:p-8 rounded-3xl lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
-                Đơn hàng gần đây
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Các đơn hàng mới nhất cần xử lý</p>
-            </div>
-            <Link
-              href="/admin/orders"
-              className="inline-flex items-center gap-1 text-xs font-bold text-brand-forest hover:underline"
-            >
+        <DashboardCard
+          title="Đơn hàng gần đây"
+          subtitle="Các đơn hàng mới nhất cần xử lý"
+          className="lg:col-span-2"
+          aside={
+            <Link href="/admin/orders" className="inline-flex items-center gap-1 text-xs font-bold text-brand-forest hover:underline">
               <span>Xem tất cả</span>
               <ArrowRight size={13} />
             </Link>
-          </div>
+          }
+        >
+          <RecentOrdersTable orders={recentOrders} />
+        </DashboardCard>
 
-          <div className="mt-3 divide-y divide-slate-100 overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="text-slate-400 uppercase font-bold text-[10px]">
-                  <th className="py-2.5 px-2">Mã đơn</th>
-                  <th className="py-2.5 px-2">Khách hàng</th>
-                  <th className="py-2.5 px-2">Tổng tiền</th>
-                  <th className="py-2.5 px-2">Trạng thái</th>
-                  <th className="py-2.5 px-2 text-right">Ngày tạo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {recentOrders.map((o) => {
-                  const badge = STATUS_BADGES[o.status] ?? {
-                    label: o.status,
-                    className: "bg-slate-100 text-slate-600 border-slate-200",
-                  };
-                  return (
-                    <tr
-                      key={o.id}
-                      className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
-                    >
-                      <td className="py-3 px-2">
-                        <Link
-                          href={`/admin/orders/${o.id}`}
-                          className="font-bold text-ink group-hover:text-brand-forest"
-                        >
-                          {o.orderNumber}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="font-bold text-slate-700">{o.customer.fullName}</div>
-                        <div className="text-[11px] text-slate-400">{o.customer.phone}</div>
-                      </td>
-                      <td className="py-3 px-2 font-bold text-brand-forest">
-                        {formatVND(Number(o.total))}
-                      </td>
-                      <td className="py-3 px-2">
-                        <span
-                          className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${badge.className}`}
-                        >
-                          {badge.label}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 text-right font-medium text-slate-400">
-                        {o.createdAt.toLocaleDateString("vi-VN")}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {recentOrders.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-xs text-slate-400">
-                      Chưa có đơn hàng nào được ghi nhận.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Top Selling Products */}
-        <div className="luno-card p-6 sm:p-8 rounded-3xl">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4.5">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
-                Sản phẩm bán chạy
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Top sản phẩm có lượng mua cao nhất</p>
-            </div>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {stats.topProducts.length === 0 && (
-              <p className="py-8 text-center text-xs text-slate-400">Chưa có dữ liệu sản phẩm.</p>
-            )}
-            {stats.topProducts.map((p, i) => (
-              <div
-                key={p.name}
-                className="flex items-center gap-3 rounded-2xl p-2.5 hover:bg-slate-50 transition-colors"
-              >
-                <span
-                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
-                    i === 0
-                      ? "bg-amber-100 text-amber-700 border border-amber-200"
-                      : i === 1
-                      ? "bg-slate-200 text-slate-700"
-                      : i === 2
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  #{i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <span className="truncate text-xs font-bold text-slate-800 block">
-                    {p.name}
-                  </span>
-                  <span className="text-[11px] text-slate-400">Thời trang Cơ Đốc</span>
-                </div>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-100">
-                  {p.quantity} đã bán
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DashboardCard title="Sản phẩm bán chạy" subtitle="Top sản phẩm có lượng mua cao nhất">
+          <TopProductsList products={stats.topProducts} />
+        </DashboardCard>
       </div>
 
-      {/* 5. Warning & Action Alerts */}
-      {(stats.pendingPayments > 0 || lowStockVariants.length > 0) && (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {stats.pendingPayments > 0 && (
-            <Link
-              href="/admin/payments"
-              className="flex items-center gap-4 rounded-3xl border border-amber-200 bg-amber-50/70 p-6 hover:bg-amber-100/60 transition-colors shadow-xs"
-            >
-              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 border border-amber-200">
-                <Wallet size={20} />
-              </span>
-              <div className="flex-1 text-xs">
-                <span className="font-bold text-slate-900 block text-sm">
-                  {stats.pendingPayments} giao dịch chờ xác nhận VietQR
-                </span>
-                <span className="text-slate-600 mt-0.5 block">
-                  Khách hàng đã chuyển khoản, nhấp để kiểm tra và duyệt đơn
-                </span>
-              </div>
-              <ArrowRight size={16} className="text-amber-700" />
-            </Link>
-          )}
-
-          {lowStockVariants.length > 0 && (
-            <div className="rounded-3xl border border-rose-200 bg-rose-50/60 p-6 shadow-xs">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-700">
-                <AlertTriangle size={16} /> Cảnh báo sắp hết hàng ({lowStockVariants.length} phân loại)
-              </div>
-              <div className="mt-3 space-y-2">
-                {lowStockVariants.map((v) => (
-                  <Link
-                    key={v.id}
-                    href={`/admin/products/${v.productId}`}
-                    className="flex items-center justify-between text-xs hover:underline"
-                  >
-                    <span className="truncate font-semibold text-slate-700">
-                      {v.product.name} ({[v.color, v.size].filter(Boolean).join(" - ")})
-                    </span>
-                    <span className="font-bold text-rose-600">chỉ còn {v.stockQuantity}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      <DashboardAlerts pendingPayments={stats.pendingPayments} lowStockVariants={lowStockVariants} />
     </div>
   );
 };
