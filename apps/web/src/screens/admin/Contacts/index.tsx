@@ -1,5 +1,6 @@
 import { prisma } from "@saltandlight/db";
-import { ContactSubmissionsManager, type ContactSubmissionItem } from "./components/ContactSubmissionsManager";
+import type { ContactSubmissionItem } from "@/interfaces/contact";
+import { ContactSubmissionsManager } from "./components/ContactSubmissionsManager";
 
 const PAGE_SIZE = 15;
 
