@@ -44,7 +44,6 @@ export const createOrderSchema = z.object({
   items: z.array(cartItemSchema).min(1),
   note: z.string().max(500).optional(),
 });
-export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 
 export const trackOrderSchema = z.object({
   orderNumber: z.string().min(4),
@@ -59,4 +58,3 @@ export const contactFormSchema = z.object({
   message: z.string().min(5).max(2000),
   turnstileToken: z.string().min(1, "Vui lòng xác minh bạn không phải robot"),
 });
-export type ContactFormInput = z.infer<typeof contactFormSchema>;

@@ -9,15 +9,11 @@ import Link from "next/link";
 
 export function ProductListModal({
   title,
-  subtitle,
-  categorySlug,
   ctaLabel,
   ctaHref,
   products,
 }: {
   title: string;
-  subtitle?: string;
-  categorySlug?: string;
   ctaLabel?: string;
   ctaHref?: string;
   products: ProductCardData[];

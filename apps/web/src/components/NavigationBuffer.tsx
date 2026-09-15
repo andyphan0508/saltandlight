@@ -1,30 +1,8 @@
 "use client";
 
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  createContext,
-  useContext,
-  useCallback,
-  Suspense,
-} from "react";
+import { useEffect, useState, useRef, useCallback, Suspense } from "react";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
-
-interface NavigationBufferContextType {
-  isBuffering: boolean;
-  startBuffer: (message?: string) => void;
-  stopBuffer: () => void;
-}
-
-const NavigationBufferContext = createContext<NavigationBufferContextType>({
-  isBuffering: false,
-  startBuffer: () => {},
-  stopBuffer: () => {},
-});
-
-export const useNavigationBuffer = () => useContext(NavigationBufferContext);
 
 const NavigationBufferInner = () => {
   const pathname = usePathname();
@@ -152,7 +130,7 @@ const NavigationBufferInner = () => {
   if (!isBuffering && progress === 0) return null;
 
   return (
-    <NavigationBufferContext.Provider value={{ isBuffering, startBuffer: onStartBuffer, stopBuffer: onStopBuffer }}>
+    <>
       {/* 1. Top Loading Progress Bar - ALWAYS non-blocking */}
       <div className="fixed top-0 left-0 right-0 z-[9999] h-[3.5px] bg-transparent pointer-events-none select-none">
         <div
@@ -202,7 +180,7 @@ const NavigationBufferInner = () => {
           </div>
         </div>
       )}
-    </NavigationBufferContext.Provider>
+    </>
   );
 };
 

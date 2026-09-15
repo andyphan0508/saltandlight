@@ -40,11 +40,11 @@ import {
 import {
   BLOCK_TYPE_LABELS,
   PAGE_BLOCK_TYPES,
+  type PageBlockItem,
   type PageBlockTypeValue,
 } from "@/lib/admin/page-block-types";
 import { BLOCK_TEMPLATES } from "@/components/admin/BlockPaletteModal";
-import { BlockEditForm, defaultContent } from "../page-builder/BlockEditForm";
-import type { PageBlockItem } from "../page-builder/BlockList";
+import { BlockEditForm, defaultContent } from "./BlockEditForm";
 
 const MANAGED_PAGES = [
   { slug: "home", label: "Trang chủ", path: "/" },

@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { BLOCK_TYPE_LABELS, BLOCK_ICON_KEYS, type PageBlockTypeValue } from "@/lib/admin/page-block-types";
 import { TextField, ArrayEditor } from "@/components/admin/form-fields";
 import { ProductPickerModal } from "@/components/admin/ProductPickerModal";
-import type { PageBlockItem } from "./BlockList";
+import type { PageBlockItem } from "@/lib/admin/page-block-types";
 
 export function defaultContent(type: PageBlockTypeValue): Record<string, any> {
   switch (type) {

@@ -19,19 +19,6 @@ const bannerSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export async function GET() {
-  try {
-    await requireAdmin(["owner", "staff"]);
-    const banners = await prisma.banner.findMany({
-      orderBy: { sortOrder: "asc" },
-      take: 500,
-    });
-    return NextResponse.json({ banners });
-  } catch (err) {
-    return apiError(err, "Có lỗi xảy ra");
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const admin = await requireAdmin(["owner", "staff"]);

@@ -155,8 +155,6 @@ export async function FeaturedProductsBlock({
             {viewAllMode === "modal" ? (
               <ProductListModal
                 title={content.headline}
-                subtitle={content.eyebrow}
-                categorySlug={resolvedCategorySlug}
                 ctaLabel={content.ctaLabel || "Xem tất cả"}
                 ctaHref={ctaTargetUrl}
                 products={products}

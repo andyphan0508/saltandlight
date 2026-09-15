@@ -14,19 +14,6 @@ function invalidateProductCaches() {
   invalidateMemoryCache("related-products-");
 }
 
-export async function GET() {
-  try {
-    await requireAdmin();
-    const promotions = await prisma.promotion.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 500,
-    });
-    return NextResponse.json({ promotions });
-  } catch (err) {
-    return apiError(err, "Có lỗi xảy ra");
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
@@ -109,7 +96,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    invalidateMemoryCache("active-promotions");
     if (applyPrices && productIds.length > 0) invalidateProductCaches();
 
     return NextResponse.json({ promotion });

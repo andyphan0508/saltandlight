@@ -91,9 +91,3 @@ export const ProductToolbar = ({
     </div>
   );
 };
-
-export const useProductView = (): "2" | "3" | "4" | "list" => {
-  const searchParams = useSearchParams();
-  const view = searchParams.get("view") ?? "3";
-  return (["2", "3", "4", "list"] as const).includes(view as never) ? (view as never) : "3";
-};

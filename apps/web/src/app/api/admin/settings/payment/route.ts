@@ -10,16 +10,6 @@ export const dynamic = "force-dynamic";
 
 const SETTINGS_ID = "default";
 
-export async function GET() {
-  try {
-    await requireAdmin(["owner", "staff"]);
-    const settings = await prisma.paymentSettings.findUnique({ where: { id: SETTINGS_ID } });
-    return NextResponse.json({ settings });
-  } catch (err) {
-    return apiError(err, "Có lỗi xảy ra");
-  }
-}
-
 export async function PATCH(req: NextRequest) {
   try {
     const admin = await requireAdmin(["owner", "staff"]);

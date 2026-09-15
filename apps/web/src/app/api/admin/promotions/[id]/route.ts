@@ -14,22 +14,6 @@ function invalidateProductCaches() {
   invalidateMemoryCache("related-products-");
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  try {
-    await requireAdmin();
-    const promotion = await prisma.promotion.findUnique({
-      where: { id: params.id },
-    });
-    if (!promotion) return NextResponse.json({ error: "Không tìm thấy chương trình" }, { status: 404 });
-    return NextResponse.json({ promotion });
-  } catch (err) {
-    return apiError(err, "Có lỗi xảy ra");
-  }
-}
-
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
@@ -116,7 +100,6 @@ export async function PATCH(
       }
     }
 
-    invalidateMemoryCache("active-promotions");
     if (applyPrices && updated.productIds.length > 0) invalidateProductCaches();
 
     return NextResponse.json({ promotion: updated });
@@ -134,7 +117,6 @@ export async function DELETE(
     await prisma.promotion.delete({
       where: { id: params.id },
     });
-    invalidateMemoryCache("active-promotions");
     return NextResponse.json({ success: true });
   } catch (err) {
     return apiError(err, "Không thể xóa chương trình");

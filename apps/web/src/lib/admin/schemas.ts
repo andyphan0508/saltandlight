@@ -29,7 +29,6 @@ export const productInputSchema = z.object({
   images: z.array(z.object({ url: z.string().url(), sortOrder: z.number().int() })),
   variants: z.array(variantInputSchema).min(1),
 });
-export type ProductInput = z.infer<typeof productInputSchema>;
 
 // ── Page content blocks ────────────────────────────────────────────
 
@@ -181,7 +180,6 @@ export const paymentSettingsSchema = z.object({
   showThankYouOnly: z.boolean().default(false),
   thankYouMessage: z.string().max(500).optional().nullable(),
 });
-export type PaymentSettingsInput = z.infer<typeof paymentSettingsSchema>;
 
 // ── Promotions ──────────────────────────────────────────────────────
 
@@ -208,7 +206,6 @@ export const promotionCreateSchema = z
     message: "Phần trăm giảm giá không được vượt quá 100%",
     path: ["discountValue"],
   });
-export type PromotionCreateInput = z.infer<typeof promotionCreateSchema>;
 
 export const promotionUpdateSchema = z
   .object({
@@ -227,7 +224,6 @@ export const promotionUpdateSchema = z
     (data) => data.discountType !== "percent" || data.discountValue === undefined || data.discountValue <= 100,
     { message: "Phần trăm giảm giá không được vượt quá 100%", path: ["discountValue"] },
   );
-export type PromotionUpdateInput = z.infer<typeof promotionUpdateSchema>;
 
 // ── Site settings (header/footer/logo/menu editor) ──────────────────
 
@@ -276,4 +272,3 @@ export const siteSettingsSchema = z.object({
     .nullable(),
   footerColumns: z.array(footerColumnSchema).max(6).optional().nullable(),
 });
-export type SiteSettingsInput = z.infer<typeof siteSettingsSchema>;

@@ -109,7 +109,6 @@ export function OrderConfirmationContent({
               <CopyField
                 label="Số tiền cần thanh toán"
                 value={formatVND(total)}
-                rawText={String(total)}
                 copied={copiedKey === "total"}
                 onCopy={() => copyToClipboard(String(total), "total")}
                 highlight
@@ -118,7 +117,6 @@ export function OrderConfirmationContent({
               <CopyField
                 label="Nội dung chuyển khoản (Memo)"
                 value={transferContent}
-                rawText={transferContent}
                 copied={copiedKey === "memo"}
                 onCopy={() => copyToClipboard(transferContent, "memo")}
                 highlight
@@ -182,14 +180,12 @@ export function OrderConfirmationContent({
 function CopyField({
   label,
   value,
-  rawText,
   copied,
   onCopy,
   highlight,
 }: {
   label: string;
   value: string;
-  rawText: string;
   copied: boolean;
   onCopy: () => void;
   highlight?: boolean;

@@ -342,7 +342,6 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
             ) : (
               <FooterPreview
                 logoUrl={footerLogoUrl}
-                logoSize={logoSize}
                 brandText={footerBrandText}
                 phone={footerPhone}
                 email={footerEmail}
@@ -399,7 +398,6 @@ function HeaderPreview({
 /** Scaled-down mock of the real Footer. */
 function FooterPreview({
   logoUrl,
-  logoSize,
   brandText,
   phone,
   email,
@@ -408,7 +406,6 @@ function FooterPreview({
   columns,
 }: {
   logoUrl: string;
-  logoSize: LogoSize;
   brandText: string;
   phone: string;
   email: string;

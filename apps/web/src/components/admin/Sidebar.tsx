@@ -48,7 +48,6 @@ const NAV_GROUPS: {
       { href: "/admin/product-guides", label: "Hướng dẫn sản phẩm", icon: BookOpen },
       { href: "/admin/promotions", label: "Mã & Khuyến mãi", icon: Tag },
       { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
-      { href: "/admin/page-builder", label: "Bố cục trang chủ", icon: LayoutGrid },
       { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingCart },
       { href: "/admin/payments", label: "Xác nhận thanh toán", icon: Wallet },
     ],

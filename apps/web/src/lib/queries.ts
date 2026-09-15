@@ -96,10 +96,6 @@ export async function listPublishedProducts(
   return { products: rows.map(toCardData), total };
 }
 
-export async function listCategories() {
-  return prisma.category.findMany({ orderBy: { name: "asc" } });
-}
-
 /** Category list with a live count of published products in each — for the sidebar filter. */
 export async function listCategoriesWithCounts() {
   const [categories, counts, totalPublished] = await Promise.all([
@@ -324,26 +320,6 @@ export async function getPaymentSettings() {
 /** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
 export const getCachedPaymentSettings = () =>
   withMemoryCache("payment-settings", 300, () => getPaymentSettings());
-
-/** List active discount campaigns for storefront announcements and product badges */
-export async function listActivePromotions() {
-  const now = new Date();
-  return prisma.promotion.findMany({
-    where: {
-      isActive: true,
-      OR: [
-        { startDate: null, endDate: null },
-        { startDate: { lte: now }, endDate: null },
-        { startDate: null, endDate: { gte: now } },
-        { startDate: { lte: now }, endDate: { gte: now } },
-      ],
-    },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-export const getCachedActivePromotions = () =>
-  withMemoryCache("active-promotions", 60, () => listActivePromotions());
 
 /** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
 export async function getSiteSettings() {

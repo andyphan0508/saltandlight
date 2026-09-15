@@ -7,24 +7,19 @@ import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
 import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { NavigationBuffer } from "@/components/NavigationBuffer";
-import { getCachedCategoriesWithCounts, getCachedActivePromotions, getCachedSiteSettings } from "@/lib/queries";
+import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/lib/site-settings-types";
 
 export default async function StorefrontLayout({ children }: { children: React.ReactNode }) {
   let navCategories: any[] = [];
-  let activePromotion: any = null;
   let siteSettings: SiteSettingsData = DEFAULT_SITE_SETTINGS;
   try {
-    const [{ categories }, promotions, settingsRow] = await Promise.all([
+    const [{ categories }, settingsRow] = await Promise.all([
       getCachedCategoriesWithCounts(),
-      getCachedActivePromotions(),
       getCachedSiteSettings(),
     ]);
     navCategories = toPlain(categories.filter((c) => c.count > 0));
-    if (promotions && promotions.length > 0) {
-      activePromotion = toPlain(promotions[0]);
-    }
     siteSettings = resolveSiteSettings(toPlain(settingsRow));
   } catch (err) {
     console.error("StorefrontLayout data fetching error:", err);
@@ -43,7 +38,7 @@ export default async function StorefrontLayout({ children }: { children: React.R
       />
       <NavigationBuffer />
       <CuteAmbientBackground />
-      <Header categories={navCategories} activePromotion={activePromotion} siteSettings={siteSettings} />
+      <Header categories={navCategories} siteSettings={siteSettings} />
       <main className="flex-1 pb-16 lg:pb-0">{children}</main>
       <Footer siteSettings={siteSettings} />
       <BottomTabBar />

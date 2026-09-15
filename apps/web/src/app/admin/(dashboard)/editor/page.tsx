@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { PAGE_SLUGS, type PageSlug } from "@/lib/admin/schemas";
 import { ElementorEditorClient } from "./ElementorEditorClient";

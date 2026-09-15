@@ -41,3 +41,12 @@ export const BLOCK_ICON_KEYS = [
   "MapPin",
   "Check",
 ] as const;
+
+export interface PageBlockItem {
+  id: string;
+  page: string;
+  type: PageBlockTypeValue;
+  sortOrder: number;
+  isVisible: boolean;
+  content: Record<string, any>;
+}

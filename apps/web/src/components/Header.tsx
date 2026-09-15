@@ -14,7 +14,6 @@ import { useCustomer } from "@/lib/use-customer";
 import { Logo } from "./Logo";
 import { MarqueeBanner } from "./MarqueeBanner";
 import { Heart, Search, Phone, Truck, ChevronDown, Sparkles, User } from "./Icons";
-import { formatVND } from "@saltandlight/domain";
 
 interface CategoryNavItem {
   id: string;
@@ -23,20 +22,11 @@ interface CategoryNavItem {
   count: number;
 }
 
-export interface ActivePromotionInfo {
-  name: string;
-  badge?: string | null;
-  discountType: string;
-  discountValue: number | string;
-}
-
 export const Header = ({
   categories,
-  activePromotion,
   siteSettings = DEFAULT_SITE_SETTINGS,
 }: {
   categories: CategoryNavItem[];
-  activePromotion?: ActivePromotionInfo | null;
   siteSettings?: SiteSettingsData;
 }) => {
   const pathname = usePathname();

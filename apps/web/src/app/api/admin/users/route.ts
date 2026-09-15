@@ -15,16 +15,6 @@ const bodySchema = z.object({
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  try {
-    await requireAdmin(["owner"]);
-    const users = await prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } });
-    return NextResponse.json({ users });
-  } catch (err) {
-    return apiError(err, "Có lỗi xảy ra");
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const admin = await requireAdmin(["owner"]);

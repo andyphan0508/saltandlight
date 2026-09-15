@@ -26,11 +26,6 @@ export function getAllProvinces(): { code: number; name: string }[] {
   return PROVINCES.map((p) => ({ code: p.code, name: p.name }));
 }
 
-/** Wards for one province, or `[]` if the province code is unknown. */
-export function getWardsByProvince(provinceCode: number): VnWard[] {
-  return PROVINCES.find((p) => p.code === provinceCode)?.wards ?? [];
-}
-
 export function findProvince(provinceCode: number): VnProvince | undefined {
   return PROVINCES.find((p) => p.code === provinceCode);
 }

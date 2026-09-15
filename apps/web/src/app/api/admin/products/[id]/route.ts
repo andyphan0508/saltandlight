@@ -3,7 +3,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError, apiError } from "@/lib/admin/auth";
+import { requireAdmin, AuthError } from "@/lib/admin/auth";
 import { logAudit } from "@/lib/admin/audit";
 import { productInputSchema } from "@/lib/admin/schemas";
 import { invalidateMemoryCache } from "@/lib/memory-cache";
@@ -17,20 +17,6 @@ function invalidateProductCaches() {
   invalidateMemoryCache("related-products-");
   invalidateMemoryCache("nav-categories-with-counts");
   invalidateMemoryCache("available-product-sizes");
-}
-
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    await requireAdmin(["owner", "staff"]);
-    const product = await prisma.product.findUnique({
-      where: { id: params.id },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true },
-    });
-    if (!product) return NextResponse.json({ error: "Không tìm thấy sản phẩm" }, { status: 404 });
-    return NextResponse.json({ product });
-  } catch (err) {
-    return apiError(err);
-  }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -115,39 +101,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
     if (err instanceof z.ZodError) return NextResponse.json({ error: err.flatten() }, { status: 400 });
-    console.error(err);
-    return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
-  }
-}
-
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const admin = await requireAdmin(["owner", "staff"]);
-    try {
-      await prisma.product.delete({ where: { id: params.id } });
-    } catch {
-      // Product has order history (FK restrict) — archive instead of hard-deleting sales data.
-      await prisma.product.update({ where: { id: params.id }, data: { status: "archived" } });
-    }
-    await logAudit({
-      adminUserId: admin.id,
-      action: "product.delete",
-      entityType: "product",
-      entityId: params.id,
-    });
-
-    try {
-      revalidateTag("products");
-      revalidateTag("categories");
-      revalidateTag("dashboard-stats");
-    } catch {
-      // Revalidation
-    }
-    invalidateProductCaches();
-
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status });
     console.error(err);
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }

@@ -1,22 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, createContext, useContext } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-
-interface LoadingContextType {
-  isLoading: boolean;
-  startLoading: (message?: string) => void;
-  stopLoading: () => void;
-}
-
-const LoadingContext = createContext<LoadingContextType>({
-  isLoading: false,
-  startLoading: () => {},
-  stopLoading: () => {}
-});
-
-export const useGlobalLoader = () => useContext(LoadingContext);
 
 export function NavigationProgress() {
   const pathname = usePathname();
@@ -28,14 +13,6 @@ export function NavigationProgress() {
   const startLoading = () => {
     setIsLoading(true);
     setProgress(20);
-  };
-
-  const stopLoading = () => {
-    setProgress(100);
-    setTimeout(() => {
-      setIsLoading(false);
-      setProgress(0);
-    }, 250);
   };
 
   // Reset loading whenever pathname or searchParams change
