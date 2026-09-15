@@ -44,7 +44,8 @@ import {
   type PageBlockTypeValue,
 } from "@/interfaces/page-block";
 import { BLOCK_TEMPLATES } from "./block-templates";
-import { BlockEditForm, defaultContent } from "./BlockEditForm";
+import { defaultContent } from "@/helpers/page-block-content";
+import { BlockEditForm } from "./BlockEditForm";
 import { adminFetch } from "@/api/admin-fetch";
 
 const MANAGED_PAGES = [

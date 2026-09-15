@@ -50,3 +50,9 @@ export interface PageBlockItem {
   isVisible: boolean;
   content: Record<string, any>;
 }
+
+/** Props shared by every block field editor in the Live Editor. */
+export interface BlockFieldsProps {
+  content: Record<string, any>;
+  onPatch: (patch: Record<string, any>) => void;
+}
