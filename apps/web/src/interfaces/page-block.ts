@@ -56,3 +56,5 @@ export interface BlockFieldsProps {
   content: Record<string, any>;
   onPatch: (patch: Record<string, any>) => void;
 }
+
+export type PreviewDevice = "desktop" | "tablet" | "mobile";

@@ -19,6 +19,7 @@ import {
   Sparkles,
 } from "@/components/admin/Icons";
 import { ADMIN_ORDER_STATUS as STATUS_BADGES } from "@/helpers/order-status-styles";
+import { MANAGED_PAGES } from "@/helpers/managed-pages";
 
 const DashboardPage = async () => {
   const stats = await getDashboardStats();
@@ -153,18 +154,13 @@ const DashboardPage = async () => {
             {/* Managed Pages Quick Access */}
             <div className="flex flex-wrap items-center gap-2 pt-1.5">
               <span className="text-xs font-semibold text-slate-500">Mở nhanh trang:</span>
-              {[
-                { slug: "home", label: "Trang chủ (/)" },
-                { slug: "gioi-thieu", label: "Giới thiệu (/gioi-thieu)" },
-                { slug: "lien-he", label: "Liên hệ (/lien-he)" },
-                { slug: "chinh-sach", label: "Chính sách (/chinh-sach)" },
-              ].map((p) => (
+              {MANAGED_PAGES.map((p) => (
                 <Link
                   key={p.slug}
                   href={`/admin/editor?page=${p.slug}`}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50 transition-all shadow-2xs"
                 >
-                  {p.label}
+                  {p.label} ({p.path})
                 </Link>
               ))}
             </div>

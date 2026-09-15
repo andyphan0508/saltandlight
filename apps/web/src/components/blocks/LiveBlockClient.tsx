@@ -44,10 +44,10 @@ export const LiveBlockClient = ({
     }
 
     setIsEditorMode(true);
-    // Notify parent admin frame that storefront is loaded
-    window.parent.postMessage({ type: "storefront:ready" }, "*");
 
     const onMessage = (event: MessageEvent) => {
+      // Only the same-origin Live Editor may drive the preview
+      if (event.origin !== window.location.origin) return;
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
@@ -64,8 +64,6 @@ export const LiveBlockClient = ({
         }
       } else if (data.type === "block:preview" && isTarget) {
         setPreviewContent(data.content);
-      } else if (data.type === "block:reload") {
-        window.location.reload();
       }
     };
 
@@ -127,7 +125,7 @@ export const LiveBlockClient = ({
         e.preventDefault();
         e.stopPropagation();
         setIsSelected(true);
-        window.parent.postMessage({ type: "block:select", blockId, blockType }, "*");
+        window.parent.postMessage({ type: "block:select", blockId, blockType }, window.location.origin);
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

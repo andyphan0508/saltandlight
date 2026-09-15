@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
 export const adminPasswordSchema = z
@@ -32,7 +33,7 @@ export const productInputSchema = z.object({
 
 // ── Page content blocks ────────────────────────────────────────────
 
-export const PAGE_SLUGS = ["home", "gioi-thieu", "lien-he", "chinh-sach", "dat-theo-yeu-cau"] as const;
+export const PAGE_SLUGS = MANAGED_PAGES.map((page) => page.slug) as [ManagedPageSlug, ...ManagedPageSlug[]];
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 
 const featureCardItemSchema = z.object({
