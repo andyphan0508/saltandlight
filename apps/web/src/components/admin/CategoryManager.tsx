@@ -481,6 +481,3 @@ export const CategoryManager = ({
     </div>
   );
 };
-
-export const CategoriesView = CategoryManager;
-

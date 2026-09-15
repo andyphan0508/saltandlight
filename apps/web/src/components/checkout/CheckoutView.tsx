@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
-import { useCartStore, useStoreHydrated } from "@/stores";
+import { useCartStore } from "@/stores/cart-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { fetchWithRetry } from "@/lib/fetch-with-retry";
 import { LocationSelect, type LocationValue } from "@/components/LocationSelect";
 import {

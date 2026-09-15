@@ -3,7 +3,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { formatVND } from "@saltandlight/domain";
-import { useCompareStore, useStoreHydrated } from "@/stores";
+import { useCompareStore } from "@/stores/compare-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import type { ProductCardData } from "@/lib/types";
 import { fetchProductsByIds } from "@/lib/fetch-products-by-ids";
 

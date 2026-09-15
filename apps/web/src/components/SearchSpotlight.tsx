@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSearchModalStore } from "@/stores";
+import { useSearchModalStore } from "@/stores/search-store";
 import { formatVND } from "@saltandlight/domain";
 import { Search, X, ArrowRight } from "./Icons";
 import type { ProductCardData } from "@/lib/types";

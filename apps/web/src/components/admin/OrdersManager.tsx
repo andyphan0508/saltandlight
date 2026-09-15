@@ -167,5 +167,3 @@ const StatusFilter = ({
     </Link>
   );
 };
-
-export const OrdersView = OrdersManager;

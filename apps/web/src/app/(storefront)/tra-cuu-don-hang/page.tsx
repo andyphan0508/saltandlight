@@ -1,4 +1,4 @@
-import { TrackOrderView } from "@/components/track-order";
+import { TrackOrderView } from "@/components/track-order/TrackOrderView";
 
 export const metadata = {
   title: "Tra cứu đơn hàng",

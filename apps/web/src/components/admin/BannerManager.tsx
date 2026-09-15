@@ -606,6 +606,3 @@ export const BannerManager = ({
     </div>
   );
 };
-
-export const BannersView = BannerManager;
-

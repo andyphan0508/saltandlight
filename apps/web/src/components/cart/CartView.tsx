@@ -2,15 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useCartStore, useStoreHydrated } from "@/stores";
+import { useCartStore } from "@/stores/cart-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { fetchWithRetry } from "@/lib/fetch-with-retry";
-import {
-  CartSkeleton,
-  CartEmptyState,
-  FreeshipBanner,
-  CartItemRow,
-  CartSummaryCard,
-} from "@/app/(storefront)/gio-hang/components";
+import { CartSkeleton } from "@/app/(storefront)/gio-hang/components/CartSkeleton";
+import { CartEmptyState } from "@/app/(storefront)/gio-hang/components/CartEmptyState";
+import { FreeshipBanner } from "@/app/(storefront)/gio-hang/components/FreeshipBanner";
+import { CartItemRow } from "@/app/(storefront)/gio-hang/components/CartItemRow";
+import { CartSummaryCard } from "@/app/(storefront)/gio-hang/components/CartSummaryCard";
 import type { Quote } from "@/app/(storefront)/gio-hang/types";
 
 export const CartView = () => {

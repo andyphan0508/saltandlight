@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge, Button } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
-import { useWishlistStore } from "@/stores";
+import { useWishlistStore } from "@/stores/wishlist-store";
 import { Heart } from "./Icons";
 import type { ProductCardData } from "@/lib/types";
 

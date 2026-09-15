@@ -403,6 +403,3 @@ export const UsersManager = ({
     </div>
   );
 };
-
-export const UsersView = UsersManager;
-

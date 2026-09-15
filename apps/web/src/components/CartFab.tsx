@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useCartStore, useStoreHydrated } from "@/stores";
+import { useCartStore } from "@/stores/cart-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import type { SiteSettingsData } from "@/lib/site-settings-types";
 import { ShoppingBag, Phone, ZaloIcon } from "./Icons";
 

@@ -1,4 +1,4 @@
-import { CheckoutView } from "@/components/checkout";
+import { CheckoutView } from "@/components/checkout/CheckoutView";
 
 export const metadata = {
   title: "Thanh toán đơn hàng",

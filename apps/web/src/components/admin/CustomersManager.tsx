@@ -106,5 +106,3 @@ export const CustomersManager = ({
     </div>
   );
 };
-
-export const CustomersView = CustomersManager;

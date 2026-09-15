@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
-import { useWishlistStore, useStoreHydrated } from "@/stores";
+import { useWishlistStore } from "@/stores/wishlist-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Heart } from "@/components/Icons";
 import type { ProductCardData } from "@/lib/types";

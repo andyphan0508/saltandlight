@@ -3,12 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  useWishlistStore,
-  useMobileMenuStore,
-  useSearchModalStore,
-  useStoreHydrated,
-} from "@/stores";
+import { useWishlistStore } from "@/stores/wishlist-store";
+import { useMobileMenuStore } from "@/stores/mobile-menu-store";
+import { useSearchModalStore } from "@/stores/search-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
 import { useCustomer } from "@/lib/use-customer";
 import { Logo } from "./Logo";

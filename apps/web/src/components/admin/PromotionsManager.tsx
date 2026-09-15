@@ -602,6 +602,3 @@ export const PromotionsManager = ({
     </div>
   );
 };
-
-export const PromotionsView = PromotionsManager;
-

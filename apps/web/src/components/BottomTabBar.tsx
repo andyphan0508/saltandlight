@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  useCartStore,
-  useWishlistStore,
-  useMobileMenuStore,
-  useStoreHydrated,
-} from "@/stores";
+import { useCartStore } from "@/stores/cart-store";
+import { useWishlistStore } from "@/stores/wishlist-store";
+import { useMobileMenuStore } from "@/stores/mobile-menu-store";
+import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { Home, LayoutGrid, ShoppingBag, Heart, Menu } from "./Icons";
 
 /**

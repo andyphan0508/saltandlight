@@ -1,5 +1,5 @@
 import { prisma } from "@saltandlight/db";
-import { OrdersView, type OrderRow } from "@/components/admin";
+import { OrdersManager, type OrderRow } from "@/components/admin/OrdersManager";
 
 const PAGE_SIZE = 15;
 
@@ -50,7 +50,7 @@ export default async function OrdersPage({
   const totalAll = statusCounts.reduce((sum, s) => sum + s._count._all, 0);
 
   return (
-    <OrdersView
+    <OrdersManager
       orders={orders as OrderRow[]}
       total={total}
       totalAll={totalAll}

@@ -564,6 +564,3 @@ export const ContactSubmissionsManager = ({
     </div>
   );
 };
-
-export const ContactsView = ContactSubmissionsManager;
-

@@ -259,5 +259,3 @@ const StatusPill = ({ href, active, label }: { href: string; active: boolean; la
     </Link>
   );
 };
-
-export const ProductsView = ProductsManager;

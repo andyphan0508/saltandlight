@@ -2,7 +2,7 @@ import { prisma } from "@saltandlight/db";
 import { getCurrentAdminUser } from "@/lib/admin/auth";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { BannersView } from "@/components/admin";
+import { BannerManager } from "@/components/admin/BannerManager";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,7 @@ export default async function BannersPage({
         title="Banner &amp; Slider Trang Chủ"
         subtitle="Quản lý các slide banner toàn màn hình trên trang chủ website, hỗ trợ cập nhật ảnh, link điều hướng và bật tắt hiển thị tức thì"
       />
-      <BannersView
+      <BannerManager
         initialBanners={banners}
         total={total}
         page={page}

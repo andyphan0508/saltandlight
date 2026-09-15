@@ -1,5 +1,5 @@
 import { prisma } from "@saltandlight/db";
-import { CustomersView } from "@/components/admin";
+import { CustomersManager } from "@/components/admin/CustomersManager";
 
 const PAGE_SIZE = 15;
 
@@ -39,7 +39,7 @@ export default async function CustomersPage({
   ]);
 
   return (
-    <CustomersView
+    <CustomersManager
       customers={customers}
       total={total}
       page={page}

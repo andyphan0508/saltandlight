@@ -1,5 +1,5 @@
 import { type PageBlockData } from "@/components/blocks/BlockRenderer";
-import { PolicyView } from "@/components/policy";
+import { PolicyView } from "@/components/policy/PolicyView";
 import { getCachedPageBlocks, listPageBlocks } from "@/lib/queries";
 import { toPlain } from "@/lib/serialize";
 

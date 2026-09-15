@@ -1,4 +1,4 @@
-import { WishlistView } from "@/components/wishlist";
+import { WishlistView } from "@/components/wishlist/WishlistView";
 
 export const metadata = {
   title: "Sản phẩm yêu thích",

@@ -1,5 +1,5 @@
 import { prisma } from "@saltandlight/db";
-import { ProductsView, type ProductRow } from "@/components/admin";
+import { ProductsManager, type ProductRow } from "@/components/admin/ProductsManager";
 
 const PAGE_SIZE = 10;
 
@@ -53,7 +53,7 @@ export default async function ProductsPage({
   }
 
   return (
-    <ProductsView
+    <ProductsManager
       products={products}
       total={total}
       page={page}
