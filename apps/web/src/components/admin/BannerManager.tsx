@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { SITE_URL, getStorefrontUrl } from "@/lib/admin/site-url";
 import { BannerCropModal } from "@/components/admin/BannerCropModal";
 import { uploadImage } from "@/lib/admin/upload-image";
+import { Modal } from "@/components/Modal";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export interface BannerItem {
   id: string;
@@ -46,7 +48,7 @@ const GRADIENT_PRESETS = [
 
 const DEFAULT_GRADIENT = "from-brand-forest/90 via-emerald-800/80 to-slate-950";
 
-export function BannerManager({
+export const BannerManager = ({
   initialBanners,
   total,
   page,
@@ -56,7 +58,7 @@ export function BannerManager({
   total: number;
   page: number;
   pageSize: number;
-}) {
+}) => {
   const router = useRouter();
   const [banners, setBanners] = useState<BannerItem[]>(initialBanners);
 
@@ -86,7 +88,7 @@ export function BannerManager({
   const [sortOrder, setSortOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
-  function openCreateModal() {
+  const onOpenCreate = () => {
     setEditingBanner(null);
     setTitle("");
     setSubtitle("");
@@ -98,9 +100,9 @@ export function BannerManager({
     setIsActive(true);
     setError(null);
     setIsModalOpen(true);
-  }
+  };
 
-  function openEditModal(banner: BannerItem) {
+  const onOpenEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
     setTitle(banner.title);
     setSubtitle(banner.subtitle ?? "");
@@ -112,9 +114,9 @@ export function BannerManager({
     setIsActive(banner.isActive);
     setError(null);
     setIsModalOpen(true);
-  }
+  };
 
-  async function handleToggleActive(banner: BannerItem) {
+  const onToggleActive = async (banner: BannerItem) => {
     const nextActive = !banner.isActive;
     // Optimistic update
     setBanners((prev) =>
@@ -122,12 +124,7 @@ export function BannerManager({
     );
 
     try {
-      const res = await fetch(`/api/admin/banners/${banner.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: nextActive }),
-      });
-      if (!res.ok) throw new Error("Cập nhật thất bại");
+      await adminFetch(`/api/admin/banners/${banner.id}`, { method: "PATCH", body: { isActive: nextActive } });
       toast.success(nextActive ? "Đã bật hiển thị banner trên trang chủ!" : "Đã tắt hiển thị banner!");
       router.refresh();
     } catch {
@@ -137,19 +134,19 @@ export function BannerManager({
       );
       toast.error("Không thể cập nhật trạng thái banner. Vui lòng thử lại!");
     }
-  }
+  };
 
   // When user selects a file, open Crop & Scale modal
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setCropFile(file);
     setIsCropOpen(true);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }
+  };
 
   // When user finishes cropping and scaling
-  async function handleCropComplete(croppedFile: File) {
+  const onCropComplete = async (croppedFile: File) => {
     setIsCropOpen(false);
     setIsUploading(true);
     setError(null);
@@ -164,9 +161,9 @@ export function BannerManager({
     } finally {
       setIsUploading(false);
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
       setError("Vui lòng nhập tiêu đề banner");
@@ -197,14 +194,7 @@ export function BannerManager({
         : "/api/admin/banners";
       const method = editingBanner ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lưu banner thất bại");
+      const data = await adminFetch<{ banner: BannerItem }>(url, { method, body: payload });
 
       if (editingBanner) {
         setBanners((prev) =>
@@ -224,15 +214,14 @@ export function BannerManager({
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
-  async function handleDelete(id: string) {
+  const onDelete = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa banner này?")) return;
 
     setIsDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Xóa banner thất bại");
+      await adminFetch(`/api/admin/banners/${id}`, { method: "DELETE" });
       setBanners((prev) => prev.filter((b) => b.id !== id));
       toast.success("Đã xóa banner thành công!");
       router.refresh();
@@ -242,7 +231,7 @@ export function BannerManager({
     } finally {
       setIsDeletingId(null);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -268,7 +257,7 @@ export function BannerManager({
             Xem Website
           </a>
           <Button
-            onClick={openCreateModal}
+            onClick={onOpenCreate}
             className="inline-flex items-center gap-1.5 !bg-brand-forest hover:!bg-brand-forest/90 !text-white text-xs font-bold rounded-xl px-4 py-2 shadow-xs"
           >
             <Plus size={16} />
@@ -322,7 +311,7 @@ export function BannerManager({
               <div className="absolute top-3 right-3">
                 <button
                   type="button"
-                  onClick={() => handleToggleActive(b)}
+                  onClick={() => onToggleActive(b)}
                   className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm backdrop-blur-md transition-all ${
                     b.isActive
                       ? "bg-emerald-500/90 hover:bg-emerald-600 text-white"
@@ -357,7 +346,7 @@ export function BannerManager({
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => openEditModal(b)}
+                  onClick={() => onOpenEdit(b)}
                   className="p-2 rounded-xl text-slate-600 hover:text-brand-forest hover:bg-mint-50 transition-colors"
                   title="Chỉnh sửa"
                 >
@@ -365,7 +354,7 @@ export function BannerManager({
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(b.id)}
+                  onClick={() => onDelete(b.id)}
                   disabled={isDeletingId === b.id}
                   className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
                   title="Xóa banner"
@@ -398,222 +387,225 @@ export function BannerManager({
       )}
 
       {/* Modal Add / Edit */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-          <div className="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-amber-500" />
-                <h3 className="font-bold text-slate-900 text-sm">
-                  {editingBanner ? "Chỉnh sửa Banner" : "Thêm Banner Mới"}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-              >
-                <X size={18} />
-              </button>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        labelledBy="banner-form-title"
+        className="bg-white max-w-xl rounded-2xl border border-slate-200 overflow-hidden"
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-amber-500" />
+            <h3 id="banner-form-title" className="font-bold text-slate-900 text-sm">
+              {editingBanner ? "Chỉnh sửa Banner" : "Thêm Banner Mới"}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            aria-label="Đóng"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+              {error}
+            </div>
+          )}
+
+          {/* Title */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Tiêu đề chính <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="VD: ÁO THUN NGƯỜI LỚN"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
+            />
+          </div>
+
+          {/* Subtitle */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Tiêu đề phụ (Mô tả ngắn)
+            </label>
+            <input
+              type="text"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              placeholder="VD: Phong cách Cơ Đốc hiện đại, thông điệp đức tin sâu sắc"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Badge text */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Nhãn huy hiệu (Badge)
+              </label>
+              <input
+                type="text"
+                value={badge}
+                onChange={(e) => setBadge(e.target.value)}
+                placeholder="Bộ Sưu Tập Nổi Bật"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
+              />
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-              {error && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
-                  {error}
-                </div>
-              )}
-
-              {/* Title */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tiêu đề chính <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="VD: ÁO THUN NGƯỜI LỚN"
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
-                />
-              </div>
-
-              {/* Subtitle */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tiêu đề phụ (Mô tả ngắn)
-                </label>
-                <input
-                  type="text"
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder="VD: Phong cách Cơ Đốc hiện đại, thông điệp đức tin sâu sắc"
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Badge text */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Nhãn huy hiệu (Badge)
-                  </label>
-                  <input
-                    type="text"
-                    value={badge}
-                    onChange={(e) => setBadge(e.target.value)}
-                    placeholder="Bộ Sưu Tập Nổi Bật"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-
-                {/* Link URL */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Đường dẫn khi nhấp (Link URL)
-                  </label>
-                  <input
-                    type="text"
-                    value={linkUrl}
-                    onChange={(e) => setLinkUrl(e.target.value)}
-                    placeholder="/products hoặc /collections/ao-thun"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-mono text-xs focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Image upload & URL */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Hình ảnh Banner <span className="text-rose-500">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    required
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://... hoặc tải ảnh lên"
-                    className="flex-1 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-mono focus:border-brand-forest focus:outline-none"
-                  />
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="shrink-0 text-xs px-3.5 py-2 rounded-xl font-medium border-slate-200 hover:bg-slate-50"
-                  >
-                    <Upload size={14} className="mr-1" />
-                    {isUploading ? "Đang tải..." : "Tải & Cắt ảnh"}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Gradient preset */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Phối màu nền &amp; Gradient
-                </label>
-                <select
-                  value={bgGradient}
-                  onChange={(e) => setBgGradient(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-brand-forest focus:outline-none bg-white"
-                >
-                  {GRADIENT_PRESETS.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort order & Is Active */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Thứ tự sắp xếp (0, 1, 2...)
-                  </label>
-                  <input
-                    type="number"
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(Number(e.target.value))}
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-                <div className="flex items-end pb-2">
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={(e) => setIsActive(e.target.checked)}
-                      className="h-4 w-4 rounded accent-brand-forest"
-                    />
-                    Hiển thị trên Slider
-                  </label>
-                </div>
-              </div>
-
-              {/* Live Mini Preview */}
-              {imageUrl && (
-                <div className="pt-2">
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Eye size={12} /> Xem trước hiển thị
-                  </div>
-                  <div className="relative aspect-[16/7] w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-inner">
-                    <Image src={imageUrl} alt="preview" fill className="object-cover" />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${bgGradient} opacity-80`} />
-                    <div className="absolute inset-x-0 bottom-0 p-3.5 text-white">
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md mb-1">
-                        {badge || "Bộ sưu tập"}
-                      </span>
-                      <h4 className="text-sm font-bold leading-tight">{title || "Tiêu đề banner"}</h4>
-                      {subtitle && <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">{subtitle}</p>}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl px-4 py-2 text-xs font-semibold"
-                >
-                  Hủy bỏ
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSaving || isUploading}
-                  className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
-                >
-                  {isSaving ? "Đang lưu..." : editingBanner ? "Cập nhật Banner" : "Tạo Banner"}
-                </Button>
-              </div>
-            </form>
+            {/* Link URL */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Đường dẫn khi nhấp (Link URL)
+              </label>
+              <input
+                type="text"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="/products hoặc /collections/ao-thun"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-mono text-xs focus:border-brand-forest focus:outline-none"
+              />
+            </div>
           </div>
-        </div>
-      )}
-      {/* Banner Crop & Scale Modal */}
+
+          {/* Image upload & URL */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Hình ảnh Banner <span className="text-rose-500">*</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                required
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://... hoặc tải ảnh lên"
+                className="flex-1 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-mono focus:border-brand-forest focus:outline-none"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={onFileSelect}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="shrink-0 text-xs px-3.5 py-2 rounded-xl font-medium border-slate-200 hover:bg-slate-50"
+              >
+                <Upload size={14} className="mr-1" />
+                {isUploading ? "Đang tải..." : "Tải & Cắt ảnh"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Gradient preset */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Phối màu nền &amp; Gradient
+            </label>
+            <select
+              value={bgGradient}
+              onChange={(e) => setBgGradient(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-brand-forest focus:outline-none bg-white"
+            >
+              {GRADIENT_PRESETS.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort order & Is Active */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Thứ tự sắp xếp (0, 1, 2...)
+              </label>
+              <input
+                type="number"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(Number(e.target.value))}
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="h-4 w-4 rounded accent-brand-forest"
+                />
+                Hiển thị trên Slider
+              </label>
+            </div>
+          </div>
+
+          {/* Live Mini Preview */}
+          {imageUrl && (
+            <div className="pt-2">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <Eye size={12} /> Xem trước hiển thị
+              </div>
+              <div className="relative aspect-[16/7] w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-inner">
+                <Image src={imageUrl} alt="preview" fill className="object-cover" />
+                <div className={`absolute inset-0 bg-gradient-to-t ${bgGradient} opacity-80`} />
+                <div className="absolute inset-x-0 bottom-0 p-3.5 text-white">
+                  <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md mb-1">
+                    {badge || "Bộ sưu tập"}
+                  </span>
+                  <h4 className="text-sm font-bold leading-tight">{title || "Tiêu đề banner"}</h4>
+                  {subtitle && <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">{subtitle}</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsModalOpen(false)}
+              className="rounded-xl px-4 py-2 text-xs font-semibold"
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSaving || isUploading}
+              className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
+            >
+              {isSaving ? "Đang lưu..." : editingBanner ? "Cập nhật Banner" : "Tạo Banner"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Opened from the form above; rendered later so it stacks on top */}
       <BannerCropModal
         isOpen={isCropOpen}
         imageFile={cropFile}
         onClose={() => setIsCropOpen(false)}
-        onCropComplete={handleCropComplete}
+        onCropComplete={onCropComplete}
       />
     </div>
   );
-}
+};
 
 export const BannersView = BannerManager;
 

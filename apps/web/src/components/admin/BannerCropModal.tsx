@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, ZoomIn, ZoomOut, RotateCw, Check, Undo2 } from "./Icons";
 import { Button } from "@saltandlight/ui";
+import { Modal } from "@/components/Modal";
 
 interface BannerCropModalProps {
   isOpen: boolean;
@@ -15,12 +16,7 @@ const BANNER_ASPECT_RATIO = 16 / 7; // ~ 2.285 (Standard Hero Banner Widescreen)
 const OUTPUT_WIDTH = 1920;
 const OUTPUT_HEIGHT = Math.round(OUTPUT_WIDTH / BANNER_ASPECT_RATIO); // ~ 840px
 
-export function BannerCropModal({
-  isOpen,
-  imageFile,
-  onClose,
-  onCropComplete,
-}: BannerCropModalProps) {
+export const BannerCropModal = ({ isOpen, imageFile, onClose, onCropComplete }: BannerCropModalProps) => {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -43,15 +39,13 @@ export function BannerCropModal({
     }
   }, [imageFile]);
 
-  if (!isOpen || !imageSrc) return null;
-
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
     dragStartRef.current = { x: e.clientX - position.x, y: e.clientY - position.y };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const onMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     setPosition({
       x: e.clientX - dragStartRef.current.x,
@@ -59,12 +53,12 @@ export function BannerCropModal({
     });
   };
 
-  const handleMouseUp = () => {
+  const onMouseUp = () => {
     setIsDragging(false);
   };
 
   // Touch support for mobile admin users
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const onTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     if (touch) {
       setIsDragging(true);
@@ -72,7 +66,7 @@ export function BannerCropModal({
     }
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const onTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     const touch = e.touches[0];
     if (touch) {
@@ -83,21 +77,21 @@ export function BannerCropModal({
     }
   };
 
-  const handleTouchEnd = () => {
+  const onTouchEnd = () => {
     setIsDragging(false);
   };
 
-  const handleRotate = () => {
+  const onRotate = () => {
     setRotation((r) => (r + 90) % 360);
   };
 
-  const handleReset = () => {
+  const onReset = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
     setRotation(0);
   };
 
-  const handleApplyCrop = async () => {
+  const onApplyCrop = async () => {
     if (!imgRef.current || !containerRef.current) return;
 
     const canvas = document.createElement("canvas");
@@ -158,12 +152,16 @@ export function BannerCropModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-      <div className="relative w-full max-w-4xl rounded-3xl bg-white shadow-2xl border border-ink/10 flex flex-col overflow-hidden max-h-[95vh]">
+    <Modal
+      isOpen={isOpen && Boolean(imageSrc)}
+      onClose={onClose}
+      labelledBy="banner-crop-title"
+      className="bg-white max-w-4xl rounded-3xl border border-ink/10 flex flex-col overflow-hidden max-h-[95vh]"
+    >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
           <div>
-            <h3 className="font-display font-bold uppercase text-base text-ink">
+            <h3 id="banner-crop-title" className="font-display font-bold uppercase text-base text-ink">
               Chỉnh Sửa &amp; Căn Chỉnh Banner
             </h3>
             <p className="text-xs text-ink/60 mt-0.5">
@@ -172,6 +170,7 @@ export function BannerCropModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Đóng"
             className="flex h-8 w-8 items-center justify-center rounded-full text-ink/50 hover:bg-ink/5 hover:text-ink transition-colors"
           >
             <X size={18} />
@@ -183,12 +182,12 @@ export function BannerCropModal({
           <div
             ref={containerRef}
             className="relative w-full aspect-[16/7] max-h-[400px] overflow-hidden rounded-2xl border-2 border-dashed border-emerald-400/80 shadow-2xl cursor-grab active:cursor-grabbing bg-slate-900 flex items-center justify-center"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
           >
             {/* Aspect ratio label */}
             <div className="absolute top-2 left-2 z-20 rounded-md bg-black/60 backdrop-blur-sm px-2 py-0.5 text-[10px] font-mono text-emerald-300 pointer-events-none">
@@ -206,7 +205,7 @@ export function BannerCropModal({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={imgRef}
-                src={imageSrc}
+                src={imageSrc ?? undefined}
                 alt="Banner preview"
                 className="max-w-none w-full h-full object-cover"
                 draggable={false}
@@ -237,7 +236,7 @@ export function BannerCropModal({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleRotate}
+              onClick={onRotate}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-ink/10 bg-white text-xs font-bold text-ink hover:bg-ink/5"
               title="Xoay 90 độ"
             >
@@ -247,7 +246,7 @@ export function BannerCropModal({
 
             <button
               type="button"
-              onClick={handleReset}
+              onClick={onReset}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-ink/10 bg-white text-xs font-bold text-ink hover:bg-ink/5"
               title="Đặt lại vị trí"
             >
@@ -264,7 +263,7 @@ export function BannerCropModal({
             <Button
               variant="primary"
               size="sm"
-              onClick={handleApplyCrop}
+              onClick={onApplyCrop}
               className="flex items-center gap-1.5 bg-brand-forest text-white"
             >
               <Check size={16} />
@@ -272,7 +271,6 @@ export function BannerCropModal({
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
-}
+};

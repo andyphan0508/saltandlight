@@ -17,6 +17,8 @@ import {
   Percent,
 } from "./Icons";
 import { Pagination } from "./Pagination";
+import { Modal } from "@/components/Modal";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export interface PromotionItem {
   id: string;
@@ -38,7 +40,7 @@ export interface ProductOption {
   minPrice: number | null;
 }
 
-export function PromotionsManager({
+export const PromotionsManager = ({
   initialPromotions,
   products,
   total,
@@ -50,7 +52,7 @@ export function PromotionsManager({
   total: number;
   page: number;
   pageSize: number;
-}) {
+}) => {
   const router = useRouter();
   const [promotions, setPromotions] = useState<PromotionItem[]>(initialPromotions);
 
@@ -76,7 +78,7 @@ export function PromotionsManager({
   const [applyPrices, setApplyPrices] = useState(false);
   const [searchProductQuery, setSearchProductQuery] = useState("");
 
-  function openCreateModal() {
+  const onOpenCreate = () => {
     setEditingPromo(null);
     setName("");
     setBadge("GIẢM 20%");
@@ -90,9 +92,9 @@ export function PromotionsManager({
     setApplyPrices(false);
     setError(null);
     setIsModalOpen(true);
-  }
+  };
 
-  function openEditModal(promo: PromotionItem) {
+  const onOpenEdit = (promo: PromotionItem) => {
     setEditingPromo(promo);
     setName(promo.name);
     setBadge(promo.badge ?? "");
@@ -106,21 +108,16 @@ export function PromotionsManager({
     setApplyPrices(false);
     setError(null);
     setIsModalOpen(true);
-  }
+  };
 
-  async function handleToggleActive(promo: PromotionItem) {
+  const onToggleActive = async (promo: PromotionItem) => {
     const nextActive = !promo.isActive;
     setPromotions((prev) =>
       prev.map((p) => (p.id === promo.id ? { ...p, isActive: nextActive } : p)),
     );
 
     try {
-      const res = await fetch(`/api/admin/promotions/${promo.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: nextActive }),
-      });
-      if (!res.ok) throw new Error();
+      await adminFetch(`/api/admin/promotions/${promo.id}`, { method: "PATCH", body: { isActive: nextActive } });
       toast.success(nextActive ? "Đã kích hoạt chương trình!" : "Đã tạm dừng chương trình!");
       router.refresh();
     } catch {
@@ -129,15 +126,14 @@ export function PromotionsManager({
       );
       toast.error("Không thể cập nhật trạng thái chương trình.");
     }
-  }
+  };
 
-  async function handleDelete(id: string) {
+  const onDelete = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa chương trình giảm giá này?")) return;
     setIsDeletingId(id);
 
     try {
-      const res = await fetch(`/api/admin/promotions/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      await adminFetch(`/api/admin/promotions/${id}`, { method: "DELETE" });
       setPromotions((prev) => prev.filter((p) => p.id !== id));
       toast.success("Đã xóa chương trình thành công!");
       router.refresh();
@@ -146,23 +142,23 @@ export function PromotionsManager({
     } finally {
       setIsDeletingId(null);
     }
-  }
+  };
 
-  function toggleProductSelection(id: string) {
+  const onToggleProduct = (id: string) => {
     setSelectedProductIds((prev) =>
       prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id],
     );
-  }
+  };
 
-  function selectAllProducts() {
+  const onToggleAllProducts = () => {
     if (selectedProductIds.length === products.length) {
       setSelectedProductIds([]);
     } else {
       setSelectedProductIds(products.map((p) => p.id));
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("Vui lòng nhập tên chương trình");
@@ -192,24 +188,13 @@ export function PromotionsManager({
     try {
       const url = editingPromo ? `/api/admin/promotions/${editingPromo.id}` : "/api/admin/promotions";
       const method = editingPromo ? "PATCH" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Có lỗi xảy ra");
+      await adminFetch(url, { method, body: payload });
 
       toast.success(
         editingPromo ? "Cập nhật chương trình thành công!" : "Tạo chương trình giảm giá thành công!",
       );
       setIsModalOpen(false);
       router.refresh();
-
-      // Refresh list
-      const updatedList = await fetch("/api/admin/promotions").then((r) => r.json());
-      if (updatedList.promotions) setPromotions(updatedList.promotions);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra";
       setError(msg);
@@ -217,7 +202,7 @@ export function PromotionsManager({
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchProductQuery.toLowerCase()),
@@ -237,7 +222,7 @@ export function PromotionsManager({
         </div>
         <Button
           type="button"
-          onClick={openCreateModal}
+          onClick={onOpenCreate}
           className="flex items-center gap-2 bg-brand-forest text-white"
         >
           <Plus size={16} />
@@ -259,7 +244,7 @@ export function PromotionsManager({
           </p>
           <Button
             type="button"
-            onClick={openCreateModal}
+            onClick={onOpenCreate}
             className="mt-5 bg-brand-forest text-white"
           >
             Tạo Chương Trình Ngay
@@ -341,7 +326,7 @@ export function PromotionsManager({
                 <div className="mt-5 flex items-center justify-between pt-3 border-t border-ink/10">
                   <button
                     type="button"
-                    onClick={() => handleToggleActive(promo)}
+                    onClick={() => onToggleActive(promo)}
                     className="text-xs font-semibold text-ink/70 hover:text-ink underline"
                   >
                     {promo.isActive ? "Tạm dừng" : "Kích hoạt"}
@@ -350,7 +335,7 @@ export function PromotionsManager({
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => openEditModal(promo)}
+                      onClick={() => onOpenEdit(promo)}
                       className="p-1.5 rounded-lg text-ink/50 hover:bg-ink/5 hover:text-ink transition-colors"
                       title="Chỉnh sửa"
                     >
@@ -358,7 +343,7 @@ export function PromotionsManager({
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(promo.id)}
+                      onClick={() => onDelete(promo.id)}
                       disabled={isDeletingId === promo.id}
                       className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
                       title="Xóa"
@@ -385,235 +370,238 @@ export function PromotionsManager({
       )}
 
       {/* Create / Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
-              <h3 className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
-                <Tag size={18} className="text-brand-forest" />
-                {editingPromo ? "Chỉnh Sửa Chương Trình Giảm Giá" : "Tạo Chương Trình Giảm Giá Mới"}
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-full p-1.5 text-ink/50 hover:bg-ink/5 text-ink"
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        labelledBy="promotion-form-title"
+        className="bg-white max-w-2xl rounded-3xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
+          <h3 id="promotion-form-title" className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
+            <Tag size={18} className="text-brand-forest" />
+            {editingPromo ? "Chỉnh Sửa Chương Trình Giảm Giá" : "Tạo Chương Trình Giảm Giá Mới"}
+          </h3>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            aria-label="Đóng"
+            className="rounded-full p-1.5 text-ink/50 hover:bg-ink/5 text-ink"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+          {error && (
+            <div className="rounded-2xl bg-rose-50 p-3.5 text-xs font-semibold text-rose-700 border border-rose-200">
+              {error}
+            </div>
+          )}
+
+          {/* Tên & Badge */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">
+                Tên chương trình <span className="text-sale">*</span>
+              </label>
+              <input
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="VD: Khuyến Mãi Mùa Hè 2026"
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">
+                Huy hiệu hiển thị (Badge)
+              </label>
+              <input
+                value={badge}
+                onChange={(e) => setBadge(e.target.value)}
+                placeholder="VD: GIẢM 20%, FLASH SALE"
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Loại giảm & Giá trị giảm */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">Loại giảm giá</label>
+              <select
+                value={discountType}
+                onChange={(e) => setDiscountType(e.target.value)}
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none bg-white"
               >
-                <X size={18} />
+                <option value="percent">Giảm theo Phần trăm (%)</option>
+                <option value="fixed">Giảm số tiền cố định (VND)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">
+                Mức giảm {discountType === "percent" ? "(%)" : "(VND)"} <span className="text-sale">*</span>
+              </label>
+              <input
+                required
+                type="number"
+                min="1"
+                value={discountValue}
+                onChange={(e) => setDiscountValue(e.target.value ? Number(e.target.value) : "")}
+                placeholder={discountType === "percent" ? "20" : "50000"}
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Mô tả */}
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1.5">Mô tả chương trình</label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Thông điệp ưu đãi gửi gắm đến khách hàng..."
+              className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none resize-none"
+            />
+          </div>
+
+          {/* Thời gian */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">Ngày bắt đầu</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-ink mb-1.5">Ngày kết thúc</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Chọn sản phẩm áp dụng */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-ink">
+                Sản phẩm áp dụng ({selectedProductIds.length} đã chọn)
+              </label>
+              <button
+                type="button"
+                onClick={onToggleAllProducts}
+                className="text-xs font-bold text-brand-forest hover:underline"
+              >
+                {selectedProductIds.length === products.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-              {error && (
-                <div className="rounded-2xl bg-rose-50 p-3.5 text-xs font-semibold text-rose-700 border border-rose-200">
-                  {error}
-                </div>
-              )}
+            <input
+              type="text"
+              value={searchProductQuery}
+              onChange={(e) => setSearchProductQuery(e.target.value)}
+              placeholder="Tìm sản phẩm theo tên..."
+              className="w-full rounded-xl border border-ink/15 px-3 py-1.5 text-xs focus:border-brand-forest focus:outline-none"
+            />
 
-              {/* Tên & Badge */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">
-                    Tên chương trình <span className="text-sale">*</span>
-                  </label>
-                  <input
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="VD: Khuyến Mãi Mùa Hè 2026"
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">
-                    Huy hiệu hiển thị (Badge)
-                  </label>
-                  <input
-                    value={badge}
-                    onChange={(e) => setBadge(e.target.value)}
-                    placeholder="VD: GIẢM 20%, FLASH SALE"
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Loại giảm & Giá trị giảm */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">Loại giảm giá</label>
-                  <select
-                    value={discountType}
-                    onChange={(e) => setDiscountType(e.target.value)}
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none bg-white"
+            <div className="max-h-40 overflow-y-auto rounded-xl border border-ink/10 p-2 space-y-1 bg-slate-50">
+              {filteredProducts.map((p) => {
+                const isSelected = selectedProductIds.includes(p.id);
+                return (
+                  <label
+                    key={p.id}
+                    className={`flex items-center justify-between rounded-lg p-2 text-xs cursor-pointer transition-colors ${
+                      isSelected ? "bg-mint-100 text-brand-forest font-bold" : "hover:bg-white text-ink"
+                    }`}
                   >
-                    <option value="percent">Giảm theo Phần trăm (%)</option>
-                    <option value="fixed">Giảm số tiền cố định (VND)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">
-                    Mức giảm {discountType === "percent" ? "(%)" : "(VND)"} <span className="text-sale">*</span>
+                    <div className="flex items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onToggleProduct(p.id)}
+                        className="h-4 w-4 rounded accent-brand-forest"
+                      />
+                      <span className="line-clamp-1">{p.name}</span>
+                    </div>
+                    {p.minPrice && (
+                      <span className="text-[11px] text-ink/50 shrink-0 font-normal">
+                        {formatVND(p.minPrice)}
+                      </span>
+                    )}
                   </label>
-                  <input
-                    required
-                    type="number"
-                    min="1"
-                    value={discountValue}
-                    onChange={(e) => setDiscountValue(e.target.value ? Number(e.target.value) : "")}
-                    placeholder={discountType === "percent" ? "20" : "50000"}
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Mô tả */}
-              <div>
-                <label className="block text-xs font-bold text-ink mb-1.5">Mô tả chương trình</label>
-                <textarea
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Thông điệp ưu đãi gửi gắm đến khách hàng..."
-                  className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none resize-none"
-                />
-              </div>
-
-              {/* Thời gian */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">Ngày bắt đầu</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-1.5">Ngày kết thúc</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Chọn sản phẩm áp dụng */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-ink">
-                    Sản phẩm áp dụng ({selectedProductIds.length} đã chọn)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={selectAllProducts}
-                    className="text-xs font-bold text-brand-forest hover:underline"
-                  >
-                    {selectedProductIds.length === products.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                  </button>
-                </div>
-
-                <input
-                  type="text"
-                  value={searchProductQuery}
-                  onChange={(e) => setSearchProductQuery(e.target.value)}
-                  placeholder="Tìm sản phẩm theo tên..."
-                  className="w-full rounded-xl border border-ink/15 px-3 py-1.5 text-xs focus:border-brand-forest focus:outline-none"
-                />
-
-                <div className="max-h-40 overflow-y-auto rounded-xl border border-ink/10 p-2 space-y-1 bg-slate-50">
-                  {filteredProducts.map((p) => {
-                    const isSelected = selectedProductIds.includes(p.id);
-                    return (
-                      <label
-                        key={p.id}
-                        className={`flex items-center justify-between rounded-lg p-2 text-xs cursor-pointer transition-colors ${
-                          isSelected ? "bg-mint-100 text-brand-forest font-bold" : "hover:bg-white text-ink"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleProductSelection(p.id)}
-                            className="h-4 w-4 rounded accent-brand-forest"
-                          />
-                          <span className="line-clamp-1">{p.name}</span>
-                        </div>
-                        {p.minPrice && (
-                          <span className="text-[11px] text-ink/50 shrink-0 font-normal">
-                            {formatVND(p.minPrice)}
-                          </span>
-                        )}
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Tuỳ chọn cập nhật giá vào sản phẩm */}
-              <div className="rounded-2xl bg-amber-50 p-4 border border-amber-200/80 space-y-2">
-                <label className="flex items-start gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={applyPrices}
-                    onChange={(e) => setApplyPrices(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded accent-brand-forest"
-                  />
-                  <div>
-                    <span className="text-xs font-bold text-amber-950">
-                      Tự động cập nhật trực tiếp giá niêm yết và giá bán cho các sản phẩm đã chọn
-                    </span>
-                    <p className="text-[11px] text-amber-900/80 mt-0.5">
-                      Hệ thống sẽ lưu giá gốc hiện tại vào giá niêm yết (compareAtPrice) và tính giá bán mới theo mức giảm của chương trình.
-                    </p>
-                  </div>
-                </label>
-              </div>
-
-              {/* Trạng thái Kích hoạt */}
-              <label className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                  className="h-4 w-4 rounded accent-brand-forest"
-                />
-                <span>Kích hoạt và hiển thị chương trình trên website</span>
-              </label>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-ink/10">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Hủy
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  disabled={isSaving}
-                  className="bg-brand-forest text-white"
-                >
-                  {isSaving ? "Đang lưu..." : editingPromo ? "Cập Nhật" : "Tạo Chương Trình"}
-                </Button>
-              </div>
-            </form>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Tuỳ chọn cập nhật giá vào sản phẩm */}
+          <div className="rounded-2xl bg-amber-50 p-4 border border-amber-200/80 space-y-2">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={applyPrices}
+                onChange={(e) => setApplyPrices(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded accent-brand-forest"
+              />
+              <div>
+                <span className="text-xs font-bold text-amber-950">
+                  Tự động cập nhật trực tiếp giá niêm yết và giá bán cho các sản phẩm đã chọn
+                </span>
+                <p className="text-[11px] text-amber-900/80 mt-0.5">
+                  Hệ thống sẽ lưu giá gốc hiện tại vào giá niêm yết (compareAtPrice) và tính giá bán mới theo mức giảm của chương trình.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Trạng thái Kích hoạt */}
+          <label className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="h-4 w-4 rounded accent-brand-forest"
+            />
+            <span>Kích hoạt và hiển thị chương trình trên website</span>
+          </label>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-ink/10">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={isSaving}
+              className="bg-brand-forest text-white"
+            >
+              {isSaving ? "Đang lưu..." : editingPromo ? "Cập Nhật" : "Tạo Chương Trình"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
-}
+};
 
 export const PromotionsView = PromotionsManager;
 

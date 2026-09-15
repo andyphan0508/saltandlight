@@ -168,7 +168,7 @@ export const AdminHeader = ({
                 className="fixed inset-0 z-40"
                 onClick={() => setIsProfileOpen(false)}
               />
-              <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-fade-in">
                 <div className="border-b border-slate-100 px-3 py-2">
                   <p className="text-xs font-bold text-ink">{displayName}</p>
                   <p className="text-[11px] text-slate-400 truncate">{email}</p>

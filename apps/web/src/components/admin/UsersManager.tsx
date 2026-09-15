@@ -18,6 +18,7 @@ import {
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { Pagination } from "./Pagination";
 import { toast } from "sonner";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 interface AdminUserRow {
   id: string;
@@ -28,7 +29,7 @@ interface AdminUserRow {
   createdAt?: string | Date;
 }
 
-export function UsersManager({
+export const UsersManager = ({
   users,
   total,
   page,
@@ -40,22 +41,22 @@ export function UsersManager({
   page: number;
   pageSize: number;
   currentUserId: string;
-}) {
+}) => {
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Form states
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"staff" | "owner">("staff");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   // Reset password modal state
   const [selectedUserForPassword, setSelectedUserForPassword] =
     useState<AdminUserRow | null>(null);
 
-  function generateRandomPassword() {
+  const onGeneratePassword = () => {
     const chars =
       "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%";
     let pwd = "";
@@ -63,71 +64,46 @@ export function UsersManager({
       pwd += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setPassword(pwd);
-    setShowPassword(true);
-  }
+    setIsPasswordVisible(true);
+  };
 
-  async function handleCreateUser(e: FormEvent<HTMLFormElement>) {
+  const onCreateUser = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
+    setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/admin/users", {
+      await adminFetch("/api/admin/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          fullName: fullName.trim() || undefined,
-          role,
-          password: password.trim() || undefined,
-        }),
+        body: { email, fullName: fullName.trim() || undefined, role, password: password.trim() || undefined },
       });
-
-      const data = await res.json();
-      setSubmitting(false);
-
-      if (!res.ok) {
-        setError(data.error ?? "Có lỗi xảy ra khi tạo tài khoản");
-        return;
-      }
-
       toast.success(`Đã tạo thành công tài khoản cho ${email}!`);
       setEmail("");
       setFullName("");
       setPassword("");
       router.refresh();
-    } catch (err: any) {
-      setSubmitting(false);
-      setError("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
-    }
-  }
-
-  async function toggleActive(id: string, isActive: boolean, userEmail: string) {
-    try {
-      const res = await fetch(`/api/admin/users/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !isActive }),
-      });
-      if (res.ok) {
-        toast.success(
-          isActive
-            ? `Đã khóa tài khoản ${userEmail}`
-            : `Đã mở khóa tài khoản ${userEmail}`,
-        );
-        router.refresh();
-      }
     } catch (err) {
-      console.error(err);
+      setError(err instanceof Error ? err.message : "Có lỗi xảy ra khi tạo tài khoản");
+    } finally {
+      setIsSubmitting(false);
     }
-  }
+  };
+
+  const onToggleActive = async (id: string, isActive: boolean, userEmail: string) => {
+    try {
+      await adminFetch(`/api/admin/users/${id}`, { method: "PATCH", body: { isActive: !isActive } });
+      toast.success(isActive ? `Đã khóa tài khoản ${userEmail}` : `Đã mở khóa tài khoản ${userEmail}`);
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể cập nhật tài khoản");
+    }
+  };
 
   const activeCount = users.filter((u) => u.isActive).length;
   const ownerCount = users.filter((u) => u.role === "owner").length;
 
   return (
     <div className="space-y-8">
-      {/* Toast feedback */}
       {/* Summary stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm flex items-center gap-4">
@@ -188,7 +164,7 @@ export function UsersManager({
           </div>
         )}
 
-        <form onSubmit={handleCreateUser} className="mt-6 space-y-4">
+        <form onSubmit={onCreateUser} className="mt-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             {/* Email */}
             <div>
@@ -227,7 +203,7 @@ export function UsersManager({
                 </label>
                 <button
                   type="button"
-                  onClick={generateRandomPassword}
+                  onClick={onGeneratePassword}
                   className="flex items-center gap-1 text-[11px] font-bold text-brand-forest hover:underline"
                 >
                   <Sparkles size={11} />
@@ -236,7 +212,7 @@ export function UsersManager({
               </div>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={isPasswordVisible ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Tối thiểu 6 ký tự"
@@ -245,11 +221,11 @@ export function UsersManager({
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-ink"
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  {isPasswordVisible ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
             </div>
@@ -272,10 +248,10 @@ export function UsersManager({
 
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={isSubmitting}
                 className="h-[38px] px-5 flex-shrink-0"
               >
-                {submitting ? "Đang tạo…" : "Tạo tài khoản"}
+                {isSubmitting ? "Đang tạo…" : "Tạo tài khoản"}
               </Button>
             </div>
           </div>
@@ -384,7 +360,7 @@ export function UsersManager({
                           <button
                             type="button"
                             onClick={() =>
-                              toggleActive(u.id, u.isActive, u.email)
+                              onToggleActive(u.id, u.isActive, u.email)
                             }
                             className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
                               u.isActive
@@ -426,7 +402,7 @@ export function UsersManager({
       )}
     </div>
   );
-}
+};
 
 export const UsersView = UsersManager;
 

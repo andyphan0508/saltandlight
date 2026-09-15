@@ -6,6 +6,8 @@ import { Button } from "@saltandlight/ui";
 import { toast } from "sonner";
 import { Plus, Trash2, X, Truck } from "./Icons";
 import { ShippingMethodRow } from "./ShippingMethodRow";
+import { Modal } from "@/components/Modal";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 interface Province {
   code: number;
@@ -27,13 +29,13 @@ export interface ZoneItem {
   methods: Method[];
 }
 
-export function ShippingZonesManager({
+export const ShippingZonesManager = ({
   initialZones,
   provinces,
 }: {
   initialZones: ZoneItem[];
   provinces: Province[];
-}) {
+}) => {
   const router = useRouter();
   const [zones, setZones] = useState<ZoneItem[]>(initialZones);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +53,7 @@ export function ShippingZonesManager({
 
   const provinceNameByCode = new Map(provinces.map((p) => [p.code, p.name]));
 
-  function openCreateModal() {
+  const onOpenCreate = () => {
     setName("");
     setSelectedCodes([]);
     setNationwide(false);
@@ -61,18 +63,17 @@ export function ShippingZonesManager({
     setSearchQuery("");
     setError(null);
     setIsModalOpen(true);
-  }
+  };
 
-  function toggleProvince(code: number) {
+  const onToggleProvince = (code: number) => {
     setSelectedCodes((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
-  }
+  };
 
-  async function handleDelete(id: string) {
+  const onDelete = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa chính sách vận chuyển này?")) return;
     setIsDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/shipping-zones/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      await adminFetch(`/api/admin/shipping-zones/${id}`, { method: "DELETE" });
       setZones((prev) => prev.filter((z) => z.id !== id));
       toast.success("Đã xóa chính sách vận chuyển!");
       router.refresh();
@@ -81,9 +82,9 @@ export function ShippingZonesManager({
     } finally {
       setIsDeletingId(null);
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("Vui lòng nhập tên chính sách");
@@ -116,17 +117,10 @@ export function ShippingZonesManager({
     ];
 
     try {
-      const res = await fetch("/api/admin/shipping-zones", {
+      const data = await adminFetch<{ zone: ZoneItem }>("/api/admin/shipping-zones", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          provinceCodes: nationwide ? [] : selectedCodes,
-          methods,
-        }),
+        body: { name, provinceCodes: nationwide ? [] : selectedCodes, methods },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ? JSON.stringify(data.error) : "Có lỗi xảy ra");
 
       toast.success("Tạo chính sách vận chuyển thành công!");
       setIsModalOpen(false);
@@ -139,7 +133,7 @@ export function ShippingZonesManager({
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   const filteredProvinces = provinces.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -153,7 +147,7 @@ export function ShippingZonesManager({
         </p>
         <Button
           type="button"
-          onClick={openCreateModal}
+          onClick={onOpenCreate}
           className="flex shrink-0 items-center gap-2 bg-brand-forest text-white"
         >
           <Plus size={16} />
@@ -173,7 +167,7 @@ export function ShippingZonesManager({
               </div>
               <button
                 type="button"
-                onClick={() => handleDelete(zone.id)}
+                onClick={() => onDelete(zone.id)}
                 disabled={isDeletingId === zone.id}
                 className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
                 title="Xóa chính sách"
@@ -227,147 +221,150 @@ export function ShippingZonesManager({
         )}
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-xl rounded-3xl bg-white shadow-2xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
-              <h3 className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
-                <Truck size={18} className="text-brand-forest" />
-                Tạo Chính Sách Vận Chuyển
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-full p-1.5 text-ink/50 hover:bg-ink/5 text-ink"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-              {error && (
-                <div className="rounded-2xl bg-rose-50 p-3.5 text-xs font-semibold text-rose-700 border border-rose-200">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-bold text-ink mb-1.5">
-                  Tên chính sách <span className="text-sale">*</span>
-                </label>
-                <input
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="VD: Nội thành TP.HCM, Vùng xa"
-                  className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer mb-2">
-                  <input
-                    type="checkbox"
-                    checked={nationwide}
-                    onChange={(e) => setNationwide(e.target.checked)}
-                    className="h-4 w-4 rounded accent-brand-forest"
-                  />
-                  Áp dụng Toàn quốc (mặc định khi khách chưa có chính sách riêng)
-                </label>
-
-                {!nationwide && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-ink">
-                        Chọn tỉnh/thành ({selectedCodes.length} đã chọn)
-                      </label>
-                    </div>
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Tìm tỉnh/thành..."
-                      className="w-full rounded-xl border border-ink/15 px-3 py-1.5 text-xs focus:border-brand-forest focus:outline-none"
-                    />
-                    <div className="max-h-48 overflow-y-auto rounded-xl border border-ink/10 p-2 space-y-1 bg-slate-50">
-                      {filteredProvinces.map((p) => {
-                        const isSelected = selectedCodes.includes(p.code);
-                        return (
-                          <label
-                            key={p.code}
-                            className={`flex items-center gap-2.5 rounded-lg p-2 text-xs cursor-pointer transition-colors ${
-                              isSelected ? "bg-mint-100 text-brand-forest font-bold" : "hover:bg-white text-ink"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleProvince(p.code)}
-                              className="h-4 w-4 rounded accent-brand-forest"
-                            />
-                            <span>{p.name}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-ink mb-1.5">
-                  Phí vận chuyển đồng giá (VND) <span className="text-sale">*</span>
-                </label>
-                <input
-                  required
-                  type="number"
-                  min="0"
-                  value={fee}
-                  onChange={(e) => setFee(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="30000"
-                  className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                />
-              </div>
-
-              <div className="rounded-2xl bg-mint-50 p-4 border border-mint-200 space-y-3">
-                <label className="flex items-center gap-2.5 text-xs font-bold text-ink cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasFreeShipping}
-                    onChange={(e) => setHasFreeShipping(e.target.checked)}
-                    className="h-4 w-4 rounded accent-brand-forest"
-                  />
-                  Miễn phí vận chuyển khi đơn hàng đạt ngưỡng
-                </label>
-                {hasFreeShipping && (
-                  <input
-                    type="number"
-                    min="0"
-                    value={freeThreshold}
-                    onChange={(e) => setFreeThreshold(e.target.value ? Number(e.target.value) : "")}
-                    placeholder="VD: 500000"
-                    className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
-                  />
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-ink/10">
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
-                  Hủy
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  disabled={isSaving}
-                  className="bg-brand-forest text-white"
-                >
-                  {isSaving ? "Đang lưu..." : "Tạo Chính Sách"}
-                </Button>
-              </div>
-            </form>
-          </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        labelledBy="shipping-zone-form-title"
+        className="bg-white max-w-xl rounded-3xl border border-ink/10 flex flex-col max-h-[92vh] overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-ink/10">
+          <h3 id="shipping-zone-form-title" className="font-display font-bold uppercase text-base text-ink flex items-center gap-2">
+            <Truck size={18} className="text-brand-forest" />
+            Tạo Chính Sách Vận Chuyển
+          </h3>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            aria-label="Đóng"
+            className="rounded-full p-1.5 text-ink/50 hover:bg-ink/5 text-ink"
+          >
+            <X size={18} />
+          </button>
         </div>
-      )}
+
+        <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+          {error && (
+            <div className="rounded-2xl bg-rose-50 p-3.5 text-xs font-semibold text-rose-700 border border-rose-200">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1.5">
+              Tên chính sách <span className="text-sale">*</span>
+            </label>
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="VD: Nội thành TP.HCM, Vùng xa"
+              className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer mb-2">
+              <input
+                type="checkbox"
+                checked={nationwide}
+                onChange={(e) => setNationwide(e.target.checked)}
+                className="h-4 w-4 rounded accent-brand-forest"
+              />
+              Áp dụng Toàn quốc (mặc định khi khách chưa có chính sách riêng)
+            </label>
+
+            {!nationwide && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-ink">
+                    Chọn tỉnh/thành ({selectedCodes.length} đã chọn)
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm tỉnh/thành..."
+                  className="w-full rounded-xl border border-ink/15 px-3 py-1.5 text-xs focus:border-brand-forest focus:outline-none"
+                />
+                <div className="max-h-48 overflow-y-auto rounded-xl border border-ink/10 p-2 space-y-1 bg-slate-50">
+                  {filteredProvinces.map((p) => {
+                    const isSelected = selectedCodes.includes(p.code);
+                    return (
+                      <label
+                        key={p.code}
+                        className={`flex items-center gap-2.5 rounded-lg p-2 text-xs cursor-pointer transition-colors ${
+                          isSelected ? "bg-mint-100 text-brand-forest font-bold" : "hover:bg-white text-ink"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => onToggleProvince(p.code)}
+                          className="h-4 w-4 rounded accent-brand-forest"
+                        />
+                        <span>{p.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-ink mb-1.5">
+              Phí vận chuyển đồng giá (VND) <span className="text-sale">*</span>
+            </label>
+            <input
+              required
+              type="number"
+              min="0"
+              value={fee}
+              onChange={(e) => setFee(e.target.value ? Number(e.target.value) : "")}
+              placeholder="30000"
+              className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+            />
+          </div>
+
+          <div className="rounded-2xl bg-mint-50 p-4 border border-mint-200 space-y-3">
+            <label className="flex items-center gap-2.5 text-xs font-bold text-ink cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasFreeShipping}
+                onChange={(e) => setHasFreeShipping(e.target.checked)}
+                className="h-4 w-4 rounded accent-brand-forest"
+              />
+              Miễn phí vận chuyển khi đơn hàng đạt ngưỡng
+            </label>
+            {hasFreeShipping && (
+              <input
+                type="number"
+                min="0"
+                value={freeThreshold}
+                onChange={(e) => setFreeThreshold(e.target.value ? Number(e.target.value) : "")}
+                placeholder="VD: 500000"
+                className="w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none"
+              />
+            )}
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-ink/10">
+            <Button type="button" variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={isSaving}
+              className="bg-brand-forest text-white"
+            >
+              {isSaving ? "Đang lưu..." : "Tạo Chính Sách"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
-}
+};

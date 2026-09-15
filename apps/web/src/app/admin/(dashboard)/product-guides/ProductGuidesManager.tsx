@@ -7,6 +7,7 @@ import { BookOpen, ChevronDown, ChevronUp, Plus, Trash2 } from "@/components/adm
 import { ProductGuideSection } from "@/components/ProductGuides";
 import type { ProductGuide } from "@/lib/product-guides";
 import { GuideEditor, LAYOUT_LABELS, type CategoryOption } from "./GuideEditor";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 function newGuide(): ProductGuide {
   return {
@@ -66,13 +67,7 @@ export function ProductGuidesManager({
   async function save() {
     setIsSaving(true);
     try {
-      const res = await fetch("/api/admin/product-guides", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guides }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể lưu hướng dẫn sản phẩm");
+      const data = await adminFetch<{ guides: typeof guides }>("/api/admin/product-guides", { method: "PUT", body: { guides } });
       setGuides(data.guides);
       setSavedJson(JSON.stringify(data.guides));
       toast.success("Đã lưu. Trang sản phẩm cập nhật trong khoảng 1 phút.");

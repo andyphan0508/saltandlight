@@ -160,7 +160,7 @@ export const Header = ({
                 </button>
 
                 {isCategoryMenuOpen && (
-                  <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-ink/10 bg-white p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-ink/10 bg-white p-2 shadow-xl animate-fade-in">
                     <Link
                       href="/san-pham"
                       onClick={() => setIsCategoryMenuOpen(false)}

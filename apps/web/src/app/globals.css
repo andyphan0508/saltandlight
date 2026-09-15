@@ -374,3 +374,7 @@
   animation: floatDriftC 36s ease-in-out infinite;
 }
 
+/* Lock page scroll while a shared <Modal> is open (components/Modal.tsx). */
+body:has([data-modal]) {
+  overflow: hidden;
+}

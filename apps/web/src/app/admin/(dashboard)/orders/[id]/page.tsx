@@ -5,6 +5,7 @@ import { OrderStatusForm } from "@/components/admin/OrderStatusForm";
 import { BackLink } from "@/components/admin/BackLink";
 import { Package, History, Users, Truck } from "@/components/admin/Icons";
 import { ADMIN_ORDER_STATUS as STATUS_META } from "@/lib/order-status-styles";
+import { Section } from "@/components/admin/form-fields";
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({
@@ -121,26 +122,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
           </Section>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-brand-forest">{icon}</span>}
-        <h2 className="text-sm font-bold uppercase tracking-wide text-ink/70">{title}</h2>
-      </div>
-      <div className="mt-4">{children}</div>
     </div>
   );
 }

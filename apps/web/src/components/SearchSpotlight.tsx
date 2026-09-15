@@ -108,11 +108,11 @@ export const SearchSpotlight = () => {
   return (
     <div className="fixed inset-0 z-[60] flex justify-center px-4 pt-[12vh] sm:pt-[16vh]">
       <div
-        className="fixed inset-0 bg-ink/40 backdrop-blur-sm animate-in fade-in duration-150"
+        className="fixed inset-0 bg-ink/40 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
 
-      <div className="relative flex h-fit max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-150">
+      <div className="relative flex h-fit max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl animate-pop-in">
         <div className="flex items-center gap-3 border-b border-ink/10 px-5 py-4">
           <Search size={20} className="flex-shrink-0 text-ink/40" />
           <input

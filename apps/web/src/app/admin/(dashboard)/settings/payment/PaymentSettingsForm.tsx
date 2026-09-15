@@ -7,6 +7,7 @@ import { Button } from "@saltandlight/ui";
 import { Upload, ImageOff, CheckCircle } from "@/components/admin/Icons";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/admin/upload-image";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export interface PaymentSettingsData {
   qrImageUrl: string | null;
@@ -20,7 +21,7 @@ const DEFAULT_THANK_YOU =
 const DEFAULT_TRANSFER_NOTE =
   "Vui lòng ghi đúng mã đơn hàng trong nội dung chuyển khoản để shop xác nhận đơn nhanh và chính xác nhất.";
 
-export function PaymentSettingsForm({ initialSettings }: { initialSettings: PaymentSettingsData | null }) {
+export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: PaymentSettingsData | null }) => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +34,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -51,26 +52,23 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/admin/settings/payment", {
+      await adminFetch("/api/admin/settings/payment", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           qrImageUrl: qrImageUrl.trim() || null,
           transferNote: transferNote.trim() || null,
           showThankYouOnly,
           thankYouMessage: thankYouMessage.trim() || null,
-        }),
+        },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lưu thất bại");
       toast.success("Đã lưu cài đặt thanh toán!");
       router.refresh();
     } catch (err) {
@@ -80,10 +78,10 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl space-y-6">
+    <form onSubmit={onSubmit} className="w-full max-w-4xl space-y-6">
       {error && (
         <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">{error}</div>
       )}
@@ -146,7 +144,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                onChange={handleFileUpload}
+                onChange={onFileUpload}
                 className="hidden"
               />
               <Button
@@ -200,4 +198,4 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Paym
       </div>
     </form>
   );
-}
+};

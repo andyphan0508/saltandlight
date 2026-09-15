@@ -93,7 +93,7 @@ export const ImageLightboxModal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-between p-3 sm:p-6 bg-black/30 backdrop-blur-md text-white transition-opacity duration-300 animate-in fade-in"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-between p-3 sm:p-6 bg-black/30 backdrop-blur-md text-white transition-opacity duration-300 animate-fade-in"
       role="dialog"
       aria-modal="true"
       onClick={(e) => {

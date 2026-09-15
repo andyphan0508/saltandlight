@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
+import { toast } from "sonner";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 interface Props {
   id: string;
@@ -12,29 +14,34 @@ interface Props {
   isActive: boolean;
 }
 
-export function ShippingMethodRow({ id, type, fee, freeThreshold, isActive }: Props) {
+export const ShippingMethodRow = ({ id, type, fee, freeThreshold, isActive }: Props) => {
   const router = useRouter();
-  const [saving, setSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSaving(true);
+    setIsSaving(true);
     const form = new FormData(e.currentTarget);
-    await fetch(`/api/admin/shipping-methods/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fee: Number(form.get("fee")),
-        freeThreshold: form.get("freeThreshold") ? Number(form.get("freeThreshold")) : null,
-        isActive: form.get("isActive") === "on",
-      }),
-    });
-    setSaving(false);
-    router.refresh();
-  }
+    try {
+      await adminFetch(`/api/admin/shipping-methods/${id}`, {
+        method: "PATCH",
+        body: {
+          fee: Number(form.get("fee")),
+          freeThreshold: form.get("freeThreshold") ? Number(form.get("freeThreshold")) : null,
+          isActive: form.get("isActive") === "on",
+        },
+      });
+      toast.success("Đã lưu phương thức vận chuyển");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể lưu phương thức vận chuyển");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 rounded-2xl border border-ink/10 bg-white p-5 shadow-card">
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-4 rounded-2xl border border-ink/10 bg-white p-5 shadow-card">
       <div>
         <div className="text-xs font-bold uppercase text-ink/50">Loại</div>
         <div className="mt-1 text-sm font-medium">
@@ -65,9 +72,9 @@ export function ShippingMethodRow({ id, type, fee, freeThreshold, isActive }: Pr
         <input name="isActive" type="checkbox" defaultChecked={isActive} />
         Đang áp dụng
       </label>
-      <Button type="submit" size="sm" disabled={saving}>
-        {saving ? "Đang lưu…" : "Lưu"}
+      <Button type="submit" size="sm" disabled={isSaving}>
+        {isSaving ? "Đang lưu…" : "Lưu"}
       </Button>
     </form>
   );
-}
+};

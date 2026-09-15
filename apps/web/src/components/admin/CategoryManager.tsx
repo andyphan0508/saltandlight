@@ -18,6 +18,8 @@ import {
 import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
 import { slugify } from "@/lib/slugify";
+import { Modal } from "@/components/Modal";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export interface CategoryItem {
   id: string;
@@ -34,7 +36,7 @@ export interface ParentCategoryOption {
   parentId: string | null;
 }
 
-export function CategoryManager({
+export const CategoryManager = ({
   initialCategories,
   parentOptions,
   total,
@@ -54,7 +56,7 @@ export function CategoryManager({
     totalProducts: number;
     topLevelCategories: number;
   };
-}) {
+}) => {
   const router = useRouter();
   const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
   const [search, setSearch] = useState(currentQ);
@@ -69,12 +71,12 @@ export function CategoryManager({
     setSearch(currentQ);
   }, [currentQ]);
 
-  function applySearch(q: string) {
+  const onSearch = (q: string) => {
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
     const qs = params.toString();
     router.push(`/admin/categories${qs ? `?${qs}` : ""}`);
-  }
+  };
 
   // Form states
   const [formName, setFormName] = useState("");
@@ -83,37 +85,37 @@ export function CategoryManager({
   const [isCustomSlug, setIsCustomSlug] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleOpenCreate() {
+  const onOpenCreate = () => {
     setEditingCategory(null);
     setFormName("");
     setFormSlug("");
     setFormParentId("");
     setIsCustomSlug(false);
     setIsCreating(true);
-  }
+  };
 
-  function handleOpenEdit(cat: CategoryItem) {
+  const onOpenEdit = (cat: CategoryItem) => {
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormSlug(cat.slug);
     setFormParentId(cat.parentId || "");
     setIsCustomSlug(true);
     setIsCreating(false);
-  }
+  };
 
-  function handleCloseModal() {
+  const onCloseModal = () => {
     setIsCreating(false);
     setEditingCategory(null);
-  }
+  };
 
-  function handleNameChange(val: string) {
+  const onNameChange = (val: string) => {
     setFormName(val);
     if (!isCustomSlug) {
       setFormSlug(slugify(val));
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
       toast.error("Vui lòng nhập tên danh mục");
@@ -132,16 +134,7 @@ export function CategoryManager({
         parentId: formParentId || null,
       };
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Có lỗi xảy ra khi lưu danh mục");
-      }
+      const data = await adminFetch<{ category: CategoryItem }>(url, { method, body });
 
       if (editingCategory) {
         setCategories((prev) =>
@@ -152,7 +145,7 @@ export function CategoryManager({
         setCategories((prev) => [data.category, ...prev]);
         toast.success("Tạo danh mục mới thành công!");
       }
-      handleCloseModal();
+      onCloseModal();
       router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Thao tác thất bại";
@@ -160,9 +153,9 @@ export function CategoryManager({
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
-  async function handleDelete(cat: CategoryItem) {
+  const onDelete = async (cat: CategoryItem) => {
     if (
       !confirm(
         `Bạn có chắc chắn muốn xóa danh mục "${cat.name}"? Thao tác này không thể hoàn tác.`
@@ -172,14 +165,7 @@ export function CategoryManager({
     }
 
     try {
-      const res = await fetch(`/api/admin/categories/${cat.id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Không thể xóa danh mục");
-      }
+      await adminFetch(`/api/admin/categories/${cat.id}`, { method: "DELETE" });
 
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
       toast.success("Đã xóa danh mục!");
@@ -188,7 +174,7 @@ export function CategoryManager({
       const msg = err instanceof Error ? err.message : "Lỗi khi xóa";
       toast.error(msg);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -203,7 +189,7 @@ export function CategoryManager({
           </p>
         </div>
         <Button
-          onClick={handleOpenCreate}
+          onClick={onOpenCreate}
           className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
         >
           <Plus size={16} />
@@ -250,7 +236,7 @@ export function CategoryManager({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          applySearch(search);
+          onSearch(search);
         }}
         className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-slate-200/80 shadow-xs"
       >
@@ -267,7 +253,7 @@ export function CategoryManager({
             type="button"
             onClick={() => {
               setSearch("");
-              applySearch("");
+              onSearch("");
             }}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
@@ -347,7 +333,7 @@ export function CategoryManager({
                         </a>
                         <button
                           type="button"
-                          onClick={() => handleOpenEdit(cat)}
+                          onClick={() => onOpenEdit(cat)}
                           title="Chỉnh sửa"
                           className="p-1.5 rounded-lg text-slate-400 hover:text-brand-forest hover:bg-mint-50 transition-colors"
                         >
@@ -355,7 +341,7 @@ export function CategoryManager({
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDelete(cat)}
+                          onClick={() => onDelete(cat)}
                           title="Xóa danh mục"
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                         >
@@ -382,118 +368,119 @@ export function CategoryManager({
       </div>
 
       {/* 5. Create / Edit Category Modal */}
-      {(isCreating || editingCategory) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8 animate-pop-in">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
-              <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-                {editingCategory ? "Chỉnh sửa danh mục" : "Tạo danh mục sản phẩm mới"}
-              </h3>
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Category Name */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Tên danh mục sản phẩm <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formName}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="Ví dụ: Áo Thun Cơ Đốc, Set Quà Mùa Lễ..."
-                  required
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 focus:border-brand-forest focus:outline-none"
-                />
-              </div>
-
-              {/* Slug */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Đường dẫn liên kết (Slug)
-                  </label>
-                  {!isCustomSlug && (
-                    <span className="text-[11px] text-brand-forest font-semibold">
-                      Tự động điền theo tên
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  value={formSlug}
-                  onChange={(e) => {
-                    setFormSlug(e.target.value);
-                    setIsCustomSlug(true);
-                  }}
-                  placeholder="ao-thun-co-doc"
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-mono text-slate-800 focus:border-brand-forest focus:outline-none"
-                />
-                <p className="mt-1 text-[11px] text-slate-400">
-                  Đường dẫn xem trên cửa hàng: <code className="text-slate-600">/san-pham?categories={formSlug || "..."}</code>
-                </p>
-              </div>
-
-              {/* Parent Category */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Thuộc danh mục cha (Không bắt buộc)
-                </label>
-                <select
-                  value={formParentId}
-                  onChange={(e) => setFormParentId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 bg-white focus:border-brand-forest focus:outline-none"
-                >
-                  <option value="">-- Không thuộc danh mục nào (Đây là danh mục chính) --</option>
-                  {parentOptions
-                    .filter((c) => !editingCategory || c.id !== editingCategory.id)
-                    .map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                </select>
-                <p className="mt-1 text-[11px] text-slate-400">
-                  Dùng khi bạn muốn tạo nhóm sản phẩm con (Ví dụ: Áo Thun &gt; Áo Thun Giáng Sinh).
-                </p>
-              </div>
-
-              {/* Footer Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCloseModal}
-                  className="rounded-xl px-4 py-2 text-xs font-semibold"
-                >
-                  Hủy bỏ
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
-                >
-                  {isSubmitting
-                    ? "Đang lưu..."
-                    : editingCategory
-                    ? "Cập nhật danh mục"
-                    : "Tạo danh mục"}
-                </Button>
-              </div>
-            </form>
-          </div>
+      <Modal
+        isOpen={isCreating || Boolean(editingCategory)}
+        onClose={onCloseModal}
+        labelledBy="category-form-title"
+        className="max-w-lg rounded-2xl bg-white border border-slate-200 overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
+          <h3 id="category-form-title" className="font-bold text-slate-900 text-sm sm:text-base">
+            {editingCategory ? "Chỉnh sửa danh mục" : "Tạo danh mục sản phẩm mới"}
+          </h3>
+          <button
+            type="button"
+            onClick={onCloseModal}
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          >
+            <X size={18} />
+          </button>
         </div>
-      )}
+
+        <form onSubmit={onSubmit} className="p-6 space-y-4">
+          {/* Category Name */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Tên danh mục sản phẩm <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => onNameChange(e.target.value)}
+              placeholder="Ví dụ: Áo Thun Cơ Đốc, Set Quà Mùa Lễ..."
+              required
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 focus:border-brand-forest focus:outline-none"
+            />
+          </div>
+
+          {/* Slug */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                Đường dẫn liên kết (Slug)
+              </label>
+              {!isCustomSlug && (
+                <span className="text-[11px] text-brand-forest font-semibold">
+                  Tự động điền theo tên
+                </span>
+              )}
+            </div>
+            <input
+              type="text"
+              value={formSlug}
+              onChange={(e) => {
+                setFormSlug(e.target.value);
+                setIsCustomSlug(true);
+              }}
+              placeholder="ao-thun-co-doc"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-mono text-slate-800 focus:border-brand-forest focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-slate-400">
+              Đường dẫn xem trên cửa hàng: <code className="text-slate-600">/san-pham?categories={formSlug || "..."}</code>
+            </p>
+          </div>
+
+          {/* Parent Category */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Thuộc danh mục cha (Không bắt buộc)
+            </label>
+            <select
+              value={formParentId}
+              onChange={(e) => setFormParentId(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 bg-white focus:border-brand-forest focus:outline-none"
+            >
+              <option value="">-- Không thuộc danh mục nào (Đây là danh mục chính) --</option>
+              {parentOptions
+                .filter((c) => !editingCategory || c.id !== editingCategory.id)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+            </select>
+            <p className="mt-1 text-[11px] text-slate-400">
+              Dùng khi bạn muốn tạo nhóm sản phẩm con (Ví dụ: Áo Thun &gt; Áo Thun Giáng Sinh).
+            </p>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCloseModal}
+              className="rounded-xl px-4 py-2 text-xs font-semibold"
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
+            >
+              {isSubmitting
+                ? "Đang lưu..."
+                : editingCategory
+                ? "Cập nhật danh mục"
+                : "Tạo danh mục"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
-}
+};
 
 export const CategoriesView = CategoryManager;
 

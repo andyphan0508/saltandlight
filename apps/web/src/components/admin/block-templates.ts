@@ -1,10 +1,6 @@
-"use client";
-
 import type { ComponentType } from "react";
 import {
-  X,
   Sparkles,
-  Plus,
   ShoppingBag,
   Star,
   Gift,
@@ -14,7 +10,6 @@ import {
   FileText,
   Phone,
   Rocket,
-  Lightbulb,
   type IconProps,
 } from "./Icons";
 import {
@@ -22,6 +17,7 @@ import {
   type PageBlockTypeValue,
 } from "@/lib/admin/page-block-types";
 
+/** Block library shown in the Live Editor's "Thêm khối" tab. */
 export interface BlockTemplateMeta {
   type: PageBlockTypeValue;
   title: string;
@@ -143,113 +139,3 @@ export const BLOCK_TEMPLATES: BlockTemplateMeta[] = [
     example: "VD: Khám phá ngay bộ sưu tập mới...",
   },
 ];
-
-export function BlockPaletteModal({
-  isOpen,
-  targetIndex,
-  onClose,
-  onSelectBlock,
-}: {
-  isOpen: boolean;
-  targetIndex?: number | null;
-  onClose: () => void;
-  onSelectBlock: (type: PageBlockTypeValue, targetIndex?: number | null) => void;
-}) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-4xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-6 animate-pop-in flex flex-col max-h-[88vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/80 flex-shrink-0">
-          <div>
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <Sparkles size={18} className="text-brand-forest" />
-              <span>Thư Viện Khối Giao Diện Mẫu (Block Library)</span>
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {typeof targetIndex === "number"
-                ? `Chọn khối bạn muốn chèn vào vị trí số ${targetIndex + 1}`
-                : "Chọn một khối mẫu trực quan bên dưới để thêm vào trang web của bạn"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Templates Grid */}
-        <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-slate-50/40">
-          {BLOCK_TEMPLATES.map((tmpl) => {
-            const IconComp = tmpl.icon;
-            return (
-              <div
-                key={tmpl.type}
-                onClick={() => {
-                  onSelectBlock(tmpl.type, targetIndex);
-                  onClose();
-                }}
-                className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer hover:border-brand-forest hover:shadow-md hover:bg-mint-50/30 transition-all text-left"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110 ${tmpl.iconBg} ${tmpl.iconColor}`}
-                      >
-                        <IconComp size={18} />
-                      </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                        {tmpl.category}
-                      </span>
-                    </div>
-                    {tmpl.badge && (
-                      <span className="rounded-full bg-mint-100 px-2.5 py-0.5 text-[10px] font-bold text-brand-forest">
-                        {tmpl.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-forest transition-colors">
-                    {tmpl.title}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    {tmpl.description}
-                  </p>
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 italic truncate max-w-[200px]">
-                    {tmpl.example}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-forest group-hover:underline">
-                    <Plus size={13} /> Thêm khối này
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Lightbulb size={16} className="text-amber-500 shrink-0" />
-            <span>Sau khi thêm, bạn có thể chỉnh sửa nội dung chi tiết hoặc kéo đổi vị trí bất cứ lúc nào.</span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Đóng
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

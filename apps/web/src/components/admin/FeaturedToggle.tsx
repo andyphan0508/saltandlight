@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export const FeaturedToggle = ({
   productId,
@@ -22,23 +23,12 @@ export const FeaturedToggle = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch(`/api/admin/products/${productId}/featured`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isFeatured: nextState }),
-      });
-
-      if (!res.ok) {
-        setIsFeatured(!nextState); // revert on error
-        const data = await res.json();
-        toast.error(data.error || "Không thể cập nhật trạng thái nổi bật");
-      } else {
-        toast.success(nextState ? "Đã bật: Sản phẩm được đưa lên mục Nổi Bật!" : "Đã tắt trạng thái nổi bật");
-        router.refresh();
-      }
-    } catch {
-      setIsFeatured(!nextState);
-      toast.error("Lỗi kết nối mạng khi cập nhật trạng thái nổi bật");
+      await adminFetch(`/api/admin/products/${productId}/featured`, { method: "PATCH", body: { isFeatured: nextState } });
+      toast.success(nextState ? "Đã bật: Sản phẩm được đưa lên mục Nổi Bật!" : "Đã tắt trạng thái nổi bật");
+      router.refresh();
+    } catch (err) {
+      setIsFeatured(!nextState); // revert optimistic update
+      toast.error(err instanceof Error ? err.message : "Không thể cập nhật trạng thái nổi bật");
     } finally {
       setIsLoading(false);
     }

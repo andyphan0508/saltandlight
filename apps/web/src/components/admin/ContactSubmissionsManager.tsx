@@ -16,6 +16,8 @@ import {
 } from "@/components/admin/Icons";
 import { Pagination } from "@/components/admin/Pagination";
 import { toast } from "sonner";
+import { Modal } from "@/components/Modal";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 export interface ContactSubmissionItem {
   id: string;
@@ -49,7 +51,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export function ContactSubmissionsManager({
+export const ContactSubmissionsManager = ({
   initialContacts,
   total,
   page,
@@ -63,7 +65,7 @@ export function ContactSubmissionsManager({
   pageSize: number;
   counts: { all: number; new: number; in_progress: number; closed: number };
   currentFilters: { q: string; status: string; type: string };
-}) {
+}) => {
   const router = useRouter();
   const [contacts, setContacts] = useState<ContactSubmissionItem[]>(initialContacts);
   const [search, setSearch] = useState(currentFilters.q);
@@ -77,7 +79,7 @@ export function ContactSubmissionsManager({
     setSearch(currentFilters.q);
   }, [currentFilters.q]);
 
-  function applyFilters(newFilters: { q?: string; status?: string; type?: string }) {
+  const onFilter = (newFilters: { q?: string; status?: string; type?: string }) => {
     const params = new URLSearchParams();
     const qVal = newFilters.q !== undefined ? newFilters.q : search;
     const statusVal = newFilters.status !== undefined ? newFilters.status : currentFilters.status;
@@ -88,17 +90,11 @@ export function ContactSubmissionsManager({
     if (typeVal && typeVal !== "all") params.set("type", typeVal);
     const qs = params.toString();
     router.push(`/admin/contacts${qs ? `?${qs}` : ""}`);
-  }
+  };
 
-  async function handleUpdateStatus(id: string, newStatus: "new" | "in_progress" | "closed") {
+  const onUpdateStatus = async (id: string, newStatus: "new" | "in_progress" | "closed") => {
     try {
-      const res = await fetch(`/api/admin/contacts/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể cập nhật trạng thái");
+      await adminFetch(`/api/admin/contacts/${id}`, { method: "PATCH", body: { status: newStatus } });
 
       setContacts((prev) =>
         prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
@@ -112,15 +108,13 @@ export function ContactSubmissionsManager({
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra";
       toast.error(msg);
     }
-  }
+  };
 
-  async function handleDelete(id: string, name: string) {
+  const onDelete = async (id: string, name: string) => {
     if (!confirm(`Bạn có chắc chắn muốn xóa yêu cầu liên hệ từ "${name}"?`)) return;
 
     try {
-      const res = await fetch(`/api/admin/contacts/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể xóa");
+      await adminFetch(`/api/admin/contacts/${id}`, { method: "DELETE" });
 
       setContacts((prev) => prev.filter((c) => c.id !== id));
       if (selectedContact?.id === id) setSelectedContact(null);
@@ -130,15 +124,15 @@ export function ContactSubmissionsManager({
       const msg = err instanceof Error ? err.message : "Lỗi khi xóa";
       toast.error(msg);
     }
-  }
+  };
 
-  function getCleanPhone(phone: string | null) {
+  const getCleanPhone = (phone: string | null) => {
     if (!phone) return null;
     const digits = phone.replace(/\D/g, "");
     if (digits.startsWith("84") && digits.length === 11) return `0${digits.slice(2)}`;
     if (digits.startsWith("0")) return digits;
     return `0${digits}`;
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -157,7 +151,7 @@ export function ContactSubmissionsManager({
         <button
           type="button"
           onClick={() =>
-            applyFilters({
+            onFilter({
               status: currentFilters.status === "new" ? "all" : "new",
             })
           }
@@ -181,7 +175,7 @@ export function ContactSubmissionsManager({
         <button
           type="button"
           onClick={() =>
-            applyFilters({
+            onFilter({
               status: currentFilters.status === "in_progress" ? "all" : "in_progress",
             })
           }
@@ -205,7 +199,7 @@ export function ContactSubmissionsManager({
         <button
           type="button"
           onClick={() =>
-            applyFilters({
+            onFilter({
               status: currentFilters.status === "closed" ? "all" : "closed",
             })
           }
@@ -232,7 +226,7 @@ export function ContactSubmissionsManager({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            applyFilters({ q: search });
+            onFilter({ q: search });
           }}
           className="flex flex-1 items-center gap-2"
         >
@@ -249,7 +243,7 @@ export function ContactSubmissionsManager({
               type="button"
               onClick={() => {
                 setSearch("");
-                applyFilters({ q: "" });
+                onFilter({ q: "" });
               }}
               className="p-1 text-slate-400 hover:text-slate-600"
             >
@@ -261,7 +255,7 @@ export function ContactSubmissionsManager({
         <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
           <select
             value={currentFilters.status}
-            onChange={(e) => applyFilters({ status: e.target.value })}
+            onChange={(e) => onFilter({ status: e.target.value })}
             className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none"
           >
             <option value="all">Tất cả trạng thái ({counts.all})</option>
@@ -272,7 +266,7 @@ export function ContactSubmissionsManager({
 
           <select
             value={currentFilters.type}
-            onChange={(e) => applyFilters({ type: e.target.value })}
+            onChange={(e) => onFilter({ type: e.target.value })}
             className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none"
           >
             <option value="all">Tất cả loại yêu cầu</option>
@@ -397,7 +391,7 @@ export function ContactSubmissionsManager({
                         <select
                           value={item.status}
                           onChange={(e) =>
-                            handleUpdateStatus(
+                            onUpdateStatus(
                               item.id,
                               e.target.value as "new" | "in_progress" | "closed"
                             )
@@ -423,7 +417,7 @@ export function ContactSubmissionsManager({
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDelete(item.id, item.fullName)}
+                            onClick={() => onDelete(item.id, item.fullName)}
                             title="Xóa yêu cầu"
                             className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                           >
@@ -455,12 +449,18 @@ export function ContactSubmissionsManager({
       </div>
 
       {/* 5. Detail View Modal */}
-      {selectedContact && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8 animate-pop-in">
+      <Modal
+        isOpen={Boolean(selectedContact)}
+        onClose={() => setSelectedContact(null)}
+        isDismissable
+        labelledBy="contact-detail-title"
+        className="max-w-lg rounded-2xl bg-white border border-slate-200 overflow-hidden"
+      >
+        {selectedContact && (
+          <>
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
               <div>
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                <h3 id="contact-detail-title" className="font-bold text-slate-900 text-sm sm:text-base">
                   Chi tiết yêu cầu liên hệ
                 </h3>
                 <span className="text-[11px] text-slate-400">
@@ -545,7 +545,7 @@ export function ContactSubmissionsManager({
                     <button
                       key={st}
                       type="button"
-                      onClick={() => handleUpdateStatus(selectedContact.id, st)}
+                      onClick={() => onUpdateStatus(selectedContact.id, st)}
                       className={`flex-1 rounded-xl py-2 text-xs font-bold border transition-all ${
                         selectedContact.status === st
                           ? "bg-slate-900 text-white border-slate-900 shadow-xs"
@@ -558,12 +558,12 @@ export function ContactSubmissionsManager({
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
-}
+};
 
 export const ContactsView = ContactSubmissionsManager;
 

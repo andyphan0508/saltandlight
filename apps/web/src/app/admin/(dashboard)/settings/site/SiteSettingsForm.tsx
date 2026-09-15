@@ -16,6 +16,7 @@ import type {
 } from "@/lib/site-settings-types";
 import { LOGO_SIZE_CLASSES } from "@/lib/site-settings-types";
 import { uploadImage } from "@/lib/admin/upload-image";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 const LOGO_SIZE_OPTIONS: { value: LogoSize; label: string }[] = [
   { value: "sm", label: "Nhỏ" },
@@ -132,10 +133,9 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
     setIsSaving(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/settings/site", {
+      await adminFetch("/api/admin/settings/site", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           logoUrl,
           logoSize,
           footerLogoUrl,
@@ -147,10 +147,8 @@ export function SiteSettingsForm({ initialSettings }: { initialSettings: SiteSet
           footerAddress,
           footerSocialLinks,
           footerColumns,
-        }),
+        },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lưu thất bại");
       toast.success("Đã lưu cài đặt Header & Footer!");
       router.refresh();
     } catch (err) {

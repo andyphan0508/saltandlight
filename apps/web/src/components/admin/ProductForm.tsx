@@ -29,6 +29,8 @@ import {
 } from "@/lib/product-content";
 import { slugify } from "@/lib/slugify";
 import { uploadImage } from "@/lib/admin/upload-image";
+import { adminFetch } from "@/lib/admin/admin-fetch";
+import { Section, Field } from "./form-fields";
 
 interface Category {
   id: string;
@@ -254,22 +256,21 @@ export function ProductForm({
       })),
     };
 
-    const res = await fetch(initial?.id ? `/api/admin/products/${initial.id}` : "/api/admin/products", {
-      method: initial?.id ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (!res.ok) {
-      const errText = typeof data.error === "string" ? data.error : JSON.stringify(data.error);
-      setError(errText);
-      toast.error(errText || "Không thể lưu thông tin sản phẩm");
-      return;
+    try {
+      await adminFetch(initial?.id ? `/api/admin/products/${initial.id}` : "/api/admin/products", {
+        method: initial?.id ? "PATCH" : "POST",
+        body: payload,
+      });
+      toast.success(initial?.id ? "Cập nhật sản phẩm thành công!" : "Tạo sản phẩm mới thành công!");
+      router.push("/admin/products");
+      router.refresh();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Không thể lưu thông tin sản phẩm";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setSaving(false);
     }
-    toast.success(initial?.id ? "Cập nhật sản phẩm thành công!" : "Tạo sản phẩm mới thành công!");
-    router.push("/admin/products");
-    router.refresh();
   }
 
   return (
@@ -782,58 +783,5 @@ export function ProductForm({
         </Button>
       </div>
     </form>
-  );
-}
-
-function Section({
-  title,
-  icon,
-  badge,
-  action,
-  children,
-}: {
-  title: string;
-  icon?: React.ReactNode;
-  badge?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {icon && <span className="text-brand-forest">{icon}</span>}
-          <h2 className="text-sm font-bold uppercase tracking-wide text-ink/70">{title}</h2>
-          {badge && (
-            <span className="rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold text-brand-forest">
-              {badge}
-            </span>
-          )}
-        </div>
-        {action}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  required,
-  className,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={className}>
-      <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-ink/50">
-        {label} {required && <span className="text-sale">*</span>}
-      </label>
-      {children}
-    </div>
   );
 }

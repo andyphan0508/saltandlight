@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Plus, Trash2 } from "./Icons";
 
 /** Shared small form primitives for admin editing UIs (page-blocks, site settings, ...). */
@@ -93,3 +94,51 @@ export function ArrayEditor<T extends Record<string, any>>({
     </div>
   );
 }
+
+/** White card with an uppercase heading, used by the product form and order detail page. */
+export const Section = ({
+  title,
+  icon,
+  badge,
+  action,
+  children,
+}: {
+  title: string;
+  icon?: ReactNode;
+  badge?: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) => (
+  <div className="rounded-2xl border border-ink/10 bg-white p-6 shadow-card">
+    <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        {icon && <span className="text-brand-forest">{icon}</span>}
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink/70">{title}</h2>
+        {badge && (
+          <span className="rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold text-brand-forest">{badge}</span>
+        )}
+      </div>
+      {action}
+    </div>
+    {children}
+  </div>
+);
+
+export const Field = ({
+  label,
+  required,
+  className,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  className?: string;
+  children: ReactNode;
+}) => (
+  <div className={className}>
+    <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-ink/50">
+      {label} {required && <span className="text-sale">*</span>}
+    </label>
+    {children}
+  </div>
+);

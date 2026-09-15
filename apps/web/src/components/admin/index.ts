@@ -2,7 +2,7 @@ export * from "./AdminHeader";
 export * from "./BackLink";
 export * from "./BannerCropModal";
 export * from "./BannerManager";
-export * from "./BlockPaletteModal";
+export * from "./block-templates";
 export * from "./CategoryFilterSelect";
 export * from "./CategoryManager";
 export * from "./ChangePasswordModal";

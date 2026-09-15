@@ -58,7 +58,7 @@ export const MobileDrawer = ({
     <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
       {/* Dimmed Blurred Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
         onClick={() => setOpen(false)}
         aria-hidden="true"
       />

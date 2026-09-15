@@ -3,27 +3,35 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@saltandlight/ui";
+import { toast } from "sonner";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
-export function PaymentActions({ paymentId }: { paymentId: string }) {
+export const PaymentActions = ({ paymentId }: { paymentId: string }) => {
   const router = useRouter();
-  const [loading, setLoading] = useState<"confirm" | "reject" | null>(null);
+  const [pendingAction, setPendingAction] = useState<"confirm" | "reject" | null>(null);
 
-  async function act(action: "confirm" | "reject") {
+  const onAction = async (action: "confirm" | "reject") => {
     if (action === "reject" && !confirm("Từ chối giao dịch này?")) return;
-    setLoading(action);
-    await fetch(`/api/admin/payments/${paymentId}/${action}`, { method: "PATCH" });
-    setLoading(null);
-    router.refresh();
-  }
+    setPendingAction(action);
+    try {
+      await adminFetch(`/api/admin/payments/${paymentId}/${action}`, { method: "PATCH" });
+      toast.success(action === "confirm" ? "Đã xác nhận thanh toán" : "Đã từ chối giao dịch");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể cập nhật giao dịch");
+    } finally {
+      setPendingAction(null);
+    }
+  };
 
   return (
     <div className="flex gap-2">
-      <Button size="sm" onClick={() => act("confirm")} disabled={loading !== null}>
-        {loading === "confirm" ? "Đang xác nhận…" : "Xác nhận đã nhận tiền"}
+      <Button size="sm" onClick={() => onAction("confirm")} disabled={pendingAction !== null}>
+        {pendingAction === "confirm" ? "Đang xác nhận…" : "Xác nhận đã nhận tiền"}
       </Button>
-      <Button size="sm" variant="outline" onClick={() => act("reject")} disabled={loading !== null}>
+      <Button size="sm" variant="outline" onClick={() => onAction("reject")} disabled={pendingAction !== null}>
         Từ chối
       </Button>
     </div>
   );
-}
+};

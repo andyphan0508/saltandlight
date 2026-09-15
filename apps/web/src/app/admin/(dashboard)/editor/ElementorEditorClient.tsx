@@ -43,8 +43,9 @@ import {
   type PageBlockItem,
   type PageBlockTypeValue,
 } from "@/lib/admin/page-block-types";
-import { BLOCK_TEMPLATES } from "@/components/admin/BlockPaletteModal";
+import { BLOCK_TEMPLATES } from "@/components/admin/block-templates";
 import { BlockEditForm, defaultContent } from "./BlockEditForm";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 const MANAGED_PAGES = [
   { slug: "home", label: "Trang chủ", path: "/" },
@@ -98,11 +99,8 @@ export function ElementorEditorClient({
     setActiveTab("navigator");
     router.replace(`/admin/editor?page=${newSlug}`, { scroll: false });
     try {
-      const res = await fetch(`/api/admin/page-blocks?page=${newSlug}`);
-      if (res.ok) {
-        const data = await res.json();
-        setBlocks(data.blocks || []);
-      }
+      const data = await adminFetch<{ blocks?: PageBlockItem[] }>(`/api/admin/page-blocks?page=${newSlug}`);
+      setBlocks(data.blocks ?? []);
     } catch {
       toast.error("Không thể tải danh sách khối");
     }
@@ -160,24 +158,16 @@ export function ElementorEditorClient({
     setIsReordering(true);
 
     try {
-      const res = await fetch("/api/admin/page-blocks/reorder", {
+      await adminFetch("/api/admin/page-blocks/reorder", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          page: currentPage,
-          orderedIds: reordered.map((b) => b.id),
-        }),
+        body: { page: currentPage, orderedIds: reordered.map((b) => b.id) },
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Không thể lưu thứ tự khối");
-      }
       toast.success("Đã cập nhật vị trí khối!");
       // Reload iframe to sync
       setIframeKey((k) => k + 1);
-    } catch (err: any) {
+    } catch (err) {
       setBlocks(previousBlocks);
-      toast.error(err?.message || "Không thể lưu thứ tự khối");
+      toast.error(err instanceof Error ? err.message : "Không thể lưu thứ tự khối");
     } finally {
       setIsReordering(false);
     }
@@ -190,12 +180,7 @@ export function ElementorEditorClient({
       prev.map((b) => (b.id === block.id ? { ...b, isVisible: nextState } : b))
     );
     try {
-      const res = await fetch(`/api/admin/page-blocks/${block.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isVisible: nextState }),
-      });
-      if (!res.ok) throw new Error();
+      await adminFetch(`/api/admin/page-blocks/${block.id}`, { method: "PATCH", body: { isVisible: nextState } });
       toast.success(nextState ? "Đã hiện khối" : "Đã ẩn khối");
       setIframeKey((k) => k + 1);
     } catch {
@@ -211,8 +196,7 @@ export function ElementorEditorClient({
     if (!confirm("Bạn có chắc chắn muốn xóa khối này không?")) return;
     setIsDeleting(blockId);
     try {
-      const res = await fetch(`/api/admin/page-blocks/${blockId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      await adminFetch(`/api/admin/page-blocks/${blockId}`, { method: "DELETE" });
       setBlocks((prev) => prev.filter((b) => b.id !== blockId));
       if (editingBlock?.id === blockId) {
         setEditingBlock(null);
@@ -231,21 +215,17 @@ export function ElementorEditorClient({
   async function handleAddFromPalette(type: PageBlockTypeValue) {
     try {
       const content = defaultContent(type);
-      const res = await fetch("/api/admin/page-blocks", {
+      const { block: newBlock } = await adminFetch<{ block: PageBlockItem }>("/api/admin/page-blocks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page: currentPage, type, content }),
+        body: { page: currentPage, type, content },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể tạo khối");
-      const newBlock = data.block;
       setBlocks((prev) => [...prev, newBlock]);
       setEditingBlock(newBlock);
       setActiveTab("edit");
       toast.success(`Đã thêm khối ${BLOCK_TYPE_LABELS[type]}!`);
       setIframeKey((k) => k + 1);
-    } catch (err: any) {
-      toast.error(err.message || "Lỗi tạo khối");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Lỗi tạo khối");
     }
   }
 
@@ -254,19 +234,16 @@ export function ElementorEditorClient({
     setIsSeeding(true);
     try {
       // First try dedicated seed-defaults endpoint with rich pre-configured templates
-      const res = await fetch("/api/admin/page-blocks/seed-defaults", {
+      const seeded = await adminFetch<{ blocks?: PageBlockItem[] }>("/api/admin/page-blocks/seed-defaults", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page: currentPage }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.blocks && data.blocks.length > 0) {
-          setBlocks((prev) => [...prev, ...data.blocks]);
-          toast.success(`Đã khởi tạo ${data.blocks.length} khối mẫu chuẩn cho trang!`);
-          setIframeKey((k) => k + 1);
-          return;
-        }
+        body: { page: currentPage },
+      }).catch(() => null);
+      if (seeded?.blocks?.length) {
+        const seededBlocks = seeded.blocks;
+        setBlocks((prev) => [...prev, ...seededBlocks]);
+        toast.success(`Đã khởi tạo ${seededBlocks.length} khối mẫu chuẩn cho trang!`);
+        setIframeKey((k) => k + 1);
+        return;
       }
 
       // Fallback for pages without specialized pre-configured defaults
@@ -275,15 +252,11 @@ export function ElementorEditorClient({
       const createdBlocks: PageBlockItem[] = [];
       for (const type of typesToSeed) {
         const content = defaultContent(type);
-        const postRes = await fetch("/api/admin/page-blocks", {
+        const created = await adminFetch<{ block: PageBlockItem }>("/api/admin/page-blocks", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ page: currentPage, type, content }),
-        });
-        if (postRes.ok) {
-          const data = await postRes.json();
-          createdBlocks.push(data.block);
-        }
+          body: { page: currentPage, type, content },
+        }).catch(() => null);
+        if (created) createdBlocks.push(created.block);
       }
       setBlocks((prev) => [...prev, ...createdBlocks]);
       toast.success(`Đã khởi tạo ${createdBlocks.length} khối mẫu chuẩn cho trang!`);

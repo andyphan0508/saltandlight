@@ -24,6 +24,8 @@ import { BLOCK_TYPE_LABELS, BLOCK_ICON_KEYS, type PageBlockTypeValue } from "@/l
 import { TextField, ArrayEditor } from "@/components/admin/form-fields";
 import { ProductPickerModal } from "@/components/admin/ProductPickerModal";
 import type { PageBlockItem } from "@/lib/admin/page-block-types";
+import { adminFetch } from "@/lib/admin/admin-fetch";
+import { Modal } from "@/components/Modal";
 
 export function defaultContent(type: PageBlockTypeValue): Record<string, any> {
   switch (type) {
@@ -356,13 +358,7 @@ export function BlockEditForm({
       const url = block ? `/api/admin/page-blocks/${block.id}` : "/api/admin/page-blocks";
       const method = block ? "PATCH" : "POST";
       const body = block ? { content: sanitized } : { page, type, content: sanitized };
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lưu thất bại");
+      const data = await adminFetch<{ block: PageBlockItem }>(url, { method, body });
       if (!embedded) {
         toast.success(block ? "Cập nhật khối thành công!" : "Tạo khối mới thành công!");
       }
@@ -425,45 +421,49 @@ export function BlockEditForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-          <h3 className="font-bold text-slate-900 text-sm">
-            {block ? "Chỉnh sửa khối" : "Thêm mới"} — {BLOCK_TYPE_LABELS[type]}
-          </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          <ContentFields type={type} content={content} set={set} />
-
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl px-4 py-2 text-xs font-semibold">
-              Hủy bỏ
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
-            >
-              {isSaving ? "Đang lưu..." : block ? "Lưu thay đổi" : "Tạo khối mới"}
-            </Button>
-          </div>
-        </form>
+    <Modal
+      isOpen
+      onClose={onClose}
+      labelledBy="block-form-title"
+      className="bg-white max-w-2xl rounded-2xl border border-slate-200 overflow-hidden"
+    >
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <h3 id="block-form-title" className="font-bold text-slate-900 text-sm">
+          {block ? "Chỉnh sửa khối" : "Thêm mới"} — {BLOCK_TYPE_LABELS[type]}
+        </h3>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Đóng"
+          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+        >
+          <X size={18} />
+        </button>
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        {error && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+            {error}
+          </div>
+        )}
+
+        <ContentFields type={type} content={content} set={set} />
+
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+          <Button type="button" variant="outline" onClick={onClose} className="rounded-xl px-4 py-2 text-xs font-semibold">
+            Hủy bỏ
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-xl px-5 py-2 text-xs font-bold !bg-brand-forest hover:!bg-brand-forest/90 !text-white shadow-xs"
+          >
+            {isSaving ? "Đang lưu..." : block ? "Lưu thay đổi" : "Tạo khối mới"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -800,11 +800,8 @@ function FeaturedProductsEditor({
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.categories) setCategories(data.categories);
-      })
+    adminFetch<{ categories?: { id: string; name: string; slug: string }[] }>("/api/admin/categories")
+      .then((data) => setCategories(data.categories ?? []))
       .catch((err) => console.error("Error loading categories:", err));
   }, []);
 

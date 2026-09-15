@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
+import { toast } from "sonner";
+import { adminFetch } from "@/lib/admin/admin-fetch";
 
 const STATUSES = [
   ["pending_payment", "Chờ thanh toán"],
@@ -20,18 +22,21 @@ export const OrderStatusForm = ({ orderId, currentStatus }: { orderId: string; c
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
-    const form = new FormData(e.currentTarget);
-    await fetch(`/api/admin/orders/${orderId}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        status: form.get("status"),
-        note: form.get("note") || undefined,
-      }),
-    });
-    setIsSaving(false);
-    router.refresh();
-    (e.target as HTMLFormElement).reset();
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
+    try {
+      await adminFetch(`/api/admin/orders/${orderId}/status`, {
+        method: "PATCH",
+        body: { status: form.get("status"), note: form.get("note") || undefined },
+      });
+      toast.success("Đã cập nhật trạng thái đơn hàng");
+      formElement.reset();
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể cập nhật trạng thái");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
