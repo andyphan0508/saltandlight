@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorRecovery } from "@/lib/use-error-recovery";
+import { useErrorRecovery } from "@/hooks/use-error-recovery";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };

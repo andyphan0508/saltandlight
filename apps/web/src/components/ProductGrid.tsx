@@ -1,7 +1,7 @@
 import { ProductCard } from "./ProductCard";
 import { ProductListItem } from "./ProductListItem";
 import { UpcomingCollectionBanner } from "./UpcomingCollectionBanner";
-import type { ProductCardData } from "@/lib/types";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 const GRID_COLS: Record<string, string> = {
   "2": "grid-cols-2",

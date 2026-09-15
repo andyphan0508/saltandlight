@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useSearchModalStore } from "@/stores/search-store";
 import { formatVND } from "@saltandlight/domain";
 import { Search, X, ArrowRight } from "./Icons";
-import type { ProductCardData } from "@/lib/types";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 /**
  * Rendered as a sibling of <Header> in layout.tsx (not inside it) — same

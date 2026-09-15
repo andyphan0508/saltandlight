@@ -4,7 +4,7 @@ Bối cảnh: vừa xong 1 đợt tối ưu backend (rate-limit, cache, giới h
 
 Có sẵn pattern chuẩn đang chạy tốt, chỉ cần lặp lại đúng pattern đó — không cần thiết kế lại UI, không cần component mới.
 
-## Pattern chuẩn (tham khảo `apps/web/src/app/admin/(dashboard)/products/page.tsx` hoặc `.../customers/page.tsx` — 2 trang này đã đúng chuẩn, không cần đổi)
+## Pattern chuẩn (tham khảo `apps/web/src/screens/admin/Products/index.tsx` hoặc `.../customers/page.tsx` — 2 trang này đã đúng chuẩn, không cần đổi)
 
 ```ts
 export default async function XPage({
@@ -47,7 +47,7 @@ export default async function XPage({
 
 ## 5 trang cần thêm phân trang
 
-1. **`/admin/contacts`** — `apps/web/src/app/admin/(dashboard)/contacts/page.tsx`. `prisma.contactSubmission.findMany` hiện không giới hạn. Nếu trang đang có ô tìm kiếm/filter status/type, giữ nguyên logic filter, chỉ thêm `skip`/`take`/`count` + `<Pagination>`.
+1. **`/admin/contacts`** — `apps/web/src/screens/admin/Contacts/index.tsx`. `prisma.contactSubmission.findMany` hiện không giới hạn. Nếu trang đang có ô tìm kiếm/filter status/type, giữ nguyên logic filter, chỉ thêm `skip`/`take`/`count` + `<Pagination>`.
 2. **`/admin/banners`** — `.../banners/page.tsx`. Số banner thường ít nên không gấp, nhưng nên làm cho nhất quán.
 3. **`/admin/promotions`** — `.../promotions/page.tsx`.
 4. **`/admin/categories`** — `.../categories/page.tsx`.

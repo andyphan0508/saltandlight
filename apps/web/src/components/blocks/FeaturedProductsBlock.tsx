@@ -6,9 +6,9 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { ProductSlider } from "./ProductSlider";
 import { ProductListModal } from "./ProductListModal";
 import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner";
-import { getCachedFeaturedProducts } from "@/lib/queries";
-import { toPlain } from "@/lib/serialize";
-import type { ProductCardData } from "@/lib/types";
+import { getCachedFeaturedProducts } from "@/server/queries";
+import { toPlain } from "@/helpers/serialize";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 export interface FeaturedProductsContent {
   eyebrow?: string;

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@saltandlight/ui";
 import { formatVND, sortSizes } from "@saltandlight/domain";
 import { toast } from "sonner";
-import { compressImage } from "@/lib/image-compressor";
+import { compressImage } from "@/helpers/image-compressor";
 import {
   Plus,
   Trash2,
@@ -26,10 +26,10 @@ import {
   serializeProductContent,
   withPriceNote,
   type ProductContentBlock,
-} from "@/lib/product-content";
-import { slugify } from "@/lib/slugify";
-import { uploadImage } from "@/lib/admin/upload-image";
-import { adminFetch } from "@/lib/admin/admin-fetch";
+} from "@/helpers/product-content";
+import { slugify } from "@/helpers/slugify";
+import { uploadImage } from "@/api/upload-image";
+import { adminFetch } from "@/api/admin-fetch";
 import { Section, Field } from "./form-fields";
 
 interface Category {

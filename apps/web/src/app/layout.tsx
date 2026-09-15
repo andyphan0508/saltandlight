@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { getCachedSiteSettings } from "@/lib/queries";
+import { getCachedSiteSettings } from "@/server/queries";
 import { BfcacheReload } from "@/components/BfcacheReload";
 import "./globals.css";
 

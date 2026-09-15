@@ -7,9 +7,9 @@ import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
 import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { NavigationBuffer } from "@/components/NavigationBuffer";
-import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/lib/queries";
-import { toPlain } from "@/lib/serialize";
-import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/lib/site-settings-types";
+import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/server/queries";
+import { toPlain } from "@/helpers/serialize";
+import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/interfaces/site-settings";
 
 export default async function StorefrontLayout({ children }: { children: React.ReactNode }) {
   let navCategories: any[] = [];

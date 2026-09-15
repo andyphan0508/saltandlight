@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { invalidateProductCaches } from "@/lib/product-cache";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 

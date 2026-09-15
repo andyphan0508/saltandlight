@@ -7,8 +7,8 @@ import {
   buildVietQrUrl,
   buildTransferContent,
 } from "@saltandlight/domain";
-import { sendOrderCreatedEmail } from "@/lib/email";
-import { getAuthenticatedCustomer } from "@/lib/customer/auth";
+import { sendOrderCreatedEmail } from "@/server/email";
+import { getAuthenticatedCustomer } from "@/server/customer-auth";
 
 export const dynamic = "force-dynamic";
 

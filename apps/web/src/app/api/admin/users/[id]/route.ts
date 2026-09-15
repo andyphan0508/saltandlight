@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
+import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
 
 const bodySchema = z.object({
   isActive: z.boolean().optional(),

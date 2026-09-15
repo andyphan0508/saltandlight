@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { revalidatePageBlocks } from "@/lib/admin/page-blocks";
-import { PAGE_SLUGS } from "@/lib/admin/schemas";
-import { PAGE_DEFAULT_BLOCKS } from "@/lib/page-block-defaults";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { revalidatePageBlocks } from "@/server/admin/page-blocks";
+import { PAGE_SLUGS } from "@/helpers/admin-schemas";
+import { PAGE_DEFAULT_BLOCKS } from "@/server/admin/page-block-defaults";
 
 export const dynamic = "force-dynamic";
 

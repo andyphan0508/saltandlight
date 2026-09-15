@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { LogoSize } from "@/lib/site-settings-types";
-import { LOGO_SIZE_CLASSES } from "@/lib/site-settings-types";
+import type { LogoSize } from "@/interfaces/site-settings";
+import { LOGO_SIZE_CLASSES } from "@/interfaces/site-settings";
 
 interface LogoProps {
   src: string;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
 
 export const dynamic = "force-dynamic";
 

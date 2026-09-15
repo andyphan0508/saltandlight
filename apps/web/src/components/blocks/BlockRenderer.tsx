@@ -8,7 +8,7 @@ import { RichTextSectionsBlock } from "./RichTextSectionsBlock";
 import { ContactInfoBlock } from "./ContactInfoBlock";
 import { CtaBannerBlock } from "./CtaBannerBlock";
 import { LiveBlockClient } from "./LiveBlockClient";
-import { BLOCK_TYPE_LABELS } from "@/lib/admin/page-block-types";
+import { BLOCK_TYPE_LABELS } from "@/interfaces/page-block";
 
 export interface PageBlockData {
   id: string;

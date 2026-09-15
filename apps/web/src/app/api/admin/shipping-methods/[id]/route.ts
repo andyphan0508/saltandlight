@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { invalidateMemoryCache } from "@/server/memory-cache";
 
 const bodySchema = z.object({
   fee: z.number().nonnegative(),

@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { safeLocalStorage } from "@/lib/safe-storage";
+import { safeLocalStorage } from "@/helpers/safe-storage";
 
 export interface CartLine {
   productVariantId: string;

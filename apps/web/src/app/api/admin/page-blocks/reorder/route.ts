@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { revalidatePageBlocks } from "@/lib/admin/page-blocks";
-import { pageBlockReorderSchema } from "@/lib/admin/schemas";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { revalidatePageBlocks } from "@/server/admin/page-blocks";
+import { pageBlockReorderSchema } from "@/helpers/admin-schemas";
 
 export const dynamic = "force-dynamic";
 

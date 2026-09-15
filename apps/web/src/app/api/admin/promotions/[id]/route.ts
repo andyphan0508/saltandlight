@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
+import { requireAdmin, apiError } from "@/server/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
-import { promotionUpdateSchema } from "@/lib/admin/schemas";
-import { invalidateProductCaches } from "@/lib/product-cache";
+import { promotionUpdateSchema } from "@/helpers/admin-schemas";
+import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 

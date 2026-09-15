@@ -1,4 +1,4 @@
-import { CartView } from "@/components/cart/CartView";
+import { CartView } from "@/screens/storefront/Cart";
 
 export const metadata = {
   title: "Giỏ hàng",

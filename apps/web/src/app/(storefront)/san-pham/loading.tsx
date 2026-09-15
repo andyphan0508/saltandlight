@@ -1,5 +1,5 @@
-import { CatalogSidebarSkeleton } from "./components/CatalogSidebarSkeleton";
-import { CatalogResultsSkeleton } from "./components/CatalogResultsSkeleton";
+import { CatalogSidebarSkeleton } from "@/screens/storefront/Storefront/components/CatalogSidebarSkeleton";
+import { CatalogResultsSkeleton } from "@/screens/storefront/Storefront/components/CatalogResultsSkeleton";
 
 /**
  * Next.js renders this the instant navigation to /san-pham starts (before

@@ -16,7 +16,7 @@ Both commit to the same `cloudflare-pages` branch independently. Assume the work
 - `packages/db/**` — Prisma schema, migrations, the client singleton
 - `packages/domain/**` — business logic, zod schemas, pricing/shipping rules
 - `apps/web/src/app/api/**` — route handlers (`route.ts`)
-- `apps/web/src/middleware.ts`, `apps/web/src/lib/rate-limit.ts`
+- `apps/web/src/middleware.ts`, `apps/web/src/server/rate-limit.ts`
 - `apps/web/src/lib/admin/**` (auth, audit, server-only admin logic)
 - Server-only utilities in `apps/web/src/lib/*.ts` (queries, email, serialize, etc.)
 - Build/deploy config: `next.config.mjs`, `open-next.config.ts`, `wrangler.jsonc`

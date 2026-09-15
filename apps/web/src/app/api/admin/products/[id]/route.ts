@@ -3,10 +3,10 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { productInputSchema } from "@/lib/admin/schemas";
-import { invalidateProductCaches } from "@/lib/product-cache";
+import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { productInputSchema } from "@/helpers/admin-schemas";
+import { invalidateProductCaches } from "@/server/product-cache";
 
 export const dynamic = "force-dynamic";
 

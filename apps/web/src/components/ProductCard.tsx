@@ -7,7 +7,7 @@ import { Badge } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { Heart, Star, ShoppingBag } from "./Icons";
-import type { ProductCardData } from "@/lib/types";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 export const ProductCard = ({ product }: { product: ProductCardData }) => {
   const isWished = useWishlistStore((s) => s.has(product.id));

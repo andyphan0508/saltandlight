@@ -84,7 +84,7 @@ Thêm Cloudflare Turnstile để chặn spam bot. Site key public, an toàn đ�
 ---
 
 ## File/API tham khảo phía Backend (đã có sẵn, không cần tạo lại)
-- `apps/web/src/lib/supabase/client.ts` — `createSupabaseBrowserClient()`
+- `apps/web/src/api/supabase-client.ts` — `createSupabaseBrowserClient()`
 - `apps/web/src/app/auth/callback/route.ts` — xử lý OAuth callback
 - `apps/web/src/app/api/customer/me/route.ts`, `api/customer/orders/route.ts`
 - `packages/domain` → `ORDER_STATUS_LABELS`

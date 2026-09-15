@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorRecovery } from "@/lib/use-error-recovery";
+import { useErrorRecovery } from "@/hooks/use-error-recovery";
 import DashboardSubLoading from "./loading";
 
 interface AdminErrorProps {

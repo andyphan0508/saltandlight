@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
+import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
 
 const bodySchema = z.object({
   status: z.enum(["pending_payment", "processing", "on_hold", "completed", "cancelled", "refunded"]),

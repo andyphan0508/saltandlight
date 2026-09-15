@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
 import { Modal } from "@/components/Modal";
-import { adminFetch } from "@/lib/admin/admin-fetch";
+import { adminFetch } from "@/api/admin-fetch";
 import { Lock, Eye, EyeOff, X, CheckCircle, AlertTriangle } from "./Icons";
 
 interface ChangePasswordModalProps {

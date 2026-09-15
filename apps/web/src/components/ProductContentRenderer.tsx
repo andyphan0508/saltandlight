@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Check, CrossIcon } from "./Icons";
-import type { ProductContentBlock } from "@/lib/product-content";
+import type { ProductContentBlock } from "@/helpers/product-content";
 
 /** Renders a product's own description blocks. Category guides render separately (ProductGuides). */
 export function ProductContentRenderer({ blocks }: { blocks: ProductContentBlock[] }) {

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { contactFormSchema } from "@saltandlight/domain";
-import { verifyTurnstileToken } from "@/lib/turnstile";
-import { getClientIp } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/server/turnstile";
+import { getClientIp } from "@/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 

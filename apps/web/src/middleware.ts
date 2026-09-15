@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { getRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getRateLimiter, getClientIp } from "@/server/rate-limit";
 
 export const config = {
   matcher: [

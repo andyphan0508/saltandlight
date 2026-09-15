@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Plus, Trash2 } from "./Icons";
-import type { ProductContentBlock } from "@/lib/product-content";
+import type { ProductContentBlock } from "@/helpers/product-content";
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-brand-forest focus:outline-none";

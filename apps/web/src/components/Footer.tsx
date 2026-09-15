@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
+import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/interfaces/site-settings";
 import { Logo } from "./Logo";
 import {
   Phone,

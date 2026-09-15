@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPageList } from "@/lib/page-list";
+import { getPageList } from "@/helpers/page-list";
 import { ChevronLeft, ChevronRight } from "./Icons";
 
 export interface PaginationProps {

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { useStoreHydrated } from "@/stores/use-store-hydrated";
-import type { SiteSettingsData } from "@/lib/site-settings-types";
+import type { SiteSettingsData } from "@/interfaces/site-settings";
 import { ShoppingBag, Phone, ZaloIcon } from "./Icons";
 
 export interface CartFabProps {

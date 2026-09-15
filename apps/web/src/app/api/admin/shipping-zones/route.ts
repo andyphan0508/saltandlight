@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
+import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { invalidateMemoryCache } from "@/server/memory-cache";
 
 const methodSchema = z.object({
   type: z.enum(["flat_rate", "free_shipping"]),

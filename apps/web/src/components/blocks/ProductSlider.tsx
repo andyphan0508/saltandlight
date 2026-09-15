@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronLeft, ChevronRight } from "@/components/Icons";
-import type { ProductCardData } from "@/lib/types";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 export function ProductSlider({ products }: { products: ProductCardData[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);

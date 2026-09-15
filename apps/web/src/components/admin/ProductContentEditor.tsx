@@ -15,7 +15,7 @@ import {
   Quote,
   Trash2,
 } from "./Icons";
-import type { EditableBlockType, ProductContentBlock } from "@/lib/product-content";
+import type { EditableBlockType, ProductContentBlock } from "@/helpers/product-content";
 import { ProductContentRenderer } from "@/components/ProductContentRenderer";
 import { ProductBlockFields } from "./ProductBlockFields";
 

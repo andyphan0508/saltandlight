@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCachedPublishedProducts } from "@/lib/queries";
+import { getCachedPublishedProducts } from "@/server/queries";
 
 export const dynamic = "force-dynamic";
 

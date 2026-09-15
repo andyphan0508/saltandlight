@@ -6,7 +6,7 @@ import { Button } from "@saltandlight/ui";
 import { Modal } from "@/components/Modal";
 import { X, ShoppingBag, ArrowRight } from "@/components/Icons";
 import { ProductCard } from "@/components/ProductCard";
-import type { ProductCardData } from "@/lib/types";
+import type { ProductCardData } from "@/interfaces/catalog";
 
 interface ProductListModalProps {
   title: string;

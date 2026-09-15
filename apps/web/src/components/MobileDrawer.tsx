@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMobileMenuStore } from "@/stores/mobile-menu-store";
-import { useCustomer } from "@/lib/use-customer";
-import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/lib/site-settings-types";
+import { useCustomer } from "@/hooks/use-customer";
+import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from "@/interfaces/site-settings";
 import { Logo } from "./Logo";
 import { X, ChevronRight, Truck, Phone, Shirt, ShoppingBag, ShieldCheck, User, LogOut } from "./Icons";
 

@@ -1,5 +1,5 @@
 import { Check } from "./Icons";
-import type { ProductGuide, ProductGuideItem } from "@/lib/product-guides";
+import type { ProductGuide, ProductGuideItem } from "@/helpers/product-guides";
 
 /** Category-level guides (care, size chart, highlights…) shown under a product's description. */
 export function ProductGuides({ guides }: { guides: ProductGuide[] }) {

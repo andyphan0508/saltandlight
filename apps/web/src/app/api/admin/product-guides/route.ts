@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma, Prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { invalidateMemoryCache } from "@/lib/memory-cache";
-import { productGuidesSchema } from "@/lib/product-guides";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { invalidateMemoryCache } from "@/server/memory-cache";
+import { productGuidesSchema } from "@/helpers/product-guides";
 
 export const dynamic = "force-dynamic";
 

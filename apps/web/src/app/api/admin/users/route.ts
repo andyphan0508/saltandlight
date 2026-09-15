@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { logAudit } from "@/lib/admin/audit";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { adminPasswordSchema } from "@/lib/admin/schemas";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { logAudit } from "@/server/admin/audit";
+import { createSupabaseAdminClient } from "@/server/supabase-admin";
+import { adminPasswordSchema } from "@/helpers/admin-schemas";
 
 const bodySchema = z.object({
   email: z.string().email("Email không hợp lệ"),

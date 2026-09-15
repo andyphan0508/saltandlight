@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
-import { useErrorRecovery } from "@/lib/use-error-recovery";
+import { useErrorRecovery } from "@/hooks/use-error-recovery";
 import StorefrontLoading from "./loading";
 
 interface ErrorProps {

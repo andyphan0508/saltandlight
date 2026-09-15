@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin, apiError } from "@/lib/admin/auth";
-import { createSupabaseAdminClient, PRODUCT_IMAGES_BUCKET } from "@/lib/supabase/admin";
+import { requireAdmin, apiError } from "@/server/admin/auth";
+import { createSupabaseAdminClient, PRODUCT_IMAGES_BUCKET } from "@/server/supabase-admin";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 

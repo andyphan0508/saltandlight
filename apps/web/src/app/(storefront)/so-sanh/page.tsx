@@ -1,4 +1,4 @@
-import { CompareView } from "@/components/compare/CompareView";
+import { CompareView } from "@/screens/storefront/Compare";
 
 export const metadata = {
   title: "So sánh sản phẩm",

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { SITE_URL } from "@/lib/admin/site-url";
+import { createSupabaseBrowserClient } from "@/api/supabase-client";
+import { SITE_URL } from "@/helpers/site-url";
 import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut, KeyRound } from "./Icons";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
-import { getCachedShippingZones } from "@/lib/queries";
-import { withMemoryCache } from "@/lib/memory-cache";
+import { getCachedShippingZones } from "@/server/queries";
+import { withMemoryCache } from "@/server/memory-cache";
 
 export const dynamic = "force-dynamic";
 

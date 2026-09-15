@@ -35,7 +35,7 @@ Admin routes live under `/admin` on the same domain and the same Worker —
 there is no separate admin app or subdomain. `apps/web/src/middleware.ts`
 gates every `/admin` and `/api/admin/*` request behind a Supabase session
 check, and rate-limits every public `/api/*` route (see
-`apps/web/src/lib/rate-limit.ts`).
+`apps/web/src/server/rate-limit.ts`).
 
 ### Deviations from the original WordPress-migration spec
 

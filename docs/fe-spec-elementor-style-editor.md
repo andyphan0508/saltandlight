@@ -105,6 +105,6 @@ Nguồn: elementor.com/blog, các bài đánh giá Elementor 2026 (wpschool.com,
 
 - Global Blocks: bảng/field mới trong Prisma + API.
 - Revision History: bảng snapshot mới + API.
-- Nếu thêm loại block mới cần validate phức tạp (vd `VIDEO_EMBED` giới hạn domain, `COUNTDOWN` giới hạn định dạng ngày giờ) — cần thêm case vào `pageBlockContentSchema` (`apps/web/src/lib/admin/schemas.ts`) — báo lại để BE thêm, không tự ý nới lỏng validation ở FE.
+- Nếu thêm loại block mới cần validate phức tạp (vd `VIDEO_EMBED` giới hạn domain, `COUNTDOWN` giới hạn định dạng ngày giờ) — cần thêm case vào `pageBlockContentSchema` (`apps/web/src/helpers/admin-schemas.ts`) — báo lại để BE thêm, không tự ý nới lỏng validation ở FE.
 
 Khi cần các phần này, nhắn để Claude Code triển khai BE tương ứng trước khi Antigravity build UI phụ thuộc vào chúng.
