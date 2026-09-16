@@ -81,3 +81,56 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }
 };
+
+export const DELETE = async (req: NextRequest) => {
+  try {
+    const admin = await requireAdmin(["owner", "staff"]);
+    const { ids } = z
+      .object({ ids: z.array(z.string().uuid()).min(1, "Chưa chọn sản phẩm nào").max(100) })
+      .parse(await req.json());
+
+    const products = await prisma.product.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, slug: true },
+    });
+    if (products.length === 0) {
+      return NextResponse.json({ error: "Không tìm thấy sản phẩm cần xóa" }, { status: 404 });
+    }
+    const foundIds = products.map((p) => p.id);
+
+    await prisma.$transaction([
+      // Orders keep their snapshot columns (name/price/color/size) so history
+      // stays readable; only the FKs are cut, since they are Restrict.
+      prisma.orderItem.updateMany({
+        where: {
+          OR: [{ productId: { in: foundIds } }, { productVariant: { productId: { in: foundIds } } }],
+        },
+        data: { productId: null, productVariantId: null },
+      }),
+      prisma.productBundleItem.deleteMany({ where: { productId: { in: foundIds } } }),
+      // images + variants cascade from the product row
+      prisma.product.deleteMany({ where: { id: { in: foundIds } } }),
+    ]);
+
+    await logAudit({
+      adminUserId: admin.id,
+      action: "product.delete",
+      entityType: "product",
+      entityId: foundIds.join(","),
+      metadata: { count: products.length, names: products.map((p) => p.name) },
+    });
+
+    try {
+      revalidateTag("products");
+      revalidateTag("categories");
+      revalidateTag("dashboard-stats");
+    } catch {
+      // Background revalidation
+    }
+    invalidateProductCaches();
+
+    return NextResponse.json({ ok: true, deleted: products.length });
+  } catch (err) {
+    return apiError(err, "Không thể xóa sản phẩm");
+  }
+};

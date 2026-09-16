@@ -6,6 +6,7 @@ import { Pagination } from "@/components/admin/Pagination";
 import { Plus, Search, ImageOff } from "@/components/admin/Icons";
 import { FeaturedToggle } from "./FeaturedToggle";
 import { CategoryFilterSelect } from "./CategoryFilterSelect";
+import { BulkDeleteForm } from "./BulkDeleteForm";
 
 export const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   draft: { label: "Bản nháp", className: "bg-slate-100 text-slate-600 border-slate-200" },
@@ -107,10 +108,19 @@ export const ProductsManager = ({
         </div>
 
         {/* Product Table */}
+        <BulkDeleteForm>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <tr>
+                <th className="w-10 pl-5 py-3.5">
+                  <input
+                    type="checkbox"
+                    data-select-all="1"
+                    aria-label="Chọn tất cả sản phẩm"
+                    className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-forest focus:ring-brand-forest"
+                  />
+                </th>
                 <th className="px-5 py-3.5">Sản phẩm</th>
                 <th className="px-5 py-3.5">Danh mục</th>
                 <th className="px-5 py-3.5">Giá bán</th>
@@ -136,6 +146,15 @@ export const ProductsManager = ({
 
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/70 transition-colors group">
+                    <td className="w-10 pl-5 py-3.5">
+                      <input
+                        type="checkbox"
+                        name="ids"
+                        value={p.id}
+                        aria-label={`Chọn ${p.name}`}
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-forest focus:ring-brand-forest"
+                      />
+                    </td>
                     <td className="px-5 py-3.5">
                       <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
                         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80">
@@ -207,7 +226,7 @@ export const ProductsManager = ({
               })}
               {loadError && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center text-sm">
+                  <td colSpan={7} className="px-5 py-16 text-center text-sm">
                     <p className="text-slate-500">Không thể tải danh sách sản phẩm lúc này.</p>
                     <a
                       href="/admin/products"
@@ -220,7 +239,7 @@ export const ProductsManager = ({
               )}
               {!loadError && products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={7} className="px-5 py-16 text-center text-sm text-slate-400">
                     Không tìm thấy sản phẩm nào.
                   </td>
                 </tr>
@@ -228,6 +247,7 @@ export const ProductsManager = ({
             </tbody>
           </table>
         </div>
+        </BulkDeleteForm>
 
         {!loadError && (
           <div className="border-t border-slate-100 p-4">
