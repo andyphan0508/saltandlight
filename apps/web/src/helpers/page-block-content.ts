@@ -42,6 +42,9 @@ export const defaultContent = (type: PageBlockTypeValue): Record<string, any> =>
         categoryName: "",
         productIds: [],
         displayMode: "grid",
+        columns: "4",
+        imageUrl: "",
+        imageHref: "",
         allowViewAll: true,
         viewAllMode: "link",
       };
@@ -58,6 +61,9 @@ export const defaultContent = (type: PageBlockTypeValue): Record<string, any> =>
         categoryName: "",
         productIds: [],
         displayMode: "grid",
+        columns: "4",
+        imageUrl: "",
+        imageHref: "",
         allowViewAll: true,
         viewAllMode: "modal",
       };

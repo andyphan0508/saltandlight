@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@saltandlight/db";
 import { Button } from "@saltandlight/ui";
 import { ArrowRight, Sparkles } from "@/components/Icons";
@@ -8,6 +9,7 @@ import { ProductListModal } from "./ProductListModal";
 import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner";
 import { getCachedFeaturedProducts } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
+import { gridViewFor, layoutUsesImage, readLayout } from "@/helpers/product-block-layout";
 import type { ProductCardData } from "@/interfaces/catalog";
 
 export interface FeaturedProductsContent {
@@ -21,7 +23,14 @@ export interface FeaturedProductsContent {
   categorySlug?: string;
   categoryName?: string;
   productIds?: string[];
-  displayMode?: "grid" | "slider";
+  /** Layout preset — "grid" | "slider" | "banner-top" | "image-left". */
+  displayMode?: string;
+  /** Product columns on desktop for the grid presets. */
+  columns?: "2" | "3" | "4";
+  /** Shown by the banner-top / image-left presets. */
+  imageUrl?: string;
+  imageHref?: string;
+  imageAlt?: string;
   allowViewAll?: boolean;
   viewAllMode?: "link" | "modal";
 }
@@ -33,7 +42,8 @@ export const FeaturedProductsBlock = async ({
 }) => {
   const count = content.count ?? 8;
   const sourceType = content.sourceType || "all";
-  const displayMode = content.displayMode || "grid";
+  const layout = readLayout(content.displayMode);
+  const gridView = gridViewFor(layout, content.columns);
   const isViewAllAllowed = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || "link";
 
@@ -177,11 +187,45 @@ export const FeaturedProductsBlock = async ({
           categoryName={content.headline}
           ctaHref={ctaTargetUrl || "/san-pham"}
         />
-      ) : displayMode === "slider" ? (
+      ) : layout === "slider" ? (
         <ProductSlider products={displayedProducts} />
+      ) : layout === "image-left" ? (
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 items-start">
+          <BlockImage content={content} className="aspect-[4/5] lg:sticky lg:top-24" />
+          <ProductGrid products={displayedProducts} view={gridView} />
+        </div>
       ) : (
-        <ProductGrid products={displayedProducts} />
+        <div className="space-y-4 sm:space-y-6">
+          {layout === "banner-top" && <BlockImage content={content} className="aspect-[21/9] sm:aspect-[24/7]" />}
+          <ProductGrid products={displayedProducts} view={gridView} />
+        </div>
       )}
     </section>
+  );
+};
+
+/** The preset's image slot. Renders nothing until the admin uploads one, so an
+ *  unfinished block degrades to a plain grid instead of a broken gap. */
+const BlockImage = ({ content, className }: { content: FeaturedProductsContent; className: string }) => {
+  if (!layoutUsesImage(readLayout(content.displayMode)) || !content.imageUrl) return null;
+
+  const image = (
+    <div className={`relative w-full overflow-hidden rounded-2xl bg-mint-50 ${className}`}>
+      <Image
+        src={content.imageUrl}
+        alt={content.imageAlt || content.headline}
+        fill
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        className="object-cover"
+      />
+    </div>
+  );
+
+  return content.imageHref ? (
+    <Link href={content.imageHref} className="block transition-transform hover:scale-[1.01]">
+      {image}
+    </Link>
+  ) : (
+    image
   );
 };

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { HEX_COLOR_PATTERN } from "./color";
+import { PRODUCT_BLOCK_LAYOUTS } from "./product-block-layout";
 import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
@@ -63,7 +64,14 @@ const featuredProductsContentSchema = z.object({
   categorySlug: z.string().optional(),
   categoryName: z.string().optional(),
   productIds: z.array(z.string()).default([]),
-  displayMode: z.enum(["grid", "slider"]).default("grid"),
+  // Layout presets live in one place so the API and the renderer can't drift apart
+  displayMode: z
+    .enum(PRODUCT_BLOCK_LAYOUTS.map((l) => l.id) as [string, ...string[]])
+    .default("grid"),
+  columns: z.enum(["2", "3", "4"]).default("4"),
+  imageUrl: z.string().default(""),
+  imageHref: z.string().default(""),
+  imageAlt: z.string().optional(),
   allowViewAll: z.boolean().default(true),
   viewAllMode: z.enum(["link", "modal"]).default("link"),
 });

@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import { Button } from "@saltandlight/ui";
 import { adminFetch } from "@/api/admin-fetch";
 import { TextField } from "@/components/admin/form-fields";
+import {
+  PRODUCT_BLOCK_LAYOUTS,
+  layoutUsesImage,
+  readLayout,
+} from "@/helpers/product-block-layout";
 import type { BlockFieldsProps } from "@/interfaces/page-block";
 import { ProductPickerModal } from "../ProductPickerModal";
+import { BlockImageField } from "./BlockImageField";
+import { LayoutThumbnail } from "./LayoutThumbnail";
 
 interface CategoryChoice {
   id: string;
@@ -36,7 +43,8 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
   }, []);
 
   const sourceType = content.sourceType || (isProductList ? "category" : "all");
-  const displayMode = content.displayMode || "grid";
+  const layout = readLayout(content.displayMode);
+  const columns = String(content.columns ?? "4");
   const isViewAllAllowed = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || (isProductList ? "modal" : "link");
   const selectedCount = (content.productIds || []).length;
@@ -124,18 +132,71 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
         )}
       </div>
 
-      {/* 2. Display Mode */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-2">
+      {/* 2. Layout preset */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-3">
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">Bố cục hiển thị trên trang web</label>
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => onPatch({ displayMode: "grid" })} className={choiceClass(displayMode === "grid")}>
-            Dạng lưới sản phẩm (Nhiều hàng cột)
-          </button>
-          <button type="button" onClick={() => onPatch({ displayMode: "slider" })} className={choiceClass(displayMode === "slider")}>
-            Dạng thanh trượt ngang (Lướt xem qua lại)
-          </button>
+          {PRODUCT_BLOCK_LAYOUTS.map((preset) => {
+            const isSelected = layout === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => onPatch({ displayMode: preset.id })}
+                aria-pressed={isSelected}
+                className={`flex flex-col items-start gap-2 rounded-xl border p-2.5 text-left transition-all ${
+                  isSelected
+                    ? "border-brand-forest bg-white shadow-xs ring-2 ring-brand-forest/20"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <LayoutThumbnail layout={preset.id} isSelected={isSelected} />
+                <span className="text-xs font-bold text-slate-800">{preset.label}</span>
+                <span className="text-[11px] leading-snug text-slate-500">{preset.hint}</span>
+              </button>
+            );
+          })}
         </div>
+
+        {layout !== "slider" && (
+          <div className="border-t border-slate-200/80 pt-2.5">
+            <label className="mb-1.5 block text-xs font-bold text-slate-700">
+              Số cột sản phẩm trên máy tính
+              {layout === "image-left" && <span className="font-medium text-slate-400"> — bố cục này luôn 2 cột</span>}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {["2", "3", "4"].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  disabled={layout === "image-left"}
+                  onClick={() => onPatch({ columns: value })}
+                  className={`${choiceClass(layout === "image-left" ? value === "2" : columns === value, "py-1.5 font-semibold")} disabled:opacity-60 disabled:cursor-not-allowed`}
+                >
+                  {value} cột
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-slate-400">
+              Trên điện thoại mọi bố cục tự xếp lại 2 cột, ảnh luôn nằm trên — không cần chỉnh riêng.
+            </p>
+          </div>
+        )}
       </div>
+
+      {layoutUsesImage(layout) && (
+        <BlockImageField
+          label="Ảnh của bố cục"
+          hint={
+            layout === "banner-top"
+              ? "Ảnh ngang nằm phía trên lưới sản phẩm. Khuyến nghị 1600×600."
+              : "Ảnh dọc nằm bên trái lưới sản phẩm. Khuyến nghị 800×1000."
+          }
+          imageUrl={content.imageUrl || ""}
+          imageHref={content.imageHref || ""}
+          onChange={onPatch}
+        />
+      )}
 
       {/* 3. Titles */}
       <TextField
