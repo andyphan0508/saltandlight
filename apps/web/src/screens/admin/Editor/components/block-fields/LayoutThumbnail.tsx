@@ -40,13 +40,12 @@ export const LayoutThumbnail = ({ layout, isSelected }: { layout: ProductBlockLa
     )}
 
     {layout === "image-left" && (
-      <div className="flex h-full gap-1">
-        <div className={`${IMAGE} w-1/2`} />
-        <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-1">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className={CARD} />
-          ))}
-        </div>
+      <div className="flex h-full gap-1 overflow-hidden">
+        <div className={`${IMAGE} w-1/3 flex-shrink-0`} />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className={`${CARD} w-1/5 flex-shrink-0`} />
+        ))}
+        <div className={`${CARD} w-1/5 flex-shrink-0 opacity-40`} />
       </div>
     )}
   </div>

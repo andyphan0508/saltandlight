@@ -9,7 +9,7 @@ import { ProductListModal } from "./ProductListModal";
 import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner";
 import { getCachedFeaturedProducts } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
-import { gridViewFor, layoutUsesImage, readLayout } from "@/helpers/product-block-layout";
+import { gridViewFor, isRail, layoutUsesImage, readLayout } from "@/helpers/product-block-layout";
 import type { ProductCardData } from "@/interfaces/catalog";
 
 export interface FeaturedProductsContent {
@@ -44,6 +44,7 @@ export const FeaturedProductsBlock = async ({
   const sourceType = content.sourceType || "all";
   const layout = readLayout(content.displayMode);
   const gridView = gridViewFor(layout, content.columns);
+  const isRailLayout = isRail(layout, content.columns);
   const isViewAllAllowed = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || "link";
 
@@ -187,17 +188,23 @@ export const FeaturedProductsBlock = async ({
           categoryName={content.headline}
           ctaHref={ctaTargetUrl || "/san-pham"}
         />
-      ) : layout === "slider" ? (
-        <ProductSlider products={displayedProducts} />
       ) : layout === "image-left" ? (
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 items-start">
-          <BlockImage content={content} className="aspect-[4/5] lg:sticky lg:top-24" />
-          <ProductGrid products={displayedProducts} view={gridView} />
+        // One horizontal band: the image stretches to the rail's height instead
+        // of setting its own, so neither column leaves dead space below it.
+        <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-stretch">
+          <BlockImage content={content} className="aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:w-[34%] lg:flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <ProductSlider products={displayedProducts} isCompact />
+          </div>
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6">
           {layout === "banner-top" && <BlockImage content={content} className="aspect-[21/9] sm:aspect-[24/7]" />}
-          <ProductGrid products={displayedProducts} view={gridView} />
+          {isRailLayout ? (
+            <ProductSlider products={displayedProducts} />
+          ) : (
+            <ProductGrid products={displayedProducts} view={gridView} />
+          )}
         </div>
       )}
     </section>

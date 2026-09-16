@@ -24,14 +24,30 @@ export const layoutUsesImage = (layout: ProductBlockLayout) => layout === "banne
 
 export type GridView = "2" | "3" | "4";
 
+/** How the products sit next to (or under) the image: fixed columns, or one scrolling row. */
+export const PRODUCT_ARRANGEMENTS = ["2", "3", "4", "slider"] as const;
+export type ProductArrangement = (typeof PRODUCT_ARRANGEMENTS)[number];
+
+export const readArrangement = (value: unknown): ProductArrangement => {
+  // Older content stored the column count as a number, so compare as strings
+  const raw = String(value ?? "");
+  return PRODUCT_ARRANGEMENTS.includes(raw as ProductArrangement) ? (raw as ProductArrangement) : "4";
+};
+
 /**
- * Columns handed to <ProductGrid>. "image-left" only has half the row, so it is
- * capped at 2 columns no matter what the admin picked — that cap is the whole
- * reason this lives in a function instead of inline in the block.
+ * True when products should render as a horizontal rail instead of a grid. The
+ * "image-left" preset always rails: a wrapping grid beside a single image makes
+ * the two columns different heights, which is exactly the dead space this
+ * preset is meant to avoid.
+ */
+export const isRail = (layout: ProductBlockLayout, columns: unknown): boolean =>
+  layout === "slider" || layout === "image-left" || readArrangement(columns) === "slider";
+
+/**
+ * Columns handed to <ProductGrid>. Only consulted when {@link isRail} is false,
+ * so "slider" collapses to the 4-column default it will never use.
  */
 export const gridViewFor = (layout: ProductBlockLayout, columns: unknown): GridView => {
-  const requested = String(columns ?? "4");
-  const view: GridView = requested === "2" || requested === "3" ? requested : "4";
-  if (layout === "image-left") return "2";
-  return view;
+  const arrangement = readArrangement(columns);
+  return arrangement === "slider" ? "4" : arrangement;
 };

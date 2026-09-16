@@ -68,7 +68,7 @@ const featuredProductsContentSchema = z.object({
   displayMode: z
     .enum(PRODUCT_BLOCK_LAYOUTS.map((l) => l.id) as [string, ...string[]])
     .default("grid"),
-  columns: z.enum(["2", "3", "4"]).default("4"),
+  columns: z.enum(["2", "3", "4", "slider"]).default("4"),
   imageUrl: z.string().default(""),
   imageHref: z.string().default(""),
   imageAlt: z.string().optional(),

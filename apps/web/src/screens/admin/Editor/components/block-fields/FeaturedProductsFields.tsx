@@ -6,7 +6,9 @@ import { adminFetch } from "@/api/admin-fetch";
 import { TextField } from "@/components/admin/form-fields";
 import {
   PRODUCT_BLOCK_LAYOUTS,
+  isRail,
   layoutUsesImage,
+  readArrangement,
   readLayout,
 } from "@/helpers/product-block-layout";
 import type { BlockFieldsProps } from "@/interfaces/page-block";
@@ -44,7 +46,9 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
 
   const sourceType = content.sourceType || (isProductList ? "category" : "all");
   const layout = readLayout(content.displayMode);
-  const columns = String(content.columns ?? "4");
+  const arrangement = readArrangement(content.columns);
+  // "image-left" is a single horizontal band, so its products always rail
+  const isArrangementLocked = layout === "image-left";
   const isViewAllAllowed = content.allowViewAll ?? true;
   const viewAllMode = content.viewAllMode || (isProductList ? "modal" : "link");
   const selectedCount = (content.productIds || []).length;
@@ -161,24 +165,36 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
         {layout !== "slider" && (
           <div className="border-t border-slate-200/80 pt-2.5">
             <label className="mb-1.5 block text-xs font-bold text-slate-700">
-              Số cột sản phẩm trên máy tính
-              {layout === "image-left" && <span className="font-medium text-slate-400"> — bố cục này luôn 2 cột</span>}
+              Cách xếp sản phẩm trên máy tính
+              {isArrangementLocked && (
+                <span className="font-medium text-slate-400"> — bố cục này luôn trượt ngang để ảnh và sản phẩm bằng chiều cao</span>
+              )}
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {["2", "3", "4"].map((value) => (
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: "2", label: "2 cột" },
+                { value: "3", label: "3 cột" },
+                { value: "4", label: "4 cột" },
+                { value: "slider", label: "Trượt ngang" },
+              ].map((option) => (
                 <button
-                  key={value}
+                  key={option.value}
                   type="button"
-                  disabled={layout === "image-left"}
-                  onClick={() => onPatch({ columns: value })}
-                  className={`${choiceClass(layout === "image-left" ? value === "2" : columns === value, "py-1.5 font-semibold")} disabled:opacity-60 disabled:cursor-not-allowed`}
+                  disabled={isArrangementLocked}
+                  onClick={() => onPatch({ columns: option.value })}
+                  className={`${choiceClass(
+                    isArrangementLocked ? option.value === "slider" : arrangement === option.value,
+                    "py-1.5 font-semibold",
+                  )} disabled:opacity-60 disabled:cursor-not-allowed`}
                 >
-                  {value} cột
+                  {option.label}
                 </button>
               ))}
             </div>
             <p className="mt-1.5 text-[11px] text-slate-400">
-              Trên điện thoại mọi bố cục tự xếp lại 2 cột, ảnh luôn nằm trên — không cần chỉnh riêng.
+              {isRail(layout, isArrangementLocked ? "slider" : arrangement)
+                ? "Sản phẩm nằm gọn trên một hàng, khách kéo chuột hoặc vuốt để xem tiếp."
+                : "Trên điện thoại mọi bố cục tự xếp lại 2 cột, ảnh luôn nằm trên — không cần chỉnh riêng."}
             </p>
           </div>
         )}
@@ -189,8 +205,8 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
           label="Ảnh của bố cục"
           hint={
             layout === "banner-top"
-              ? "Ảnh ngang nằm phía trên lưới sản phẩm. Khuyến nghị 1600×600."
-              : "Ảnh dọc nằm bên trái lưới sản phẩm. Khuyến nghị 800×1000."
+              ? "Ảnh ngang nằm phía trên sản phẩm. Khuyến nghị 1600×600."
+              : "Ảnh nằm bên trái hàng sản phẩm và tự cao bằng hàng đó. Khuyến nghị ảnh ngang 1200×900."
           }
           imageUrl={content.imageUrl || ""}
           imageHref={content.imageHref || ""}
