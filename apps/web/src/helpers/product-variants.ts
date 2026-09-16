@@ -1,4 +1,5 @@
 import { sortSizes } from "@saltandlight/domain";
+import type { ColorChoice } from "@/interfaces/product-form";
 import { slugify } from "./slugify";
 
 export interface PricedVariant {
@@ -19,13 +20,13 @@ const splitList = (csv: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-/** Every color × size pair from comma-separated inputs, sizes sorted small → large. Empty when both are blank. */
-export const buildVariantCombos = (colorsCsv: string, sizesCsv: string) => {
-  const colors = splitList(colorsCsv);
+/** Every color × size pair, sizes sorted small → large. Empty when both lists are blank. */
+export const buildVariantCombos = (colors: ColorChoice[], sizesCsv: string) => {
   const sizes = sortSizes(splitList(sizesCsv));
-  if (colors.length && sizes.length) return colors.flatMap((color) => sizes.map((size) => ({ color, size })));
-  if (colors.length) return colors.map((color) => ({ color, size: "" }));
-  return sizes.map((size) => ({ color: "", size }));
+  const combo = (color: ColorChoice, size: string) => ({ color: color.name, colorHex: color.hex, size });
+  if (colors.length && sizes.length) return colors.flatMap((color) => sizes.map((size) => combo(color, size)));
+  if (colors.length) return colors.map((color) => combo(color, ""));
+  return sizes.map((size) => ({ color: "", colorHex: "", size }));
 };
 
 /** Sale price after a discount: percent rounds to the nearest 1.000đ, a fixed amount never goes below 0. */

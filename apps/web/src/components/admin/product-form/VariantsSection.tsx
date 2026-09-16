@@ -2,6 +2,7 @@
 
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
+import { textColorOn } from "@/helpers/color";
 import type { ProductFormState } from "@/hooks/use-product-form";
 import { Section } from "../form-fields";
 import { Plus, Tag, Trash2 } from "../Icons";
@@ -51,12 +52,27 @@ export const VariantsSection = ({ form }: { form: ProductFormState }) => (
                   />
                 </td>
                 <td className="px-3 py-2.5">
-                  <input
-                    value={variant.color}
-                    onChange={(e) => form.onVariantChange(i, { color: e.target.value })}
-                    className={cellClass}
-                    placeholder="VD: Đen"
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="color"
+                      value={variant.colorHex || "#FFFFFF"}
+                      onChange={(e) => form.onVariantChange(i, { colorHex: e.target.value.toUpperCase() })}
+                      aria-label={`Mã màu cho ${variant.color || "biến thể"}`}
+                      title={variant.colorHex || "Chưa đặt mã màu"}
+                      className="h-8 w-8 flex-shrink-0 cursor-pointer rounded-lg border border-slate-200 bg-white p-0.5"
+                    />
+                    <input
+                      value={variant.color}
+                      onChange={(e) => form.onVariantChange(i, { color: e.target.value })}
+                      className={cellClass}
+                      placeholder="VD: Đen"
+                      style={
+                        variant.colorHex
+                          ? { backgroundColor: variant.colorHex, color: textColorOn(variant.colorHex) }
+                          : undefined
+                      }
+                    />
+                  </div>
                 </td>
                 <td className="px-3 py-2.5">
                   <input

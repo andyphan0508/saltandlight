@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { HEX_COLOR_PATTERN } from "./color";
 import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
@@ -12,6 +13,7 @@ export const variantInputSchema = z.object({
   id: z.string().uuid().optional(),
   sku: z.string().min(1),
   color: z.string().optional().nullable(),
+  colorHex: z.string().regex(HEX_COLOR_PATTERN, "Mã màu phải có dạng #RRGGBB").optional().nullable(),
   size: z.string().optional().nullable(),
   price: z.number().nonnegative(),
   compareAtPrice: z.number().nonnegative().optional().nullable(),

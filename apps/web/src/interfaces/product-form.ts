@@ -11,10 +11,18 @@ export interface PromotionOption {
   discountValue: number | string;
 }
 
+/** A color the admin created in the picker: a name plus the hex it renders as. */
+export interface ColorChoice {
+  name: string;
+  hex: string;
+}
+
 export interface VariantRow {
   id?: string;
   sku: string;
   color: string;
+  /** "" when the variant predates the color picker. */
+  colorHex: string;
   size: string;
   price: number;
   compareAtPrice: number | null;

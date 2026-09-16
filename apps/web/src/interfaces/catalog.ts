@@ -33,6 +33,7 @@ export interface CategoryOption {
 export interface ProductVariantOption {
   id: string;
   color: string | null;
+  colorHex: string | null;
   size: string | null;
   price: number;
   compareAtPrice: number | null;

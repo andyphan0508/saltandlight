@@ -48,6 +48,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
             data: {
               sku: v.sku,
               color: v.color,
+              colorHex: v.colorHex,
               size: v.size,
               price: v.price,
               compareAtPrice: v.compareAtPrice,
@@ -61,6 +62,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
               productId: params.id,
               sku: v.sku,
               color: v.color,
+              colorHex: v.colorHex,
               size: v.size,
               price: v.price,
               compareAtPrice: v.compareAtPrice,

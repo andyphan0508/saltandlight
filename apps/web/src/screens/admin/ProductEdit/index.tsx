@@ -48,6 +48,7 @@ const EditProductPage = async ({ params }: { params: { id: string } }) => {
             id: v.id,
             sku: v.sku,
             color: v.color ?? "",
+            colorHex: v.colorHex ?? "",
             size: v.size ?? "",
             price: Number(v.price),
             compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,

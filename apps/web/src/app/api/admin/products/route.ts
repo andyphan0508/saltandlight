@@ -46,6 +46,7 @@ export const POST = async (req: NextRequest) => {
           create: input.variants.map((v) => ({
             sku: v.sku,
             color: v.color,
+            colorHex: v.colorHex,
             size: v.size,
             price: v.price,
             compareAtPrice: v.compareAtPrice,

@@ -62,6 +62,7 @@ const ProductDetailPage = async ({
   const variants = plain.variants.map((v: any) => ({
     id: v.id,
     color: v.color,
+    colorHex: v.colorHex,
     size: v.size,
     price: Number(v.price),
     compareAtPrice: v.compareAtPrice != null ? Number(v.compareAtPrice) : null,

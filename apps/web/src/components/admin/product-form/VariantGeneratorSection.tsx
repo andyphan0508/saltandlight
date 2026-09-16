@@ -2,6 +2,7 @@
 
 import { Button } from "@saltandlight/ui";
 import type { ProductFormState } from "@/hooks/use-product-form";
+import { ColorPaletteField } from "./ColorPaletteField";
 import { Field, Section } from "../form-fields";
 import { Plus, Tag } from "../Icons";
 import { inputClass } from "./classes";
@@ -10,18 +11,13 @@ import { inputClass } from "./classes";
 export const VariantGeneratorSection = ({ form }: { form: ProductFormState }) => (
   <Section title="Tạo nhanh biến thể" icon={<Tag size={16} />}>
     <p className="text-xs text-ink/45">
-      Nhập danh sách màu và size (cách nhau bằng dấu phẩy) để tự sinh toàn bộ tổ hợp biến thể. Size được tự động đảo ngược và
+      Chọn màu và nhập danh sách size (cách nhau bằng dấu phẩy) để tự sinh toàn bộ tổ hợp biến thể. Size được tự động
       sắp xếp chuẩn từ nhỏ đến lớn.
     </p>
-    <div className="mt-3 grid gap-3 sm:grid-cols-4">
-      <Field label="Màu sắc" className="sm:col-span-1">
-        <input
-          value={form.quickColors}
-          onChange={(e) => form.setQuickColors(e.target.value)}
-          placeholder="Đen, Trắng"
-          className={inputClass}
-        />
-      </Field>
+    <div className="mt-3">
+      <ColorPaletteField colors={form.quickColors} onAdd={form.onAddQuickColor} onRemove={form.onRemoveQuickColor} />
+    </div>
+    <div className="mt-3 grid gap-3 sm:grid-cols-3">
       <Field label="Size (thứ tự nhỏ đến lớn)" className="sm:col-span-1">
         <input
           value={form.quickSizes}

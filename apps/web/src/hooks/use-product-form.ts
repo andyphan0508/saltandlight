@@ -15,6 +15,7 @@ import {
 import { applyDiscount, buildVariantCombos, clearDiscount, skuify } from "@/helpers/product-variants";
 import { slugify } from "@/helpers/slugify";
 import type {
+  ColorChoice,
   ImageRow,
   ProductCategoryOption,
   ProductFormInitial,
@@ -25,6 +26,7 @@ import type {
 const EMPTY_VARIANT: VariantRow = {
   sku: "",
   color: "",
+  colorHex: "",
   size: "",
   price: 0,
   compareAtPrice: null,
@@ -63,7 +65,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [quickColors, setQuickColors] = useState("");
+  const [quickColors, setQuickColors] = useState<ColorChoice[]>([]);
   const [quickSizes, setQuickSizes] = useState("XS, S, M, L, XL");
   const [quickPrice, setQuickPrice] = useState(0);
   const [quickStock, setQuickStock] = useState(50);
@@ -121,12 +123,23 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     setDragIndex(null);
   };
 
+  const onAddQuickColor = (color: ColorChoice) =>
+    setQuickColors((prev) =>
+      // Same name picked twice = the admin is recoloring it, not adding a duplicate
+      prev.some((c) => c.name.toLowerCase() === color.name.toLowerCase())
+        ? prev.map((c) => (c.name.toLowerCase() === color.name.toLowerCase() ? color : c))
+        : [...prev, color],
+    );
+
+  const onRemoveQuickColor = (name: string) => setQuickColors((prev) => prev.filter((c) => c.name !== name));
+
   const onGenerateVariants = () => {
     const combos = buildVariantCombos(quickColors, quickSizes);
     if (combos.length === 0) return;
-    const generated: VariantRow[] = combos.map(({ color, size }) => ({
+    const generated: VariantRow[] = combos.map(({ color, colorHex, size }) => ({
       sku: skuify(slug || name, color, size) || `SKU-${randomSuffix(5)}`,
       color,
+      colorHex,
       size,
       price: quickPrice,
       compareAtPrice: null,
@@ -179,6 +192,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
           skuify(finalSlug, variant.color || "", variant.size || "") ||
           `SKU-${idx + 1}-${randomSuffix(4)}`,
         color: variant.color || null,
+        colorHex: variant.colorHex || null,
         size: variant.size || null,
         compareAtPrice: variant.compareAtPrice || null,
       })),
@@ -229,7 +243,8 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     setIsNew,
     setIsFeatured,
     setDragIndex,
-    setQuickColors,
+    onAddQuickColor,
+    onRemoveQuickColor,
     setQuickSizes,
     setQuickPrice,
     setQuickStock,
