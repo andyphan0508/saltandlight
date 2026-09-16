@@ -88,6 +88,15 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
 
   const onRemoveVariant = (index: number) => setVariants((prev) => prev.filter((_, i) => i !== index));
 
+  /** Edits every variant of one color at once — renaming it, recoloring it, or filling its prices. */
+  const onGroupChange = (color: string, patch: Partial<VariantRow>) =>
+    setVariants((prev) => prev.map((variant) => (variant.color === color ? { ...variant, ...patch } : variant)));
+
+  const onRemoveGroup = (color: string) => setVariants((prev) => prev.filter((variant) => variant.color !== color));
+
+  const onAddVariantToGroup = (color: string, colorHex: string) =>
+    setVariants((prev) => [...prev, { ...EMPTY_VARIANT, color, colorHex }]);
+
   // Multi-upload; every image is compressed to ~200–500 KB WebP first
   const onFilesChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -148,7 +157,10 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     }));
     setVariants((prev) => {
       const isBlank = prev.length === 1 && !prev[0]!.sku && !prev[0]!.color && !prev[0]!.size;
-      return isBlank ? generated : [...prev, ...generated];
+      if (isBlank) return generated;
+      // Re-generating must not duplicate a color × size that already has a price typed into it
+      const existing = new Set(prev.map((v) => `${v.color}|${v.size}`));
+      return [...prev, ...generated.filter((v) => !existing.has(`${v.color}|${v.size}`))];
     });
   };
 
@@ -254,6 +266,9 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     onVariantChange,
     onAddVariant,
     onRemoveVariant,
+    onGroupChange,
+    onRemoveGroup,
+    onAddVariantToGroup,
     onFilesChange,
     onRemoveImage,
     onDropImage,
