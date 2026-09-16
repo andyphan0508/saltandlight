@@ -7,25 +7,21 @@ import type { CategoryOption } from "@/interfaces/catalog";
 
 interface FilterSidebarProps {
   categories: CategoryOption[];
-  sizes: string[];
   totalCount: number;
   filters: CatalogFiltersState;
 }
 
-/** Desktop filter sidebar with collapsible category and size sections. */
-export const FilterSidebar = ({ categories, sizes, totalCount, filters }: FilterSidebarProps) => {
+/** Desktop filter sidebar with a collapsible category section. */
+export const FilterSidebar = ({ categories, totalCount, filters }: FilterSidebarProps) => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
-  const [isSizesOpen, setIsSizesOpen] = useState(true);
   const {
     activeCategories,
-    activeSizes,
     hasActiveFilters,
     isOnSale,
     onClearAll,
     onSetSingleCategory,
     onToggleCategory,
     onToggleOnSale,
-    onToggleSize,
   } = filters;
 
   return (
@@ -53,27 +49,6 @@ export const FilterSidebar = ({ categories, sizes, totalCount, filters }: Filter
         ))}
       </FilterSection>
 
-      {sizes.length > 0 && (
-        <FilterSection title="Kích thước" isOpen={isSizesOpen} onToggle={() => setIsSizesOpen((v) => !v)}>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {sizes.map((size) => {
-              const isActive = activeSizes.includes(size);
-              return (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => onToggleSize(size)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all active-press ${
-                    isActive ? "border-ink bg-ink text-white shadow-xs" : "border-ink/15 bg-white text-ink/70 hover:border-ink/40"
-                  }`}
-                >
-                  {size}
-                </button>
-              );
-            })}
-          </div>
-        </FilterSection>
-      )}
 
       {hasActiveFilters && (
         <button

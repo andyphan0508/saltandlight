@@ -78,7 +78,6 @@ const ProductDetailPage = async ({
   const content = parseProductContent(plain.description);
   const descriptionBlocks = content.filter((block) => block.type !== "price_note");
   const guides = guidesForCategory(allGuides, plain.category);
-  const sizeCharts = guides.filter((guide) => guide.layout === "table");
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-4 sm:py-10 space-y-8 sm:space-y-12 w-full min-w-0 overflow-x-hidden animate-slide-up-fade">
@@ -141,7 +140,6 @@ const ProductDetailPage = async ({
             productName={plain.name}
             variants={variants}
             priceNote={readPriceNote(content)}
-            sizeCharts={sizeCharts}
           />
 
           {/* Product description + category guides (care, size chart, highlights) */}

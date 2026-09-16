@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DEFAULT_PRICE_NOTE } from "@/helpers/product-content";
-import type { ProductGuide } from "@/helpers/product-guides";
 import { useVariantSelection } from "@/hooks/use-variant-selection";
 import type { ProductVariantOption } from "@/interfaces/catalog";
 import { useCartStore } from "@/stores/cart-store";
@@ -12,7 +11,6 @@ import { BuyActions } from "./BuyActions";
 import { ColorOptions } from "./ColorOptions";
 import { PriceBox } from "./PriceBox";
 import { QuantityStepper } from "./QuantityStepper";
-import { SizeChartModal } from "./SizeChartModal";
 import { SizeOptions } from "./SizeOptions";
 import { WishlistButton } from "./WishlistButton";
 
@@ -22,19 +20,14 @@ interface ProductBuyBoxProps {
   variants: ProductVariantOption[];
   /** Admin-set promo line: `null` = never set (show the default), "" = hidden. */
   priceNote: string | null;
-  /** The category's size charts (table-layout guides) for the "Bảng size" dialog. */
-  sizeCharts: ProductGuide[];
 }
 
 /** Variant picker, price, quantity, wishlist and add-to-cart / buy-now for the product page. */
-export const ProductBuyBox = ({ productId, productName, variants, priceNote, sizeCharts }: ProductBuyBoxProps) => {
+export const ProductBuyBox = ({ productId, productName, variants, priceNote }: ProductBuyBoxProps) => {
   const router = useRouter();
   const { colors, sizes, color, size, selected, setColor, setSize } = useVariantSelection(variants);
   const [quantity, setQuantity] = useState(1);
   const [isJustAdded, setIsJustAdded] = useState(false);
-  const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
-  // Stable so the size chart's Escape listener isn't re-bound on every render
-  const onCloseSizeChart = useCallback(() => setIsSizeChartOpen(false), []);
   const addToCart = useCartStore((s) => s.add);
 
   if (!selected) return null;
@@ -67,14 +60,7 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote, siz
 
       {colors.length > 0 && <ColorOptions colors={colors} value={color} onChange={setColor} />}
 
-      {sizes.length > 0 && (
-        <SizeOptions
-          sizes={sizes}
-          value={size}
-          onChange={setSize}
-          onOpenSizeChart={sizeCharts.length > 0 ? () => setIsSizeChartOpen(true) : undefined}
-        />
-      )}
+      {sizes.length > 0 && <SizeOptions sizes={sizes} value={size} onChange={setSize} />}
 
       <div className="w-full min-w-0">
         <div className="flex items-center justify-between text-xs text-ink/70 gap-2">
@@ -96,7 +82,6 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote, siz
 
       <BuyActions isOutOfStock={isOutOfStock} isJustAdded={isJustAdded} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />
 
-      {isSizeChartOpen && <SizeChartModal charts={sizeCharts} onClose={onCloseSizeChart} />}
     </div>
   );
 };

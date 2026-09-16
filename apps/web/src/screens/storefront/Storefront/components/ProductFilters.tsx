@@ -9,12 +9,11 @@ import { MobileFilterBar } from "./MobileFilterBar";
 
 interface ProductFiltersProps {
   categories: CategoryOption[];
-  sizes: string[];
   totalCount: number;
 }
 
 /** Catalog filters: pill bar + bottom sheet on mobile, sidebar on desktop. Filter state lives in the URL. */
-export const ProductFilters = ({ categories, sizes, totalCount }: ProductFiltersProps) => {
+export const ProductFilters = ({ categories, totalCount }: ProductFiltersProps) => {
   const filters = useCatalogFilters();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -29,13 +28,12 @@ export const ProductFilters = ({ categories, sizes, totalCount }: ProductFilters
       {isSheetOpen && (
         <FilterSheet
           categories={categories}
-          sizes={sizes}
           totalCount={totalCount}
           filters={filters}
           onClose={() => setIsSheetOpen(false)}
         />
       )}
-      <FilterSidebar categories={categories} sizes={sizes} totalCount={totalCount} filters={filters} />
+      <FilterSidebar categories={categories} totalCount={totalCount} filters={filters} />
     </>
   );
 };

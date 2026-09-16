@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@saltandlight/ui";
 import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
 import { useWishlistStore } from "@/stores/wishlist-store";
-import { Heart, Star, ShoppingBag } from "./Icons";
+import { Heart, ShoppingBag } from "./Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
 
 export const ProductCard = ({ product }: { product: ProductCardData }) => {
@@ -88,17 +88,8 @@ export const ProductCard = ({ product }: { product: ProductCardData }) => {
 
         {/* Info - compact */}
         <div className="mt-2.5 px-0.5">
-          {/* Micro tag & rating */}
-          <div className="flex items-center justify-between text-[10px] text-ink/50">
-            <div className="flex items-center gap-0.5 text-gold-600">
-              <Star size={11} fill="currentColor" />
-              <span className="font-bold">5.0</span>
-            </div>
-            <span className="text-brand-forest font-semibold text-[10px]">100% Cotton</span>
-          </div>
-
           {/* Product Title */}
-          <Link href={`/san-pham/${product.slug}`} className="mt-1 block">
+          <Link href={`/san-pham/${product.slug}`} className="block">
             <h3 className="line-clamp-2 text-xs sm:text-[13px] font-bold text-ink hover:text-brand-forest transition-colors leading-tight">
               {product.name}
             </h3>

@@ -5,7 +5,6 @@ import { parseProductGuides } from "@/helpers/product-guides";
 
 export interface ProductListFilters {
   categorySlugs?: string[];
-  sizes?: string[];
   onSale?: boolean;
   query?: string;
   sort?: SortOption;
@@ -55,7 +54,7 @@ const toCardData = (p: {
 export const listPublishedProducts = async (
   filters: ProductListFilters = {},
 ): Promise<{ products: ProductCardData[]; total: number }> => {
-  const { categorySlugs, sizes, onSale: isOnSale, query, sort = "latest", page = 1, pageSize = 12 } = filters;
+  const { categorySlugs, onSale: isOnSale, query, sort = "latest", page = 1, pageSize = 12 } = filters;
 
   const where: Prisma.ProductWhereInput = {
     status: "published",
@@ -68,7 +67,6 @@ export const listPublishedProducts = async (
           ],
         }
       : {}),
-    ...(sizes?.length ? { variants: { some: { isActive: true, size: { in: sizes } } } } : {}),
     ...(isOnSale ? { variants: { some: { isActive: true, compareAtPrice: { not: null } } } } : {}),
   };
 
@@ -111,16 +109,6 @@ export const listCategoriesWithCounts = async () => {
     categories: categories.map((c) => ({ ...c, count: countMap.get(c.id) ?? 0 })),
     totalPublished,
   };
-};
-
-/** Distinct sizes across active variants of published products — for the sidebar size filter. */
-export const listAvailableSizes = async (): Promise<string[]> => {
-  const rows = await prisma.productVariant.findMany({
-    where: { isActive: true, size: { not: null }, product: { status: "published" } },
-    select: { size: true },
-    distinct: ["size"],
-  });
-  return sortSizes(rows.map((r) => r.size!).filter(Boolean));
 };
 
 export const getProductBySlug = async (slug: string) => {
@@ -170,16 +158,11 @@ export const getRelatedProducts = async (
 // was already doing all the real caching. See docs/fe-spec... discussion
 // and CPU-optimization notes from this session for the fuller cache story.
 import { withMemoryCache } from "./memory-cache";
-import { sortSizes } from "@saltandlight/domain";
 import type { SortOption } from "@/helpers/catalog-sort";
 
 /** Cached categories with live counts for header, footer, and sidebar (cached 5 mins) */
 export const getCachedCategoriesWithCounts = () =>
   withMemoryCache("nav-categories-with-counts", 300, () => listCategoriesWithCounts());
-
-/** Cached available sizes across active variants (cached 10 mins) */
-export const getCachedAvailableSizes = () =>
-  withMemoryCache("available-product-sizes", 600, () => listAvailableSizes());
 
 /** Cached featured products for home page: prioritizes products with isFeatured = true (cached 60s) */
 export const getCachedFeaturedProducts = (pageSize = 10) => {
@@ -248,7 +231,6 @@ export const getCachedRelatedProducts = (categoryId: string, excludeId: string, 
 export const getCachedPublishedProducts = (filters: ProductListFilters = {}) => {
   const cacheKey = JSON.stringify({
     c: filters.categorySlugs?.slice().sort() ?? [],
-    s: filters.sizes?.slice().sort() ?? [],
     o: filters.onSale ?? false,
     q: filters.query ?? "",
     sort: filters.sort ?? "latest",

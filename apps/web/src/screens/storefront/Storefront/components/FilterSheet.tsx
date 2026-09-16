@@ -7,17 +7,15 @@ import type { CategoryOption } from "@/interfaces/catalog";
 
 interface FilterSheetProps {
   categories: CategoryOption[];
-  sizes: string[];
   totalCount: number;
   filters: CatalogFiltersState;
   onClose: () => void;
 }
 
-/** Mobile bottom sheet for sort, category, size and sale filters. `data-modal` locks page scroll (globals.css). */
-export const FilterSheet = ({ categories, sizes, totalCount, filters, onClose }: FilterSheetProps) => {
+/** Mobile bottom sheet for sort, category and sale filters. `data-modal` locks page scroll (globals.css). */
+export const FilterSheet = ({ categories, totalCount, filters, onClose }: FilterSheetProps) => {
   const {
     activeCategories,
-    activeSizes,
     activeSort,
     hasActiveFilters,
     isOnSale,
@@ -26,7 +24,6 @@ export const FilterSheet = ({ categories, sizes, totalCount, filters, onClose }:
     onSetSort,
     onToggleCategory,
     onToggleOnSale,
-    onToggleSize,
   } = filters;
 
   return (
@@ -155,34 +152,6 @@ export const FilterSheet = ({ categories, sizes, totalCount, filters, onClose }:
               })}
             </div>
           </div>
-
-          {/* Sizes */}
-          {sizes.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-ink/50 block mb-2.5">
-                Kích thước (Size)
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => {
-                  const isSelected = activeSizes.includes(size);
-                  return (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => onToggleSize(size)}
-                      className={`rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all active-press ${
-                        isSelected
-                          ? "border-ink bg-ink text-white shadow-sm"
-                          : "border-ink/15 bg-white text-ink/75 hover:border-ink/30"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* On sale */}
           <div className="rounded-2xl border border-ink/10 bg-white p-4">

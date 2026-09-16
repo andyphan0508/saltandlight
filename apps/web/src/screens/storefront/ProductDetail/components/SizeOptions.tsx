@@ -2,27 +2,15 @@ interface SizeOptionsProps {
   sizes: string[];
   value: string | null;
   onChange: (size: string) => void;
-  /** Shows the "Bảng size" link when the category has size charts. */
-  onOpenSizeChart?: () => void;
 }
 
-/** Size buttons (sorted small → large upstream) with an optional size-chart link. */
-export const SizeOptions = ({ sizes, value, onChange, onOpenSizeChart }: SizeOptionsProps) => (
+/** Size buttons, sorted small → large upstream. The size chart itself is rendered
+ *  further down the page by <ProductGuides>, so there is no popup here. */
+export const SizeOptions = ({ sizes, value, onChange }: SizeOptionsProps) => (
   <div className="w-full min-w-0">
-    <div className="flex items-center justify-between gap-2 flex-wrap">
-      <span className="text-xs font-bold uppercase tracking-wider text-ink/70 flex-shrink-0">
-        Kích thước: <strong className="text-ink">{value}</strong>
-      </span>
-      {onOpenSizeChart && (
-        <button
-          type="button"
-          onClick={onOpenSizeChart}
-          className="text-xs font-bold text-brand-forest underline hover:text-ink transition-colors flex-shrink-0 flex items-center gap-1 active-press"
-        >
-          <span>📏 Bảng size</span>
-        </button>
-      )}
-    </div>
+    <span className="text-xs font-bold uppercase tracking-wider text-ink/70">
+      Kích thước: <strong className="text-ink">{value}</strong>
+    </span>
     <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
       {sizes.map((size) => {
         const isActive = size === value;

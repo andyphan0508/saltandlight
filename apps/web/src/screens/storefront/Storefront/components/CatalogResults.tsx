@@ -15,7 +15,6 @@ export const CatalogResults = async ({ filters }: { filters: CatalogFilters }) =
   const { products, total } = await getCachedPublishedProducts({
     query: filters.query,
     categorySlugs: filters.categorySlugs,
-    sizes: filters.sizes,
     onSale: filters.onSale,
     sort: filters.sort,
     page: filters.page,

@@ -11,19 +11,18 @@ const setListParam = (params: URLSearchParams, key: string, values: string[]) =>
   else params.delete(key);
 };
 
-/** Catalog filter state read from the URL (categories, sizes, sale, sort) plus the actions that rewrite it. */
+/** Catalog filter state read from the URL (categories, sale, sort) plus the actions that rewrite it. */
 export const useCatalogFilters = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const activeCategories = parseList(searchParams.get("categories"));
-  const activeSizes = parseList(searchParams.get("sizes"));
   const isOnSale = searchParams.get("onSale") === "1";
   const activeSort = searchParams.get("sort") ?? DEFAULT_SORT;
   // The default sort is not counted as an active filter
   const activeFilterCount =
-    activeCategories.length + activeSizes.length + (isOnSale ? 1 : 0) + (activeSort !== DEFAULT_SORT ? 1 : 0);
+    activeCategories.length + (isOnSale ? 1 : 0) + (activeSort !== DEFAULT_SORT ? 1 : 0);
 
   const onUpdateParams = (update: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -34,7 +33,6 @@ export const useCatalogFilters = () => {
 
   return {
     activeCategories,
-    activeSizes,
     activeSort,
     activeFilterCount,
     isOnSale,
@@ -43,8 +41,6 @@ export const useCatalogFilters = () => {
       onUpdateParams((params) => setListParam(params, "categories", toggleValue(activeCategories, slug))),
     onSetSingleCategory: (slug: string | null) =>
       onUpdateParams((params) => setListParam(params, "categories", slug ? [slug] : [])),
-    onToggleSize: (size: string) =>
-      onUpdateParams((params) => setListParam(params, "sizes", toggleValue(activeSizes, size))),
     onToggleOnSale: () => onUpdateParams((params) => (isOnSale ? params.delete("onSale") : params.set("onSale", "1"))),
     onSetSort: (sort: string) =>
       onUpdateParams((params) => (sort === DEFAULT_SORT ? params.delete("sort") : params.set("sort", sort))),
