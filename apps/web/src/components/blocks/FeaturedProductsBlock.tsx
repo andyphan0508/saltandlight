@@ -10,6 +10,8 @@ import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner"
 import { getCachedFeaturedProducts } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
 import { gridViewFor, isRail, layoutUsesImage, readLayout } from "@/helpers/product-block-layout";
+import { readBlockMedia } from "@/helpers/product-block-media";
+import { MediaSlideshow } from "./MediaSlideshow";
 import type { ProductCardData } from "@/interfaces/catalog";
 
 export interface FeaturedProductsContent {
@@ -27,7 +29,16 @@ export interface FeaturedProductsContent {
   displayMode?: string;
   /** Product columns on desktop for the grid presets. */
   columns?: "2" | "3" | "4";
-  /** Shown by the banner-top / image-left presets. */
+  /** Media cell of the banner-top / image-left presets: a fixed image or a slideshow. */
+  media?: {
+    slides?: { url: string; href?: string; alt?: string }[];
+    effect?: string;
+    isAutoplay?: boolean;
+    intervalMs?: number;
+    hasDots?: boolean;
+    hasArrows?: boolean;
+  };
+  /** Kept for blocks saved before the media cell existed. */
   imageUrl?: string;
   imageHref?: string;
   imageAlt?: string;
@@ -192,14 +203,14 @@ export const FeaturedProductsBlock = async ({
         // One horizontal band: the image stretches to the rail's height instead
         // of setting its own, so neither column leaves dead space below it.
         <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-stretch">
-          <BlockImage content={content} className="aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:w-[34%] lg:flex-shrink-0" />
+          <BlockMedia content={content} className="aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:w-[34%] lg:flex-shrink-0" />
           <div className="min-w-0 flex-1">
             <ProductSlider products={displayedProducts} isCompact />
           </div>
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6">
-          {layout === "banner-top" && <BlockImage content={content} className="aspect-[21/9] sm:aspect-[24/7]" />}
+          {layout === "banner-top" && <BlockMedia content={content} className="aspect-[21/9] sm:aspect-[24/7]" />}
           {isRailLayout ? (
             <ProductSlider products={displayedProducts} />
           ) : (
@@ -211,28 +222,13 @@ export const FeaturedProductsBlock = async ({
   );
 };
 
-/** The preset's image slot. Renders nothing until the admin uploads one, so an
- *  unfinished block degrades to a plain grid instead of a broken gap. */
-const BlockImage = ({ content, className }: { content: FeaturedProductsContent; className: string }) => {
-  if (!layoutUsesImage(readLayout(content.displayMode)) || !content.imageUrl) return null;
+/** The preset's media cell. Renders nothing until the admin adds an image, so an
+ *  unfinished block degrades to a plain product row instead of a broken gap. */
+const BlockMedia = ({ content, className }: { content: FeaturedProductsContent; className: string }) => {
+  if (!layoutUsesImage(readLayout(content.displayMode))) return null;
 
-  const image = (
-    <div className={`relative w-full overflow-hidden rounded-2xl bg-mint-50 ${className}`}>
-      <Image
-        src={content.imageUrl}
-        alt={content.imageAlt || content.headline}
-        fill
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        className="object-cover"
-      />
-    </div>
-  );
+  const media = readBlockMedia(content as Record<string, any>);
+  if (media.slides.length === 0) return null;
 
-  return content.imageHref ? (
-    <Link href={content.imageHref} className="block transition-transform hover:scale-[1.01]">
-      {image}
-    </Link>
-  ) : (
-    image
-  );
+  return <MediaSlideshow media={media} className={className} fallbackAlt={content.headline} />;
 };

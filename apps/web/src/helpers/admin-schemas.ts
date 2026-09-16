@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { HEX_COLOR_PATTERN } from "./color";
 import { PRODUCT_BLOCK_LAYOUTS } from "./product-block-layout";
+import { INTERVAL_MAX_MS, INTERVAL_MIN_MS, MEDIA_EFFECTS } from "./product-block-media";
 import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
@@ -69,6 +70,25 @@ const featuredProductsContentSchema = z.object({
     .enum(PRODUCT_BLOCK_LAYOUTS.map((l) => l.id) as [string, ...string[]])
     .default("grid"),
   columns: z.enum(["2", "3", "4", "slider"]).default("4"),
+  media: z
+    .object({
+      slides: z
+        .array(
+          z.object({
+            url: z.string().min(1),
+            href: z.string().default(""),
+            alt: z.string().default(""),
+          }),
+        )
+        .max(12, "Một băng ảnh tối đa 12 ảnh")
+        .default([]),
+      effect: z.enum(MEDIA_EFFECTS.map((e) => e.id) as [string, ...string[]]).default("none"),
+      isAutoplay: z.boolean().default(false),
+      intervalMs: z.number().int().min(INTERVAL_MIN_MS).max(INTERVAL_MAX_MS).default(5000),
+      hasDots: z.boolean().default(true),
+      hasArrows: z.boolean().default(true),
+    })
+    .optional(),
   imageUrl: z.string().default(""),
   imageHref: z.string().default(""),
   imageAlt: z.string().optional(),

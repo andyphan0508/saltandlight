@@ -43,8 +43,8 @@ export const defaultContent = (type: PageBlockTypeValue): Record<string, any> =>
         productIds: [],
         displayMode: "grid",
         columns: "4",
+        media: { slides: [], effect: "none", isAutoplay: false, intervalMs: 5000, hasDots: true, hasArrows: true },
         imageUrl: "",
-        imageHref: "",
         allowViewAll: true,
         viewAllMode: "link",
       };
@@ -62,8 +62,8 @@ export const defaultContent = (type: PageBlockTypeValue): Record<string, any> =>
         productIds: [],
         displayMode: "grid",
         columns: "4",
+        media: { slides: [], effect: "none", isAutoplay: false, intervalMs: 5000, hasDots: true, hasArrows: true },
         imageUrl: "",
-        imageHref: "",
         allowViewAll: true,
         viewAllMode: "modal",
       };

@@ -13,7 +13,7 @@ import {
 } from "@/helpers/product-block-layout";
 import type { BlockFieldsProps } from "@/interfaces/page-block";
 import { ProductPickerModal } from "../ProductPickerModal";
-import { BlockImageField } from "./BlockImageField";
+import { BlockMediaField } from "./BlockMediaField";
 import { LayoutThumbnail } from "./LayoutThumbnail";
 
 interface CategoryChoice {
@@ -201,16 +201,14 @@ export const FeaturedProductsFields = ({ content, onPatch, isProductList }: Bloc
       </div>
 
       {layoutUsesImage(layout) && (
-        <BlockImageField
-          label="Ảnh của bố cục"
+        <BlockMediaField
           hint={
             layout === "banner-top"
-              ? "Ảnh ngang nằm phía trên sản phẩm. Khuyến nghị 1600×600."
-              : "Ảnh nằm bên trái hàng sản phẩm và tự cao bằng hàng đó. Khuyến nghị ảnh ngang 1200×900."
+              ? "Nằm ngang phía trên sản phẩm. Khuyến nghị ảnh 1600×600."
+              : "Nằm bên trái hàng sản phẩm và tự cao bằng hàng đó. Khuyến nghị ảnh ngang 1200×900."
           }
-          imageUrl={content.imageUrl || ""}
-          imageHref={content.imageHref || ""}
-          onChange={onPatch}
+          content={content}
+          onPatch={onPatch}
         />
       )}
 
