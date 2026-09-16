@@ -98,19 +98,27 @@ export const DELETE = async (req: NextRequest) => {
     }
     const foundIds = products.map((p) => p.id);
 
-    await prisma.$transaction([
+    await prisma.$transaction(async (tx) => {
+      const variants = await tx.productVariant.findMany({
+        where: { productId: { in: foundIds } },
+        select: { id: true },
+      });
+
       // Orders keep their snapshot columns (name/price/color/size) so history
       // stays readable; only the FKs are cut, since they are Restrict.
-      prisma.orderItem.updateMany({
+      await tx.orderItem.updateMany({
         where: {
-          OR: [{ productId: { in: foundIds } }, { productVariant: { productId: { in: foundIds } } }],
+          OR: [
+            { productId: { in: foundIds } },
+            { productVariantId: { in: variants.map((v) => v.id) } },
+          ],
         },
         data: { productId: null, productVariantId: null },
-      }),
-      prisma.productBundleItem.deleteMany({ where: { productId: { in: foundIds } } }),
+      });
+      await tx.productBundleItem.deleteMany({ where: { productId: { in: foundIds } } });
       // images + variants cascade from the product row
-      prisma.product.deleteMany({ where: { id: { in: foundIds } } }),
-    ]);
+      await tx.product.deleteMany({ where: { id: { in: foundIds } } });
+    });
 
     await logAudit({
       adminUserId: admin.id,
