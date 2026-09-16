@@ -39,14 +39,11 @@ export const ProductListItem = ({ product }: ProductListItemProps) => {
       </Link>
 
       <div className="flex min-w-0 flex-1 flex-col justify-between py-1">
-        <div>
-          <Link href={`/san-pham/${product.slug}`}>
-            <h3 className="text-sm font-bold text-ink hover:text-brand-forest sm:text-base">
-              {product.name}
-            </h3>
-          </Link>
-          <p className="mt-1 hidden text-xs text-ink/50 sm:block">100% Cotton · In DTG cao cấp</p>
-        </div>
+        <Link href={`/san-pham/${product.slug}`}>
+          <h3 className="text-sm font-bold text-ink hover:text-brand-forest sm:text-base">
+            {product.name}
+          </h3>
+        </Link>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
             <span className="text-base font-bold text-ink sm:text-lg">{formatVND(product.minPrice)}</span>
