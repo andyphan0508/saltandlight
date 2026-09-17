@@ -6,6 +6,7 @@ import {
   nextOrderNumber,
   buildVietQrUrl,
   buildTransferContent,
+  initialOrderStatus,
 } from "@saltandlight/domain";
 import { sendOrderCreatedEmail } from "@/server/email";
 import { getAuthenticatedCustomer } from "@/server/customer-auth";
@@ -18,7 +19,8 @@ export const POST = async (req: NextRequest) => {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { customer, shippingAddress, items, note } = parsed.data;
+  const { customer, shippingAddress, items, note, paymentMethod } = parsed.data;
+  const isCod = paymentMethod === "cod";
 
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: items.map((i) => i.productVariantId) }, isActive: true },
@@ -115,7 +117,7 @@ export const POST = async (req: NextRequest) => {
       data: {
         orderNumber,
         customerId: customerRecord.id,
-        status: "pending_payment",
+        status: initialOrderStatus(paymentMethod),
         subtotal,
         shippingFee,
         total,
@@ -123,10 +125,15 @@ export const POST = async (req: NextRequest) => {
         note: note || null,
         items: { create: orderItemsInput },
         statusHistory: {
-          create: { fromStatus: null, toStatus: "pending_payment", note: "Đơn hàng được tạo" },
+          create: {
+            fromStatus: null,
+            toStatus: initialOrderStatus(paymentMethod),
+            note: isCod ? "Đơn hàng được tạo · Thanh toán khi nhận hàng (COD)" : "Đơn hàng được tạo · Chuyển khoản ngân hàng",
+          },
         },
         payments: {
-          create: { method: "bank_transfer", amount: total, status: "awaiting_confirmation" },
+          // COD: recorded so admin sees how the order is paid; confirmed when the order is marked delivered
+          create: { method: paymentMethod, amount: total, status: "awaiting_confirmation" },
         },
       },
       include: { items: true },
@@ -150,7 +157,7 @@ export const POST = async (req: NextRequest) => {
   };
   const transferContent = buildTransferContent(order.orderNumber);
   const qrUrl =
-    vietqr.bankBin && vietqr.accountNo
+    !isCod && vietqr.bankBin && vietqr.accountNo
       ? buildVietQrUrl(vietqr, { amount: total, addInfo: transferContent })
       : null;
 
@@ -162,6 +169,7 @@ export const POST = async (req: NextRequest) => {
       customerEmail: customer.email || null,
       customerPhone: customer.phone,
       total,
+      paymentMethod,
     });
   } catch (err) {
     console.error("sendOrderCreatedEmail failed", err);
@@ -172,5 +180,6 @@ export const POST = async (req: NextRequest) => {
     total,
     transferContent,
     qrUrl,
+    paymentMethod,
   });
 };

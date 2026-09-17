@@ -29,3 +29,19 @@ test("cancelling restocks, reviving a cancelled order takes stock again, a refun
   // Re-saving the same status must never double-restock
   assert.equal(stockDirection("cancelled", "cancelled"), 0);
 });
+
+test("a COD order skips waiting for payment; a transfer order waits for it", async () => {
+  const { initialOrderStatus, createOrderSchema } = await import("@saltandlight/domain");
+  assert.equal(initialOrderStatus("cod"), "processing");
+  assert.equal(initialOrderStatus("bank_transfer"), "pending_payment");
+  // Older clients that never send a method keep getting bank transfer
+  const base = {
+    customer: { fullName: "Nguyen Van A", phone: "0912345678" },
+    shippingAddress: { recipientName: "Nguyen Van A", phone: "0912345678", province: "x", provinceCode: 0, ward: "y", wardCode: 0, streetAddress: "123 abc" },
+    items: [{ productVariantId: "00000000-0000-4000-8000-000000000000", quantity: 1 }],
+  };
+  const parsed = createOrderSchema.safeParse(base);
+  const method = parsed.success ? parsed.data.paymentMethod : (createOrderSchema as any).shape.paymentMethod.parse(undefined);
+  assert.equal(method, "bank_transfer");
+  assert.equal((createOrderSchema as any).shape.paymentMethod.safeParse("momo").success, false);
+});

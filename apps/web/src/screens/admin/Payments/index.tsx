@@ -7,7 +7,7 @@ import { Wallet, CheckCircle } from "@/components/admin/Icons";
 
 const PaymentsPage = async () => {
   const payments = await prisma.paymentTransaction.findMany({
-    where: { status: "awaiting_confirmation" },
+    where: { status: "awaiting_confirmation", method: "bank_transfer" },
     orderBy: { createdAt: "asc" },
     select: {
       id: true,

@@ -255,6 +255,7 @@ model OrderStatusHistory {
 
 enum PaymentMethod {
   bank_transfer
+  cod
 }
 
 enum PaymentStatus {

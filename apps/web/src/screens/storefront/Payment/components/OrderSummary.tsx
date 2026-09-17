@@ -1,6 +1,7 @@
 import { formatVND } from "@saltandlight/domain";
 import { Truck } from "@/components/Icons";
 import type { CheckoutQuote } from "@/interfaces/checkout";
+import { OrderSummaryLine } from "./OrderSummaryLine";
 
 /** Sticky summary of the server-priced cart: lines, subtotal, shipping and total. */
 export const OrderSummary = ({ quote }: { quote: CheckoutQuote | null }) => (
@@ -9,15 +10,9 @@ export const OrderSummary = ({ quote }: { quote: CheckoutQuote | null }) => (
 
     {quote ? (
       <div className="space-y-4">
-        <div className="divide-y divide-ink/10 max-h-80 overflow-y-auto pr-1">
+        <div className="divide-y divide-ink/10 max-h-[26rem] overflow-y-auto pr-1">
           {quote.lines.map((line, i) => (
-            <div key={i} className="py-3 flex justify-between items-center text-xs">
-              <div>
-                <span className="font-bold text-ink">{line.name}</span>
-                <div className="text-[11px] text-ink/50 mt-0.5">Số lượng: {line.quantity}</div>
-              </div>
-              <span className="font-semibold text-ink">{formatVND(line.lineTotal)}</span>
-            </div>
+            <OrderSummaryLine key={i} line={line} />
           ))}
         </div>
 

@@ -2,17 +2,17 @@
 
 import { CheckoutField } from "./CheckoutField";
 import { CheckoutSection } from "./CheckoutSection";
-import { LocationSelect, type LocationValue } from "./LocationSelect";
+import { WardSearchInput, type LocationValue } from "./WardSearchInput";
 
 interface ShippingAddressFieldsProps {
   location: LocationValue;
   onLocationChange: (location: LocationValue) => void;
 }
 
-/** Province / ward pickers, street address and an optional note for the shipper. */
+/** Ward + province search, street address and an optional note for the shipper. */
 export const ShippingAddressFields = ({ location, onLocationChange }: ShippingAddressFieldsProps) => (
   <CheckoutSection step={2} title="Địa Chỉ Giao Hàng">
-    <LocationSelect value={location} onChange={onLocationChange} />
+    <WardSearchInput value={location} onChange={onLocationChange} />
     <CheckoutField
       label="Địa chỉ cụ thể (số nhà, tên đường, tòa nhà)"
       name="streetAddress"

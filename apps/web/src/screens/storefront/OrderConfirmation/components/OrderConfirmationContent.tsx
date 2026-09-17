@@ -25,12 +25,14 @@ export const OrderConfirmationContent = ({
   total,
   transferContent,
   qrUrl,
+  isCod = false,
   settings,
 }: {
   orderNumber: string;
   total: number;
   transferContent: string;
   qrUrl: string | null;
+  isCod?: boolean;
   settings: PaymentSettingsProps | null;
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -64,7 +66,19 @@ export const OrderConfirmationContent = ({
         </div>
       </div>
 
-      {isThankYouOnly ? (
+      {isCod ? (
+        /* Cash on delivery: nothing to pay now */
+        <div className="rounded-3xl bg-white p-8 sm:p-10 shadow-card border border-ink/5 space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-brand-forest">
+            <Phone size={26} />
+          </div>
+          <h2 className="font-display text-lg font-bold uppercase text-ink">Thanh Toán Khi Nhận Hàng (COD)</h2>
+          <p className="text-sm text-ink/70 max-w-xl mx-auto leading-relaxed">
+            Bạn không cần thanh toán lúc này. Shop sẽ gọi xác nhận đơn, sau đó bạn chuẩn bị{" "}
+            <strong className="text-ink">{formatVND(total)}</strong> để thanh toán cho shipper khi nhận hàng.
+          </p>
+        </div>
+      ) : isThankYouOnly ? (
         /* Thank-you-only mode: skip QR/bank details, shop will follow up manually */
         <div className="rounded-3xl bg-mint-50 p-8 sm:p-12 border border-mint-200 space-y-3">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-brand-forest shadow-sm">
@@ -140,8 +154,10 @@ export const OrderConfirmationContent = ({
         <div className="grid gap-4 sm:grid-cols-3 text-xs text-ink/75">
           <div className="rounded-2xl bg-white p-4 shadow-sm border border-ink/5">
             <span className="font-bold text-brand-forest">Bước 1:</span>
-            <p className="mt-1 font-semibold text-ink">Xác nhận thanh toán</p>
-            <p className="mt-0.5 text-[11px] text-ink/50">Hệ thống tự động kiểm tra sao kê ngân hàng.</p>
+            <p className="mt-1 font-semibold text-ink">{isCod ? "Shop gọi xác nhận" : "Xác nhận thanh toán"}</p>
+            <p className="mt-0.5 text-[11px] text-ink/50">
+              {isCod ? "Kiểm tra lại địa chỉ và thông tin đơn với bạn." : "Hệ thống tự động kiểm tra sao kê ngân hàng."}
+            </p>
           </div>
           <div className="rounded-2xl bg-white p-4 shadow-sm border border-ink/5">
             <span className="font-bold text-brand-forest">Bước 2:</span>

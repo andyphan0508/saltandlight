@@ -3,16 +3,16 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@saltandlight/ui";
-import { ArrowRight } from "@/components/Icons";
+import { formatVND, type PaymentMethodValue } from "@saltandlight/domain";
 import { useCheckoutQuote } from "@/hooks/use-checkout-quote";
 import { useCartStore } from "@/stores/cart-store";
 import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { CheckoutHeader } from "./components/CheckoutHeader";
 import { CheckoutLoading } from "./components/CheckoutLoading";
 import { EmptyCheckout } from "./components/EmptyCheckout";
-import type { LocationValue } from "./components/LocationSelect";
+import type { LocationValue } from "./components/WardSearchInput";
 import { OrderSummary } from "./components/OrderSummary";
-import { PaymentMethodNote } from "./components/PaymentMethodNote";
+import { PaymentMethodPicker } from "./components/PaymentMethodPicker";
 import { RecipientFields } from "./components/RecipientFields";
 import { ShippingAddressFields } from "./components/ShippingAddressFields";
 
@@ -28,6 +28,7 @@ export const CheckoutView = () => {
   const clearCart = useCartStore((s) => s.clear);
   const isHydrated = useStoreHydrated(useCartStore);
   const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodValue>("bank_transfer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const quote = useCheckoutQuote(cartLines, location.provinceCode);
@@ -52,6 +53,7 @@ export const CheckoutView = () => {
       },
       note: field("note"),
       items: cartLines,
+      paymentMethod,
     };
 
     try {
@@ -70,6 +72,7 @@ export const CheckoutView = () => {
       const params = new URLSearchParams({
         total: String(data.total),
         transferContent: data.transferContent,
+        method: data.paymentMethod,
         ...(data.qrUrl ? { qrUrl: data.qrUrl } : {}),
       });
       router.push(`/don-hang/${data.orderNumber}?${params.toString()}`);
@@ -90,7 +93,7 @@ export const CheckoutView = () => {
         <form onSubmit={onSubmit} className="space-y-6 lg:col-span-7">
           <RecipientFields />
           <ShippingAddressFields location={location} onLocationChange={setLocation} />
-          <PaymentMethodNote />
+          <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
 
           {error && <div className="rounded-2xl bg-rose-50 p-4 border border-rose-200 text-sm font-semibold text-sale">{error}</div>}
 
@@ -101,9 +104,13 @@ export const CheckoutView = () => {
                 Đang xử lý đơn hàng…
               </span>
             ) : (
-              <span className="flex items-center gap-2">
-                <span>Hoàn tất đặt hàng &amp; Lấy mã VietQR</span>
-                <ArrowRight size={18} />
+              <span className="flex flex-col items-center leading-tight">
+                <span>Xác nhận</span>
+                {quote && (
+                  <span className="mt-0.5 text-[11px] font-medium opacity-80">
+                    {formatVND(quote.total)} · {paymentMethod === "cod" ? "Thanh toán khi nhận hàng" : "Chuyển khoản ngân hàng"}
+                  </span>
+                )}
               </span>
             )}
           </Button>

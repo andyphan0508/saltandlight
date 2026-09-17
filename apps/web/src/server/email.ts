@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { formatVND } from "@saltandlight/domain";
+import { formatVND, PAYMENT_METHOD_LABELS, type PaymentMethodValue } from "@saltandlight/domain";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Salt & Light <no-reply@saltandlight.com.vn>";
@@ -11,6 +11,7 @@ export const sendOrderCreatedEmail = async (opts: {
   customerEmail: string | null;
   customerPhone: string;
   total: number;
+  paymentMethod: PaymentMethodValue;
 }) => {
   if (!resend) return; // email not configured in this environment (e.g. local dev)
 
@@ -25,7 +26,11 @@ export const sendOrderCreatedEmail = async (opts: {
         html: `<p>Cảm ơn bạn đã đặt hàng tại Salt &amp; Light.</p>
                <p>Mã đơn hàng: <strong>${opts.orderNumber}</strong></p>
                <p>Tổng tiền: <strong>${formatVND(opts.total)}</strong></p>
-               <p>Vui lòng chuyển khoản theo hướng dẫn trên trang xác nhận đơn hàng. Chúng mình sẽ xác nhận và xử lý đơn ngay khi nhận được thanh toán.</p>`,
+               <p>${
+                 opts.paymentMethod === "cod"
+                   ? "Bạn thanh toán khi nhận hàng (COD). Chúng mình sẽ gọi xác nhận và giao hàng sớm nhất."
+                   : "Vui lòng chuyển khoản theo hướng dẫn trên trang xác nhận đơn hàng. Chúng mình sẽ xác nhận và xử lý đơn ngay khi nhận được thanh toán."
+               }</p>`,
       }),
     );
   }
@@ -40,7 +45,7 @@ export const sendOrderCreatedEmail = async (opts: {
         html: `<p><strong>Có đơn hàng mới, vui lòng vào dashboard xử lý.</strong></p>
                <p>Mã đơn hàng: <strong>${opts.orderNumber}</strong></p>
                <p>Khách hàng: <strong>${opts.customerName}</strong> — ${opts.customerPhone}</p>
-               <p>Tổng tiền: <strong>${formatVND(opts.total)}</strong></p>
+               <p>Tổng tiền: <strong>${formatVND(opts.total)}</strong> · ${PAYMENT_METHOD_LABELS[opts.paymentMethod]}</p>
                <p><a href="${adminUrl}/orders/${opts.orderId}">Mở đơn hàng trong Dashboard →</a></p>`,
       }),
     );

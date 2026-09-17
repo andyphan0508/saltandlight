@@ -1,9 +1,13 @@
 export interface CheckoutQuoteLine {
   name: string;
+  slug: string;
+  image: string | null;
   quantity: number;
+  unitPrice: number;
   lineTotal: number;
-  color?: string;
-  size?: string;
+  color: string | null;
+  colorHex: string | null;
+  size: string | null;
 }
 
 export interface CheckoutQuote {

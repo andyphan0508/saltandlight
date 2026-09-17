@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isValidLocation } from "./vn-locations";
+import { PAYMENT_METHODS } from "./payment-method";
 
 export const cartItemSchema = z.object({
   productVariantId: z.string().uuid(),
@@ -43,6 +44,7 @@ export const createOrderSchema = z.object({
   shippingAddress: shippingAddressSchema,
   items: z.array(cartItemSchema).min(1),
   note: z.string().max(500).optional(),
+  paymentMethod: z.enum(PAYMENT_METHODS).default("bank_transfer"),
 });
 
 export const trackOrderSchema = z.object({

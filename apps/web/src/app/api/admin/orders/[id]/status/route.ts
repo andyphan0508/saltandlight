@@ -31,6 +31,12 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
       await tx.order.update({ where: { id: params.id }, data: { status: body.status } });
       // Placing the order took this stock; cancelling gives it back (and reviving takes it again).
       // Items whose variant was deleted since have nothing to restock.
+      if (body.status === "completed") {
+        await tx.paymentTransaction.updateMany({
+          where: { orderId: params.id, method: "cod", status: "awaiting_confirmation" },
+          data: { status: "confirmed", confirmedById: admin.id, confirmedAt: new Date() },
+        });
+      }
       if (direction !== 0) {
         for (const item of order.items) {
           if (!item.productVariantId) continue;

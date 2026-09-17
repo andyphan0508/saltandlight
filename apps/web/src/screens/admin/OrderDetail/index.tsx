@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@saltandlight/db";
-import { formatVND } from "@saltandlight/domain";
+import { formatVND, PAYMENT_METHOD_LABELS } from "@saltandlight/domain";
 import { OrderStatusForm } from "./components/OrderStatusForm";
 import { OrderActions } from "./components/OrderActions";
 import { BackLink } from "@/components/admin/BackLink";
@@ -101,6 +101,11 @@ const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
             <p className="text-sm font-semibold text-ink">{order.customer.fullName}</p>
             <p className="mt-0.5 text-sm text-ink/60">{order.customer.phone}</p>
             {order.customer.email && <p className="text-sm text-ink/60">{order.customer.email}</p>}
+            {order.payments[0] && (
+              <p className="mt-3 inline-block rounded-full bg-mint-50 px-3 py-1 text-xs font-bold text-brand-forest">
+                {PAYMENT_METHOD_LABELS[order.payments[0].method]}
+              </p>
+            )}
           </Section>
 
           <Section title="Địa chỉ giao hàng" icon={<Truck size={15} />}>
@@ -123,7 +128,9 @@ const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
               orderId={order.id}
               orderNumber={order.orderNumber}
               status={order.status}
-              awaitingPaymentId={order.payments.find((p) => p.status === "awaiting_confirmation")?.id ?? null}
+              awaitingPaymentId={
+                order.payments.find((p) => p.method === "bank_transfer" && p.status === "awaiting_confirmation")?.id ?? null
+              }
               customerPhone={order.customer.phone}
             />
             <details className="mt-4 border-t border-ink/10 pt-3">

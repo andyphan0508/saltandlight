@@ -5,3 +5,4 @@ export * from "./vietqr";
 export * from "./schemas";
 export * from "./order-status";
 export * from "./sizes";
+export * from "./payment-method";
