@@ -24,3 +24,13 @@ test("isHexColor only accepts a 6-digit hex", () => {
   assert.equal(isHexColor("A8E6CF"), false);
   assert.equal(isHexColor(undefined), false);
 });
+
+test("swatchFor paints old variants without a hex from their colour name", async () => {
+  const { swatchFor } = await import("./color");
+  assert.equal(swatchFor("Đen", "#222222"), "#222222", "an admin-picked hex always wins");
+  assert.equal(swatchFor("Trắng", null), "#FFFFFF");
+  assert.equal(swatchFor("den", null), "#111111", "matches without diacritics");
+  assert.equal(swatchFor("Xanh Rêu", ""), "#2F5D50");
+  assert.equal(swatchFor("Black", null), "#111111");
+  assert.equal(swatchFor("Màu lạ", null), "#FFFFFF", "unknown names fall back to white");
+});

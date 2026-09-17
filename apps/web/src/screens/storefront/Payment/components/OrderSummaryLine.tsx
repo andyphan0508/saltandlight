@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatVND } from "@saltandlight/domain";
-import { isHexColor } from "@/helpers/color";
+import { swatchFor } from "@/helpers/color";
 import type { CheckoutQuoteLine } from "@/interfaces/checkout";
 
 /** One cart line as the customer is about to pay for it: photo, colour, size, quantity and price. */
@@ -29,7 +29,7 @@ export const OrderSummaryLine = ({ line }: { line: CheckoutQuoteLine }) => (
             <span
               aria-hidden="true"
               className="h-3 w-3 rounded-full border border-ink/20"
-              style={{ backgroundColor: isHexColor(line.colorHex) ? line.colorHex : /đen|black/i.test(line.color) ? "#111111" : "#FFFFFF" }}
+              style={{ backgroundColor: swatchFor(line.color, line.colorHex) }}
             />
             Màu: {line.color}
           </span>
