@@ -6,6 +6,7 @@ import { judgeAdsTraffic } from "@/helpers/analytics/verdict";
 import { getTrafficReport } from "@/server/analytics/report";
 import { AbandonedProducts } from "./components/AbandonedProducts";
 import { Card } from "./components/Card";
+import { ProductViews } from "./components/ProductViews";
 import { Funnel } from "./components/Funnel";
 import { KpiTile } from "./components/KpiTile";
 import { QualityBar } from "./components/QualityBar";
@@ -167,6 +168,10 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
 
           <Card title="Nguồn truy cập & chiến dịch" subtitle="Nguồn nào mang khách thật, nguồn nào toàn click thoát ngay. Cột đỏ là con số đáng lo.">
             <SourcesTable sources={report.current.sources} />
+          </Card>
+
+          <Card title="Lượt xem từng sản phẩm" subtitle="Khách bấm vào xem sản phẩm nào, bao nhiêu lần — và sản phẩm đang bán nào chưa ai xem trong kỳ (không tính bot).">
+            <ProductViews products={report.products} />
           </Card>
 
           <Card title="Sản phẩm bị bỏ giỏ" subtitle="Khách đã thêm vào giỏ nhưng không mua — xếp theo số lần bị bỏ nhiều nhất.">

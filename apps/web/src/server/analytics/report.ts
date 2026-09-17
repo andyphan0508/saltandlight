@@ -1,4 +1,5 @@
 import { summarizeProducts, summarizeSessions, type ProductFunnel, type SessionRow, type TrafficSummary } from "@/helpers/analytics/sessions";
+import { prisma } from "@saltandlight/db";
 import { resolveWindow, toSqlDateTime, type AnalyticsRangeId, type AnalyticsWindow } from "@/helpers/analytics/ranges";
 import { invalidateMemoryCache, withMemoryCache } from "@/server/memory-cache";
 import { ANALYTICS_DATASET } from "./dataset";
@@ -100,9 +101,10 @@ export const getTrafficReport = async (rangeId: AnalyticsRangeId): Promise<Traff
 const buildReport = (key: string, rangeId: AnalyticsRangeId): Promise<TrafficReport> =>
   withMemoryCache(key, CACHE_SECONDS, async () => {
     const window = resolveWindow(rangeId);
-    const [orders, previousOrders] = await Promise.all([
+    const [orders, previousOrders, catalog] = await Promise.all([
       getOrderStats(window.start, window.end),
       getOrderStats(window.previousStart, window.previousEnd),
+      prisma.product.findMany({ where: { status: "published" }, select: { id: true, name: true } }),
     ]);
 
     if (!analyticsQueryConfig()) return { status: "unconfigured", window, orders, previousOrders };
@@ -131,6 +133,7 @@ const buildReport = (key: string, rangeId: AnalyticsRangeId): Promise<TrafficRep
             boughtQty: Number(r.boughtQty ?? 0),
             weight: Number(r.weight ?? 1) || 1,
           })),
+          catalog,
         ),
         isTruncated: currentRows.length >= SESSION_LIMIT,
         generatedAt: new Date().toISOString(),

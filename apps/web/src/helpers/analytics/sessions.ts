@@ -217,6 +217,8 @@ export interface ProductSessionRow {
 export interface ProductFunnel {
   productId: string;
   productName: string;
+  /** Every product_view, including repeat opens in the same session. */
+  views: number;
   viewSessions: number;
   cartSessions: number;
   purchaseSessions: number;
@@ -228,26 +230,31 @@ export interface ProductFunnel {
   viewToCartRate: number;
 }
 
-/** Per-product view → cart → purchase, with how many carts were abandoned. Most-abandoned first. */
-export const summarizeProducts = (rows: ProductSessionRow[]): ProductFunnel[] => {
-  const byProduct = new Map<string, ProductFunnel>();
+const emptyFunnel = (productId: string, productName: string): ProductFunnel => ({
+  productId,
+  productName,
+  views: 0,
+  viewSessions: 0,
+  cartSessions: 0,
+  purchaseSessions: 0,
+  abandonedSessions: 0,
+  abandonRate: 0,
+  addedQty: 0,
+  boughtQty: 0,
+  viewToCartRate: 0,
+});
+
+/**
+ * Per-product view → cart → purchase, with how many carts were abandoned. Most-abandoned first.
+ * `catalog` seeds every published product, so ones nobody opened show up with zero views.
+ */
+export const summarizeProducts = (rows: ProductSessionRow[], catalog: { id: string; name: string }[] = []): ProductFunnel[] => {
+  const byProduct = new Map<string, ProductFunnel>(catalog.map((c) => [c.id, emptyFunnel(c.id, c.name)]));
   for (const row of rows) {
     const w = row.weight || 1;
-    const p =
-      byProduct.get(row.productId) ??
-      ({
-        productId: row.productId,
-        productName: row.productName,
-        viewSessions: 0,
-        cartSessions: 0,
-        purchaseSessions: 0,
-        abandonedSessions: 0,
-        abandonRate: 0,
-        addedQty: 0,
-        boughtQty: 0,
-        viewToCartRate: 0,
-      } satisfies ProductFunnel);
-    if (row.productName) p.productName = row.productName;
+    const p = byProduct.get(row.productId) ?? emptyFunnel(row.productId, row.productName);
+    if (row.productName && !p.productName) p.productName = row.productName;
+    p.views += row.views * w;
     if (row.views > 0) p.viewSessions += w;
     if (row.adds > 0) p.cartSessions += w;
     if (row.boughtQty > 0) p.purchaseSessions += w;

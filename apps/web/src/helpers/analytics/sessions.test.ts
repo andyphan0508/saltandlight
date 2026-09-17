@@ -83,6 +83,13 @@ test("a product put in the cart and not bought is an abandoned cart; most abando
   );
   assert.equal(products[1]!.abandonRate, 0);
   assert.equal(products[1]!.viewToCartRate, 1 / 2);
+  assert.equal(products[0]!.views, 3, "repeat opens count as views");
+
+  const withCatalog = summarizeProducts([{ productId: "p1", productName: "", sessionId: "s1", views: 1, addedQty: 0, adds: 0, boughtQty: 0, weight: 1 }], [
+    { id: "p1", name: "Áo A mới" },
+    { id: "p9", name: "Áo chưa ai xem" },
+  ]);
+  assert.deepEqual(withCatalog.map((p) => [p.productId, p.productName, p.views]), [["p1", "Áo A mới", 1], ["p9", "Áo chưa ai xem", 0]]);
 });
 
 test("the session cookie survives a round trip and rejects garbage", async () => {
