@@ -75,8 +75,8 @@ export const FeaturedProductsBlock = async ({
       if (content.categoryId || resolvedCategorySlug) {
         const takeLimit = isViewAllAllowed && viewAllMode === "modal" ? 100 : count;
         const categoryWhere = content.categoryId
-          ? { categoryId: content.categoryId }
-          : { category: { slug: resolvedCategorySlug } };
+          ? { categories: { some: { id: content.categoryId } } }
+          : { categories: { some: { slug: resolvedCategorySlug } } };
 
         const rows = await prisma.product.findMany({
           where: {

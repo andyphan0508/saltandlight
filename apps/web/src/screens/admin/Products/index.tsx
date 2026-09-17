@@ -16,7 +16,7 @@ const ProductsPage = async ({
   const where: any = {
     ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
     ...(status ? { status: status as never } : {}),
-    ...(categoryId ? { categoryId } : {}),
+    ...(categoryId ? { categories: { some: { id: categoryId } } } : {}),
   };
 
   let products: ProductRow[] = [];

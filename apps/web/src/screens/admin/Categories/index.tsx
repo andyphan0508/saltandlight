@@ -36,7 +36,7 @@ const AdminCategoriesPage = async ({
       take: PAGE_SIZE,
       include: {
         parent: { select: { id: true, name: true, slug: true } },
-        _count: { select: { products: true } },
+        _count: { select: { taggedProducts: true } },
       },
     }),
     prisma.category.count({ where }),
@@ -45,7 +45,7 @@ const AdminCategoriesPage = async ({
       orderBy: { name: "asc" },
     }),
     prisma.product.count({
-      where: { categoryId: { not: null } },
+      where: { categories: { some: {} } },
     }),
     prisma.category.count(),
     prisma.category.count({

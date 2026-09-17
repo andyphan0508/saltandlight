@@ -58,7 +58,7 @@ export const listPublishedProducts = async (
 
   const where: Prisma.ProductWhereInput = {
     status: "published",
-    ...(categorySlugs?.length ? { category: { slug: { in: categorySlugs } } } : {}),
+    ...(categorySlugs?.length ? { categories: { some: { slug: { in: categorySlugs } } } } : {}),
     ...(query
       ? {
           OR: [
@@ -95,18 +95,16 @@ export const listPublishedProducts = async (
 
 /** Category list with a live count of published products in each — for the sidebar filter. */
 export const listCategoriesWithCounts = async () => {
-  const [categories, counts, totalPublished] = await Promise.all([
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
-    prisma.product.groupBy({
-      by: ["categoryId"],
-      where: { status: "published" },
-      _count: { _all: true },
+  const [categories, totalPublished] = await Promise.all([
+    // Counts every product listed under the category, not only those it is primary for
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { taggedProducts: { where: { status: "published" } } } } },
     }),
     prisma.product.count({ where: { status: "published" } }),
   ]);
-  const countMap = new Map(counts.map((c) => [c.categoryId, c._count._all]));
   return {
-    categories: categories.map((c) => ({ ...c, count: countMap.get(c.id) ?? 0 })),
+    categories: categories.map(({ _count, ...c }) => ({ ...c, count: _count.taggedProducts })),
     totalPublished,
   };
 };
@@ -128,7 +126,7 @@ export const getRelatedProducts = async (
   limit = 4,
 ): Promise<ProductCardData[]> => {
   const rows = await prisma.product.findMany({
-    where: { status: "published", categoryId, id: { not: excludeId } },
+    where: { status: "published", categories: { some: { id: categoryId } }, id: { not: excludeId } },
     take: limit,
     orderBy: { createdAt: "desc" },
     select: {

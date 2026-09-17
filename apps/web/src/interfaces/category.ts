@@ -4,7 +4,8 @@ export interface CategoryItem {
   slug: string;
   parentId: string | null;
   parent?: { id: string; name: string; slug: string } | null;
-  _count?: { products: number };
+  /** Products listed under this category (primary or not). */
+  _count?: { taggedProducts: number };
 }
 
 export interface ParentCategoryOption {

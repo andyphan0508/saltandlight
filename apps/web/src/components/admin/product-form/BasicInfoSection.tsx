@@ -6,6 +6,7 @@ import type { ProductCategoryOption } from "@/interfaces/product-form";
 import { Field, Section } from "../form-fields";
 import { Package } from "../Icons";
 import { ProductContentEditor } from "../ProductContentEditor";
+import { CategoryMultiSelect } from "./CategoryMultiSelect";
 import { inputClass } from "./classes";
 
 interface BasicInfoSectionProps {
@@ -32,16 +33,14 @@ export const BasicInfoSection = ({ form, categories }: BasicInfoSectionProps) =>
         </Field>
       </div>
 
-      <Field label="Danh mục sản phẩm">
-        <select value={form.categoryId} onChange={(e) => form.setCategoryId(e.target.value)} className={inputClass}>
-          <option value="">— Không có danh mục —</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </Field>
+      <div className="md:col-span-2">
+        <CategoryMultiSelect
+          categories={categories}
+          selection={form.categorySelection}
+          onToggle={form.onToggleCategory}
+          onSetPrimary={form.onSetPrimaryCategory}
+        />
+      </div>
       <Field label="Trạng thái">
         <select
           value={form.status}

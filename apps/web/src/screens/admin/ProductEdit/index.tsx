@@ -9,7 +9,7 @@ const EditProductPage = async ({ params }: { params: { id: string } }) => {
   const [product, categories, promotions] = await Promise.all([
     prisma.product.findUnique({
       where: { id: params.id },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, categories: { select: { id: true } } },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.promotion.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
@@ -37,6 +37,7 @@ const EditProductPage = async ({ params }: { params: { id: string } }) => {
           slug: plain.slug,
           description: plain.description ?? "",
           categoryId: plain.categoryId,
+          categoryIds: plain.categories.map((c) => c.id),
           status: plain.status,
           isNew: plain.isNew,
           isFeatured: plain.isFeatured,

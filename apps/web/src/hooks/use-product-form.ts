@@ -14,6 +14,7 @@ import {
 } from "@/helpers/product-content";
 import { applyDiscount, buildVariantCombos, clearDiscount, skuify } from "@/helpers/product-variants";
 import { slugify } from "@/helpers/slugify";
+import { normalizeCategorySelection, toggleCategory, type CategorySelection } from "@/helpers/category-selection";
 import type {
   ColorChoice,
   ImageRow,
@@ -54,7 +55,12 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
   const [blocks, setBlocks] = useState<ProductContentBlock[]>(() =>
     parseProductContent(initial?.description).filter((block) => block.type !== "price_note"),
   );
-  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? categories[0]?.id ?? "");
+  // New products start in the first category, like the old single select did
+  const [categorySelection, setCategorySelection] = useState<CategorySelection>(() =>
+    initial
+      ? normalizeCategorySelection(initial.categoryId, initial.categoryIds ?? [])
+      : normalizeCategorySelection(categories[0]?.id ?? null, []),
+  );
   const [status, setStatus] = useState<ProductFormInitial["status"]>(initial?.status ?? "draft");
   const [isNew, setIsNew] = useState(initial?.isNew ?? false);
   const [isFeatured, setIsFeatured] = useState(initial?.isFeatured ?? false);
@@ -192,7 +198,8 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
       slug: finalSlug,
       // The promo line is stored with the description blocks, even when empty, so it can be hidden
       description: serializeProductContent(withPriceNote(blocks, priceNote)),
-      categoryId: categoryId || null,
+      categoryId: categorySelection.primaryId,
+      categoryIds: categorySelection.categoryIds,
       status,
       isNew,
       isFeatured,
@@ -232,7 +239,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     name,
     slug,
     blocks,
-    categoryId,
+    categorySelection,
     status,
     isNew,
     isFeatured,
@@ -250,7 +257,9 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     selectedPromotionId,
     priceNote,
     setBlocks,
-    setCategoryId,
+    onToggleCategory: (id: string) => setCategorySelection((prev) => toggleCategory(prev, id)),
+    onSetPrimaryCategory: (id: string) =>
+      setCategorySelection((prev) => normalizeCategorySelection(id, prev.categoryIds)),
     setStatus,
     setIsNew,
     setIsFeatured,

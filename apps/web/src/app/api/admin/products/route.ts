@@ -7,6 +7,7 @@ import { requireAdmin, AuthError, apiError } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { productInputSchema } from "@/helpers/admin-schemas";
 import { invalidateProductCaches } from "@/server/product-cache";
+import { normalizeCategorySelection } from "@/helpers/category-selection";
 
 export const dynamic = "force-dynamic";
 
@@ -29,13 +30,15 @@ export const POST = async (req: NextRequest) => {
     const admin = await requireAdmin(["owner", "staff"]);
     const input = productInputSchema.parse(await req.json());
     const priceRange = computePriceRange(input.variants);
+    const selection = normalizeCategorySelection(input.categoryId, input.categoryIds);
 
     const product = await prisma.product.create({
       data: {
         name: input.name,
         slug: input.slug,
         description: input.description,
-        categoryId: input.categoryId,
+        categoryId: selection.primaryId,
+        categories: { connect: selection.categoryIds.map((id) => ({ id })) },
         status: input.status,
         isNew: input.isNew,
         isFeatured: input.isFeatured,

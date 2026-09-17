@@ -28,6 +28,8 @@ export const productInputSchema = z.object({
   slug: z.string().min(2).max(200).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug không hợp lệ"),
   description: z.string().max(10000).optional().nullable(),
   categoryId: z.string().uuid().optional().nullable(),
+  /** Every category the product is listed in; normalised with categoryId before saving. */
+  categoryIds: z.array(z.string().uuid()).max(20, "Tối đa 20 danh mục").default([]),
   status: z.enum(["draft", "published", "archived"]),
   isNew: z.boolean().default(false),
   isFeatured: z.boolean().default(false),

@@ -41,6 +41,8 @@ export interface ProductFormInitial {
   slug: string;
   description: string;
   categoryId: string | null;
+  /** Every category the product is listed in, including the primary. */
+  categoryIds: string[];
   status: "draft" | "published" | "archived";
   isNew: boolean;
   isFeatured?: boolean;

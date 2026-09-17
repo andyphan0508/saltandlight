@@ -21,7 +21,7 @@ export const GET = async (req: NextRequest) => {
       orderBy: { name: "asc" },
       include: {
         parent: { select: { id: true, name: true, slug: true } },
-        _count: { select: { products: true } },
+        _count: { select: { taggedProducts: true } },
       },
       take: 2000,
     });
@@ -54,7 +54,7 @@ export const POST = async (req: NextRequest) => {
       },
       include: {
         parent: { select: { id: true, name: true, slug: true } },
-        _count: { select: { products: true } },
+        _count: { select: { taggedProducts: true } },
       },
     });
 

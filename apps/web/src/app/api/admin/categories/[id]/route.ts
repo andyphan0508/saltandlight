@@ -51,7 +51,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
       data: dataToUpdate,
       include: {
         parent: { select: { id: true, name: true, slug: true } },
-        _count: { select: { products: true } },
+        _count: { select: { taggedProducts: true } },
       },
     });
 
@@ -90,7 +90,9 @@ export const DELETE = async (req: NextRequest, { params }: { params: { id: strin
     if (existing._count.products > 0) {
       return NextResponse.json(
         {
-          error: `Danh mục này đang có ${existing._count.products} sản phẩm. Vui lòng chuyển các sản phẩm sang danh mục khác trước khi xóa.`,
+          // Only products whose *primary* category this is block deletion; products merely
+          // also listed here just lose this tag (the join rows cascade).
+          error: `Đây là danh mục chính của ${existing._count.products} sản phẩm. Vui lòng đổi danh mục chính của các sản phẩm đó trước khi xóa.`,
         },
         { status: 400 }
       );

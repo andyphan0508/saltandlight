@@ -40,7 +40,7 @@ export const CategoryRow = ({ category, onEdit, onDelete }: CategoryRowProps) =>
         className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-0.5 text-xs font-bold text-brand-forest hover:bg-mint-200 transition-colors"
       >
         <Package size={13} />
-        <span>{category._count?.products ?? 0}</span>
+        <span>{category._count?.taggedProducts ?? 0}</span>
       </Link>
     </td>
     <td className="py-4 pr-6 pl-4 text-right">

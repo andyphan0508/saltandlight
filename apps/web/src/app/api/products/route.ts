@@ -14,7 +14,7 @@ export const GET = async (req: NextRequest) => {
       where: {
         status: "published",
         ...(ids ? { id: { in: ids.split(",").filter(Boolean) } } : {}),
-        ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+        ...(categorySlug ? { categories: { some: { slug: categorySlug } } } : {}),
       },
       orderBy: { createdAt: "desc" },
       skip: ids ? undefined : (page - 1) * pageSize,
