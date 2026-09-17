@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { requireAdmin, AuthError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { invalidateMemoryCache } from "@/server/memory-cache";
 
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner"]);
-    const body = bodySchema.parse(await req.json());
+    const body = bodySchema.parse(await readAdminJson(req));
 
     const zone = await prisma.shippingZone.create({
       data: {

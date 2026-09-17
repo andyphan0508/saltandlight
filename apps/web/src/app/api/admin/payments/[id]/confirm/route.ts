@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, AuthError } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { sendPaymentConfirmedEmail } from "@/server/admin/email";
 
@@ -21,10 +21,12 @@ export const PATCH = async (_req: NextRequest, { params }: { params: { id: strin
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.paymentTransaction.update({
-        where: { id: params.id },
+      // A second click (or admin) finds it already confirmed and changes nothing
+      const { count } = await tx.paymentTransaction.updateMany({
+        where: { id: params.id, status: "awaiting_confirmation" },
         data: { status: "confirmed", confirmedById: admin.id, confirmedAt: new Date() },
       });
+      if (count === 0) throw new AuthError(409, "Giao dịch đã được xử lý");
       await tx.order.update({
         where: { id: payment.orderId },
         data: { status: "processing" },

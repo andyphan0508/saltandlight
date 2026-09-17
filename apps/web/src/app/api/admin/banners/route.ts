@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { invalidateMemoryCache } from "@/server/memory-cache";
 
@@ -22,7 +22,7 @@ const bannerSchema = z.object({
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json();
+    const body = await readAdminJson(req);
     const input = bannerSchema.parse(body);
 
     const banner = await prisma.banner.create({

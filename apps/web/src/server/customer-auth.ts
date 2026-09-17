@@ -36,7 +36,8 @@ export const getAuthenticatedCustomer = cache(async () => {
       },
     });
 
-    if (user.email) {
+    // Only a confirmed email may claim guest orders placed under it
+    if (user.email && user.email_confirmed_at) {
       const guestCustomers = await prisma.customer.findMany({
         where: { email: user.email, isGuest: true, authUserId: null },
         select: { id: true },

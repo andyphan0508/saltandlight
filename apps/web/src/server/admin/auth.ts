@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { createSupabaseServerClient } from "@/server/supabase-server";
+import { findScriptUrl } from "@/helpers/script-url";
 
 export class AuthError extends Error {
   constructor(public status: number, message: string) {
@@ -31,9 +32,23 @@ export const apiError = (err: unknown, fallbackMessage = "Có lỗi xảy ra") =
   return NextResponse.json({ error: fallbackMessage }, { status: 500 });
 };
 
+const ADMIN_SELECT = {
+  id: true,
+  authUserId: true,
+  email: true,
+  fullName: true,
+  role: true,
+  isActive: true,
+  createdAt: true,
+} as const;
+
 /**
  * Memoized per request: queries Supabase auth and admin_users once per HTTP request
  * even when called across layout, page, and child components.
+ *
+ * Shoppers sign in through the same Supabase project, so a Supabase user is NOT an
+ * admin. Only an admin_users row created by an owner (or scripts/bootstrap-owner)
+ * grants access; nothing here ever creates or reactivates one.
  */
 const getAuthenticatedAdmin = cache(async () => {
   const supabase = createSupabaseServerClient();
@@ -43,66 +58,14 @@ const getAuthenticatedAdmin = cache(async () => {
 
   if (!user) return null;
 
-  // 1. Try finding by authUserId
-  let admin = await prisma.adminUser.findUnique({
-    where: { authUserId: user.id },
-    select: {
-      id: true,
-      authUserId: true,
-      email: true,
-      fullName: true,
-      role: true,
-      isActive: true,
-      createdAt: true,
-    },
-  });
+  const admin = await prisma.adminUser.findUnique({ where: { authUserId: user.id }, select: ADMIN_SELECT });
+  if (admin || !user.email || !user.email_confirmed_at) return admin;
 
-  // 2. Fallback: find by email and automatically link authUserId
-  if (!admin && user.email) {
-    const byEmail = await prisma.adminUser.findUnique({
-      where: { email: user.email },
-    });
-
-    if (byEmail) {
-      admin = await prisma.adminUser.update({
-        where: { id: byEmail.id },
-        data: { authUserId: user.id, isActive: true },
-        select: {
-          id: true,
-          authUserId: true,
-          email: true,
-          fullName: true,
-          role: true,
-          isActive: true,
-          createdAt: true,
-        },
-      });
-    } else {
-      // Auto-provision owner for authenticated Supabase user
-      admin = await prisma.adminUser.upsert({
-        where: { email: user.email },
-        update: { authUserId: user.id, isActive: true },
-        create: {
-          authUserId: user.id,
-          email: user.email,
-          fullName: (user.user_metadata as any)?.full_name || user.email.split("@")[0] || "Admin",
-          role: "owner",
-          isActive: true,
-        },
-        select: {
-          id: true,
-          authUserId: true,
-          email: true,
-          fullName: true,
-          role: true,
-          isActive: true,
-          createdAt: true,
-        },
-      });
-    }
-  }
-
-  return admin;
+  // An owner invited this email before its Supabase account existed: link it once.
+  // Only an unlinked row, and isActive is left as the owner set it.
+  const invited = await prisma.adminUser.findUnique({ where: { email: user.email }, select: { id: true, authUserId: true } });
+  if (!invited || invited.authUserId) return null;
+  return prisma.adminUser.update({ where: { id: invited.id }, data: { authUserId: user.id }, select: ADMIN_SELECT });
 });
 
 /**
@@ -134,3 +97,15 @@ export const getCurrentAdminUser = cache(async () => {
   }
 });
 
+
+/**
+ * Body of an admin write. Rejects script URLs anywhere in it, so a hijacked staff
+ * account can't plant XSS on the storefront through a link field.
+ */
+export const readAdminJson = async (req: Request): Promise<unknown> => {
+  const body: unknown = await req.json().catch(() => {
+    throw new AuthError(400, "Dữ liệu không hợp lệ");
+  });
+  if (findScriptUrl(body)) throw new AuthError(400, "Đường dẫn không hợp lệ (không được dùng javascript:)");
+  return body;
+};

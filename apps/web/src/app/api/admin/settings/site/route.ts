@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { siteSettingsSchema } from "@/helpers/admin-schemas";
 import { invalidateMemoryCache } from "@/server/memory-cache";
@@ -13,7 +13,7 @@ const SETTINGS_ID = "default";
 export const PATCH = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json();
+    const body = await readAdminJson(req);
     const input = siteSettingsSchema.parse(body);
     const data = {
       ...input,

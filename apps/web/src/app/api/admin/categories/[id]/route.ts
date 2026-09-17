@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { slugify } from "@/helpers/slugify";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -18,7 +18,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
   try {
     const admin = await requireAdmin(["owner", "staff"]);
     const { id } = params;
-    const body = await req.json().catch(() => ({}));
+    const body = await readAdminJson(req);
     const input = updateCategorySchema.parse(body);
 
     const existing = await prisma.category.findUnique({ where: { id } });

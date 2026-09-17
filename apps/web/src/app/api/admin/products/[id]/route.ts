@@ -3,7 +3,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { requireAdmin, AuthError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { productInputSchema } from "@/helpers/admin-schemas";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const input = productInputSchema.parse(await req.json());
+    const input = productInputSchema.parse(await readAdminJson(req));
     const priceRange = computePriceRange(input.variants);
     const selection = normalizeCategorySelection(input.categoryId, input.categoryIds);
 

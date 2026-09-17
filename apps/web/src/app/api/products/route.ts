@@ -3,17 +3,21 @@ import { prisma } from "@saltandlight/db";
 
 export const dynamic = "force-dynamic";
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const GET = async (req: NextRequest) => {
   try {
     const ids = req.nextUrl.searchParams.get("ids");
     const categorySlug = req.nextUrl.searchParams.get("category") ?? undefined;
-    const page = Number(req.nextUrl.searchParams.get("page") ?? "1");
+    const page = Math.max(1, Math.floor(Number(req.nextUrl.searchParams.get("page"))) || 1);
     const pageSize = 24;
+    // ids come from the visitor's own wishlist / compare storage: keep only well-formed uuids, and not thousands
+    const idList = ids?.split(",").filter((id) => UUID.test(id)).slice(0, 100);
 
     const products = await prisma.product.findMany({
       where: {
         status: "published",
-        ...(ids ? { id: { in: ids.split(",").filter(Boolean) } } : {}),
+        ...(idList ? { id: { in: idList } } : {}),
         ...(categorySlug ? { categories: { some: { slug: categorySlug } } } : {}),
       },
       orderBy: { createdAt: "desc" },

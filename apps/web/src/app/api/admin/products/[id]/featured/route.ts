@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { invalidateProductCaches } from "@/server/product-cache";
 
@@ -15,7 +15,7 @@ const featuredSchema = z.object({
 export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json();
+    const body = await readAdminJson(req);
     const { isFeatured } = featuredSchema.parse(body);
 
     const product = await prisma.product.update({

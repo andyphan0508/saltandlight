@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
 import { promotionCreateSchema } from "@/helpers/admin-schemas";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest) => {
       isActive,
       productIds,
       applyPrices: shouldApplyPrices,
-    } = promotionCreateSchema.parse(await req.json());
+    } = promotionCreateSchema.parse(await readAdminJson(req));
 
     const promotion = await prisma.promotion.create({
       data: {

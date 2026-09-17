@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { requireAdmin, AuthError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { stockDirection } from "@/helpers/order-actions";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const admin = await requireAdmin();
-    const body = bodySchema.parse(await req.json());
+    const body = bodySchema.parse(await readAdminJson(req));
 
     const order = await prisma.order.findUnique({
       where: { id: params.id },
@@ -28,7 +28,9 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
     const direction = stockDirection(order.status, body.status);
 
     await prisma.$transaction(async (tx) => {
-      await tx.order.update({ where: { id: params.id }, data: { status: body.status } });
+      // Only from the status read above: a double-click or a second admin can't restock twice
+      const { count } = await tx.order.updateMany({ where: { id: params.id, status: order.status }, data: { status: body.status } });
+      if (count === 0) throw new AuthError(409, "Đơn hàng vừa được cập nhật, vui lòng tải lại trang");
       // Placing the order took this stock; cancelling gives it back (and reviving takes it again).
       // Items whose variant was deleted since have nothing to restock.
       if (body.status === "completed") {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { slugify } from "@/helpers/slugify";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -34,7 +34,7 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json().catch(() => ({}));
+    const body = await readAdminJson(req);
     const input = categorySchema.parse(body);
 
     const baseSlug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name);

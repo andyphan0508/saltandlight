@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma, Prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { invalidateMemoryCache } from "@/server/memory-cache";
 import { productGuidesSchema } from "@/helpers/product-guides";
@@ -14,7 +14,7 @@ const bodySchema = z.object({ guides: productGuidesSchema });
 export const PUT = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const { guides } = bodySchema.parse(await req.json());
+    const { guides } = bodySchema.parse(await readAdminJson(req));
     const careGuides = guides as Prisma.InputJsonValue;
 
     await prisma.siteSettings.upsert({

@@ -4,6 +4,7 @@ import { Suspense, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
+import { safeRedirectPath } from "@/helpers/safe-redirect";
 import { Mail, Lock, Eye, EyeOff, AlertTriangle } from "@/components/admin/Icons";
 
 const LoginPage = () => {
@@ -51,7 +52,7 @@ const LoginForm = () => {
       return;
     }
 
-    const nextUrl = searchParams.get("next") || "/admin/dashboard";
+    const nextUrl = safeRedirectPath(searchParams.get("next"), "/admin/dashboard");
     router.push(nextUrl);
     router.refresh();
   };

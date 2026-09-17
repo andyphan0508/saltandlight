@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { revalidatePageBlocks } from "@/server/admin/page-blocks";
 import { pageBlockReorderSchema } from "@/helpers/admin-schemas";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json();
+    const body = await readAdminJson(req);
     const { page, orderedIds } = pageBlockReorderSchema.parse(body);
 
     await prisma.$transaction(async (tx) => {

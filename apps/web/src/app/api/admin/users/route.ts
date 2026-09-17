@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { createSupabaseAdminClient } from "@/server/supabase-admin";
 import { adminPasswordSchema } from "@/helpers/admin-schemas";
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner"]);
-    const input = bodySchema.parse(await req.json());
+    const input = bodySchema.parse(await readAdminJson(req));
 
     const supabase = createSupabaseAdminClient();
     let authUserId: string | null = null;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { revalidatePageBlocks } from "@/server/admin/page-blocks";
 import { PAGE_SLUGS } from "@/helpers/admin-schemas";
@@ -11,8 +11,7 @@ export const dynamic = "force-dynamic";
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const body = await req.json();
-    const page = body.page;
+    const { page } = (await readAdminJson(req)) as { page: string };
 
     if (!PAGE_SLUGS.includes(page as never)) {
       return NextResponse.json({ error: "Trang không hợp lệ" }, { status: 400 });

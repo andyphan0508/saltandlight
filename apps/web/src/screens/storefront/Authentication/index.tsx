@@ -6,13 +6,14 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@saltandlight/ui";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
+import { safeRedirectPath } from "@/helpers/safe-redirect";
 import { useCustomer } from "@/hooks/use-customer";
 import { GoogleIcon, FacebookIcon, ArrowRight, ShieldCheck, ShoppingBag, Sparkles, Check } from "@/components/Icons";
 
 const LoginPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams?.get("next") || "/tai-khoan";
+  const next = safeRedirectPath(searchParams?.get("next"), "/tai-khoan");
   const errorParam = searchParams?.get("error");
 
   const { customer, isLoading: isAuthLoading } = useCustomer();

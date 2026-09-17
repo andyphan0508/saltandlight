@@ -8,7 +8,7 @@ export const cartItemSchema = z.object({
 });
 
 export const cartQuoteSchema = z.object({
-  items: z.array(cartItemSchema).min(1),
+  items: z.array(cartItemSchema).min(1).max(50),
   /** Vietnam province code (vn-locations.ts) the customer selected — used to price shipping by region. */
   provinceCode: z.number().int().optional(),
 });
@@ -42,20 +42,20 @@ export const createOrderSchema = z.object({
     email: z.string().email().optional().or(z.literal("")),
   }),
   shippingAddress: shippingAddressSchema,
-  items: z.array(cartItemSchema).min(1),
+  items: z.array(cartItemSchema).min(1).max(50),
   note: z.string().max(500).optional(),
   paymentMethod: z.enum(PAYMENT_METHODS).default("bank_transfer"),
 });
 
 export const trackOrderSchema = z.object({
-  orderNumber: z.string().min(4),
-  phone: z.string().min(9),
+  orderNumber: z.string().min(4).max(40),
+  phone: z.string().min(9).max(15),
 });
 
 export const contactFormSchema = z.object({
   type: z.enum(["contact", "custom_order"]).default("contact"),
   fullName: z.string().min(2).max(120),
-  phone: z.string().optional(),
+  phone: z.string().max(20).optional(),
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().min(5).max(2000),
   turnstileToken: z.string().min(1, "Vui lòng xác minh bạn không phải robot"),

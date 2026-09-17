@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import { getAuthenticatedCustomer } from "@/server/customer-auth";
+import { safeRedirectPath } from "@/helpers/safe-redirect";
 
 export const dynamic = "force-dynamic";
 
 /** Supabase OAuth (Google/Facebook) redirects here with `?code=...` after the provider login. */
 export const GET = async (req: NextRequest) => {
   const code = req.nextUrl.searchParams.get("code");
-  const next = req.nextUrl.searchParams.get("next") || "/tai-khoan";
+  const next = safeRedirectPath(req.nextUrl.searchParams.get("next"), "/tai-khoan");
 
   if (code) {
     const supabase = createSupabaseServerClient();

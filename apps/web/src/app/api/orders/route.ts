@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@saltandlight/db";
+import { prisma, Prisma } from "@saltandlight/db";
 import {
   createOrderSchema,
   pickShippingFee,
@@ -13,6 +13,10 @@ import { getAuthenticatedCustomer } from "@/server/customer-auth";
 import { recordOrderAnalytics } from "@/server/analytics/order-events";
 
 export const dynamic = "force-dynamic";
+
+class OutOfStockError extends Error {}
+
+const ORDER_ATTEMPTS = 3;
 
 export const POST = async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
@@ -78,7 +82,7 @@ export const POST = async (req: NextRequest) => {
   // another guest Customer row for the same person.
   const authenticatedCustomer = await getAuthenticatedCustomer();
 
-  const order = await prisma.$transaction(async (tx) => {
+  const placeOrder = () => prisma.$transaction(async (tx) => {
     const customerRecord = authenticatedCustomer
       ? await tx.customer.update({
           where: { id: authenticatedCustomer.id },
@@ -140,16 +144,32 @@ export const POST = async (req: NextRequest) => {
       include: { items: true },
     });
 
-    // Decrement stock for the purchased variants.
+    // Conditional decrement: two shoppers racing for the last item can't both get it,
+    // and the whole order rolls back instead of driving stock negative.
     for (const item of orderItemsInput) {
-      await tx.productVariant.update({
-        where: { id: item.productVariantId },
+      const { count } = await tx.productVariant.updateMany({
+        where: { id: item.productVariantId, stockQuantity: { gte: item.quantity } },
         data: { stockQuantity: { decrement: item.quantity } },
       });
+      if (count === 0) throw new OutOfStockError();
     }
 
     return created;
   });
+
+  let order: Awaited<ReturnType<typeof placeOrder>> | undefined;
+  for (let attempt = 1; !order; attempt++) {
+    try {
+      order = await placeOrder();
+    } catch (err) {
+      if (err instanceof OutOfStockError) {
+        return NextResponse.json({ error: "Sản phẩm vừa hết hàng, vui lòng tải lại giỏ hàng." }, { status: 409 });
+      }
+      // Another checkout took this order number in the same instant; the next attempt picks a new one
+      const isNumberTaken = err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+      if (!isNumberTaken || attempt === ORDER_ATTEMPTS) throw err;
+    }
+  }
 
   const vietqr = {
     bankBin: process.env.VIETQR_BANK_BIN ?? "",

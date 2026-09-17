@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, apiError } from "@/server/admin/auth";
+import { requireAdmin, apiError, readAdminJson } from "@/server/admin/auth";
 import { computePriceRange } from "@saltandlight/domain";
 import { promotionUpdateSchema } from "@/helpers/admin-schemas";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -24,7 +24,7 @@ export const PATCH = async (
       isActive,
       productIds,
       applyPrices: shouldApplyPrices,
-    } = promotionUpdateSchema.parse(await req.json());
+    } = promotionUpdateSchema.parse(await readAdminJson(req));
 
     const data: Record<string, unknown> = {};
     if (name !== undefined) data.name = name;

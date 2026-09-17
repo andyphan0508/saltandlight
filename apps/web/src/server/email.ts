@@ -2,6 +2,9 @@ import { Resend } from "resend";
 import { formatVND, PAYMENT_METHOD_LABELS, type PaymentMethodValue } from "@saltandlight/domain";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Salt & Light <no-reply@saltandlight.com.vn>";
 
 export const sendOrderCreatedEmail = async (opts: {
@@ -44,7 +47,7 @@ export const sendOrderCreatedEmail = async (opts: {
         subject: `🔔 Đơn hàng mới ${opts.orderNumber} — cần xử lý`,
         html: `<p><strong>Có đơn hàng mới, vui lòng vào dashboard xử lý.</strong></p>
                <p>Mã đơn hàng: <strong>${opts.orderNumber}</strong></p>
-               <p>Khách hàng: <strong>${opts.customerName}</strong> — ${opts.customerPhone}</p>
+               <p>Khách hàng: <strong>${escapeHtml(opts.customerName)}</strong> — ${escapeHtml(opts.customerPhone)}</p>
                <p>Tổng tiền: <strong>${formatVND(opts.total)}</strong> · ${PAYMENT_METHOD_LABELS[opts.paymentMethod]}</p>
                <p><a href="${adminUrl}/orders/${opts.orderId}">Mở đơn hàng trong Dashboard →</a></p>`,
       }),

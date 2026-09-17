@@ -15,10 +15,11 @@ export const PATCH = async (_req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: "Giao dịch đã được xử lý" }, { status: 409 });
     }
 
-    await prisma.paymentTransaction.update({
-      where: { id: params.id },
+    const { count } = await prisma.paymentTransaction.updateMany({
+      where: { id: params.id, status: "awaiting_confirmation" },
       data: { status: "rejected", confirmedById: admin.id, confirmedAt: new Date() },
     });
+    if (count === 0) return NextResponse.json({ error: "Giao dịch đã được xử lý" }, { status: 409 });
 
     await logAudit({
       adminUserId: admin.id,

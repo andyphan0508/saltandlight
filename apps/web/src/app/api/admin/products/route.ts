@@ -3,7 +3,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { computePriceRange } from "@saltandlight/domain";
-import { requireAdmin, AuthError, apiError } from "@/server/admin/auth";
+import { requireAdmin, AuthError, apiError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 import { productInputSchema } from "@/helpers/admin-schemas";
 import { invalidateProductCaches } from "@/server/product-cache";
@@ -28,7 +28,7 @@ export const GET = async () => {
 export const POST = async (req: NextRequest) => {
   try {
     const admin = await requireAdmin(["owner", "staff"]);
-    const input = productInputSchema.parse(await req.json());
+    const input = productInputSchema.parse(await readAdminJson(req));
     const priceRange = computePriceRange(input.variants);
     const selection = normalizeCategorySelection(input.categoryId, input.categoryIds);
 
@@ -91,7 +91,7 @@ export const DELETE = async (req: NextRequest) => {
     const admin = await requireAdmin(["owner", "staff"]);
     const { ids } = z
       .object({ ids: z.array(z.string().uuid()).min(1, "Chưa chọn sản phẩm nào").max(100) })
-      .parse(await req.json());
+      .parse(await readAdminJson(req));
 
     const products = await prisma.product.findMany({
       where: { id: { in: ids } },

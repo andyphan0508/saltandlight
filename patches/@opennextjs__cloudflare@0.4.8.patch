@@ -1,0 +1,52 @@
+diff --git a/dist/cli/templates/worker.js b/dist/cli/templates/worker.js
+index 823c28a2306d4da78d85c01c89249c0472ff58cd..43719b46606413bfa386031af8cc6095737a0ba3 100644
+--- a/dist/cli/templates/worker.js
++++ b/dist/cli/templates/worker.js
+@@ -22,10 +22,7 @@ export default {
+             const url = new URL(request.url);
+             populateProcessEnv(url, env.NEXTJS_ENV);
+             if (url.pathname === "/_next/image") {
+-                const imageUrl = url.searchParams.get("url") ?? "";
+-                return imageUrl.startsWith("/")
+-                    ? env.ASSETS.fetch(new URL(imageUrl, request.url))
+-                    : fetch(imageUrl, { cf: { cacheEverything: true } });
++                return fetchImage(url.searchParams.get("url") ?? "", request, env);
+             }
+             // The Middleware handler can return either a `Response` or a `Request`:
+             // - `Response`s should be returned early
+@@ -65,3 +62,35 @@ function populateProcessEnv(url, nextJsEnv) {
+         },
+     });
+ }
++
++/**
++ * saltandlight patch: upstream fetches ANY url here, bypassing next.config's
++ * remotePatterns — an open proxy that also serves foreign HTML from our origin.
++ * Mirrors next.config.mjs remotePatterns; keep the two in sync.
++ */
++const isAllowedImageUrl = (u) =>
++    u.protocol === "https:" &&
++    ((u.hostname.endsWith(".supabase.co") && u.pathname.startsWith("/storage/v1/object/public/")) ||
++        u.hostname === "img.vietqr.io");
++async function fetchImage(imageUrl, request, env) {
++    if (imageUrl.startsWith("/") && !imageUrl.startsWith("//")) {
++        return env.ASSETS.fetch(new URL(imageUrl, request.url));
++    }
++    let target;
++    try {
++        target = new URL(imageUrl);
++    }
++    catch {
++        return new Response("Invalid image url", { status: 400 });
++    }
++    if (!isAllowedImageUrl(target)) {
++        return new Response("Image host not allowed", { status: 400 });
++    }
++    const res = await fetch(target, { cf: { cacheEverything: true } });
++    const type = res.headers.get("content-type") ?? "";
++    // SVG can carry script, so only raster images pass
++    if (!res.ok || !type.startsWith("image/") || type.includes("svg")) {
++        return new Response("Not an image", { status: 400 });
++    }
++    return res;
++}

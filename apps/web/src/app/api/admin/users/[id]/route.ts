@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@saltandlight/db";
-import { requireAdmin, AuthError } from "@/server/admin/auth";
+import { requireAdmin, AuthError, readAdminJson } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
 
 const bodySchema = z.object({
@@ -15,7 +15,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
     if (params.id === admin.id) {
       return NextResponse.json({ error: "Không thể tự thay đổi quyền của chính mình" }, { status: 400 });
     }
-    const body = bodySchema.parse(await req.json());
+    const body = bodySchema.parse(await readAdminJson(req));
 
     await prisma.adminUser.update({ where: { id: params.id }, data: body });
     await logAudit({
