@@ -1,6 +1,6 @@
 import { summarizeProducts, summarizeSessions, type ProductFunnel, type SessionRow, type TrafficSummary } from "@/helpers/analytics/sessions";
 import { resolveWindow, toSqlDateTime, type AnalyticsRangeId, type AnalyticsWindow } from "@/helpers/analytics/ranges";
-import { withMemoryCache } from "@/server/memory-cache";
+import { invalidateMemoryCache, withMemoryCache } from "@/server/memory-cache";
 import { ANALYTICS_DATASET } from "./dataset";
 import { getOrderStats, type OrderStats } from "./orders";
 import { AnalyticsQueryError, analyticsQueryConfig, runAnalyticsSql } from "./sql";
@@ -14,6 +14,7 @@ const between = (start: Date, end: Date) =>
   `timestamp >= toDateTime('${toSqlDateTime(start)}') AND timestamp < toDateTime('${toSqlDateTime(end)}')`;
 
 // One row per session. Column positions follow the layout documented in dataset.ts.
+// Both branches of if() must share a type: doubleN columns pair with 0.0, counts with 1 / 0.
 const sessionsSql = (start: Date, end: Date) => `
 SELECT
   blob6 AS sessionId,
@@ -25,8 +26,8 @@ SELECT
   argMin(blob2, timestamp) AS landing,
   min(timestamp) AS startedAt,
   sum(if(blob1 = 'page_view', 1, 0)) AS pageViews,
-  sum(if(blob1 = 'page_leave', double3, 0)) AS totalDurationMs,
-  max(if(blob1 = 'page_leave', double4, 0)) AS maxScroll,
+  sum(if(blob1 = 'page_leave', double3, 0.0)) AS totalDurationMs,
+  max(if(blob1 = 'page_leave', double4, 0.0)) AS maxScroll,
   sum(if(blob1 = 'product_view', 1, 0)) AS productViews,
   sum(if(blob1 = 'add_to_cart', 1, 0)) AS carts,
   sum(if(blob1 = 'checkout_start', 1, 0)) AS checkouts,
@@ -34,7 +35,7 @@ SELECT
   max(_sample_interval) AS weight
 FROM ${ANALYTICS_DATASET}
 WHERE ${between(start, end)}
-GROUP BY sessionId
+GROUP BY blob6
 LIMIT ${SESSION_LIMIT}`;
 
 // One row per product per session: enough to tell viewed, carted, bought and abandoned apart.
@@ -44,13 +45,13 @@ SELECT
   argMax(blob4, timestamp) AS productName,
   blob6 AS sessionId,
   sum(if(blob1 = 'product_view', 1, 0)) AS views,
-  sum(if(blob1 = 'add_to_cart', double1, 0)) AS addedQty,
+  sum(if(blob1 = 'add_to_cart', double1, 0.0)) AS addedQty,
   sum(if(blob1 = 'add_to_cart', 1, 0)) AS adds,
-  sum(if(blob1 = 'purchase', double1, 0)) AS boughtQty,
+  sum(if(blob1 = 'purchase', double1, 0.0)) AS boughtQty,
   max(_sample_interval) AS weight
 FROM ${ANALYTICS_DATASET}
 WHERE ${between(start, end)} AND blob3 != '' AND blob16 = ''
-GROUP BY productId, sessionId
+GROUP BY blob3, blob6
 LIMIT ${SESSION_LIMIT}`;
 
 const toSessionRow = (r: Record<string, unknown>): SessionRow => ({
@@ -88,8 +89,16 @@ export type TrafficReport =
     };
 
 /** Everything the analytics page shows for a range, cached for 5 minutes per range. */
-export const getTrafficReport = (rangeId: AnalyticsRangeId): Promise<TrafficReport> =>
-  withMemoryCache(`analytics-report-${rangeId}`, CACHE_SECONDS, async () => {
+export const getTrafficReport = async (rangeId: AnalyticsRangeId): Promise<TrafficReport> => {
+  const key = `analytics-report-${rangeId}`;
+  const report = await buildReport(key, rangeId);
+  // Don't keep a failure around for 5 minutes — the next reload should retry
+  if (report.status === "error") invalidateMemoryCache(key);
+  return report;
+};
+
+const buildReport = (key: string, rangeId: AnalyticsRangeId): Promise<TrafficReport> =>
+  withMemoryCache(key, CACHE_SECONDS, async () => {
     const window = resolveWindow(rangeId);
     const [orders, previousOrders] = await Promise.all([
       getOrderStats(window.start, window.end),

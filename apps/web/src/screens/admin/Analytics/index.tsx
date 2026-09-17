@@ -51,8 +51,7 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
         ))}
       </nav>
 
-      {report.status !== "ok" && <SetupNotice reason={report.status} />}
-      {report.status === "error" && <p className="text-xs text-rose-600">Chi tiết lỗi: {report.message}</p>}
+      {report.status !== "ok" && <SetupNotice reason={report.status} message={report.status === "error" ? report.message : undefined} />}
 
       {report.status === "ok" && (
         <>
