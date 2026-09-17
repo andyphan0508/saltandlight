@@ -17,6 +17,7 @@
   },
   // Visitor analytics (admin › Thống kê truy cập). Writes are free-tier (100k/day) and never touch Postgres.
   "analytics_engine_datasets": [
-    { "binding": "ANALYTICS", "dataset": "saltandlight_events" }
+    // Dataset name is used unquoted as the SQL table name — letters, digits and underscores only
+    { "binding": "ANALYTICS_EVENT", "dataset": "sl_analytics" }
   ]
 }

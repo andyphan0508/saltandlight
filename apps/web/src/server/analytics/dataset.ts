@@ -4,12 +4,12 @@ import type { ClientEventName, ServerEventName } from "@/helpers/analytics/beaco
 declare global {
   interface CloudflareEnv {
     /** Workers Analytics Engine dataset bound in wrangler.jsonc. */
-    ANALYTICS?: { writeDataPoint(point: { indexes?: string[]; blobs?: string[]; doubles?: number[] }): void };
+    ANALYTICS_EVENT?: { writeDataPoint(point: { indexes?: string[]; blobs?: string[]; doubles?: number[] }): void };
   }
 }
 
 /** Dataset name as it appears in SQL queries — must match wrangler.jsonc. */
-export const ANALYTICS_DATASET = "saltandlight_events";
+export const ANALYTICS_DATASET = "sl_analytics";
 
 /**
  * Column layout of every data point. Analytics Engine columns are positional
@@ -77,9 +77,9 @@ const clip = (value: string | undefined, max: number) => (value ?? "").slice(0, 
  * (local dev) so callers can stay oblivious.
  */
 export const writeAnalyticsEvents = (visit: AnalyticsVisit, events: AnalyticsEvent[], network: RequestNetwork): boolean => {
-  let dataset: CloudflareEnv["ANALYTICS"];
+  let dataset: CloudflareEnv["ANALYTICS_EVENT"];
   try {
-    dataset = getCloudflareContext().env.ANALYTICS;
+    dataset = getCloudflareContext().env.ANALYTICS_EVENT;
   } catch {
     return false;
   }
