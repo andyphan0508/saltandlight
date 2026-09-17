@@ -25,14 +25,16 @@ interface ProductBuyBoxProps {
 /** Variant picker, price, quantity, wishlist and add-to-cart / buy-now for the product page. */
 export const ProductBuyBox = ({ productId, productName, variants, priceNote }: ProductBuyBoxProps) => {
   const router = useRouter();
-  const { colors, sizes, color, size, selected, setColor, setSize } = useVariantSelection(variants);
+  const { colors, sizes, color, size, selected, setColor, setSize, isSoldOut, isColorAvailable, isSizeAvailable } =
+    useVariantSelection(variants);
   const [quantity, setQuantity] = useState(1);
   const [isJustAdded, setIsJustAdded] = useState(false);
   const addToCart = useCartStore((s) => s.add);
 
   if (!selected) return null;
 
-  const isOutOfStock = selected.stockQuantity <= 0;
+  // "Hết hàng" only once every variant is gone; sold-out options are dimmed and unclickable instead
+  const isOutOfStock = isSoldOut || selected.stockQuantity <= 0;
 
   const onAddToCart = () => {
     if (isOutOfStock) return;
@@ -58,9 +60,11 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote }: P
     <div className="space-y-5 sm:space-y-6 w-full min-w-0">
       <PriceBox price={selected.price} compareAtPrice={selected.compareAtPrice} note={(priceNote ?? DEFAULT_PRICE_NOTE).trim()} />
 
-      {colors.length > 0 && <ColorOptions colors={colors} value={color} onChange={setColor} />}
+      {colors.length > 0 && (
+        <ColorOptions colors={colors} value={color} onChange={setColor} isAvailable={isColorAvailable} />
+      )}
 
-      {sizes.length > 0 && <SizeOptions sizes={sizes} value={size} onChange={setSize} />}
+      {sizes.length > 0 && <SizeOptions sizes={sizes} value={size} onChange={setSize} isAvailable={isSizeAvailable} />}
 
       <div className="w-full min-w-0">
         <div className="flex items-center justify-between text-xs text-ink/70 gap-2">
