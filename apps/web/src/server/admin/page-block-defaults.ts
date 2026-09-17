@@ -1,6 +1,12 @@
 import { prisma, type Prisma } from "@saltandlight/db";
 import type { PageBlockTypeValue } from "@/interfaces/page-block";
 import { revalidatePageBlocks } from "./page-blocks";
+import {
+  ABOUT_STORY_CONTENT,
+  CONTACT_PAGE_FORM_CONTENT,
+  CUSTOM_ORDER_FORM_CONTENT,
+  HOME_INTRO_CONTENT,
+} from "@/helpers/page-block-seeds";
 
 export interface DefaultBlockDefinition {
   type: PageBlockTypeValue;
@@ -10,6 +16,7 @@ export interface DefaultBlockDefinition {
 
 export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
   home: [
+    { type: "INTRO_STORY", content: HOME_INTRO_CONTENT },
     {
       type: "FEATURED_PRODUCTS",
       content: {
@@ -87,6 +94,7 @@ export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
         quoteRef: "Ma-thi-ơ 5:14",
       },
     },
+    { type: "INTRO_STORY", content: ABOUT_STORY_CONTENT },
     {
       type: "FEATURE_CARDS",
       content: {
@@ -133,18 +141,7 @@ export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
         subtitle: "Bạn cần tư vấn size, đặt hàng số lượng lớn cho Hội thánh, hay có bất kỳ thắc mắc nào? Đội ngũ Salt & Light luôn sẵn sàng hỗ trợ bạn.",
       },
     },
-    {
-      type: "CONTACT_INFO",
-      content: {
-        items: [
-          { icon: "Phone", label: "Hotline & Zalo Tư Vấn", value: "0847 25 2025", note: "Hỗ trợ 8h00 - 21h00 hàng ngày" },
-          { icon: "Mail", label: "Email Hỗ Trợ", value: "saltandlight.vn@gmail.com", note: "Phản hồi trong 24 giờ làm việc" },
-          { icon: "MapPin", label: "Địa Chỉ", value: "TP. Hồ Chí Minh", note: "Giao hàng toàn quốc" },
-        ],
-        quote: "Hãy siêng năng mà chớ làm biếng; phải có lòng sốt sắng; phải hầu việc Chúa.",
-        quoteRef: "Rô-ma 12:11",
-      },
-    },
+    { type: "CONTACT_FORM", content: CONTACT_PAGE_FORM_CONTENT },
     {
       type: "CTA_BANNER",
       content: {
@@ -196,6 +193,7 @@ export const PAGE_DEFAULT_BLOCKS: Record<string, DefaultBlockDefinition[]> = {
         ],
       },
     },
+    { type: "CONTACT_FORM", content: CUSTOM_ORDER_FORM_CONTENT },
   ],
   "chinh-sach": [
     {

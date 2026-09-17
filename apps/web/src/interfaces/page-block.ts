@@ -9,6 +9,8 @@ export const PAGE_BLOCK_TYPES = [
   "RICH_TEXT_SECTIONS",
   "CONTACT_INFO",
   "CTA_BANNER",
+  "CONTACT_FORM",
+  "INTRO_STORY",
 ] as const;
 
 export type PageBlockTypeValue = (typeof PAGE_BLOCK_TYPES)[number];
@@ -24,6 +26,8 @@ export const BLOCK_TYPE_LABELS: Record<PageBlockTypeValue, string> = {
   RICH_TEXT_SECTIONS: "Bài viết giới thiệu chi tiết nhiều mục",
   CONTACT_INFO: "Thông tin liên hệ (Hotline, Zalo, Địa chỉ, Email)",
   CTA_BANNER: "Khung kêu gọi đặt mua hàng ngay",
+  CONTACT_FORM: "Form liên hệ / Yêu cầu báo giá",
+  INTRO_STORY: "Đoạn giới thiệu & câu chuyện thương hiệu",
 };
 
 /** Icon keys that resolve in both the admin picker and the storefront's block renderer — keep in sync with apps/web/src/components/Icons.tsx. */

@@ -2,10 +2,12 @@
 
 import type { ComponentType } from "react";
 import type { BlockFieldsProps, PageBlockTypeValue } from "@/interfaces/page-block";
+import { ContactFormFields } from "./ContactFormFields";
 import { ContactInfoFields } from "./ContactInfoFields";
 import { CtaBannerFields } from "./CtaBannerFields";
 import { FeatureCardsFields } from "./FeatureCardsFields";
 import { FeaturedProductsFields } from "./FeaturedProductsFields";
+import { IntroStoryFields } from "./IntroStoryFields";
 import { PageHeroFields } from "./PageHeroFields";
 import { PromoCtaFields } from "./PromoCtaFields";
 import { RichTextSectionsFields } from "./RichTextSectionsFields";
@@ -25,6 +27,8 @@ const FIELDS_BY_TYPE: Record<PageBlockTypeValue, ComponentType<BlockFieldsProps>
   RICH_TEXT_SECTIONS: RichTextSectionsFields,
   CONTACT_INFO: ContactInfoFields,
   CTA_BANNER: CtaBannerFields,
+  CONTACT_FORM: ContactFormFields,
+  INTRO_STORY: IntroStoryFields,
 };
 
 /** Renders the field editor that matches a page block type. */

@@ -1,12 +1,13 @@
 
-import { HomeAboutIntro } from "./components/HomeAboutIntro";
 import { HeroSlider } from "./components/HeroSlider";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
 import { getCachedBanners, getCachedPageBlocks, listPageBlocks } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
 import type { BannerData } from "@/interfaces/catalog";
+import { HOME_INTRO_CONTENT } from "@/helpers/page-block-seeds";
 
 const DEFAULT_HOME_BLOCKS: PageBlockData[] = [
+  { id: "default-home-intro", type: "INTRO_STORY", content: HOME_INTRO_CONTENT },
   {
     id: "default-seasonal-products",
     type: "FEATURED_PRODUCTS",
@@ -93,7 +94,6 @@ const HomePage = async ({
   return (
     <div className="space-y-12 sm:space-y-20 pb-16">
       {banners.length > 0 && <HeroSlider banners={banners} />}
-      <HomeAboutIntro />
       {effectiveBlocks.map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}

@@ -178,6 +178,38 @@ const ctaBannerContentSchema = z.object({
     .min(1, "Cần có ít nhất 1 nút hành động"),
 });
 
+const contactFormContentSchema = z.object({
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề của form"),
+  formType: z.enum(["contact", "custom_order"]).default("contact"),
+  aside: z.enum(["none", "checklist", "contact_info"]).default("none"),
+  asideTitle: z.string().default(""),
+  asideItems: z.array(z.string()).max(20).default([]),
+  isHotlineShown: z.boolean().default(false),
+  contactItems: z.array(contactInfoItemSchema).max(10).default([]),
+  quote: z.string().optional(),
+  quoteRef: z.string().optional(),
+});
+
+const introStoryContentSchema = z.object({
+  palette: z.enum(["warm", "forest"]).default("warm"),
+  emblemUrl: z.string().default(""),
+  eyebrow: z.string().default(""),
+  headline: z.string().trim().min(1, "Vui lòng nhập tiêu đề của đoạn giới thiệu"),
+  body: z.string().max(5000).default(""),
+  imageUrl: z.string().default(""),
+  imageAlt: z.string().default(""),
+  buttons: z
+    .array(
+      z.object({
+        label: z.string().trim().min(1, "Vui lòng nhập chữ trên nút bấm"),
+        href: z.string().trim().min(1, "Vui lòng nhập đường dẫn liên kết"),
+        variant: z.enum(["primary", "outline"]).default("primary"),
+      }),
+    )
+    .max(4)
+    .default([]),
+});
+
 export const pageBlockContentSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("FEATURE_CARDS"), content: featureCardsContentSchema }),
   z.object({ type: z.literal("FEATURED_PRODUCTS"), content: featuredProductsContentSchema }),
@@ -189,6 +221,8 @@ export const pageBlockContentSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("RICH_TEXT_SECTIONS"), content: richTextSectionsContentSchema }),
   z.object({ type: z.literal("CONTACT_INFO"), content: contactInfoContentSchema }),
   z.object({ type: z.literal("CTA_BANNER"), content: ctaBannerContentSchema }),
+  z.object({ type: z.literal("CONTACT_FORM"), content: contactFormContentSchema }),
+  z.object({ type: z.literal("INTRO_STORY"), content: introStoryContentSchema }),
 ]);
 
 export const pageBlockCreateSchema = z.object({

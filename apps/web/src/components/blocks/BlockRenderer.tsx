@@ -7,6 +7,8 @@ import { PageHeroBlock } from "./PageHeroBlock";
 import { RichTextSectionsBlock } from "./RichTextSectionsBlock";
 import { ContactInfoBlock } from "./ContactInfoBlock";
 import { CtaBannerBlock } from "./CtaBannerBlock";
+import { ContactFormBlock } from "./ContactFormBlock";
+import { IntroStoryBlock } from "./IntroStoryBlock";
 import { LiveBlockClient } from "./LiveBlockClient";
 import { BLOCK_TYPE_LABELS } from "@/interfaces/page-block";
 
@@ -38,6 +40,10 @@ export const BlockRenderer = ({ block }: { block: PageBlockData }) => {
         return <ContactInfoBlock content={block.content} />;
       case "CTA_BANNER":
         return <CtaBannerBlock content={block.content} />;
+      case "CONTACT_FORM":
+        return <ContactFormBlock content={block.content} />;
+      case "INTRO_STORY":
+        return <IntroStoryBlock content={block.content} />;
       default:
         return null;
     }

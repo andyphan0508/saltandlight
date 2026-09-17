@@ -1,4 +1,5 @@
 import type { PageBlockTypeValue } from "@/interfaces/page-block";
+import { ABOUT_STORY_CONTENT, CONTACT_PAGE_FORM_CONTENT } from "./page-block-seeds";
 
 /** Starter content for a newly added block of each type. */
 export const defaultContent = (type: PageBlockTypeValue): Record<string, any> => {
@@ -156,6 +157,10 @@ export const defaultContent = (type: PageBlockTypeValue): Record<string, any> =>
           { label: "Đặt in theo yêu cầu", href: "/dat-theo-yeu-cau", variant: "outline" },
         ],
       };
+    case "CONTACT_FORM":
+      return structuredClone(CONTACT_PAGE_FORM_CONTENT);
+    case "INTRO_STORY":
+      return structuredClone(ABOUT_STORY_CONTENT);
   }
 };
 
@@ -175,6 +180,14 @@ export const sanitizeBlockContent = (type: PageBlockTypeValue, raw: Record<strin
           description: (c.description || "").trim(),
         })),
     }));
+  }
+  if (type === "CONTACT_FORM" && Array.isArray(content.asideItems)) {
+    content.asideItems = content.asideItems.map((item: any) => String(item).trim()).filter(Boolean);
+  }
+  if (type === "INTRO_STORY" && Array.isArray(content.buttons)) {
+    content.buttons = content.buttons
+      .map((btn: any) => ({ ...btn, label: (btn.label || "").trim(), href: (btn.href || "").trim() }))
+      .filter((btn: any) => btn.label || btn.href);
   }
   if (type === "PROMO_CTA" && Array.isArray(content.bullets)) {
     content.bullets = content.bullets.map((b: any) => String(b).trim()).filter(Boolean);
@@ -271,6 +284,24 @@ export const validateBlockContent = (type: PageBlockTypeValue, content: Record<s
         return "Vui lòng thêm ít nhất 1 nút hành động";
       }
       for (let i = 0; i < content.buttons.length; i++) {
+        const btn = content.buttons[i];
+        if (!btn.label?.trim()) return `Nút số ${i + 1} chưa có chữ hiển thị`;
+        if (!btn.href?.trim()) return `Nút số ${i + 1} chưa có đường dẫn liên kết`;
+      }
+      break;
+    case "CONTACT_FORM":
+      if (!content.headline?.trim()) return "Vui lòng nhập tiêu đề của form";
+      if (content.aside === "contact_info") {
+        for (let i = 0; i < (content.contactItems ?? []).length; i++) {
+          const it = content.contactItems[i];
+          if (!it.label?.trim()) return `Kênh liên hệ số ${i + 1} chưa có tên`;
+          if (!it.value?.trim()) return `Kênh liên hệ số ${i + 1} chưa có nội dung`;
+        }
+      }
+      break;
+    case "INTRO_STORY":
+      if (!content.headline?.trim()) return "Vui lòng nhập tiêu đề của đoạn giới thiệu";
+      for (let i = 0; i < (content.buttons ?? []).length; i++) {
         const btn = content.buttons[i];
         if (!btn.label?.trim()) return `Nút số ${i + 1} chưa có chữ hiển thị`;
         if (!btn.href?.trim()) return `Nút số ${i + 1} chưa có đường dẫn liên kết`;

@@ -376,6 +376,8 @@ enum PageBlockType {
   RICH_TEXT_SECTIONS
   CONTACT_INFO
   CTA_BANNER
+  CONTACT_FORM
+  INTRO_STORY
 }
 
 model PageBlock {
