@@ -16,7 +16,7 @@ export function calcDiscountPercent(price: number, compareAt: number | null | un
 /**
  * A product's `minPrice` / `maxCompareAtPrice` columns are a denormalized
  * cache of its active variants, recomputed here on every variant write
- * (admin product save, WooCommerce migration, seed). Keeping it in sync at
+ * (admin product save, seed). Keeping it in sync at
  * write time is what lets the storefront filter/sort/paginate the catalog
  * with a plain indexed column instead of joining every product's variants
  * on every listing request.

@@ -1,7 +1,6 @@
 # Salt & Light — monorepo
 
-React/Next.js replacement for the WordPress/WooCommerce store at
-saltandlight.com.vn. One Next.js app (storefront + admin dashboard under
+The saltandlight.com.vn store. One Next.js app (storefront + admin dashboard under
 `/admin`), one Postgres (Supabase) database, deployed as a single Cloudflare
 Worker via OpenNext.
 
@@ -21,7 +20,7 @@ packages/
   domain/   Framework-free business logic: pricing, shipping fee rule,
             VietQR URL builder, order numbering, zod schemas.
   ui/       Shared Tailwind preset + a couple of primitives (Button, Badge).
-scripts/    One-off Node scripts: WooCommerce data migration, owner bootstrap.
+scripts/    One-off Node scripts: owner bootstrap, page-block seeding, VN locations.
 supabase/   SQL to run once in the Supabase SQL editor (storage bucket).
 ```
 
@@ -44,7 +43,7 @@ check, and rate-limits every public `/api/*` route (see
 - **Wishlist / Compare are client-side (localStorage), not DB-backed** —
   guest checkout means there's no durable customer identity to hang them
   off. Product Bundles (`product_bundles` table) is a real DB feature.
-- **Payment is bank-transfer (VietQR) only** — no COD.
+- **Payment is bank transfer (VietQR) or cash on delivery (COD).**
 - **Guest checkout only** — no customer accounts; orders are looked up by
   order number + phone.
 - Everything else (data model, order status machine, shipping logic, audit
@@ -149,25 +148,6 @@ secrets — so they (and `DATABASE_URL`/`DIRECT_URL`, needed for
 **Settings → Build → Environment variables** (a separate section from the
 Worker's runtime Variables/Secrets above).
 
-## 4. Migrating data from WooCommerce
-
-```bash
-WC_BASE_URL=https://saltandlight.com.vn \
-WC_CONSUMER_KEY=ck_xxx WC_CONSUMER_SECRET=cs_xxx \
-pnpm migrate:woocommerce -- --dry-run   # inspect counts first
-
-WC_BASE_URL=... WC_CONSUMER_KEY=... WC_CONSUMER_SECRET=... \
-pnpm migrate:woocommerce                # then actually write
-```
-
-Generate the WooCommerce API key/secret in `wp-admin → WooCommerce →
-Settings → Advanced → REST API` (Read permission is enough). The script is
-idempotent (upserts by slug/order number) and writes `migration-report.json`
-listing anything that needs a human look — notably the tote-bag products,
-which were built with Elementor instead of the standard WooCommerce
-description field, so their description will come back mostly empty and
-needs to be copied over by hand.
-
 ## Notes
 
 - Prices are stored as whole VND integers (no decimals), matching how the
@@ -176,6 +156,4 @@ needs to be copied over by hand.
   model — see `saltandlight-react-migration-spec.md` §3 for the reasoning
   behind each table.
 - The admin dashboard's revenue figure only counts orders in `processing`
-  or `completed` — the original WooCommerce dashboard showed 0₫ because it
-  excluded orders stuck in "on-hold"/"processing"; this avoids repeating
-  that.
+  or `completed`.
