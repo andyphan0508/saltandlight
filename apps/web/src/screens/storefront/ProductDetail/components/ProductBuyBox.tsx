@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DEFAULT_PRICE_NOTE } from "@/helpers/product-content";
 import { useVariantSelection } from "@/hooks/use-variant-selection";
 import type { ProductVariantOption } from "@/interfaces/catalog";
 import { useCartStore } from "@/stores/cart-store";
+import { track } from "@/helpers/analytics/client";
 import { BuyActions } from "./BuyActions";
 import { ColorOptions } from "./ColorOptions";
 import { PriceBox } from "./PriceBox";
@@ -31,14 +32,28 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote }: P
   const [isJustAdded, setIsJustAdded] = useState(false);
   const addToCart = useCartStore((s) => s.add);
 
+  useEffect(() => {
+    track("product_view", { productId, productName });
+  }, [productId, productName]);
+
   if (!selected) return null;
 
   // "Hết hàng" only once every variant is gone; sold-out options are dimmed and unclickable instead
   const isOutOfStock = isSoldOut || selected.stockQuantity <= 0;
 
+  const trackAddToCart = () =>
+    track("add_to_cart", {
+      productId,
+      productName,
+      variant: [selected.color, selected.size].filter(Boolean).join(" / "),
+      quantity,
+      amount: selected.price * quantity,
+    });
+
   const onAddToCart = () => {
     if (isOutOfStock) return;
     addToCart(selected.id, quantity);
+    trackAddToCart();
     setIsJustAdded(true);
     setTimeout(() => setIsJustAdded(false), 2200);
 
@@ -53,6 +68,7 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote }: P
   const onBuyNow = () => {
     if (isOutOfStock) return;
     addToCart(selected.id, quantity);
+    trackAddToCart();
     router.push("/thanh-toan");
   };
 

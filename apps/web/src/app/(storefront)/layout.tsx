@@ -6,6 +6,8 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
 import { ContactInfoProvider } from "@/components/ContactInfoProvider";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { Suspense } from "react";
 import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { NavigationBuffer } from "@/components/NavigationBuffer";
 import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/server/queries";
@@ -46,6 +48,10 @@ const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => 
       <MobileDrawer categories={navCategories} siteSettings={siteSettings} />
       <SearchSpotlight />
       <CartFab />
+      {/* useSearchParams needs a Suspense boundary so it doesn't opt the whole layout out of static rendering */}
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </ContactInfoProvider>
   );
 };

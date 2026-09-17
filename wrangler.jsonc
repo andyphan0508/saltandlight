@@ -14,5 +14,9 @@
   "assets": {
     "directory": "apps/web/.open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // Visitor analytics (admin › Thống kê truy cập). Writes are free-tier (100k/day) and never touch Postgres.
+  "analytics_engine_datasets": [
+    { "binding": "ANALYTICS", "dataset": "saltandlight_events" }
+  ]
 }

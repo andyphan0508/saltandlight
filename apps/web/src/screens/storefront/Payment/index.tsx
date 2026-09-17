@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@saltandlight/ui";
 import { formatVND, type PaymentMethodValue } from "@saltandlight/domain";
 import { useCheckoutQuote } from "@/hooks/use-checkout-quote";
 import { useCartStore } from "@/stores/cart-store";
+import { track } from "@/helpers/analytics/client";
 import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import { CheckoutHeader } from "./components/CheckoutHeader";
 import { CheckoutLoading } from "./components/CheckoutLoading";
@@ -32,6 +33,14 @@ export const CheckoutView = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const quote = useCheckoutQuote(cartLines, location.provinceCode);
+  const hasTrackedCheckout = useRef(false);
+
+  // Once per visit to checkout, as soon as the cart is known to be non-empty
+  useEffect(() => {
+    if (!isHydrated || cartLines.length === 0 || hasTrackedCheckout.current) return;
+    hasTrackedCheckout.current = true;
+    track("checkout_start", { quantity: cartLines.reduce((sum, line) => sum + line.quantity, 0) });
+  }, [isHydrated, cartLines]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -148,6 +148,12 @@ export const middleware = async (req: NextRequest) => {
     return response;
   }
 
+  // ponytail: the analytics beacon skips the Upstash limiter — every page view would cost a
+  // Redis command. Abuse is bounded by payload validation and Analytics Engine's daily write
+  // cap (writes past it are dropped, never billed on the free plan). Add a per-isolate
+  // counter here if junk traffic ever shows up in the dashboard.
+  if (path === "/api/t") return NextResponse.next();
+
   // 2. Handle Storefront API + Auth Callback Rate-Limiting
   if (path.startsWith("/api/") || path.startsWith("/auth/")) {
     try {

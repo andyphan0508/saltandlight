@@ -10,6 +10,7 @@ import {
 } from "@saltandlight/domain";
 import { sendOrderCreatedEmail } from "@/server/email";
 import { getAuthenticatedCustomer } from "@/server/customer-auth";
+import { recordOrderAnalytics } from "@/server/analytics/order-events";
 
 export const dynamic = "force-dynamic";
 
@@ -160,6 +161,17 @@ export const POST = async (req: NextRequest) => {
     !isCod && vietqr.bankBin && vietqr.accountNo
       ? buildVietQrUrl(vietqr, { amount: total, addInfo: transferContent })
       : null;
+
+  recordOrderAnalytics(req, {
+    total,
+    items: orderItemsInput.map((item) => ({
+      productId: item.productId,
+      productName: item.productNameSnapshot,
+      variant: [item.color, item.size].filter(Boolean).join(" / "),
+      quantity: item.quantity,
+      amount: Number(item.unitPrice) * item.quantity,
+    })),
+  });
 
   try {
     await sendOrderCreatedEmail({

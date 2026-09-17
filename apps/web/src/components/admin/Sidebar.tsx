@@ -22,6 +22,7 @@ import {
   Globe,
   MessageSquare,
   BookOpen,
+  TrendingUp,
 } from "./Icons";
 
 const NAV_GROUPS: {
@@ -37,6 +38,7 @@ const NAV_GROUPS: {
     label: "Tổng quan",
     items: [
       { href: "/admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { href: "/admin/analytics", label: "Thống kê truy cập", icon: TrendingUp },
       { href: "/admin/editor", label: "Editor", icon: Sparkles, badge: "Live" },
     ],
   },
