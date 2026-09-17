@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@saltandlight/ui";
 import { formatVND, ORDER_STATUS_LABELS, type OrderStatusValue } from "@saltandlight/domain";
 import { Truck, Check } from "@/components/Icons";
+import { EmailLink, HotlineLink } from "@/components/ContactInfoProvider";
 import { STOREFRONT_ORDER_STATUS_CLASS as STATUS_BG } from "@/helpers/order-status-styles";
 
 interface OrderResult {
@@ -173,8 +174,8 @@ export const TrackOrderView = () => {
       <div className="rounded-3xl bg-mint-50/70 p-6 border border-mint-200 text-center text-xs text-ink/70">
         <p className="font-bold text-ink">Bạn cần trợ giúp hoặc thay đổi thông tin giao hàng?</p>
         <p className="mt-1">
-          Liên hệ ngay hotline/Zalo <strong>0847 25 2025</strong> hoặc gửi email về{" "}
-          <strong>saltandlight.lienhe@gmail.com</strong>
+          Liên hệ ngay hotline/Zalo <HotlineLink className="font-bold text-ink hover:underline" /> hoặc gửi email về{" "}
+          <EmailLink className="font-bold text-ink hover:underline" />
         </p>
       </div>
     </div>

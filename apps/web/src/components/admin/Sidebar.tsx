@@ -58,7 +58,7 @@ const NAV_GROUPS: {
       { href: "/admin/contacts", label: "Yêu cầu liên hệ", icon: MessageSquare },
       { href: "/admin/customers", label: "Khách hàng", icon: Users },
       { href: "/admin/settings/payment", label: "Cài đặt thanh toán", icon: Wallet },
-      { href: "/admin/settings/site", label: "Header & Footer", icon: Globe },
+      { href: "/admin/settings/site", label: "Liên hệ, Header & Footer", icon: Globe },
     ],
   },
 ];

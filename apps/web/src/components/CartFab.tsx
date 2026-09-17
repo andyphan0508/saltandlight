@@ -5,12 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { useStoreHydrated } from "@/stores/use-store-hydrated";
-import type { SiteSettingsData } from "@/interfaces/site-settings";
+import { useContactInfo } from "./ContactInfoProvider";
 import { ShoppingBag, Phone, ZaloIcon } from "./Icons";
-
-export interface CartFabProps {
-  siteSettings?: SiteSettingsData;
-}
 
 /**
  * Universal Floating Action Buttons (FAB) group:
@@ -21,11 +17,12 @@ export interface CartFabProps {
  * Positioned cleanly in the bottom-right corner, floating above the mobile BottomTabBar,
  * with smooth micro-interactions, responsive labels on desktop hover, and direct routing.
  */
-export const CartFab = ({ siteSettings }: CartFabProps) => {
+export const CartFab = () => {
   const pathname = usePathname();
   const isCartHydrated = useStoreHydrated(useCartStore);
   const cartCount = useCartStore((s) => (isCartHydrated ? s.lines.reduce((sum, l) => sum + l.quantity, 0) : 0));
   const [isBumping, setIsBumping] = useState(false);
+  const { phone: rawPhone, telHref: telLink, zaloHref: zaloLink } = useContactInfo();
 
   // Trigger subtle pop/bump animation whenever cart count increments
   useEffect(() => {
@@ -43,66 +40,52 @@ export const CartFab = ({ siteSettings }: CartFabProps) => {
   const isCartPage = pathname === "/gio-hang";
   const isCheckoutPage = pathname === "/thanh-toan";
 
-  // Derive normalized phone number and routing links
-  const rawPhone = siteSettings?.footerPhone || "0847 25 2025";
-  const digitsOnly = rawPhone.replace(/\D/g, "");
-  const localPhone =
-    digitsOnly.startsWith("84") && digitsOnly.length === 11
-      ? `0${digitsOnly.slice(2)}`
-      : digitsOnly.startsWith("0")
-      ? digitsOnly
-      : `0${digitsOnly || "847252025"}`;
-
-  const telLink = `tel:${localPhone}`;
-
-  // Check if siteSettings has an explicit Zalo URL configured
-  const customZaloUrl = siteSettings?.footerSocialLinks?.find(
-    (s) => s.platform.toLowerCase() === "zalo"
-  )?.url;
-  const zaloLink = customZaloUrl || `https://zalo.me/${localPhone}`;
-
   return (
     <div
       className="fixed z-40 right-3.5 bottom-20 sm:right-6 sm:bottom-24 lg:right-8 lg:bottom-8 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none"
       aria-label="Cụm nút hỗ trợ và giỏ hàng"
     >
       {/* 1. Phone / Hotline FAB */}
-      <a
-        href={telLink}
-        aria-label={`Gọi hotline tư vấn: ${rawPhone}`}
-        title={`Hotline tư vấn: ${rawPhone}`}
-        className="pointer-events-auto group relative flex items-center gap-2 rounded-full bg-emerald-600 text-white shadow-xl transition-all duration-300 active-press
-          p-2.5 sm:p-3 lg:px-3.5 lg:py-3
-          hover:bg-emerald-700 hover:shadow-emerald-600/30 hover:ring-4 hover:ring-emerald-500/25 animate-pop-in"
-      >
-        {/* Subtle pulsing halo */}
-        <span className="absolute -inset-0.5 rounded-full bg-emerald-400 opacity-30 animate-ping pointer-events-none" />
-        <span className="relative flex items-center justify-center">
-          <Phone size={20} className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
-        </span>
-        <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-bold uppercase tracking-wider opacity-0 transition-all duration-300 lg:group-hover:max-w-[12rem] lg:group-hover:opacity-100 lg:group-hover:pr-1">
-          Gọi: {rawPhone}
-        </span>
-      </a>
+      {telLink && (
+        <a
+          href={telLink}
+          aria-label={`Gọi hotline tư vấn: ${rawPhone}`}
+          title={`Hotline tư vấn: ${rawPhone}`}
+          className="pointer-events-auto group relative flex items-center gap-2 rounded-full bg-emerald-600 text-white shadow-xl transition-all duration-300 active-press
+            p-2.5 sm:p-3 lg:px-3.5 lg:py-3
+            hover:bg-emerald-700 hover:shadow-emerald-600/30 hover:ring-4 hover:ring-emerald-500/25 animate-pop-in"
+        >
+          {/* Subtle pulsing halo */}
+          <span className="absolute -inset-0.5 rounded-full bg-emerald-400 opacity-30 animate-ping pointer-events-none" />
+          <span className="relative flex items-center justify-center">
+            <Phone size={20} className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+          </span>
+          <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-bold uppercase tracking-wider opacity-0 transition-all duration-300 lg:group-hover:max-w-[12rem] lg:group-hover:opacity-100 lg:group-hover:pr-1">
+            Gọi: {rawPhone}
+          </span>
+        </a>
+      )}
 
       {/* 2. Zalo Chat FAB */}
-      <a
-        href={zaloLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Nhắn tin Zalo tư vấn: ${rawPhone}`}
-        title="Nhắn tin Zalo tư vấn"
-        className="pointer-events-auto group relative flex items-center gap-2 rounded-full bg-[#0068FF] text-white shadow-xl transition-all duration-300 active-press
-          p-2.5 sm:p-3 lg:px-3.5 lg:py-3
-          hover:bg-[#0055d6] hover:shadow-blue-500/30 hover:ring-4 hover:ring-blue-400/25 animate-pop-in"
-      >
-        <span className="relative flex items-center justify-center">
-          <ZaloIcon size={20} className="transition-transform duration-300 group-hover:scale-110" />
-        </span>
-        <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-bold uppercase tracking-wider opacity-0 transition-all duration-300 lg:group-hover:max-w-[8rem] lg:group-hover:opacity-100 lg:group-hover:pr-1">
-          Chat Zalo
-        </span>
-      </a>
+      {zaloLink && (
+        <a
+          href={zaloLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Nhắn tin Zalo tư vấn: ${rawPhone}`}
+          title="Nhắn tin Zalo tư vấn"
+          className="pointer-events-auto group relative flex items-center gap-2 rounded-full bg-[#0068FF] text-white shadow-xl transition-all duration-300 active-press
+            p-2.5 sm:p-3 lg:px-3.5 lg:py-3
+            hover:bg-[#0055d6] hover:shadow-blue-500/30 hover:ring-4 hover:ring-blue-400/25 animate-pop-in"
+        >
+          <span className="relative flex items-center justify-center">
+            <ZaloIcon size={20} className="transition-transform duration-300 group-hover:scale-110" />
+          </span>
+          <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-bold uppercase tracking-wider opacity-0 transition-all duration-300 lg:group-hover:max-w-[8rem] lg:group-hover:opacity-100 lg:group-hover:pr-1">
+            Chat Zalo
+          </span>
+        </a>
+      )}
 
       {/* 3. Shopping Cart FAB (Hidden when on cart or checkout pages) */}
       {!isCartPage && !isCheckoutPage && (

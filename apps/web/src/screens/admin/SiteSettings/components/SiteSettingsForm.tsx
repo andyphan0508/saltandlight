@@ -7,14 +7,17 @@ import { toast } from "sonner";
 import { adminFetch } from "@/api/admin-fetch";
 import { CheckCircle } from "@/components/admin/Icons";
 import type { SiteSettingsData } from "@/interfaces/site-settings";
+import { ContactPreview } from "./ContactPreview";
+import { ContactSettingsPanel } from "./ContactSettingsPanel";
 import { FooterPreview } from "./FooterPreview";
 import { FooterSettingsPanel } from "./FooterSettingsPanel";
 import { HeaderPreview } from "./HeaderPreview";
 import { HeaderSettingsPanel } from "./HeaderSettingsPanel";
 
-type SettingsTab = "header" | "footer";
+type SettingsTab = "header" | "footer" | "contact";
 
 const TABS: { id: SettingsTab; label: string }[] = [
+  { id: "contact", label: "Liên hệ" },
   { id: "header", label: "Header & Logo" },
   { id: "footer", label: "Footer" },
 ];
@@ -38,7 +41,7 @@ export const SiteSettingsForm = ({ initialSettings }: { initialSettings: SiteSet
         method: "PATCH",
         body: { ...settings, faviconUrl: settings.faviconUrl?.trim() || null },
       });
-      toast.success("Đã lưu cài đặt Header & Footer!");
+      toast.success("Đã lưu cài đặt website!");
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Có lỗi xảy ra";
@@ -70,11 +73,9 @@ export const SiteSettingsForm = ({ initialSettings }: { initialSettings: SiteSet
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
-          {tab === "header" ? (
-            <HeaderSettingsPanel settings={settings} onPatch={onPatch} />
-          ) : (
-            <FooterSettingsPanel settings={settings} onPatch={onPatch} />
-          )}
+          {tab === "contact" && <ContactSettingsPanel settings={settings} onPatch={onPatch} />}
+          {tab === "header" && <HeaderSettingsPanel settings={settings} onPatch={onPatch} />}
+          {tab === "footer" && <FooterSettingsPanel settings={settings} onPatch={onPatch} />}
 
           <div className="flex justify-end">
             <Button
@@ -91,7 +92,9 @@ export const SiteSettingsForm = ({ initialSettings }: { initialSettings: SiteSet
         <div className="lg:sticky lg:top-6 lg:self-start">
           <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Xem trước trực tiếp</div>
           <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-cream shadow-xs">
-            {tab === "header" ? <HeaderPreview settings={settings} /> : <FooterPreview settings={settings} />}
+            {tab === "contact" && <ContactPreview settings={settings} />}
+            {tab === "header" && <HeaderPreview settings={settings} />}
+            {tab === "footer" && <FooterPreview settings={settings} />}
           </div>
         </div>
       </div>

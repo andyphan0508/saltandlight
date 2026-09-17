@@ -32,22 +32,9 @@ export const FooterSettingsPanel = ({ settings, onPatch }: FooterSettingsPanelPr
       />
     </div>
 
-    <div className={`${cardClass} space-y-4`}>
-      <div>
-        <h3 className="text-sm font-bold text-ink">Thông tin liên hệ &amp; Hotline</h3>
-        <p className="text-xs text-slate-500 mt-1">
-          Số điện thoại này sẽ tự động đồng bộ trên thanh Header, Footer, Menu di động và cụm nút nổi FAB (Hotline/Zalo).
-        </p>
-      </div>
-      <TextField
-        label="Số điện thoại Hotline / Liên hệ"
-        value={settings.footerPhone}
-        onChange={(footerPhone) => onPatch({ footerPhone })}
-        placeholder="0847 25 2025"
-      />
-      <TextField label="Địa chỉ" value={settings.footerAddress} onChange={(footerAddress) => onPatch({ footerAddress })} />
-      <TextField label="Email" value={settings.footerEmail} onChange={(footerEmail) => onPatch({ footerEmail })} />
-    </div>
+    <p className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
+      Hotline, Zalo, email và địa chỉ được chỉnh ở tab <strong>Liên hệ</strong>.
+    </p>
 
     <div className={cardClass}>
       <ArrayEditor

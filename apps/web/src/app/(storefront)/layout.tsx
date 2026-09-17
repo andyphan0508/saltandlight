@@ -5,6 +5,7 @@ import { BottomTabBar } from "@/components/BottomTabBar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchSpotlight } from "@/components/SearchSpotlight";
 import { CartFab } from "@/components/CartFab";
+import { ContactInfoProvider } from "@/components/ContactInfoProvider";
 import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { NavigationBuffer } from "@/components/NavigationBuffer";
 import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/server/queries";
@@ -26,7 +27,7 @@ const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => 
   }
 
   return (
-    <>
+    <ContactInfoProvider siteSettings={siteSettings}>
       <Toaster
         richColors
         position="top-center"
@@ -44,8 +45,8 @@ const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => 
       <BottomTabBar />
       <MobileDrawer categories={navCategories} siteSettings={siteSettings} />
       <SearchSpotlight />
-      <CartFab siteSettings={siteSettings} />
-    </>
+      <CartFab />
+    </ContactInfoProvider>
   );
 };
 

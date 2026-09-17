@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
 import { Check, Copy, ShieldCheck, Phone, CrossIcon } from "@/components/Icons";
+import { HotlineLink } from "@/components/ContactInfoProvider";
 
 export interface PaymentSettingsProps {
   qrImageUrl: string | null;
@@ -171,7 +172,7 @@ export const OrderConfirmationContent = ({
 
       <div className="pt-4 text-xs text-ink/50 flex items-center justify-center gap-2">
         <Phone size={14} />
-        <span>Cần hỗ trợ gấp? Gọi ngay hotline <strong>0847 25 2025</strong></span>
+        <span>Cần hỗ trợ gấp? Gọi ngay hotline <HotlineLink className="font-bold text-ink hover:underline" /></span>
       </div>
     </div>
   );

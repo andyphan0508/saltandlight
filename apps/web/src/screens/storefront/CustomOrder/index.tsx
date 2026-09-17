@@ -1,5 +1,6 @@
 import { ContactForm } from "@/components/ContactForm";
 import { Check, Phone } from "@/components/Icons";
+import { HotlineLink } from "@/components/ContactInfoProvider";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
 import { getCachedPageBlocks, listPageBlocks } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
@@ -106,7 +107,7 @@ const CustomOrderPage = async ({
 
             <div className="border-t border-ink/10 pt-4 flex items-center gap-2 text-xs text-brand-forest font-bold">
               <Phone size={16} />
-              <span>Tư vấn trực tiếp: 0847 25 2025</span>
+              <span>Tư vấn trực tiếp: <HotlineLink className="hover:underline" /></span>
             </div>
           </div>
         </div>

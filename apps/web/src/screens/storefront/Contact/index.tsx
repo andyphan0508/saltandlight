@@ -1,3 +1,4 @@
+import { EmailLink, HotlineLink } from "@/components/ContactInfoProvider";
 import { ContactForm } from "@/components/ContactForm";
 import { BlockRenderer, type PageBlockData } from "@/components/blocks/BlockRenderer";
 import { getCachedPageBlocks, listPageBlocks } from "@/server/queries";
@@ -60,24 +61,14 @@ const ContactPage = async ({
                   <span className="font-bold uppercase tracking-wider text-ink/50 text-[10px] block">
                     Hotline &amp; Zalo Tư Vấn
                   </span>
-                  <a
-                    href="tel:0847252025"
-                    className="text-sm font-bold text-brand-forest hover:underline block"
-                  >
-                    0847 25 2025
-                  </a>
+                  <HotlineLink className="text-sm font-bold text-brand-forest hover:underline block" />
                 </div>
 
                 <div className="space-y-1">
                   <span className="font-bold uppercase tracking-wider text-ink/50 text-[10px] block">
                     Email Hỗ Trợ
                   </span>
-                  <a
-                    href="mailto:saltandlight.vn@gmail.com"
-                    className="font-bold text-ink hover:underline block"
-                  >
-                    saltandlight.vn@gmail.com
-                  </a>
+                  <EmailLink className="font-bold text-ink hover:underline block" />
                 </div>
 
                 <div className="space-y-1">
