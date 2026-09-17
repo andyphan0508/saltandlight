@@ -35,8 +35,6 @@ export const beaconSchema = z.object({
   events: z.array(analyticsEventSchema).min(1).max(30),
 });
 
-export type BeaconPayload = z.infer<typeof beaconSchema>;
-
 /** Cookie names shared by the browser tracker and the order API. */
 export const VISITOR_COOKIE = "sl_vid";
 export const SESSION_COOKIE = "sl_ses";

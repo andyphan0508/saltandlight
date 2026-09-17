@@ -191,5 +191,3 @@ export const NavigationBuffer = () => {
     </Suspense>
   );
 };
-
-export default NavigationBuffer;

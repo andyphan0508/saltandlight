@@ -193,14 +193,6 @@ export const Tag = base(
   </>,
 );
 
-export const Percent = base(
-  <>
-    <line x1="19" x2="5" y1="5" y2="19" />
-    <circle cx="6.5" cy="6.5" r="2.5" />
-    <circle cx="17.5" cy="17.5" r="2.5" />
-  </>,
-);
-
 export const TrendingUp = base(
   <>
     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
@@ -275,13 +267,6 @@ export const ImageOff = base(
     <line x1="18" x2="21" y1="12" y2="15" />
     <path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59" />
     <path d="M21 15V5a2 2 0 0 0-2-2H9" />
-  </>,
-);
-
-export const Bell = base(
-  <>
-    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
   </>,
 );
 
@@ -452,14 +437,6 @@ export const BookOpen = base(
   </>,
 );
 
-export const Lightbulb = base(
-  <>
-    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-    <path d="M9 18h6" />
-    <path d="M10 22h4" />
-  </>,
-);
-
 export const Monitor = base(
   <>
     <rect width="20" height="14" x="2" y="3" rx="2" />
@@ -524,7 +501,4 @@ export const MapPin = base(
     <circle cx="12" cy="10" r="3" />
   </>,
 );
-
-
-
 

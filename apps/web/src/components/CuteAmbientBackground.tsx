@@ -135,5 +135,3 @@ export const CuteAmbientBackground = () => {
     </div>
   );
 };
-
-export default CuteAmbientBackground;
