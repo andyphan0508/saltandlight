@@ -1,9 +1,14 @@
-// Next.js's client router keeps a `parallelRoutes` Map per route-tree node in
-// memory. After a tab is frozen in the browser's back-forward cache (bfcache)
-// for a while and then restored, that tree can come back stale/torn — any
-// navigation then throws reading `.parallelRoutes` off a null node. A soft
-// reset() re-renders the same broken router, so only a full reload recovers.
-const ROUTER_CORRUPTION_PATTERN = /parallelRoutes|missing bootstrap script/i;
+// Errors a soft reset() can't recover from, because it re-renders the same
+// broken client state — only a full reload does:
+// - `parallelRoutes` / missing bootstrap script: a router tree restored stale
+//   from the back-forward cache.
+// - "Connection closed" and reading `get` off null: the RSC payload stream for
+//   a navigation was cut mid-flight (Cloudflare terminating a Worker isolate
+//   that went over its CPU limit kills every request in it), leaving the
+//   router with a half-applied tree.
+// - Chunk load failures: the tab still runs the previous deploy's JS.
+const ROUTER_CORRUPTION_PATTERN =
+  /parallelRoutes|missing bootstrap script|connection closed|reading 'get'|failed to fetch rsc payload|chunkloaderror|loading chunk [\w-]+ failed/i;
 
 export const isRouterCorruptionError = (message: string | undefined | null): boolean => {
   return ROUTER_CORRUPTION_PATTERN.test(message || "");
@@ -54,5 +59,33 @@ export const resetRetryBuffer = (key?: string): void => {
     retryBufferMap.delete(key);
   } else {
     retryBufferMap.clear();
+  }
+};
+
+const AUTO_RELOAD_KEY = "sl-auto-reloads";
+const AUTO_RELOAD_WINDOW_MS = 60_000;
+export const MAX_AUTO_RELOADS = 2;
+
+/**
+ * Whether another automatic full reload is allowed, given the timestamps of
+ * recent ones. Caps reloads so a real, persistent error shows the error page
+ * instead of reloading forever. Pure — the caller persists `history`.
+ */
+export const nextAutoReload = (previous: number[], now: number) => {
+  const recent = previous.filter((t) => now - t < AUTO_RELOAD_WINDOW_MS);
+  const isAllowed = recent.length < MAX_AUTO_RELOADS;
+  return { isAllowed, history: isAllowed ? [...recent, now] : recent };
+};
+
+/** Records and permits an automatic reload, remembered across the reload in sessionStorage. */
+export const claimAutoReload = (): boolean => {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(AUTO_RELOAD_KEY) || "[]");
+    const { isAllowed, history } = nextAutoReload(Array.isArray(stored) ? stored : [], Date.now());
+    sessionStorage.setItem(AUTO_RELOAD_KEY, JSON.stringify(history));
+    return isAllowed;
+  } catch {
+    // Storage blocked: the history can't survive a reload, so allow none rather than risk a loop
+    return false;
   }
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  claimAutoReload,
   getRetryBufferState,
   isRouterCorruptionError,
   MAX_RETRY_ATTEMPTS,
@@ -13,16 +14,19 @@ import {
  */
 export const useErrorRecovery = (error: Error, reset: () => void, bufferKey: string) => {
   const isRouterCorrupted = isRouterCorruptionError(error?.message);
+  // Decided once per mount: a reload is only claimed if the recent-reload cap allows it
+  const [willReload] = useState(() => isRouterCorrupted && typeof window !== "undefined" && claimAutoReload());
   const [bufferState] = useState(() =>
     isRouterCorrupted ? { shouldRetry: false, attempt: 0, delayMs: 0 } : getRetryBufferState(bufferKey),
   );
 
   useEffect(() => {
     console.error(error);
-    if (isRouterCorrupted) {
+    if (willReload) {
       const timer = setTimeout(() => window.location.reload(), 400);
       return () => clearTimeout(timer);
     }
+    if (isRouterCorrupted) return; // reload cap reached: show the error page instead of looping
     if (!bufferState.shouldRetry) return;
     const timer = setTimeout(() => {
       // Last attempt in the buffer: reload to clear stale Worker/browser state
@@ -30,7 +34,7 @@ export const useErrorRecovery = (error: Error, reset: () => void, bufferKey: str
       else reset();
     }, bufferState.delayMs);
     return () => clearTimeout(timer);
-  }, [error, isRouterCorrupted, bufferState, reset]);
+  }, [error, isRouterCorrupted, willReload, bufferState, reset]);
 
   const onRetry = () => {
     resetRetryBuffer(bufferKey);
@@ -42,5 +46,6 @@ export const useErrorRecovery = (error: Error, reset: () => void, bufferKey: str
     window.location.reload();
   };
 
-  return { isRetrying: bufferState.shouldRetry, onRetry, onReload };
+  // A pending automatic reload looks like loading, not like an error
+  return { isRetrying: bufferState.shouldRetry || willReload, onRetry, onReload };
 };
