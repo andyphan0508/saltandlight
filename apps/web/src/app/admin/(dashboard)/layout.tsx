@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentAdminUser } from "@/server/admin/auth";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { OrderInboxFab } from "@/components/admin/OrderInboxFab";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
           </div>
         </main>
       </div>
+      <OrderInboxFab />
     </div>
   );
 };

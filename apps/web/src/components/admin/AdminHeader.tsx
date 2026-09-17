@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
 import { SITE_URL } from "@/helpers/site-url";
-import { Search, ExternalLink, Plus, Bell, ChevronDown, LogOut, KeyRound } from "./Icons";
+import { Search, ExternalLink, Plus, ChevronDown, LogOut, KeyRound } from "./Icons";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
 export const AdminHeader = ({
@@ -126,18 +126,6 @@ export const AdminHeader = ({
           <Plus size={14} />
           <span className="hidden sm:inline">Thêm sản phẩm</span>
         </Link>
-
-        {/* Notifications */}
-        <div className="relative">
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-ink transition-colors"
-            aria-label="Thông báo"
-          >
-            <Bell size={17} />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
-          </button>
-        </div>
 
         <div className="h-5 w-px bg-slate-200" />
 

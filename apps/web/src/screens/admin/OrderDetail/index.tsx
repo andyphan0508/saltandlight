@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { formatVND } from "@saltandlight/domain";
 import { OrderStatusForm } from "./components/OrderStatusForm";
+import { OrderActions } from "./components/OrderActions";
 import { BackLink } from "@/components/admin/BackLink";
 import { Package, History, Users, Truck } from "@/components/admin/Icons";
 import { ADMIN_ORDER_STATUS as STATUS_META } from "@/helpers/order-status-styles";
@@ -117,8 +118,22 @@ const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
             )}
           </Section>
 
-          <Section title="Cập nhật trạng thái">
-            <OrderStatusForm orderId={order.id} currentStatus={order.status} />
+          <Section title="Xử lý đơn hàng">
+            <OrderActions
+              orderId={order.id}
+              orderNumber={order.orderNumber}
+              status={order.status}
+              awaitingPaymentId={order.payments.find((p) => p.status === "awaiting_confirmation")?.id ?? null}
+              customerPhone={order.customer.phone}
+            />
+            <details className="mt-4 border-t border-ink/10 pt-3">
+              <summary className="cursor-pointer text-xs font-bold text-slate-500 hover:text-ink">
+                Đổi sang trạng thái khác / thêm ghi chú
+              </summary>
+              <div className="mt-3">
+                <OrderStatusForm orderId={order.id} currentStatus={order.status} />
+              </div>
+            </details>
           </Section>
         </div>
       </div>

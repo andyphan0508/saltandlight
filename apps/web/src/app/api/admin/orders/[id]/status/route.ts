@@ -4,6 +4,8 @@ import { z } from "zod";
 import { prisma } from "@saltandlight/db";
 import { requireAdmin, AuthError } from "@/server/admin/auth";
 import { logAudit } from "@/server/admin/audit";
+import { stockDirection } from "@/helpers/order-actions";
+import { invalidateProductCaches } from "@/server/product-cache";
 
 const bodySchema = z.object({
   status: z.enum(["pending_payment", "processing", "on_hold", "completed", "cancelled", "refunded"]),
@@ -17,11 +19,27 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
     const admin = await requireAdmin();
     const body = bodySchema.parse(await req.json());
 
-    const order = await prisma.order.findUnique({ where: { id: params.id } });
+    const order = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: { items: { select: { productVariantId: true, quantity: true } } },
+    });
     if (!order) return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
+
+    const direction = stockDirection(order.status, body.status);
 
     await prisma.$transaction(async (tx) => {
       await tx.order.update({ where: { id: params.id }, data: { status: body.status } });
+      // Placing the order took this stock; cancelling gives it back (and reviving takes it again).
+      // Items whose variant was deleted since have nothing to restock.
+      if (direction !== 0) {
+        for (const item of order.items) {
+          if (!item.productVariantId) continue;
+          await tx.productVariant.update({
+            where: { id: item.productVariantId },
+            data: { stockQuantity: { increment: direction * item.quantity } },
+          });
+        }
+      }
       await tx.orderStatusHistory.create({
         data: {
           orderId: params.id,
@@ -38,14 +56,16 @@ export const PATCH = async (req: NextRequest, { params }: { params: { id: string
       action: "order.status_change",
       entityType: "order",
       entityId: params.id,
-      metadata: { from: order.status, to: body.status },
+      metadata: { from: order.status, to: body.status, stockDirection: direction },
     });
 
     try {
       revalidateTag("dashboard-stats");
+      if (direction !== 0) revalidateTag("products");
     } catch {
       // Revalidation
     }
+    if (direction !== 0) invalidateProductCaches();
 
     return NextResponse.json({ ok: true });
   } catch (err) {
