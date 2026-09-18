@@ -83,13 +83,13 @@ export const ProductsManager = ({
               name="q"
               defaultValue={q}
               placeholder="Tìm theo tên sản phẩm…"
-              className="w-full rounded-full border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-medium text-ink placeholder:text-slate-400 focus:border-brand-forest focus:bg-white focus:outline-none transition-all"
+              className="w-full rounded-full border border-slate-200 bg-slate-50/70 py-2.5 pl-9 pr-4 text-base sm:py-2 sm:text-xs font-medium text-ink placeholder:text-slate-400 focus:border-brand-forest focus:bg-white focus:outline-none transition-all"
             />
           </form>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
             {categories.length > 0 && (
-              <form method="GET" className="inline-block">
+              <form method="GET" className="inline-block flex-shrink-0">
                 {q && <input type="hidden" name="q" value={q} />}
                 {status && <input type="hidden" name="status" value={status} />}
                 <CategoryFilterSelect categoryId={categoryId} categories={categories} />
@@ -110,8 +110,8 @@ export const ProductsManager = ({
         {/* Product Table */}
         <BulkDeleteForm>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <table className="w-full text-left text-xs max-md:block">
+            <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400 max-md:hidden">
               <tr>
                 <th className="w-10 pl-5 py-3.5">
                   <input
@@ -129,7 +129,7 @@ export const ProductsManager = ({
                 <th className="px-5 py-3.5 text-right">Trạng thái</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 max-md:block">
               {products.map((p) => {
                 const prices = p.variants.map((v) => Number(v.price));
                 const compareAts = p.variants
@@ -145,17 +145,21 @@ export const ProductsManager = ({
                 };
 
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50/70 transition-colors group">
-                    <td className="w-10 pl-5 py-3.5">
+                  // Phones: [☐] image + name ... status / price · stock ... featured
+                  <tr
+                    key={p.id}
+                    className="hover:bg-slate-50/70 transition-colors group max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-2 max-md:px-4 max-md:py-3.5"
+                  >
+                    <td className="w-10 pl-5 py-3.5 max-md:order-1 max-md:w-auto max-md:p-0">
                       <input
                         type="checkbox"
                         name="ids"
                         value={p.id}
                         aria-label={`Chọn ${p.name}`}
-                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-forest focus:ring-brand-forest"
+                        className="h-5 w-5 sm:h-4 sm:w-4 cursor-pointer rounded border-slate-300 text-brand-forest focus:ring-brand-forest"
                       />
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 max-md:order-2 max-md:min-w-0 max-md:flex-1 max-md:p-0">
                       <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
                         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80">
                           {p.images[0] ? (
@@ -182,10 +186,12 @@ export const ProductsManager = ({
                         </div>
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 font-medium text-slate-600">
+                    <td className="px-5 py-3.5 font-medium text-slate-600 max-md:hidden">
                       {p.category?.name ?? "—"}
                     </td>
-                    <td className="px-5 py-3.5">
+                    {/* Line break for the phone card; not a column on desktop */}
+                    <td aria-hidden="true" className="hidden max-md:order-4 max-md:block max-md:h-0 max-md:basis-full max-md:p-0" />
+                    <td className="px-5 py-3.5 max-md:order-5 max-md:ml-8 max-md:p-0">
                       <div className="font-bold text-brand-forest text-sm">
                         {formatVND(minPrice)}
                       </div>
@@ -198,7 +204,7 @@ export const ProductsManager = ({
                         </div>
                       )}
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 max-md:order-6 max-md:p-0">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${
                           stock <= 5
@@ -209,12 +215,13 @@ export const ProductsManager = ({
                         {stock} cái
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-center">
-                      <div className="flex justify-center">
+                    <td className="px-5 py-3.5 text-center max-md:order-7 max-md:ml-auto max-md:p-0">
+                      <label className="flex items-center justify-center gap-2">
+                        <span className="text-[11px] font-semibold text-slate-500 md:hidden">Nổi bật</span>
                         <FeaturedToggle productId={p.id} initialFeatured={p.isFeatured} />
-                      </div>
+                      </label>
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="px-5 py-3.5 text-right max-md:order-3 max-md:p-0">
                       <span
                         className={`inline-block rounded-full border px-3 py-0.5 text-[11px] font-bold ${statusMeta.className}`}
                       >
@@ -225,8 +232,8 @@ export const ProductsManager = ({
                 );
               })}
               {loadError && (
-                <tr>
-                  <td colSpan={7} className="px-5 py-16 text-center text-sm">
+                <tr className="max-md:block">
+                  <td colSpan={7} className="px-5 py-16 text-center text-sm max-md:block">
                     <p className="text-slate-500">Không thể tải danh sách sản phẩm lúc này.</p>
                     <a
                       href="/admin/products"
@@ -238,8 +245,8 @@ export const ProductsManager = ({
                 </tr>
               )}
               {!loadError && products.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-5 py-16 text-center text-sm text-slate-400">
+                <tr className="max-md:block">
+                  <td colSpan={7} className="px-5 py-16 text-center text-sm text-slate-400 max-md:block">
                     Không tìm thấy sản phẩm nào.
                   </td>
                 </tr>
@@ -269,7 +276,7 @@ const StatusPill = ({ href, active, label }: { href: string; active: boolean; la
   return (
     <Link
       href={href}
-      className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+      className={`inline-flex flex-shrink-0 items-center rounded-full px-3.5 py-2 text-xs font-bold transition-all sm:py-1.5 ${
         active
           ? "bg-ink text-white shadow-sm"
           : "border border-slate-200/80 bg-white text-slate-600 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50/30"

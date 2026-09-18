@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { StatsSwitch } from "@/components/admin/StatsSwitch";
 import { ANALYTICS_RANGES, readRange } from "@/helpers/analytics/ranges";
 import { vietnamDay } from "@/helpers/analytics/sessions";
 import { judgeAdsTraffic } from "@/helpers/analytics/verdict";
@@ -31,19 +32,23 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
   const { window, orders, previousOrders } = report;
 
   return (
+    <>
+    <div className="mb-6 lg:hidden">
+      <StatsSwitch current="/admin/analytics" />
+    </div>
     <div className="space-y-6">
       <PageHeader
         title="Thống kê truy cập"
         subtitle="Khách vào từ đâu, lúc nào, có mua không, và bao nhiêu lượt là click ảo. Cập nhật mỗi 5 phút."
       />
 
-      <nav className="flex flex-wrap gap-2" aria-label="Khoảng thời gian">
+      <nav className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Khoảng thời gian">
         {ANALYTICS_RANGES.map((range) => (
           <Link
             key={range.id}
             href={`/admin/analytics?range=${range.id}`}
             aria-current={range.id === rangeId ? "page" : undefined}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+            className={`flex-shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors sm:py-1.5 ${
               range.id === rangeId ? "bg-slate-900 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-slate-400"
             }`}
           >
@@ -214,6 +219,7 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
         <UtmLinkBuilder />
       </Card>
     </div>
+    </>
   );
 };
 

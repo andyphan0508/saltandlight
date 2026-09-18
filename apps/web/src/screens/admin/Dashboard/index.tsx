@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "@/components/admin/Icons";
+import { StatsSwitch } from "@/components/admin/StatsSwitch";
 import { getLowStockVariants, getRecentOrders } from "@/server/admin/dashboard-lists";
 import { getDashboardStats } from "@/server/admin/stats";
 import { DashboardAlerts } from "./components/DashboardAlerts";
@@ -18,12 +19,23 @@ const DashboardPage = async () => {
   const [recentOrders, lowStockVariants] = await Promise.all([getRecentOrders(), getLowStockVariants()]);
 
   return (
-    <div className="space-y-7 sm:space-y-8">
-      <WelcomeBanner />
+    // Flex + order: on phones the numbers and anything needing action come first
+    <div className="flex flex-col gap-6 sm:gap-8">
+      <div className="max-md:-order-3 lg:hidden">
+        <StatsSwitch current="/admin/dashboard" />
+      </div>
 
-      <MetricCards stats={stats} />
+      <div className="max-sm:hidden">
+        <WelcomeBanner />
+      </div>
 
-      <EditorShortcutCard />
+      <div className="max-md:-order-2">
+        <MetricCards stats={stats} />
+      </div>
+
+      <div className="max-md:hidden">
+        <EditorShortcutCard />
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <DashboardCard
@@ -60,7 +72,9 @@ const DashboardPage = async () => {
         </DashboardCard>
       </div>
 
-      <DashboardAlerts pendingPayments={stats.pendingPayments} lowStockVariants={lowStockVariants} />
+      <div className="empty:hidden max-md:-order-1">
+        <DashboardAlerts pendingPayments={stats.pendingPayments} lowStockVariants={lowStockVariants} />
+      </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { getCurrentAdminUser } from "@/server/admin/auth";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { OrderInboxFab } from "@/components/admin/OrderInboxFab";
+import { MobileTabBar } from "@/components/admin/MobileTabBar";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   if (!admin) redirect("/admin/login?unauthorized=true");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8f9fa]">
+    <div className="flex h-[100dvh] overflow-hidden bg-[#f8f9fa]">
       {/* Luno Modern Sidebar */}
       <Sidebar role={admin.role} email={admin.email} fullName={admin.fullName} />
 
@@ -22,9 +23,12 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
           <div className="w-full min-w-0">
             {children}
           </div>
+          {/* Keeps the last row clear of the mobile tab bar */}
+          <div className="h-24 lg:hidden" aria-hidden="true" />
         </main>
       </div>
       <OrderInboxFab />
+      <MobileTabBar role={admin.role} />
     </div>
   );
 };

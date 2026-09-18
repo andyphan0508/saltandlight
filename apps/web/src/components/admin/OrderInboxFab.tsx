@@ -135,7 +135,7 @@ export const OrderInboxFab = () => {
   };
 
   return (
-    <div ref={panelRef} className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+    <div ref={panelRef} className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-4 z-50 flex flex-col items-end gap-3 lg:bottom-6 lg:right-6">
       {isOpen && (
         <div
           role="dialog"

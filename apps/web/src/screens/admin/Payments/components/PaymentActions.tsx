@@ -25,11 +25,11 @@ export const PaymentActions = ({ paymentId }: { paymentId: string }) => {
   };
 
   return (
-    <div className="flex gap-2">
-      <Button size="sm" onClick={() => onAction("confirm")} disabled={pendingAction !== null}>
+    <div className="grid grid-cols-[2fr_1fr] gap-2 sm:flex">
+      <Button size="sm" className="min-h-11 sm:min-h-0" onClick={() => onAction("confirm")} disabled={pendingAction !== null}>
         {pendingAction === "confirm" ? "Đang xác nhận…" : "Xác nhận đã nhận tiền"}
       </Button>
-      <Button size="sm" variant="outline" onClick={() => onAction("reject")} disabled={pendingAction !== null}>
+      <Button size="sm" variant="outline" className="min-h-11 sm:min-h-0" onClick={() => onAction("reject")} disabled={pendingAction !== null}>
         Từ chối
       </Button>
     </div>

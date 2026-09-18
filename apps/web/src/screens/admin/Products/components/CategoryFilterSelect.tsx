@@ -21,7 +21,7 @@ export const CategoryFilterSelect = ({
       onChange={(e) => {
         e.currentTarget.form?.submit();
       }}
-      className="rounded-full border border-slate-200 bg-slate-50/70 py-1.5 px-3 text-xs font-semibold text-slate-700 focus:border-brand-forest focus:outline-none"
+      className="rounded-full border border-slate-200 bg-slate-50/70 py-2 px-3 text-base sm:py-1.5 sm:text-xs font-semibold text-slate-700 focus:border-brand-forest focus:outline-none"
     >
       <option value="">Tất cả danh mục</option>
       {categories.map((c) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -47,7 +48,7 @@ export const AdminHeader = ({
     products: "Sản phẩm",
     new: "Thêm mới",
     orders: "Đơn hàng",
-    payments: "Xác nhận thanh toán",
+    payments: "Thanh toán",
     shipping: "Vận chuyển",
     customers: "Khách hàng",
     banners: "Banner & Slider",
@@ -60,9 +61,14 @@ export const AdminHeader = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 backdrop-blur-md transition-all">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-md lg:px-6 transition-all">
       {/* Left: Breadcrumbs & Quick Search */}
       <div className="flex items-center gap-4 flex-1 max-w-xl">
+        {/* The sidebar carries the logo on desktop; below lg it's hidden, so the header does */}
+        <Link href="/admin/dashboard" aria-label="Bảng điều khiển" className="relative h-8 w-24 flex-shrink-0 lg:hidden">
+          <Image src="/images/logo.png" alt="Salt & Light" fill sizes="96px" className="object-contain object-left" />
+        </Link>
+
         {/* Breadcrumb */}
         <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400">
           <Link

@@ -34,7 +34,7 @@ export const TrafficTimeChart = ({ buckets, caption }: { buckets: TimeBucket[]; 
         </span>
       </div>
 
-      <div className="flex gap-2" role="img" aria-label={caption}>
+      <div className="flex gap-2" role="group" aria-label={caption}>
         <div className="flex h-44 flex-col justify-between pb-5 text-right text-[10px] tabular-nums text-[#898781]">
           {ticks.map((t) => (
             <span key={t}>{formatInt(t)}</span>
@@ -47,10 +47,19 @@ export const TrafficTimeChart = ({ buckets, caption }: { buckets: TimeBucket[]; 
             ))}
           </div>
           <div className="relative flex h-44 items-end gap-[2px]">
-            {buckets.map((b) => {
+            {buckets.map((b, i) => {
               const total = b.paid + b.other;
+              // Keep the tooltip inside the card at both edges
+              const tipPosition =
+                i < 3 ? "left-0" : i > buckets.length - 4 ? "right-0" : "left-1/2 -translate-x-1/2";
               return (
-                <div key={b.label} className="group relative flex h-full flex-1 flex-col items-center justify-end">
+                // Focusable so a tap (touch screens have no hover) or the keyboard shows the tooltip
+                <div
+                  key={b.label}
+                  tabIndex={0}
+                  aria-label={`${b.label}: ${formatInt(total)} phiên, quảng cáo ${formatInt(b.paid)}, khác ${formatInt(b.other)}`}
+                  className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                >
                   <div className="flex w-full max-w-6 flex-col justify-end gap-[2px] pb-5" style={{ height: "100%" }}>
                     {b.other > 0 && (
                       <div
@@ -66,8 +75,8 @@ export const TrafficTimeChart = ({ buckets, caption }: { buckets: TimeBucket[]; 
                     )}
                   </div>
                   <span className="absolute bottom-0 text-[10px] tabular-nums text-[#898781]">{b.tick}</span>
-                  {/* Hover target is the whole column band, not just the bar */}
-                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden w-max -translate-x-1/2 rounded-lg bg-slate-900 px-2.5 py-1.5 text-[11px] text-white shadow-lg group-hover:block">
+                  {/* Hover / tap target is the whole column band, not just the bar */}
+                  <div className={`pointer-events-none absolute bottom-full z-10 mb-1 hidden w-max rounded-lg bg-slate-900 px-2.5 py-1.5 text-[11px] text-white shadow-lg group-hover:block group-focus:block ${tipPosition}`}>
                     <div className="font-bold">{b.label}</div>
                     <div>Tổng: {formatInt(total)} phiên</div>
                     <div>Quảng cáo: {formatInt(b.paid)} · Khác: {formatInt(b.other)}</div>

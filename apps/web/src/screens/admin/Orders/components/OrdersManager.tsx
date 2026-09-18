@@ -1,20 +1,11 @@
 import Link from "next/link";
-import { formatVND } from "@saltandlight/domain";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Pagination } from "@/components/admin/Pagination";
+import { Search } from "@/components/admin/Icons";
+import { OrderListRow, type OrderListItem } from "@/components/admin/OrderListRow";
 import { ADMIN_ORDER_STATUS as STATUS_META } from "@/helpers/order-status-styles";
 
-export interface OrderRow {
-  id: string;
-  orderNumber: string;
-  total: unknown;
-  status: string;
-  createdAt: Date;
-  customer: {
-    fullName: string;
-    phone: string;
-  };
-}
+export type OrderRow = OrderListItem;
 
 export interface OrdersManagerProps {
   orders: OrderRow[];
@@ -45,8 +36,22 @@ export const OrdersManager = ({
       />
 
       <div className="luno-card">
-        {/* Status Filter Pills */}
-        <div className="flex flex-wrap gap-2 border-b border-slate-100 p-4 sm:p-5">
+        {/* The header's search box is desktop-only; phones search here */}
+        <form action="/admin/orders" className="relative border-b border-slate-100 p-4 md:hidden">
+          {status && <input type="hidden" name="status" value={status} />}
+          <Search size={16} className="pointer-events-none absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder="Mã đơn, tên hoặc SĐT khách"
+            enterKeyHint="search"
+            className="w-full rounded-full border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-base text-ink placeholder:text-slate-400 focus:border-brand-forest focus:bg-white focus:outline-none"
+          />
+        </form>
+
+        {/* Status filters: one swipeable row on phones, wrapping pills on desktop */}
+        <div className="no-scrollbar flex gap-2 overflow-x-auto border-b border-slate-100 p-4 sm:flex-wrap sm:p-5">
           <StatusFilter href="/admin/orders" active={!status} label="Tất cả đơn" count={totalAll} />
           {Object.entries(STATUS_META).map(([key, meta]) => (
             <StatusFilter
@@ -59,10 +64,9 @@ export const OrdersManager = ({
           ))}
         </div>
 
-        {/* Orders Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <table className="w-full text-left text-xs max-md:block">
+            <thead className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-400 max-md:hidden">
               <tr>
                 <th className="px-5 py-3.5">Mã đơn hàng</th>
                 <th className="px-5 py-3.5">Khách hàng</th>
@@ -71,49 +75,13 @@ export const OrdersManager = ({
                 <th className="px-5 py-3.5 text-right">Ngày đặt</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {orders.map((o) => {
-                const meta = STATUS_META[o.status] ?? {
-                  label: o.status,
-                  className: "bg-slate-100 text-slate-700 border-slate-200",
-                };
-                return (
-                  <tr key={o.id} className="hover:bg-slate-50/70 transition-colors group">
-                    <td className="px-5 py-3.5">
-                      <Link
-                        href={`/admin/orders/${o.id}`}
-                        className="font-bold text-ink group-hover:text-brand-forest transition-colors"
-                      >
-                        {o.orderNumber}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-800">{o.customer.fullName}</div>
-                      <div className="text-[11px] text-slate-400">{o.customer.phone}</div>
-                    </td>
-                    <td className="px-5 py-3.5 font-bold text-brand-forest text-sm">
-                      {formatVND(Number(o.total))}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span
-                        className={`inline-block rounded-full border px-3 py-0.5 text-[11px] font-bold ${meta.className}`}
-                      >
-                        {meta.label}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-right font-medium text-slate-400">
-                      {o.createdAt.toLocaleDateString("vi-VN", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-slate-100 max-md:block">
+              {orders.map((o) => (
+                <OrderListRow key={o.id} order={o} />
+              ))}
               {orders.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400">
+                <tr className="max-md:block">
+                  <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400 max-md:block">
                     Không có đơn hàng nào phù hợp với bộ lọc.
                   </td>
                 </tr>
@@ -150,7 +118,8 @@ const StatusFilter = ({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+      aria-current={active ? "page" : undefined}
+      className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all sm:py-1.5 ${
         active
           ? "bg-ink text-white shadow-sm"
           : "border border-slate-200/80 bg-white text-slate-600 hover:border-brand-forest hover:text-brand-forest hover:bg-mint-50/30"

@@ -20,6 +20,7 @@ export const StatCard = ({
   trend,
   suffix,
   subtext,
+  className = "",
 }: {
   label: string;
   value: string;
@@ -28,20 +29,21 @@ export const StatCard = ({
   trend?: { value: string; positive: boolean };
   suffix?: string;
   subtext?: string;
+  className?: string;
 }) => {
   const t = toneClasses[tone];
 
   return (
-    <div className="luno-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between">
+    <div className={clsx("luno-card p-3.5 sm:p-7 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between", className)}>
       <div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-400 max-sm:font-semibold max-sm:leading-tight max-sm:text-slate-500 sm:uppercase sm:tracking-wider">
             {label}
           </span>
           {icon && (
             <span
               className={clsx(
-                "flex h-11 w-11 items-center justify-center rounded-2xl border shadow-2xs transition-transform duration-200 shrink-0",
+                "flex h-11 w-11 max-sm:hidden items-center justify-center rounded-2xl border shadow-2xs transition-transform duration-200 shrink-0",
                 t.bg,
                 t.text,
                 t.border,
@@ -52,15 +54,15 @@ export const StatCard = ({
           )}
         </div>
 
-        <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-2xl sm:text-3xl lg:text-[2rem] font-bold tracking-tight text-ink">
+        <div className="mt-1.5 sm:mt-4 flex items-baseline gap-2">
+          <span className="text-xl sm:text-3xl lg:text-[2rem] font-bold tracking-tight text-ink">
             {value}
           </span>
           {suffix && <span className="text-xs font-semibold text-slate-400">{suffix}</span>}
         </div>
       </div>
 
-      <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+      <div className={clsx("mt-3 pt-3 sm:mt-4 sm:pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2", !trend && "max-sm:hidden")}>
         {trend ? (
           <div
             className={clsx(

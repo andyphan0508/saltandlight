@@ -378,3 +378,12 @@
 body:has([data-modal]) {
   overflow: hidden;
 }
+
+/* Admin mobile "Thêm" sheet: slides up from the tab bar it was opened from */
+@keyframes admin-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .admin-sheet[open] { animation: admin-sheet-up 220ms cubic-bezier(0.16, 1, 0.3, 1); }
+}

@@ -5,73 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
 import { SITE_URL } from "@/helpers/site-url";
-import {
-  LayoutGrid,
-  FolderTree,
-  Package,
-  ShoppingCart,
-  Wallet,
-  Truck,
-  Users,
-  UserCog,
-  History,
-  LogOut,
-  ExternalLink,
-  Sparkles,
-  Tag,
-  Globe,
-  MessageSquare,
-  BookOpen,
-  TrendingUp,
-} from "./Icons";
-
-const NAV_GROUPS: {
-  label: string;
-  items: {
-    href: string;
-    label: string;
-    icon: (props: { size?: number | string; className?: string }) => JSX.Element;
-    badge?: string;
-  }[];
-}[] = [
-  {
-    label: "Tổng quan",
-    items: [
-      { href: "/admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { href: "/admin/analytics", label: "Thống kê truy cập", icon: TrendingUp },
-      { href: "/admin/editor", label: "Editor", icon: Sparkles, badge: "Live" },
-    ],
-  },
-  {
-    label: "Bán hàng",
-    items: [
-      { href: "/admin/products", label: "Sản phẩm", icon: Package },
-      { href: "/admin/categories", label: "Danh mục", icon: FolderTree },
-      { href: "/admin/product-guides", label: "Hướng dẫn sản phẩm", icon: BookOpen },
-      { href: "/admin/promotions", label: "Mã & Khuyến mãi", icon: Tag },
-      { href: "/admin/banners", label: "Banner & Slider", icon: Sparkles },
-      { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingCart },
-      { href: "/admin/payments", label: "Xác nhận thanh toán", icon: Wallet },
-    ],
-  },
-  {
-    label: "Vận hành",
-    items: [
-      { href: "/admin/contacts", label: "Yêu cầu liên hệ", icon: MessageSquare },
-      { href: "/admin/customers", label: "Khách hàng", icon: Users },
-      { href: "/admin/settings/payment", label: "Cài đặt thanh toán", icon: Wallet },
-      { href: "/admin/settings/site", label: "Liên hệ, Header & Footer", icon: Globe },
-    ],
-  },
-];
-
-const OWNER_GROUP = {
-  label: "Quản trị hệ thống",
-  items: [
-    { href: "/admin/users", label: "Nhân viên", icon: UserCog },
-    { href: "/admin/audit-log", label: "Nhật ký hoạt động", icon: History },
-  ],
-};
+import { LogOut, ExternalLink } from "./Icons";
+import { isNavActive, navGroupsFor } from "./nav-config";
 
 export const Sidebar = ({
   role,
@@ -92,12 +27,12 @@ export const Sidebar = ({
     router.refresh();
   };
 
-  const groups = role === "owner" ? [...NAV_GROUPS, OWNER_GROUP] : NAV_GROUPS;
+  const groups = navGroupsFor(role);
   const displayName = fullName || email.split("@")[0] || email;
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white select-none transition-all shadow-xs">
+    <aside className="hidden h-full w-64 lg:flex flex-shrink-0 flex-col border-r border-slate-200/80 bg-white select-none transition-all shadow-xs">
       {/* 1. Brand Logo Header */}
       <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4.5 bg-gradient-to-b from-slate-50/50 to-transparent">
         <Link href="/admin/dashboard" className="flex items-center gap-2 group">
@@ -127,8 +62,7 @@ export const Sidebar = ({
             </div>
             <div className="space-y-1">
               {group.items.map((item) => {
-                const isActive =
-                  pathname === item.href || pathname.startsWith(item.href + "/");
+                const isActive = isNavActive(pathname, item.href);
                 const Icon = item.icon;
 
                 return (

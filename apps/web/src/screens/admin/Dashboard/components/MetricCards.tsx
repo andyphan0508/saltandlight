@@ -7,12 +7,13 @@ type DashboardStats = Awaited<ReturnType<typeof getDashboardStats>>;
 
 /** Month revenue (with change vs last month), month orders, live products and customers. */
 export const MetricCards = ({ stats }: { stats: DashboardStats }) => (
-  <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
     <StatCard
       label="Doanh thu tháng này"
       value={formatVND(stats.monthRevenue)}
       icon={<Wallet size={19} />}
       tone="forest"
+      className="max-sm:col-span-3"
       trend={
         stats.revenueChangePct != null
           ? { value: `${Math.abs(stats.revenueChangePct)}% so với tháng trước`, positive: stats.revenueChangePct >= 0 }
