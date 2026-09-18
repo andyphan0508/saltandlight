@@ -2,7 +2,7 @@
 
 import { ExternalLink, Mail, MessageSquare, Phone, Tag, Trash2 } from "@/components/admin/Icons";
 import { CONTACT_STATUSES, contactStatusOf } from "@/helpers/contact-submissions";
-import { normalizeVietnamesePhone } from "@/helpers/phone";
+import { normalizeVietnamesePhone, smsHref } from "@/helpers/phone";
 import type { ContactStatus, ContactSubmissionItem } from "@/interfaces/contact";
 
 interface ContactRowProps {
@@ -37,6 +37,14 @@ export const ContactRow = ({ contact, onOpen, onStatusChange, onDelete }: Contac
               >
                 <Phone size={12} />
                 <span>{contact.phone}</span>
+              </a>
+              <a
+                href={smsHref(phone)}
+                title={`Nhắn SMS tới ${contact.phone}`}
+                className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
+              >
+                <MessageSquare size={12} />
+                <span>SMS</span>
               </a>
               <a
                 href={`https://zalo.me/${phone}`}

@@ -1,9 +1,9 @@
 "use client";
 
 import { Modal } from "@/components/Modal";
-import { ExternalLink, Mail, Phone, X } from "@/components/admin/Icons";
+import { ExternalLink, Mail, MessageSquare, Phone, X } from "@/components/admin/Icons";
 import { CONTACT_STATUSES } from "@/helpers/contact-submissions";
-import { normalizeVietnamesePhone } from "@/helpers/phone";
+import { normalizeVietnamesePhone, smsHref } from "@/helpers/phone";
 import type { ContactStatus, ContactSubmissionItem } from "@/interfaces/contact";
 
 interface ContactDetailModalProps {
@@ -64,6 +64,13 @@ export const ContactDetailModal = ({ contact, onClose, onStatusChange }: Contact
               >
                 <Phone size={14} />
                 <span>Gọi {contact.phone}</span>
+              </a>
+              <a
+                href={smsHref(phone)}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+              >
+                <MessageSquare size={14} />
+                <span>Nhắn SMS</span>
               </a>
               <a
                 href={`https://zalo.me/${phone}`}
