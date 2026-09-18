@@ -3,6 +3,7 @@ import { HEX_COLOR_PATTERN } from "./color";
 import { PRODUCT_BLOCK_LAYOUTS } from "./product-block-layout";
 import { INTERVAL_MAX_MS, INTERVAL_MIN_MS, MEDIA_EFFECTS } from "./product-block-media";
 import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
+import { safeRedirectPath } from "./safe-redirect";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
 export const adminPasswordSchema = z
@@ -338,4 +339,23 @@ export const siteSettingsSchema = z.object({
     .optional()
     .nullable(),
   footerColumns: z.array(footerColumnSchema).max(6).optional().nullable(),
+});
+
+// ── Order email template ────────────────────────────────────────────
+
+const hexColor = z.string().regex(HEX_COLOR_PATTERN, "Màu phải ở dạng #RRGGBB");
+
+export const orderEmailTemplateSchema = z.object({
+  subject: z.string().trim().min(1, "Chưa nhập tiêu đề email").max(150),
+  title: z.string().trim().min(1, "Chưa nhập tiêu đề lớn").max(150),
+  description: z.string().trim().max(300),
+  content: z.string().trim().max(3000),
+  buttonLabel: z.string().trim().min(1, "Chưa nhập chữ trên nút").max(60),
+  buttonPath: z
+    .string()
+    .trim()
+    .max(200)
+    .refine((path) => safeRedirectPath(path, "") !== "", "Nút phải dẫn tới một trang trên website, bắt đầu bằng /"),
+  accentColor: hexColor,
+  backgroundColor: hexColor,
 });

@@ -16,7 +16,7 @@ interface OrderResult {
   statusHistory: { toStatus: string; changedAt: string; note: string | null }[];
 }
 
-export const TrackOrderView = () => {
+export const TrackOrderView = ({ initialOrderNumber = "" }: { initialOrderNumber?: string }) => {
   const [result, setResult] = useState<OrderResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +68,7 @@ export const TrackOrderView = () => {
             </label>
             <input
               name="orderNumber"
+              defaultValue={initialOrderNumber}
               placeholder="Ví dụ: SL-2026-000142"
               required
               className="mt-1.5 w-full rounded-2xl border border-ink/15 px-4 py-2.5 text-sm focus:border-ink focus:outline-none"
@@ -81,6 +82,7 @@ export const TrackOrderView = () => {
             <input
               name="phone"
               type="tel"
+              autoFocus={Boolean(initialOrderNumber)}
               placeholder="Ví dụ: 0912345678"
               required
               className="mt-1.5 w-full rounded-2xl border border-ink/15 px-4 py-2.5 text-sm focus:border-ink focus:outline-none"

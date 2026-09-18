@@ -56,6 +56,7 @@ export const AdminHeader = ({
     editor: "Editor Trực quan",
     settings: "Cài đặt",
     payment: "Thanh toán",
+    email: "Mẫu email",
     users: "Nhân viên",
     "audit-log": "Nhật ký"
   };

@@ -409,6 +409,24 @@ model PaymentSettings {
   @@map("payment_settings")
 }
 
+/// The email a customer gets when their order is placed. One row per email kind
+/// ("order_created"), edited in admin › Mẫu email đơn hàng; the order details
+/// table is filled in by code, this row holds the words, colours and button.
+model EmailTemplate {
+  id              String   @id
+  subject         String
+  title           String
+  description     String
+  content         String
+  buttonLabel     String   @map("button_label")
+  buttonPath      String   @map("button_path")
+  accentColor     String   @map("accent_color")
+  backgroundColor String   @map("background_color")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("email_templates")
+}
+
 // ── Promotions / Discount Campaigns ─────────────────────────────────
 
 model Promotion {

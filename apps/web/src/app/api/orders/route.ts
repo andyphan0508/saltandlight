@@ -7,6 +7,7 @@ import {
   buildVietQrUrl,
   buildTransferContent,
   initialOrderStatus,
+  PAYMENT_METHOD_LABELS,
 } from "@saltandlight/domain";
 import { sendOrderCreatedEmail } from "@/server/email";
 import { getAuthenticatedCustomer } from "@/server/customer-auth";
@@ -196,12 +197,25 @@ export const POST = async (req: NextRequest) => {
   try {
     await sendOrderCreatedEmail({
       orderId: order.id,
-      orderNumber: order.orderNumber,
-      customerName: customer.fullName,
       customerEmail: customer.email || null,
       customerPhone: customer.phone,
-      total,
       paymentMethod,
+      siteUrl: req.nextUrl.origin,
+      order: {
+        orderNumber: order.orderNumber,
+        customerName: customer.fullName,
+        items: orderItemsInput.map((item) => ({
+          name: item.productNameSnapshot,
+          variant: [item.color, item.size].filter(Boolean).join(" / "),
+          quantity: item.quantity,
+          unitPrice: Number(item.unitPrice),
+        })),
+        subtotal,
+        shippingFee,
+        total,
+        paymentLabel: PAYMENT_METHOD_LABELS[paymentMethod],
+        address: [shippingAddress.streetAddress, shippingAddress.ward, shippingAddress.province].filter(Boolean).join(", "),
+      },
     });
   } catch (err) {
     console.error("sendOrderCreatedEmail failed", err);

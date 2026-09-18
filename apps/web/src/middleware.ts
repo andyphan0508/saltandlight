@@ -26,6 +26,8 @@ const RULES: Record<string, [number, number]> = {
   // Uploads cost storage + bandwidth, so they get a tighter cap than the
   // general admin DEFAULT_RULE below.
   "/api/admin/media/upload": [10, 60],
+  // Each test is a real email against Resend's 100/day free quota.
+  "/api/admin/settings/email-template/test": [5, 60],
   // One-time OAuth redirect per real login — no legitimate user hits this
   // more than a couple times a minute.
   "/auth/callback": [10, 60],
