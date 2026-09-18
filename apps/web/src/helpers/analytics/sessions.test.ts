@@ -71,10 +71,10 @@ test("sampled rows count by their weight", () => {
 
 test("a product put in the cart and not bought is an abandoned cart; most abandoned first", () => {
   const products = summarizeProducts([
-    { productId: "p1", productName: "Áo A", sessionId: "s1", views: 2, addedQty: 1, adds: 1, boughtQty: 0, weight: 1 },
-    { productId: "p1", productName: "Áo A", sessionId: "s2", views: 1, addedQty: 2, adds: 1, boughtQty: 0, weight: 1 },
-    { productId: "p2", productName: "Áo B", sessionId: "s1", views: 1, addedQty: 1, adds: 1, boughtQty: 1, weight: 1 },
-    { productId: "p2", productName: "Áo B", sessionId: "s3", views: 1, addedQty: 0, adds: 0, boughtQty: 0, weight: 1 },
+    { productId: "p1", productName: "Áo A", sessionId: "s1", views: 2, addedQty: 1, adds: 1, boughtQty: 0, wishlists: 0, weight: 1 },
+    { productId: "p1", productName: "Áo A", sessionId: "s2", views: 1, addedQty: 2, adds: 1, boughtQty: 0, wishlists: 0, weight: 1 },
+    { productId: "p2", productName: "Áo B", sessionId: "s1", views: 1, addedQty: 1, adds: 1, boughtQty: 1, wishlists: 0, weight: 1 },
+    { productId: "p2", productName: "Áo B", sessionId: "s3", views: 1, addedQty: 0, adds: 0, boughtQty: 0, wishlists: 0, weight: 1 },
   ]);
   assert.equal(products[0]!.productId, "p1");
   assert.deepEqual(
@@ -85,7 +85,7 @@ test("a product put in the cart and not bought is an abandoned cart; most abando
   assert.equal(products[1]!.viewToCartRate, 1 / 2);
   assert.equal(products[0]!.views, 3, "repeat opens count as views");
 
-  const withCatalog = summarizeProducts([{ productId: "p1", productName: "", sessionId: "s1", views: 1, addedQty: 0, adds: 0, boughtQty: 0, weight: 1 }], [
+  const withCatalog = summarizeProducts([{ productId: "p1", productName: "", sessionId: "s1", views: 1, addedQty: 0, adds: 0, boughtQty: 0, wishlists: 0, weight: 1 }], [
     { id: "p1", name: "Áo A mới" },
     { id: "p9", name: "Áo chưa ai xem" },
   ]);
@@ -99,4 +99,20 @@ test("the session cookie survives a round trip and rejects garbage", async () =>
   assert.deepEqual(decoded, { ...cookie, campaign: "sale-15h" });
   assert.equal(decodeSessionCookie("nonsense"), null);
   assert.equal(decodeSessionCookie(undefined), null);
+});
+
+test("time on a product page and wishlist saves land on the right product", () => {
+  const [p1, p2] = summarizeProducts(
+    [
+      { productId: "p1", productName: "", sessionId: "s1", views: 2, addedQty: 0, adds: 0, boughtQty: 0, wishlists: 1, weight: 1 },
+      { productId: "p1", productName: "", sessionId: "s2", views: 1, addedQty: 0, adds: 0, boughtQty: 0, wishlists: 2, weight: 1 },
+    ],
+    [
+      { id: "p1", name: "Áo A", slug: "ao-a" },
+      { id: "p2", name: "Túi B", slug: "tui-b" },
+    ],
+    { "/san-pham/ao-a": 90_000, "/gio-hang": 5_000 },
+  );
+  assert.deepEqual([p1!.views, p1!.viewDurationMs, p1!.wishlists], [3, 90_000, 3]);
+  assert.deepEqual([p2!.views, p2!.viewDurationMs, p2!.wishlists], [0, 0, 0]);
 });

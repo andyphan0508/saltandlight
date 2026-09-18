@@ -1,13 +1,14 @@
 import { summarizeProducts, summarizeSessions, type ProductFunnel, type SessionRow, type TrafficSummary } from "@/helpers/analytics/sessions";
 import { prisma } from "@saltandlight/db";
 import { resolveWindow, toSqlDateTime, type AnalyticsRangeId, type AnalyticsWindow } from "@/helpers/analytics/ranges";
+import { bucketProductActivity, type ProductActivityPoint } from "@/helpers/analytics/product-activity";
 import { invalidateMemoryCache, withMemoryCache } from "@/server/memory-cache";
 import { ANALYTICS_DATASET } from "./dataset";
 import { getOrderStats, type OrderStats } from "./orders";
 import { AnalyticsQueryError, analyticsQueryConfig, runAnalyticsSql } from "./sql";
 
 // Analytics Engine's free read allowance is 10,000 queries a day; a dashboard
-// view costs 3, and results are reused for 5 minutes.
+// view costs 5, and results are reused for 5 minutes.
 const CACHE_SECONDS = 300;
 const SESSION_LIMIT = 20_000;
 
@@ -49,11 +50,42 @@ SELECT
   sum(if(blob1 = 'add_to_cart', double1, 0.0)) AS addedQty,
   sum(if(blob1 = 'add_to_cart', 1, 0)) AS adds,
   sum(if(blob1 = 'purchase', double1, 0.0)) AS boughtQty,
+  sum(if(blob1 = 'wishlist_add', 1, 0)) AS wishlists,
   max(_sample_interval) AS weight
 FROM ${ANALYTICS_DATASET}
 WHERE ${between(start, end)} AND blob3 != '' AND blob16 = ''
 GROUP BY blob3, blob6
 LIMIT ${SESSION_LIMIT}`;
+
+// Visible time per page path; product pages are matched to products by slug in summarizeProducts.
+const pageTimeSql = (start: Date, end: Date) => `
+SELECT
+  blob2 AS path,
+  sum(double3) AS durationMs
+FROM ${ANALYTICS_DATASET}
+WHERE ${between(start, end)} AND blob1 = 'page_leave' AND blob16 = ''
+GROUP BY blob2
+LIMIT 5000`;
+
+// Product interactions per UTC hour; bucketProductActivity folds them into Vietnam hours or days.
+const productActivitySql = (start: Date, end: Date) => `
+SELECT
+  toStartOfInterval(timestamp, INTERVAL '1' HOUR) AS hour,
+  sum(if(blob1 = 'product_view', 1, 0)) AS views,
+  sum(if(blob1 = 'add_to_cart', 1, 0)) AS carts,
+  sum(if(blob1 = 'wishlist_add', 1, 0)) AS wishlists
+FROM ${ANALYTICS_DATASET}
+WHERE ${between(start, end)} AND blob16 = ''
+GROUP BY toStartOfInterval(timestamp, INTERVAL '1' HOUR)
+ORDER BY toStartOfInterval(timestamp, INTERVAL '1' HOUR)
+LIMIT 2000`;
+
+/** The newer panels degrade to empty instead of taking the whole report down with them. */
+const optional = <T extends Record<string, unknown>>(label: string, sql: string) =>
+  runAnalyticsSql<T>(sql).catch((err) => {
+    console.error(`[analytics] ${label} query failed:`, err);
+    return [] as T[];
+  });
 
 const toSessionRow = (r: Record<string, unknown>): SessionRow => ({
   sessionId: String(r.sessionId ?? ""),
@@ -85,6 +117,7 @@ export type TrafficReport =
       current: TrafficSummary;
       previous: TrafficSummary;
       products: ProductFunnel[];
+      productActivity: ProductActivityPoint[];
       isTruncated: boolean;
       generatedAt: string;
     };
@@ -104,16 +137,18 @@ const buildReport = (key: string, rangeId: AnalyticsRangeId): Promise<TrafficRep
     const [orders, previousOrders, catalog] = await Promise.all([
       getOrderStats(window.start, window.end),
       getOrderStats(window.previousStart, window.previousEnd),
-      prisma.product.findMany({ where: { status: "published" }, select: { id: true, name: true } }),
+      prisma.product.findMany({ where: { status: "published" }, select: { id: true, name: true, slug: true } }),
     ]);
 
     if (!analyticsQueryConfig()) return { status: "unconfigured", window, orders, previousOrders };
 
     try {
-      const [currentRows, previousRows, productRows] = await Promise.all([
+      const [currentRows, previousRows, productRows, pageTimeRows, activityRows] = await Promise.all([
         runAnalyticsSql(sessionsSql(window.start, window.end)),
         runAnalyticsSql(sessionsSql(window.previousStart, window.previousEnd)),
         runAnalyticsSql(productsSql(window.start, window.end)),
+        optional("page time", pageTimeSql(window.start, window.end)),
+        optional("product activity", productActivitySql(window.start, window.end)),
       ]);
       return {
         status: "ok",
@@ -131,9 +166,20 @@ const buildReport = (key: string, rangeId: AnalyticsRangeId): Promise<TrafficRep
             addedQty: Number(r.addedQty ?? 0),
             adds: Number(r.adds ?? 0),
             boughtQty: Number(r.boughtQty ?? 0),
+            wishlists: Number(r.wishlists ?? 0),
             weight: Number(r.weight ?? 1) || 1,
           })),
           catalog,
+          Object.fromEntries(pageTimeRows.map((r) => [String(r.path ?? ""), Number(r.durationMs ?? 0)])),
+        ),
+        productActivity: bucketProductActivity(
+          activityRows.map((r) => ({
+            hour: String(r.hour ?? ""),
+            views: Number(r.views ?? 0),
+            carts: Number(r.carts ?? 0),
+            wishlists: Number(r.wishlists ?? 0),
+          })),
+          window,
         ),
         isTruncated: currentRows.length >= SESSION_LIMIT,
         generatedAt: new Date().toISOString(),

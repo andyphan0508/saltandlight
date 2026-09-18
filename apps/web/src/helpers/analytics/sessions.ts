@@ -211,6 +211,7 @@ export interface ProductSessionRow {
   addedQty: number;
   adds: number;
   boughtQty: number;
+  wishlists: number;
   weight: number;
 }
 
@@ -220,6 +221,10 @@ export interface ProductFunnel {
   /** Every product_view, including repeat opens in the same session. */
   views: number;
   viewSessions: number;
+  /** Visible time summed over every view of the product page. */
+  viewDurationMs: number;
+  /** Times it was saved to the wishlist (hearts un-ticked again aren't subtracted). */
+  wishlists: number;
   cartSessions: number;
   purchaseSessions: number;
   /** Sessions that put it in the cart and left without buying it. */
@@ -235,6 +240,8 @@ const emptyFunnel = (productId: string, productName: string): ProductFunnel => (
   productName,
   views: 0,
   viewSessions: 0,
+  viewDurationMs: 0,
+  wishlists: 0,
   cartSessions: 0,
   purchaseSessions: 0,
   abandonedSessions: 0,
@@ -246,15 +253,23 @@ const emptyFunnel = (productId: string, productName: string): ProductFunnel => (
 
 /**
  * Per-product view → cart → purchase, with how many carts were abandoned. Most-abandoned first.
- * `catalog` seeds every published product, so ones nobody opened show up with zero views.
+ * `catalog` seeds every published product, so ones nobody opened show up with zero views, and
+ * its slugs tie `durationsByPath` (visible time per page path) back to the product on that page.
  */
-export const summarizeProducts = (rows: ProductSessionRow[], catalog: { id: string; name: string }[] = []): ProductFunnel[] => {
-  const byProduct = new Map<string, ProductFunnel>(catalog.map((c) => [c.id, emptyFunnel(c.id, c.name)]));
+export const summarizeProducts = (
+  rows: ProductSessionRow[],
+  catalog: { id: string; name: string; slug?: string }[] = [],
+  durationsByPath: Record<string, number> = {},
+): ProductFunnel[] => {
+  const byProduct = new Map<string, ProductFunnel>(
+    catalog.map((c) => [c.id, { ...emptyFunnel(c.id, c.name), viewDurationMs: c.slug ? durationsByPath[`/san-pham/${c.slug}`] ?? 0 : 0 }]),
+  );
   for (const row of rows) {
     const w = row.weight || 1;
     const p = byProduct.get(row.productId) ?? emptyFunnel(row.productId, row.productName);
     if (row.productName && !p.productName) p.productName = row.productName;
     p.views += row.views * w;
+    p.wishlists += row.wishlists * w;
     if (row.views > 0) p.viewSessions += w;
     if (row.adds > 0) p.cartSessions += w;
     if (row.boughtQty > 0) p.purchaseSessions += w;

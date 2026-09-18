@@ -1,17 +1,37 @@
 import { Resend } from "resend";
-import { formatVND, PAYMENT_METHOD_LABELS, type PaymentMethodValue } from "@saltandlight/domain";
-import { renderOrderEmail, type OrderEmailData, type OrderEmailTemplate } from "@/helpers/order-email";
-import { getEmailLogoUrl, getOrderEmailTemplate } from "@/server/email-template";
+import {
+  formatVND,
+  PAYMENT_METHOD_LABELS,
+  type PaymentMethodValue,
+} from "@saltandlight/domain";
+import {
+  renderOrderEmail,
+  type OrderEmailData,
+  type OrderEmailTemplate,
+} from "@/helpers/order-email";
+import {
+  getEmailLogoUrl,
+  getOrderEmailTemplate,
+} from "@/server/email-template";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? "Salt & Light <no-reply@saltandlight.com.vn>";
+const FROM =
+  process.env.RESEND_FROM_EMAIL ??
+  "Salt & Light <no-reply@saltandlight.com.vn>";
 
 /** Sends the customer's email from the admin-designed template. */
-const sendCustomerOrderEmail = async (to: string, order: OrderEmailData, siteUrl: string, template?: OrderEmailTemplate) => {
+const sendCustomerOrderEmail = async (
+  to: string,
+  order: OrderEmailData,
+  siteUrl: string,
+  template?: OrderEmailTemplate,
+) => {
   if (!resend) throw new Error("Chưa cấu hình RESEND_API_KEY");
   const { subject, html } = renderOrderEmail({
     template: template ?? (await getOrderEmailTemplate()),
@@ -40,7 +60,10 @@ export const sendOrderCreatedEmail = async (opts: {
 
   const sends: Promise<unknown>[] = [];
 
-  if (opts.customerEmail) sends.push(sendCustomerOrderEmail(opts.customerEmail, opts.order, opts.siteUrl));
+  if (opts.customerEmail)
+    sends.push(
+      sendCustomerOrderEmail(opts.customerEmail, opts.order, opts.siteUrl),
+    );
 
   if (process.env.NOTIFY_ADMIN_EMAIL) {
     sends.push(
@@ -58,9 +81,15 @@ export const sendOrderCreatedEmail = async (opts: {
   }
 
   const results = await Promise.allSettled(sends);
-  for (const r of results) if (r.status === "rejected") console.error("[email] order email failed:", r.reason);
+  for (const r of results)
+    if (r.status === "rejected")
+      console.error("[email] order email failed:", r.reason);
 };
 
 /** Admin › Mẫu email › "Gửi thử": the unsaved template, filled with a sample order. */
-export const sendTestOrderEmail = (to: string, template: OrderEmailTemplate, order: OrderEmailData, siteUrl: string) =>
-  sendCustomerOrderEmail(to, order, siteUrl, template);
+export const sendTestOrderEmail = (
+  to: string,
+  template: OrderEmailTemplate,
+  order: OrderEmailData,
+  siteUrl: string,
+) => sendCustomerOrderEmail(to, order, siteUrl, template);

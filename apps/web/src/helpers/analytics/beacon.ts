@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRAFFIC_SOURCES } from "./attribution";
 
 /** Events the browser may send. Purchases are written by the order API itself, so ad blockers can't hide sales. */
-export const CLIENT_EVENTS = ["page_view", "page_leave", "product_view", "add_to_cart", "checkout_start"] as const;
+export const CLIENT_EVENTS = ["page_view", "page_leave", "product_view", "add_to_cart", "checkout_start", "wishlist_add"] as const;
 export type ClientEventName = (typeof CLIENT_EVENTS)[number];
 export type ServerEventName = "order_placed" | "purchase";
 

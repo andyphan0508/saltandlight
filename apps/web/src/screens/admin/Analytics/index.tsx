@@ -2,12 +2,13 @@ import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StatsSwitch } from "@/components/admin/StatsSwitch";
 import { ANALYTICS_RANGES, readRange } from "@/helpers/analytics/ranges";
-import { vietnamDay } from "@/helpers/analytics/sessions";
+import { vietnamDaysBetween } from "@/helpers/analytics/product-activity";
 import { judgeAdsTraffic } from "@/helpers/analytics/verdict";
 import { getTrafficReport } from "@/server/analytics/report";
 import { AbandonedProducts } from "./components/AbandonedProducts";
 import { Card } from "./components/Card";
 import { ProductViews } from "./components/ProductViews";
+import { ProductActivityChart } from "./components/ProductActivityChart";
 import { Funnel } from "./components/Funnel";
 import { KpiTile } from "./components/KpiTile";
 import { QualityBar } from "./components/QualityBar";
@@ -141,7 +142,7 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
                       paid: h.paid,
                       other: h.other,
                     }))
-                  : daysBetween(window.start, window.end).map<TimeBucket>((day, i, all) => {
+                  : vietnamDaysBetween(window.start, window.end).map<TimeBucket>((day, i, all) => {
                       const found = report.current.byDay.find((d) => d.day === day);
                       return {
                         label: day.split("-").reverse().join("/"),
@@ -175,7 +176,18 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
             <SourcesTable sources={report.current.sources} />
           </Card>
 
-          <Card title="Lượt xem từng sản phẩm" subtitle="Khách bấm vào xem sản phẩm nào, bao nhiêu lần — và sản phẩm đang bán nào chưa ai xem trong kỳ (không tính bot).">
+          <Card
+            title="Tương tác với sản phẩm"
+            subtitle={
+              window.isSingleDay
+                ? "Mỗi giờ khách xem, thêm giỏ và bấm yêu thích bao nhiêu lần (giờ Việt Nam, không tính bot). Chạm vào biểu đồ để xem từng giờ."
+                : "Mỗi ngày khách xem, thêm giỏ và bấm yêu thích bao nhiêu lần (không tính bot). Chạm vào biểu đồ để xem từng ngày."
+            }
+          >
+            <ProductActivityChart points={report.productActivity} />
+          </Card>
+
+          <Card title="Từng sản phẩm" subtitle="Sản phẩm nào được xem nhiều, xem lâu, bỏ vào giỏ hay được yêu thích nhất — và sản phẩm nào chưa ai xem trong kỳ.">
             <ProductViews products={report.products} />
           </Card>
 
@@ -221,15 +233,6 @@ const AnalyticsPage = async ({ searchParams }: { searchParams: { range?: string 
     </div>
     </>
   );
-};
-
-/** Every Vietnam calendar day in the window, so days without visits still get an (empty) column. */
-const daysBetween = (start: Date, end: Date) => {
-  const days: string[] = [];
-  for (let t = start.getTime(); t < end.getTime(); t += 86_400_000) {
-    days.push(vietnamDay(new Date(t).toISOString().slice(0, 19).replace("T", " ")));
-  }
-  return [...new Set(days)];
 };
 
 export default AnalyticsPage;

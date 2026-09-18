@@ -1,5 +1,9 @@
 import { prisma } from "@saltandlight/db";
-import { DEFAULT_ORDER_EMAIL, ORDER_EMAIL_ID, type OrderEmailTemplate } from "@/helpers/order-email";
+import {
+  DEFAULT_ORDER_EMAIL,
+  ORDER_EMAIL_ID,
+  type OrderEmailTemplate,
+} from "@/helpers/order-email";
 import { getCachedSiteSettings } from "@/server/queries";
 import { withMemoryCache } from "@/server/memory-cache";
 
@@ -13,12 +17,17 @@ export const ORDER_EMAIL_CACHE_KEY = "order-email-template";
 export const getOrderEmailTemplate = (): Promise<OrderEmailTemplate> =>
   withMemoryCache(ORDER_EMAIL_CACHE_KEY, 60, async () => {
     try {
-      const row = await prisma.emailTemplate.findUnique({ where: { id: ORDER_EMAIL_ID } });
+      const row = await prisma.emailTemplate.findUnique({
+        where: { id: ORDER_EMAIL_ID },
+      });
       if (!row) return DEFAULT_ORDER_EMAIL;
       const { id: _id, updatedAt: _updatedAt, ...template } = row;
       return template;
     } catch (err) {
-      console.error("[email-template] falling back to the default order email:", err);
+      console.error(
+        "[email-template] falling back to the default order email:",
+        err,
+      );
       return DEFAULT_ORDER_EMAIL;
     }
   });
