@@ -99,7 +99,7 @@ export const CartFab = () => {
             ${cartCount > 0 && !isBumping ? "animate-pulse-glow" : ""}
             ${isBumping ? "scale-110 ring-4 ring-brand-forest/40" : "scale-100"}`}
         >
-          <span className="relative flex items-center justify-center">
+          <span data-cart-target className="relative flex items-center justify-center">
             <ShoppingBag size={20} className="transition-transform duration-300 group-hover:scale-110" />
             {cartCount > 0 && (
               <span

@@ -36,7 +36,7 @@ export const BottomTabBar = () => {
         <LayoutGrid size={21} />
       </TabLink>
       <TabLink href="/gio-hang" label="Giỏ hàng" active={isActive("/gio-hang")} badge={cartCount}>
-        <ShoppingBag size={21} />
+        <ShoppingBag size={21} data-cart-target />
       </TabLink>
       <TabLink href="/yeu-thich" label="Yêu thích" active={isActive("/yeu-thich")} badge={wishlistCount}>
         <Heart size={21} />

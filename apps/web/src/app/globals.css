@@ -387,3 +387,111 @@ body:has([data-modal]) {
 @media (prefers-reduced-motion: no-preference) {
   .admin-sheet[open] { animation: admin-sheet-up 220ms cubic-bezier(0.16, 1, 0.3, 1); }
 }
+
+/*
+ * Storefront scroll reveal (components/RevealOnScroll.tsx). An animation, not a transition,
+ * with fill-mode `backwards`: it releases `transform` the moment it ends, so a card's own
+ * hover lift and press still work. Cards in one row enter one after another.
+ */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-reveal-ready] [data-reveal]:not([data-inview]) {
+    opacity: 0;
+  }
+  html[data-reveal-ready] [data-reveal][data-inview="animate"] {
+    animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  [data-reveal][data-inview="animate"]:nth-child(4n + 2) { animation-delay: 70ms; }
+  [data-reveal][data-inview="animate"]:nth-child(4n + 3) { animation-delay: 140ms; }
+  [data-reveal][data-inview="animate"]:nth-child(4n + 4) { animation-delay: 210ms; }
+
+  /* Saving to the wishlist: the heart springs once */
+  @keyframes heart-pop {
+    40% { transform: scale(1.35); }
+    70% { transform: scale(0.92); }
+  }
+  .heart-pop[aria-pressed="true"] svg {
+    animation: heart-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* Storefront header on phones: tucked away while scrolling down (components/Header.tsx) */
+@media (max-width: 1023px) {
+  .site-header {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .site-header[data-tucked] {
+    transform: translateY(-100%);
+  }
+}
+@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
+}
+
+/* Closing counterparts of animate-fade-in / animate-pop-in (hooks/use-presence.ts) */
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes popOut {
+  to {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+.animate-fade-out {
+  animation: fadeOut 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+.animate-pop-out {
+  animation: popOut 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+.animate-sheet-down {
+  pointer-events: none;
+}
+
+/*
+ * Scroll reveal, scroll-driven: tied to each element's own entry into view and run off
+ * the main thread. The implicit end keyframe is the element's live style, so hover lifts
+ * still apply once it's in. Browsers without it use RevealOnScroll.tsx instead.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+/* Page transitions (next-view-transitions): the tapped card's photo morphs into the
+   product page's; the page itself cross-fades quickly around it. */
+::view-transition-group(product-hero) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+/* The header stays put while the page under it changes */
+.site-header {
+  view-transition-name: site-header;
+}

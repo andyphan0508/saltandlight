@@ -11,6 +11,7 @@ import { DrawerAccountCard } from "./mobile-drawer/DrawerAccountCard";
 import { DrawerCategoryGrid } from "./mobile-drawer/DrawerCategoryGrid";
 import { DrawerNavLinks } from "./mobile-drawer/DrawerNavLinks";
 import { DrawerSupportLinks } from "./mobile-drawer/DrawerSupportLinks";
+import { usePresence } from "@/hooks/use-presence";
 
 interface MobileDrawerProps {
   categories: CategoryOption[];
@@ -33,12 +34,13 @@ export const MobileDrawer = ({ categories, siteSettings = DEFAULT_SITE_SETTINGS 
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isOpen, setIsOpen]);
 
-  if (!isOpen) return null;
+  const { isMounted, isClosing } = usePresence(isOpen, 250);
+  if (!isMounted) return null;
 
   return (
     <div data-modal className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm ${isClosing ? "animate-fade-out" : "animate-fade-in"}`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -47,7 +49,7 @@ export const MobileDrawer = ({ categories, siteSettings = DEFAULT_SITE_SETTINGS 
         role="dialog"
         aria-modal="true"
         aria-label="Menu điều hướng di động"
-        className="relative z-10 flex max-h-[88vh] w-full flex-col rounded-t-[32px] bg-[#FDFBF7] shadow-[0_-16px_50px_rgba(0,0,0,0.25)] border-t border-ink/10 animate-sheet-up overflow-hidden"
+        className={`relative z-10 flex max-h-[88vh] w-full flex-col rounded-t-[32px] bg-[#FDFBF7] shadow-[0_-16px_50px_rgba(0,0,0,0.25)] border-t border-ink/10 overflow-hidden ${isClosing ? "animate-sheet-down" : "animate-sheet-up"}`}
       >
         <div className="flex justify-center pt-3 pb-2 cursor-pointer flex-shrink-0" onClick={onClose}>
           <div className="h-1.5 w-12 rounded-full bg-ink/20 hover:bg-ink/40 transition-colors" />

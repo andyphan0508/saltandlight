@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Sparkles, ZoomIn } from "@/components/Icons";
 import { ImageLightboxModal } from "./ImageLightboxModal";
 
@@ -16,7 +16,7 @@ export const ProductGallery = ({
 }: ProductGalleryProps) => {
   const [active, setActive] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const current = images[active] ?? images[0];
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const onOpenLightbox = () => {
     setIsLightboxOpen(true);
@@ -26,8 +26,19 @@ export const ProductGallery = ({
     setIsLightboxOpen(false);
   };
 
+  // Swiping the main image moves between photos; the thumbnails follow along
+  const onTrackScroll = () => {
+    const track = trackRef.current;
+    if (!track || !track.clientWidth) return;
+    const index = Math.round(track.scrollLeft / track.clientWidth);
+    if (index !== active) setActive(index);
+  };
+
   const onSelectImage = (index: number) => {
-    setActive(index);
+    const track = trackRef.current;
+    if (!track) return;
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.scrollTo({ left: index * track.clientWidth, behavior: isReduced ? "auto" : "smooth" });
   };
 
   return (
@@ -37,15 +48,28 @@ export const ProductGallery = ({
         className="relative h-[34vh] min-h-[260px] max-h-[320px] sm:h-[380px] sm:max-h-[420px] w-full overflow-hidden rounded-3xl bg-white border border-ink/5 shadow-card group cursor-zoom-in"
         onClick={onOpenLightbox}
       >
-        {current ? (
-          <Image
-            src={current.url}
-            alt={productName}
-            fill
-            sizes="(min-width: 1024px) 400px, 90vw"
-            className="object-contain p-2 sm:p-3 transition-transform duration-500 group-hover:scale-105"
-            priority
-          />
+        {images.length > 0 ? (
+          <div
+            ref={trackRef}
+            data-product-gallery
+            onScroll={onTrackScroll}
+            className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+          >
+            {images.map((img, i) => (
+              <div key={img.url + i} className="relative h-full w-full flex-shrink-0 snap-center snap-always">
+                <Image
+                  src={img.url}
+                  alt={i === 0 ? productName : `${productName} — ảnh ${i + 1}`}
+                  fill
+                  sizes="(min-width: 1024px) 400px, 90vw"
+                  className="object-contain p-2 sm:p-3 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                  priority={i === 0}
+                  // The shared-element target for the card → product page transition
+                  style={i === 0 ? { viewTransitionName: "product-hero" } : undefined}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center bg-mint-50 text-ink/30 p-8 text-center">
             <Sparkles size={32} className="text-mint-300 mb-2" />
@@ -82,6 +106,8 @@ export const ProductGallery = ({
               <button
                 key={img.url + i}
                 type="button"
+                aria-label={`Xem ảnh ${i + 1}`}
+                aria-current={isActive ? "true" : undefined}
                 onClick={() => onSelectImage(i)}
                 className={`relative h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-all ${
                   isActive

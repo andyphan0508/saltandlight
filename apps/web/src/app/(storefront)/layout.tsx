@@ -1,4 +1,5 @@
 import { Toaster } from "sonner";
+import { ViewTransitions } from "next-view-transitions";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BottomTabBar } from "@/components/BottomTabBar";
@@ -10,6 +11,7 @@ import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { Suspense } from "react";
 import { CuteAmbientBackground } from "@/components/CuteAmbientBackground";
 import { NavigationBuffer } from "@/components/NavigationBuffer";
+import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { getCachedCategoriesWithCounts, getCachedSiteSettings } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
 import { DEFAULT_SITE_SETTINGS, resolveSiteSettings, type SiteSettingsData } from "@/interfaces/site-settings";
@@ -29,6 +31,8 @@ const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => 
   }
 
   return (
+    // Lets a product card's photo morph into the product page (components/ProductCard.tsx)
+    <ViewTransitions>
     <ContactInfoProvider siteSettings={siteSettings}>
       <Toaster
         richColors
@@ -48,11 +52,13 @@ const StorefrontLayout = async ({ children }: { children: React.ReactNode }) => 
       <MobileDrawer categories={navCategories} siteSettings={siteSettings} />
       <SearchSpotlight />
       <CartFab />
+      <RevealOnScroll />
       {/* useSearchParams needs a Suspense boundary so it doesn't opt the whole layout out of static rendering */}
       <Suspense fallback={null}>
         <AnalyticsTracker />
       </Suspense>
     </ContactInfoProvider>
+    </ViewTransitions>
   );
 };
 

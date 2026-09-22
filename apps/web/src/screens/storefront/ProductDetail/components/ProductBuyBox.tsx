@@ -8,6 +8,7 @@ import { useVariantSelection } from "@/hooks/use-variant-selection";
 import type { ProductVariantOption } from "@/interfaces/catalog";
 import { useCartStore } from "@/stores/cart-store";
 import { track } from "@/helpers/analytics/client";
+import { flyToCart } from "@/helpers/fly-to-cart";
 import { BuyActions } from "./BuyActions";
 import { ColorOptions } from "./ColorOptions";
 import { PriceBox } from "./PriceBox";
@@ -52,6 +53,10 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote }: P
 
   const onAddToCart = () => {
     if (isOutOfStock) return;
+    // Before the store update: an empty cart's floating button is still hidden, so the photo
+    // flies to whichever cart icon is on screen now
+    flyToCart(document.querySelector("[data-product-gallery]"));
+    navigator.vibrate?.(12);
     addToCart(selected.id, quantity);
     trackAddToCart();
     setIsJustAdded(true);

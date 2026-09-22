@@ -8,6 +8,7 @@ import { useSearchModalStore } from "@/stores/search-store";
 import { formatVND } from "@saltandlight/domain";
 import { Search, X, ArrowRight } from "./Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
+import { usePresence } from "@/hooks/use-presence";
 
 /**
  * Rendered as a sibling of <Header> in layout.tsx (not inside it) — same
@@ -103,16 +104,17 @@ export const SearchSpotlight = () => {
     return () => document.removeEventListener("keydown", onWindowKeyDown);
   }, [isOpen, setIsOpen]);
 
-  if (!isOpen) return null;
+  const { isMounted, isClosing } = usePresence(isOpen);
+  if (!isMounted) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-center px-4 pt-[12vh] sm:pt-[16vh]">
       <div
-        className="fixed inset-0 bg-ink/40 backdrop-blur-sm animate-fade-in"
+        className={`fixed inset-0 bg-ink/40 backdrop-blur-sm ${isClosing ? "animate-fade-out" : "animate-fade-in"}`}
         onClick={onClose}
       />
 
-      <div className="relative flex h-fit max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl animate-pop-in">
+      <div className={`relative flex h-fit max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ${isClosing ? "animate-pop-out" : "animate-pop-in"}`}>
         <div className="flex items-center gap-3 border-b border-ink/10 px-5 py-4">
           <Search size={20} className="flex-shrink-0 text-ink/40" />
           <input

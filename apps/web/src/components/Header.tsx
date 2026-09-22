@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { CategoryOption } from "@/interfaces/catalog";
@@ -30,8 +30,42 @@ export const Header = ({ categories, siteSettings = DEFAULT_SITE_SETTINGS }: Hea
     setIsMobileMenuOpen(false);
   }, [pathname, setIsMobileMenuOpen]);
 
+  // Phones: scrolling down slides the header away to give the products the screen; any
+  // scroll back up brings it straight back. Direction is read once per frame, and the
+  // move itself is a CSS transform (globals.css, .site-header), so nothing reflows.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const header = headerRef.current;
+        if (!header) return;
+        const y = window.scrollY;
+        if (Math.abs(y - lastY) < 8) return;
+        header.toggleAttribute("data-tucked", y > lastY && y > header.offsetHeight);
+        lastY = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // A new page starts at the top with the header in view
+  useEffect(() => {
+    headerRef.current?.removeAttribute("data-tucked");
+  }, [pathname]);
+
   return (
-    <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md transition-all border-b border-ink/5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+    <header
+      ref={headerRef}
+      className="site-header sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-ink/5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
+    >
       <TopBar phone={siteSettings.footerPhone || DEFAULT_SITE_SETTINGS.footerPhone} />
 
       {/*

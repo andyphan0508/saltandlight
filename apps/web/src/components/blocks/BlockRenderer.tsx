@@ -55,13 +55,16 @@ export const BlockRenderer = ({ block }: { block: PageBlockData }) => {
   const label = (BLOCK_TYPE_LABELS as Record<string, string>)[block.type] || block.type;
 
   return (
-    <LiveBlockClient
-      blockId={block.id}
-      blockType={block.type}
-      blockLabel={label}
-      initialContent={block.content}
-    >
-      {inner}
-    </LiveBlockClient>
+    // Each section rises in as it scrolls into view (components/RevealOnScroll.tsx)
+    <div data-reveal>
+      <LiveBlockClient
+        blockId={block.id}
+        blockType={block.type}
+        blockLabel={label}
+        initialContent={block.content}
+      >
+        {inner}
+      </LiveBlockClient>
+    </div>
   );
 };
