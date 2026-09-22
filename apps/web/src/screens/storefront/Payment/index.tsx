@@ -78,7 +78,9 @@ export const CheckoutView = () => {
         return;
       }
       clearCart();
-      router.push(`/don-hang/${encodeURIComponent(data.orderNumber)}`);
+      router.push(
+        `/don-hang/${encodeURIComponent(data.orderNumber)}?${new URLSearchParams({ method: data.paymentMethod, total: String(data.total) })}`,
+      );
     } catch {
       setError("Không thể kết nối máy chủ. Vui lòng thử lại.");
       setIsSubmitting(false);

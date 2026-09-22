@@ -284,6 +284,12 @@ export const getCachedPageBlocks = (page: string) =>
   withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page));
 
 /** Admin-configured QR image / transfer note / thank-you-only toggle shown on the order confirmation page */
+/** QR image and transfer details shown to bank-transfer customers after ordering (cached 300s). */
+export const getCachedTransferInfo = () =>
+  withMemoryCache("payment-settings", 300, () =>
+    prisma.paymentSettings.findUnique({ where: { id: "default" }, select: { qrImageUrl: true, transferNote: true } }),
+  );
+
 /** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
 export const getSiteSettings = async () => {
   return prisma.siteSettings.findUnique({ where: { id: "default" } });

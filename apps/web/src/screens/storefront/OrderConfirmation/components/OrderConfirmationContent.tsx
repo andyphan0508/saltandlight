@@ -1,10 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
+import { formatVND } from "@saltandlight/domain";
 import { Button } from "@saltandlight/ui";
 import { Check, Phone, Truck } from "@/components/Icons";
 import { HotlineLink } from "@/components/ContactInfoProvider";
 
-/** Same page for every payment method: the order number and when it will arrive. */
-export const OrderConfirmationContent = ({ orderNumber }: { orderNumber: string }) => (
+export interface TransferInfo {
+  qrImageUrl: string | null;
+  transferNote: string | null;
+  total: number;
+}
+
+/**
+ * Same page for every payment method: the order number and when it will arrive. Bank-transfer
+ * orders also get the QR and transfer details the shop set in admin › Cài đặt thanh toán.
+ */
+export const OrderConfirmationContent = ({ orderNumber, transfer }: { orderNumber: string; transfer: TransferInfo | null }) => (
   <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16 space-y-10 text-center">
     {/* Success Badge & Title */}
     <div className="space-y-3">
@@ -21,6 +32,32 @@ export const OrderConfirmationContent = ({ orderNumber }: { orderNumber: string 
         #{orderNumber}
       </div>
     </div>
+
+    {transfer && (
+      <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 text-left">
+        <h2 className="font-display text-lg font-bold uppercase text-ink text-center sm:text-left">Thông tin chuyển khoản</h2>
+        <div className="mt-5 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+          {transfer.qrImageUrl && (
+            <div className="relative h-56 w-56 flex-shrink-0 overflow-hidden rounded-2xl border border-ink/10 bg-white p-2">
+              <Image src={transfer.qrImageUrl} alt="Mã QR chuyển khoản" fill sizes="224px" className="object-contain p-2" />
+            </div>
+          )}
+          <div className="w-full space-y-3 text-sm">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-2xl bg-cream p-4">
+              <dt className="text-ink/60">Mã đơn hàng</dt>
+              <dd className="font-bold text-ink">{orderNumber}</dd>
+              {transfer.total > 0 && (
+                <>
+                  <dt className="text-ink/60">Số tiền</dt>
+                  <dd className="font-bold text-brand-forest">{formatVND(transfer.total)}</dd>
+                </>
+              )}
+            </dl>
+            {transfer.transferNote && <p className="whitespace-pre-line leading-relaxed text-ink/80">{transfer.transferNote}</p>}
+          </div>
+        </div>
+      </div>
+    )}
 
     <div className="rounded-3xl bg-mint-50 p-8 sm:p-12 border border-mint-200 space-y-3">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-brand-forest shadow-sm">
