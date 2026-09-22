@@ -18,44 +18,56 @@ declare global {
  * queries over plain HTTPS, which is exactly what Workers' fetch-based
  * runtime is built for — no TCP socket, no native engine binary.
  */
-function isCloudflareWorker(): boolean {
+/**
+ * The current Worker request's ExecutionContext, or null outside a Worker request
+ * (local `next dev`, `next build`, scripts, the Prisma CLI), where it throws.
+ */
+function workerRequest(): object | null {
   try {
-    // Only resolves inside a Cloudflare Worker request — throws everywhere
-    // else (local `next dev`, `next build`, scripts, the Prisma CLI).
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require("@opennextjs/cloudflare").getCloudflareContext();
-    return true;
+    return require("@opennextjs/cloudflare").getCloudflareContext().ctx ?? null;
   } catch {
-    return false;
+    return null;
   }
 }
 
-function createClient(): PrismaClient {
-  if (isCloudflareWorker()) {
-    return new EdgePrismaClient({ datasourceUrl: process.env.ACCELERATE_URL }).$extends(
-      withAccelerate(),
-    ) as unknown as PrismaClient;
-  }
-  return new PrismaClient();
-}
+/**
+ * One client per Worker request, never shared: with one client for the whole isolate,
+ * concurrent requests (a page plus Next's link prefetches, a checkout during browsing)
+ * had promises resolved in another request's I/O context (prisma/prisma#28732), and the
+ * runtime killed the loser as "hung" — a crash no retry can catch. Accelerate talks
+ * HTTPS, so a client is only an object: nothing to connect or pool.
+ */
+const requestClients = new WeakMap<object, PrismaClient>();
 
 function getOrCreatePrisma(): PrismaClient {
-  if (!globalThis.__prisma__) globalThis.__prisma__ = createClient();
+  const request = workerRequest();
+  if (request) {
+    let client = requestClients.get(request);
+    if (!client) {
+      client = new EdgePrismaClient({ datasourceUrl: process.env.ACCELERATE_URL }).$extends(
+        withAccelerate(),
+      ) as unknown as PrismaClient;
+      requestClients.set(request, client);
+    }
+    return client;
+  }
+  if (!globalThis.__prisma__) globalThis.__prisma__ = new PrismaClient();
   return globalThis.__prisma__;
+}
+
+/** Drops the current client so the next query builds a fresh one. */
+function resetPrisma() {
+  const request = workerRequest();
+  if (request) requestClients.delete(request);
+  else globalThis.__prisma__ = undefined;
 }
 
 const TRANSIENT_ERROR_REGEX =
   /connection closed|closed the connection|connection terminated|can't reach database|terminating connection|broken pipe|econnreset|etimedout|57P01|P1001|P1002|P1017/i;
 
-// Confirmed, still-open upstream bug: Prisma's default query batching can
-// resolve a promise against a different concurrent request's I/O context on
-// Cloudflare Workers (prisma/prisma#28732). When two+ requests hit this
-// isolate close together — e.g. an admin page firing several Promise.all'd
-// queries while another request is in flight — the Workers runtime kills
-// the "loser" outright: "canceled this request because it detected that
-// your Worker's code had hung". No connection actually dropped, but
-// discarding the client and retrying with a fresh one recovers just the
-// same, and it's the only mitigation available until Prisma fixes this.
+// Kept as a last resort: per-request clients (above) are the fix for the
+// cross-request "Worker's code had hung" cancellation, prisma/prisma#28732.
 const HUNG_REQUEST_REGEX = /runtime canceled this request|detected that your worker's code had hung/i;
 
 export function isTransientConnectionError(error: unknown): boolean {
@@ -78,11 +90,11 @@ async function runWithRetry<T>(operation: (client: PrismaClient) => Promise<T>):
           `[db] Transient connection error: "${(err as Error).message}". Resetting connection pool and retrying (${attempt}/${maxRetries})...`,
         );
         try {
-          await globalThis.__prisma__?.$disconnect();
+          await client.$disconnect();
         } catch {
           // ignore disconnect error on closed socket
         }
-        globalThis.__prisma__ = undefined;
+        resetPrisma();
         await new Promise((resolve) => setTimeout(resolve, 50 * attempt));
         continue;
       }
@@ -98,8 +110,8 @@ async function runWithRetry<T>(operation: (client: PrismaClient) => Promise<T>):
  * report "not a Worker" and bake in a plain `PrismaClient()` (which then
  * crashes on its first real query) for the rest of that isolate's life.
  * `prisma` is a Proxy so the real client is only built the first time a
- * query actually runs — always inside a request — then cached on
- * `globalThis` for reuse across requests on that warm isolate.
+ * query actually runs — always inside a request — and reused for the rest
+ * of that request (outside Workers: for the life of the process).
  *
  * It also wraps model operations and query methods with automatic retry
  * on transient pooler/PgBouncer disconnects ("Connection closed"), discarding
