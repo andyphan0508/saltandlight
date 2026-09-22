@@ -78,13 +78,7 @@ export const CheckoutView = () => {
         return;
       }
       clearCart();
-      const params = new URLSearchParams({
-        total: String(data.total),
-        transferContent: data.transferContent,
-        method: data.paymentMethod,
-        ...(data.qrUrl ? { qrUrl: data.qrUrl } : {}),
-      });
-      router.push(`/don-hang/${data.orderNumber}?${params.toString()}`);
+      router.push(`/don-hang/${encodeURIComponent(data.orderNumber)}`);
     } catch {
       setError("Không thể kết nối máy chủ. Vui lòng thử lại.");
       setIsSubmitting(false);

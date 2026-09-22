@@ -284,14 +284,6 @@ export const getCachedPageBlocks = (page: string) =>
   withMemoryCache(`page-blocks-${page}`, 60, () => listPageBlocks(page));
 
 /** Admin-configured QR image / transfer note / thank-you-only toggle shown on the order confirmation page */
-export const getPaymentSettings = async () => {
-  return prisma.paymentSettings.findUnique({ where: { id: "default" } });
-};
-
-/** Cached payment settings (cached 300s — this rarely changes, and every order confirmation view reads it) */
-export const getCachedPaymentSettings = () =>
-  withMemoryCache("payment-settings", 300, () => getPaymentSettings());
-
 /** Admin-configured header/footer/logo/menu content. Row is optional — null fields fall back at the call site via `resolveSiteSettings`. */
 export const getSiteSettings = async () => {
   return prisma.siteSettings.findUnique({ where: { id: "default" } });

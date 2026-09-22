@@ -9,7 +9,7 @@ patchedDependencies:
     hash: l52ckmhhwzi3xka5cf3jcm6i2q
     path: patches/@opennextjs__aws.patch
   '@opennextjs/cloudflare@0.4.8':
-    hash: 2ex23m4wa4ben4qvzf6bfnrfaa
+    hash: 3s33rlcn3nnidcgmwrhvmvdu5q
     path: patches/@opennextjs__cloudflare@0.4.8.patch
 
 importers:
@@ -82,7 +82,7 @@ importers:
     devDependencies:
       '@opennextjs/cloudflare':
         specifier: 0.4.8
-        version: 0.4.8(patch_hash=2ex23m4wa4ben4qvzf6bfnrfaa)(wrangler@3.114.17)
+        version: 0.4.8(patch_hash=3s33rlcn3nnidcgmwrhvmvdu5q)(wrangler@3.114.17)
       '@prisma/nextjs-monorepo-workaround-plugin':
         specifier: ^7.10.0
         version: 7.10.0
@@ -5559,7 +5559,7 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@opennextjs/cloudflare@0.4.8(patch_hash=2ex23m4wa4ben4qvzf6bfnrfaa)(wrangler@3.114.17)':
+  '@opennextjs/cloudflare@0.4.8(patch_hash=3s33rlcn3nnidcgmwrhvmvdu5q)(wrangler@3.114.17)':
     dependencies:
       '@ast-grep/napi': 0.34.4
       '@dotenvx/dotenvx': 1.31.0

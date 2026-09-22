@@ -4,8 +4,6 @@ import {
   createOrderSchema,
   pickShippingFee,
   nextOrderNumber,
-  buildVietQrUrl,
-  buildTransferContent,
   initialOrderStatus,
   PAYMENT_METHOD_LABELS,
 } from "@saltandlight/domain";
@@ -172,17 +170,6 @@ export const POST = async (req: NextRequest) => {
     }
   }
 
-  const vietqr = {
-    bankBin: process.env.VIETQR_BANK_BIN ?? "",
-    accountNo: process.env.VIETQR_ACCOUNT_NO ?? "",
-    accountName: process.env.VIETQR_ACCOUNT_NAME ?? "",
-  };
-  const transferContent = buildTransferContent(order.orderNumber);
-  const qrUrl =
-    !isCod && vietqr.bankBin && vietqr.accountNo
-      ? buildVietQrUrl(vietqr, { amount: total, addInfo: transferContent })
-      : null;
-
   recordOrderAnalytics(req, {
     total,
     items: orderItemsInput.map((item) => ({
@@ -224,8 +211,6 @@ export const POST = async (req: NextRequest) => {
   return NextResponse.json({
     orderNumber: order.orderNumber,
     total,
-    transferContent,
-    qrUrl,
     paymentMethod,
   });
 };

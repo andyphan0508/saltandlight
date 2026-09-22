@@ -1,5 +1,5 @@
 diff --git a/dist/cli/templates/worker.js b/dist/cli/templates/worker.js
-index 823c28a2306d4da78d85c01c89249c0472ff58cd..43719b46606413bfa386031af8cc6095737a0ba3 100644
+index 823c28a2306d4da78d85c01c89249c0472ff58cd..5688577e925f1cefcb62b3f5c55d158f664eb623 100644
 --- a/dist/cli/templates/worker.js
 +++ b/dist/cli/templates/worker.js
 @@ -22,10 +22,7 @@ export default {
@@ -14,7 +14,7 @@ index 823c28a2306d4da78d85c01c89249c0472ff58cd..43719b46606413bfa386031af8cc6095
              }
              // The Middleware handler can return either a `Response` or a `Request`:
              // - `Response`s should be returned early
-@@ -65,3 +62,35 @@ function populateProcessEnv(url, nextJsEnv) {
+@@ -65,3 +62,33 @@ function populateProcessEnv(url, nextJsEnv) {
          },
      });
  }
@@ -25,9 +25,7 @@ index 823c28a2306d4da78d85c01c89249c0472ff58cd..43719b46606413bfa386031af8cc6095
 + * Mirrors next.config.mjs remotePatterns; keep the two in sync.
 + */
 +const isAllowedImageUrl = (u) =>
-+    u.protocol === "https:" &&
-+    ((u.hostname.endsWith(".supabase.co") && u.pathname.startsWith("/storage/v1/object/public/")) ||
-+        u.hostname === "img.vietqr.io");
++    u.protocol === "https:" && u.hostname.endsWith(".supabase.co") && u.pathname.startsWith("/storage/v1/object/public/");
 +async function fetchImage(imageUrl, request, env) {
 +    if (imageUrl.startsWith("/") && !imageUrl.startsWith("//")) {
 +        return env.ASSETS.fetch(new URL(imageUrl, request.url));
