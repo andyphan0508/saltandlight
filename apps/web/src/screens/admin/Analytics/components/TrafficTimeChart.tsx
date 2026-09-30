@@ -1,4 +1,4 @@
-import { formatInt } from "../format";
+import { formatInt, niceAxisMax } from "../format";
 
 export interface TimeBucket {
   label: string;
@@ -18,7 +18,7 @@ const OTHER = "#eb6834";
  */
 export const TrafficTimeChart = ({ buckets, caption }: { buckets: TimeBucket[]; caption: string }) => {
   const max = Math.max(1, ...buckets.map((b) => b.paid + b.other));
-  const niceMax = max <= 5 ? 5 : Math.ceil(max / 5) * 5;
+  const niceMax = niceAxisMax(max);
   const ticks = [niceMax, niceMax / 2, 0];
 
   return (

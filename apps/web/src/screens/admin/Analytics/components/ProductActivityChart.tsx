@@ -2,7 +2,7 @@
 
 import { useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { ProductActivityPoint } from "@/helpers/analytics/product-activity";
-import { formatInt } from "../format";
+import { formatInt, niceAxisMax } from "../format";
 
 // Categorical slots 1–3 in fixed order, validated together (CVD ΔE 9.2, normal 27.6). The aqua
 // is under 3:1 on white, which is why there's a legend, a tooltip and a table view.
@@ -16,13 +16,6 @@ const W = 1000;
 const H = 200;
 const MAX_TICKS = 6;
 
-/** Rounds the top of the axis up to a clean number so the gridlines read 0 / 5 / 10. */
-const niceCeil = (value: number) => {
-  if (value <= 4) return 4;
-  const step = 10 ** Math.floor(Math.log10(value));
-  return Math.ceil(value / (step / 2)) * (step / 2);
-};
-
 /**
  * Product interactions over time: three lines on one count axis. A crosshair snaps to
  * the nearest time bucket (mouse, touch drag or arrow keys) and lists all three values.
@@ -30,7 +23,7 @@ const niceCeil = (value: number) => {
 export const ProductActivityChart = ({ points }: { points: ProductActivityPoint[] }) => {
   const [active, setActive] = useState<number | null>(null);
   const n = points.length;
-  const max = niceCeil(Math.max(0, ...points.flatMap((p) => SERIES.map((s) => p[s.key]))));
+  const max = niceAxisMax(Math.max(0, ...points.flatMap((p) => SERIES.map((s) => p[s.key]))));
   const totals = SERIES.map((s) => points.reduce((sum, p) => sum + p[s.key], 0));
 
   if (n === 0 || totals.every((t) => t === 0)) {

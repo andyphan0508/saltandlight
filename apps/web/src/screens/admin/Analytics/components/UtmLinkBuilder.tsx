@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { SITE_URL } from "@/helpers/site-url";
 
 const PLATFORMS = [
   { id: "facebook", label: "Facebook / Instagram" },
@@ -30,13 +29,17 @@ export const UtmLinkBuilder = () => {
   const [path, setPath] = useState("/san-pham");
   const [platform, setPlatform] = useState<(typeof PLATFORMS)[number]["id"]>("facebook");
   const [campaign, setCampaign] = useState("");
+  // The live site's own address, read in the browser: the server can't know which domain
+  // the admin opened, and guessing it there made server and browser HTML disagree
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
 
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  const url = new URL(cleanPath, SITE_URL);
+  const url = new URL(cleanPath, origin || "http://pending.invalid");
   url.searchParams.set("utm_source", platform);
   url.searchParams.set("utm_medium", "paid");
   if (campaign.trim()) url.searchParams.set("utm_campaign", slugifyCampaign(campaign));
-  const link = url.toString();
+  const link = origin ? url.toString() : "";
 
   const onCopy = async () => {
     try {
@@ -84,7 +87,7 @@ export const UtmLinkBuilder = () => {
         </label>
       </div>
       <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3">
-        <code className="min-w-0 flex-1 break-all text-xs text-slate-800">{link}</code>
+        <code className="min-w-0 flex-1 break-all text-xs text-slate-800">{link || "…"}</code>
         <button
           type="button"
           onClick={onCopy}

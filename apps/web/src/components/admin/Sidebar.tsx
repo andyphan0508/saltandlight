@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/api/supabase-client";
-import { SITE_URL } from "@/helpers/site-url";
 import { LogOut, ExternalLink } from "./Icons";
 import { isNavActive, navGroupsFor } from "./nav-config";
 

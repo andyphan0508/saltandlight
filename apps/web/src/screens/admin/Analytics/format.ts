@@ -25,3 +25,23 @@ export const describeChange = (current: number, previous: number, kind: "count" 
   const pct = ((current - previous) / previous) * 100;
   return { direction: Math.sign(Math.round(pct * 10)), text: `${Math.abs(pct).toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%` };
 };
+
+const TICK_STEPS = [1, 2, 2.5, 3, 4, 5, 6, 8, 10];
+
+/**
+ * Top of a count axis with gridlines at 0 / half / top, where both the half and the top
+ * are round whole numbers (0 / 60 / 120, never 0 / 53 / 105). At least 2.
+ */
+export const niceAxisMax = (value: number) => {
+  const half = Math.max(value, 2) / 2;
+  const power = 10 ** Math.floor(Math.log10(half));
+  const step = TICK_STEPS.find((s) => s * power >= half && Number.isInteger(s * power)) ?? 10;
+  return step * power * 2;
+};
+
+/** "1p 8s" / "45s": short enough for a stat tile on a phone. */
+export const formatDurationShort = (ms: number) => {
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)}p ${seconds % 60}s`;
+};

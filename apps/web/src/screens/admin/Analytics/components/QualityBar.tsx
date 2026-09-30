@@ -1,13 +1,14 @@
 import { QUALITY_LABELS, type SessionQuality } from "@/helpers/analytics/sessions";
+import { AlertTriangle, ArrowRight, CheckCircle, Shield } from "@/components/admin/Icons";
 import { formatInt, formatPercent } from "../format";
 
 // Status steps for "bad → fine"; the ordinary bounce is a neutral, not a status.
 // Colours never stand alone: every segment is also listed with its label and share.
-const SEGMENTS: { key: SessionQuality; color: string; icon: string }[] = [
-  { key: "suspect", color: "#d03b3b", icon: "⛔" },
-  { key: "instant_exit", color: "#ec835a", icon: "⚠" },
-  { key: "bounce", color: "#898781", icon: "–" },
-  { key: "engaged", color: "#0ca30c", icon: "✓" },
+const SEGMENTS: { key: SessionQuality; color: string; Icon: typeof Shield }[] = [
+  { key: "suspect", color: "#d03b3b", Icon: Shield },
+  { key: "instant_exit", color: "#ec835a", Icon: AlertTriangle },
+  { key: "bounce", color: "#898781", Icon: ArrowRight },
+  { key: "engaged", color: "#0ca30c", Icon: CheckCircle },
 ];
 
 /** Share of sessions by how real they look, as one stacked bar plus a labelled breakdown. */
@@ -24,13 +25,13 @@ export const QualityBar = ({ quality }: { quality: Record<SessionQuality, number
       </div>
       <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {SEGMENTS.map((s) => (
-          <li key={s.key} className="rounded-xl bg-slate-50 px-3 py-2">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600">
+          <li key={s.key} className="rounded-2xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-900/[0.03]">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
               <span className="h-2.5 w-2.5 flex-shrink-0 rounded-sm" style={{ backgroundColor: s.color }} aria-hidden="true" />
-              <span aria-hidden="true">{s.icon}</span>
+              <s.Icon size={12} className="flex-shrink-0 text-slate-500" aria-hidden="true" />
               {QUALITY_LABELS[s.key]}
             </div>
-            <div className="mt-0.5 text-sm font-bold text-slate-900">
+            <div className="mt-1 text-sm font-semibold text-slate-900">
               {formatPercent(quality[s.key] / total)} <span className="text-[11px] font-medium text-slate-400">· {formatInt(quality[s.key])} phiên</span>
             </div>
           </li>

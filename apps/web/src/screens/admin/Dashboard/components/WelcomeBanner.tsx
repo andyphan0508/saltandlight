@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ExternalLink, Plus, Sparkles } from "@/components/admin/Icons";
-import { SITE_URL } from "@/helpers/site-url";
 
 export const WelcomeBanner = () => (
   <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ink via-slate-900 to-brand-forest p-7 sm:p-9 text-white shadow-lg">
@@ -25,7 +24,7 @@ export const WelcomeBanner = () => (
           <span>Thêm sản phẩm mới</span>
         </Link>
         <a
-          href={SITE_URL}
+          href="/"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4.5 py-2.5 text-xs font-bold text-white hover:bg-white/25 transition-all backdrop-blur-sm border border-white/10"

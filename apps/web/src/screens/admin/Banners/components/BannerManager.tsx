@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { adminFetch } from "@/api/admin-fetch";
 import { ExternalLink, Plus, Sparkles } from "@/components/admin/Icons";
 import { Pagination } from "@/components/admin/Pagination";
-import { getStorefrontUrl } from "@/helpers/site-url";
 import type { BannerItem } from "@/interfaces/banner";
 import { BannerCard } from "./BannerCard";
 import { BannerFormModal } from "./BannerFormModal";
@@ -87,7 +86,7 @@ export const BannerManager = ({ initialBanners, total, page, pageSize }: BannerM
         </div>
         <div className="flex items-center gap-2.5">
           <a
-            href={getStorefrontUrl()}
+            href="/"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/80 transition-colors"
