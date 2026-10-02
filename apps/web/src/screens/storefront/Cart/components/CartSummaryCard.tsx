@@ -115,7 +115,7 @@ export const CartSummaryCard = ({
             >
               <input
                 type="text"
-                placeholder="Nhập mã ưu đãi"
+                placeholder="Nhập mã ưu đãi (Nếu có)"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 autoCapitalize="characters"
