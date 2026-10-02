@@ -27,37 +27,50 @@ export const CartView = () => {
   const requestIdRef = useRef(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchQuote = useCallback(async (lines: { productVariantId: string; quantity: number }[]) => {
-    if (!lines || lines.length === 0) {
-      setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
-      return;
-    }
-    const requestId = ++requestIdRef.current;
-    try {
-      const res = await fetchWithRetry("/api/cart/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // The current code rides along so the summary shows what it is really worth
-        body: JSON.stringify({ items: lines, couponCode: useCartStore.getState().couponCode || undefined }),
-        signal: AbortSignal.timeout(10000),
-        retries: 2,
-        retryDelayMs: 1000,
-      });
-      if (!res.ok) {
-        console.warn("Quote request returned status:", res.status);
+  const fetchQuote = useCallback(
+    async (lines: { productVariantId: string; quantity: number }[]) => {
+      if (!lines || lines.length === 0) {
+        setQuote({ lines: [], subtotal: 0, shippingFee: 0, total: 0 });
         return;
       }
-      const data = await res.json().catch(() => null);
-      if (requestId === requestIdRef.current && data && Array.isArray(data.lines)) {
-        setQuote(data);
+      const requestId = ++requestIdRef.current;
+      try {
+        const res = await fetchWithRetry("/api/cart/quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // The current code rides along so the summary shows what it is really worth
+          body: JSON.stringify({
+            items: lines,
+            couponCode: useCartStore.getState().couponCode || undefined,
+          }),
+          signal: AbortSignal.timeout(10000),
+          retries: 2,
+          retryDelayMs: 1000,
+        });
+        if (!res.ok) {
+          console.warn("Quote request returned status:", res.status);
+          return;
+        }
+        const data = await res.json().catch(() => null);
+        if (
+          requestId === requestIdRef.current &&
+          data &&
+          Array.isArray(data.lines)
+        ) {
+          setQuote(data);
+        }
+      } catch (err) {
+        console.warn("Quote request failed:", err);
       }
-    } catch (err) {
-      console.warn("Quote request failed:", err);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Re-fetches the full quote only when the SET of items in the cart changes
-  const lineIdsKey = cartLines.map((l) => l.productVariantId).sort().join(",");
+  const lineIdsKey = cartLines
+    .map((l) => l.productVariantId)
+    .sort()
+    .join(",");
   useEffect(() => {
     if (!isHydrated) return;
     if (cartLines.length === 0) {
@@ -87,11 +100,20 @@ export const CartView = () => {
       if (!prev || !Array.isArray(prev.lines)) return prev;
       const lines = prev.lines.map((l) =>
         l.productVariantId === productVariantId
-          ? { ...l, quantity: nextQuantity, lineTotal: l.unitPrice * nextQuantity }
+          ? {
+              ...l,
+              quantity: nextQuantity,
+              lineTotal: l.unitPrice * nextQuantity,
+            }
           : l,
       );
       const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
-      return { ...prev, lines, subtotal, total: subtotal + (prev.shippingFee ?? 0) - (prev.discount ?? 0) };
+      return {
+        ...prev,
+        lines,
+        subtotal,
+        total: subtotal + (prev.shippingFee ?? 0) - (prev.discount ?? 0),
+      };
     });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -125,7 +147,7 @@ export const CartView = () => {
       </div>
 
       {/* Free Shipping Progress Card */}
-      <FreeshipBanner subtotal={subtotal} />
+      {/* <FreeshipBanner subtotal={subtotal} /> */}
 
       {/* Main Cart Content */}
       <div className="grid gap-10 lg:grid-cols-12 items-start">
@@ -151,7 +173,12 @@ export const CartView = () => {
         </div>
 
         {/* Order Summary Box */}
-        <CartSummaryCard quote={quote} subtotal={subtotal} couponCode={couponCode} onCouponChange={setCouponCode} />
+        <CartSummaryCard
+          quote={quote}
+          subtotal={subtotal}
+          couponCode={couponCode}
+          onCouponChange={setCouponCode}
+        />
       </div>
     </div>
   );

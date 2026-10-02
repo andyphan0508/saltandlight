@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@saltandlight/ui";
 import { formatVND } from "@saltandlight/domain";
-import { ArrowRight, Check, ShieldCheck, Sparkles, X } from "@/components/Icons";
+import {
+  ArrowRight,
+  Check,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from "@/components/Icons";
 import { normalizeCouponCode } from "@/helpers/coupon";
 import type { Quote } from "@/interfaces/cart";
 
@@ -16,7 +22,12 @@ export interface CartSummaryCardProps {
   onCouponChange: (code: string) => void;
 }
 
-export const CartSummaryCard = ({ quote, subtotal, couponCode, onCouponChange }: CartSummaryCardProps) => {
+export const CartSummaryCard = ({
+  quote,
+  subtotal,
+  couponCode,
+  onCouponChange,
+}: CartSummaryCardProps) => {
   const [draft, setDraft] = useState(couponCode);
   useEffect(() => setDraft(couponCode), [couponCode]);
 
@@ -24,7 +35,10 @@ export const CartSummaryCard = ({ quote, subtotal, couponCode, onCouponChange }:
   const discount = quote?.discount ?? 0;
   const finalTotal = quote?.total ?? subtotal + shippingFee;
   // Only the server's answer counts: a code shows as applied once the quote for it is back
-  const coupon = quote?.coupon?.code === normalizeCouponCode(couponCode) ? quote.coupon : null;
+  const coupon =
+    quote?.coupon?.code === normalizeCouponCode(couponCode)
+      ? quote.coupon
+      : null;
 
   const onApplyCoupon = () => {
     const code = normalizeCouponCode(draft);
@@ -114,7 +128,11 @@ export const CartSummaryCard = ({ quote, subtotal, couponCode, onCouponChange }:
                 Áp dụng
               </Button>
             </form>
-            {coupon?.message && <p className="mt-2 text-xs font-semibold text-sale">{coupon.message}</p>}
+            {coupon?.message && (
+              <p className="mt-2 text-xs font-semibold text-sale">
+                {coupon.message}
+              </p>
+            )}
           </>
         )}
       </div>
@@ -130,18 +148,6 @@ export const CartSummaryCard = ({ quote, subtotal, couponCode, onCouponChange }:
           <ArrowRight size={18} />
         </Button>
       </Link>
-
-      {/* Trust points */}
-      <div className="border-t border-ink/10 pt-4 space-y-2 text-xs text-ink/60">
-        <div className="flex items-center gap-2">
-          <ShieldCheck size={15} className="text-brand-forest" />
-          <span>Đổi size miễn phí trong 7 ngày nếu không vừa vặn</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Sparkles size={15} className="text-brand-forest" />
-          <span>Được kiểm tra hàng tận tay trước khi thanh toán (COD)</span>
-        </div>
-      </div>
     </div>
   );
 };
