@@ -11,6 +11,7 @@ export const cartQuoteSchema = z.object({
   items: z.array(cartItemSchema).min(1).max(50),
   /** Vietnam province code (vn-locations.ts) the customer selected — used to price shipping by region. */
   provinceCode: z.number().int().optional(),
+  couponCode: z.string().max(40).optional(),
 });
 
 export const shippingAddressSchema = z
@@ -45,6 +46,7 @@ export const createOrderSchema = z.object({
   items: z.array(cartItemSchema).min(1).max(50),
   note: z.string().max(500).optional(),
   paymentMethod: z.enum(PAYMENT_METHODS).default("bank_transfer"),
+  couponCode: z.string().max(40).optional(),
 });
 
 export const trackOrderSchema = z.object({

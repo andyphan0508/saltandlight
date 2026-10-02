@@ -359,3 +359,38 @@ export const orderEmailTemplateSchema = z.object({
   accentColor: hexColor,
   backgroundColor: hexColor,
 });
+
+// ── Coupons ─────────────────────────────────────────────────────────
+
+const vnd = z.number().int("Số tiền phải là số nguyên").min(0);
+
+export const couponBatchSchema = z.object({
+  quantity: z.number().int().min(1, "Số lượng mã tối thiểu là 1").max(1000, "Mỗi lần tạo tối đa 1.000 mã"),
+  prefix: z.string().trim().max(20).optional().default(""),
+});
+
+export const couponCampaignCreateSchema = couponBatchSchema
+  .extend({
+    name: z.string().trim().min(1, "Vui lòng nhập tên đợt mã").max(200),
+    discountType: z.enum(["percent", "fixed", "free_shipping"]),
+    discountValue: vnd.default(0),
+    maxDiscount: vnd.positive("Mức giảm tối đa phải lớn hơn 0").nullable().optional(),
+    minOrderTotal: vnd.default(0),
+    productIds: z.array(z.string().uuid()).max(500).default([]),
+    startsAt: promotionDateSchema,
+    endsAt: promotionDateSchema,
+  })
+  .refine((d) => d.discountType !== "percent" || (d.discountValue >= 1 && d.discountValue <= 100), {
+    message: "Phần trăm giảm phải từ 1 đến 100",
+    path: ["discountValue"],
+  })
+  .refine((d) => d.discountType !== "fixed" || d.discountValue > 0, {
+    message: "Số tiền giảm phải lớn hơn 0",
+    path: ["discountValue"],
+  })
+  .refine((d) => !d.startsAt || !d.endsAt || new Date(d.endsAt) > new Date(d.startsAt), {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["endsAt"],
+  });
+
+export const couponCampaignUpdateSchema = z.object({ isActive: z.boolean() });

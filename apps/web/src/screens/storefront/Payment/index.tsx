@@ -27,12 +27,14 @@ export const CheckoutView = () => {
   const router = useRouter();
   const cartLines = useCartStore((s) => s.lines);
   const clearCart = useCartStore((s) => s.clear);
+  const couponCode = useCartStore((s) => s.couponCode);
+  const setCouponCode = useCartStore((s) => s.setCouponCode);
   const isHydrated = useStoreHydrated(useCartStore);
   const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodValue>("bank_transfer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const quote = useCheckoutQuote(cartLines, location.provinceCode);
+  const quote = useCheckoutQuote(cartLines, location.provinceCode, couponCode);
   const hasTrackedCheckout = useRef(false);
 
   // Once per visit to checkout, as soon as the cart is known to be non-empty
@@ -63,6 +65,8 @@ export const CheckoutView = () => {
       note: field("note"),
       items: cartLines,
       paymentMethod,
+      // Only a code the quote confirmed: one that no longer applies shouldn't fail the order
+      ...(quote?.coupon?.isApplied ? { couponCode: quote.coupon.code } : {}),
     };
 
     try {
@@ -74,6 +78,8 @@ export const CheckoutView = () => {
       const data = await res.json();
       if (!res.ok) {
         setError(toOrderErrorMessage(data.error));
+        // Taken by someone else meanwhile: drop it so the summary shows the full price before a retry
+        if (data.isCouponError) setCouponCode("");
         setIsSubmitting(false);
         return;
       }
@@ -121,7 +127,7 @@ export const CheckoutView = () => {
           </Button>
         </form>
 
-        <OrderSummary quote={quote} />
+        <OrderSummary quote={quote} onRemoveCoupon={() => setCouponCode("")} />
       </div>
     </div>
   );

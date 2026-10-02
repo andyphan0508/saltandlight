@@ -3,8 +3,8 @@ import { Truck } from "@/components/Icons";
 import type { CheckoutQuote } from "@/interfaces/checkout";
 import { OrderSummaryLine } from "./OrderSummaryLine";
 
-/** Sticky summary of the server-priced cart: lines, subtotal, shipping and total. */
-export const OrderSummary = ({ quote }: { quote: CheckoutQuote | null }) => (
+/** Sticky summary of the server-priced cart: lines, subtotal, shipping, coupon discount and total. */
+export const OrderSummary = ({ quote, onRemoveCoupon }: { quote: CheckoutQuote | null; onRemoveCoupon: () => void }) => (
   <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-card border border-ink/5 lg:col-span-5 space-y-6 sticky top-28">
     <h2 className="font-display text-base font-bold uppercase text-ink">Đơn Hàng Của Bạn</h2>
 
@@ -29,6 +29,22 @@ export const OrderSummary = ({ quote }: { quote: CheckoutQuote | null }) => (
               <span className="font-bold text-ink">{formatVND(quote.shippingFee)}</span>
             )}
           </div>
+          {quote.coupon?.isApplied && (quote.discount ?? 0) > 0 && (
+            <div className="flex justify-between font-semibold text-emerald-700">
+              <span>Mã giảm giá {quote.coupon.code}</span>
+              <span>-{formatVND(quote.discount ?? 0)}</span>
+            </div>
+          )}
+          {quote.coupon && !quote.coupon.isApplied && (
+            <div className="flex items-start justify-between gap-3 rounded-xl bg-rose-50 px-3 py-2 text-sale">
+              <span>
+                Mã {quote.coupon.code} không được áp dụng: {quote.coupon.message}
+              </span>
+              <button type="button" onClick={onRemoveCoupon} className="flex-shrink-0 font-bold underline">
+                Bỏ mã
+              </button>
+            </div>
+          )}
           <div className="border-t border-ink/10 pt-3 flex justify-between items-baseline font-bold text-ink">
             <span className="text-sm uppercase font-display">Tổng cộng</span>
             <span className="text-2xl font-display">{formatVND(quote.total)}</span>

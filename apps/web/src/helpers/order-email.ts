@@ -19,6 +19,8 @@ export interface OrderEmailData {
   items: { name: string; variant: string; quantity: number; unitPrice: number }[];
   subtotal: number;
   shippingFee: number;
+  /** Coupon discount; the row is left out when there is none. */
+  discount?: number;
   total: number;
   paymentLabel: string;
   address: string;
@@ -185,6 +187,7 @@ export const renderOrderEmail = ({
         ${itemRows}
         ${summaryRow("Tạm tính", formatVND(order.subtotal))}
         ${summaryRow("Phí vận chuyển", order.shippingFee ? formatVND(order.shippingFee) : "Miễn phí")}
+        ${order.discount ? summaryRow("Mã giảm giá", `−${formatVND(order.discount)}`) : ""}
         ${summaryRow("Tổng cộng", formatVND(order.total), true)}
       </table>
     </td></tr>

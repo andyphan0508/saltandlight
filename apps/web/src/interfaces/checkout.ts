@@ -13,6 +13,8 @@ export interface CheckoutQuoteLine {
 export interface CheckoutQuote {
   subtotal: number;
   shippingFee: number;
+  discount?: number;
   total: number;
+  coupon?: import("./cart").QuoteCoupon | null;
   lines: CheckoutQuoteLine[];
 }

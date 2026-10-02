@@ -10,10 +10,13 @@ import {
 import { sendOrderCreatedEmail } from "@/server/email";
 import { getAuthenticatedCustomer } from "@/server/customer-auth";
 import { recordOrderAnalytics } from "@/server/analytics/order-events";
+import { evaluateCoupon } from "@/server/coupons";
+import { COUPON_REJECTION_MESSAGES } from "@/helpers/coupon";
 
 export const dynamic = "force-dynamic";
 
 class OutOfStockError extends Error {}
+class CouponTakenError extends Error {}
 
 const ORDER_ATTEMPTS = 3;
 
@@ -23,7 +26,7 @@ export const POST = async (req: NextRequest) => {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { customer, shippingAddress, items, note, paymentMethod } = parsed.data;
+  const { customer, shippingAddress, items, note, paymentMethod, couponCode } = parsed.data;
   const isCod = paymentMethod === "cod";
 
   const variants = await prisma.productVariant.findMany({
@@ -74,7 +77,19 @@ export const POST = async (req: NextRequest) => {
       })),
     })),
   );
-  const total = subtotal + shippingFee;
+  // The discount is worked out here from the code, never taken from the browser
+  const coupon = couponCode?.trim()
+    ? await evaluateCoupon(couponCode, {
+        lines: orderItemsInput.map((item) => ({ productId: item.productId, lineTotal: Number(item.unitPrice) * item.quantity })),
+        subtotal,
+        shippingFee,
+      })
+    : null;
+  if (coupon && !coupon.result.ok) {
+    return NextResponse.json({ error: COUPON_REJECTION_MESSAGES[coupon.result.reason], isCouponError: true }, { status: 400 });
+  }
+  const discount = coupon?.result.ok ? coupon.result.discount : 0;
+  const total = subtotal + shippingFee - discount;
 
   // If the buyer is logged in, attach this order to their account (and keep
   // their profile fresh with what they just typed) instead of spawning
@@ -124,6 +139,7 @@ export const POST = async (req: NextRequest) => {
         status: initialOrderStatus(paymentMethod),
         subtotal,
         shippingFee,
+        discount,
         total,
         shippingAddressId: address.id,
         note: note || null,
@@ -153,6 +169,16 @@ export const POST = async (req: NextRequest) => {
       if (count === 0) throw new OutOfStockError();
     }
 
+    // Single use: only an unused code can be claimed, so of two orders racing for one code
+    // the second rolls back entirely rather than both getting the discount
+    if (coupon) {
+      const { count } = await tx.coupon.updateMany({
+        where: { code: coupon.code, usedAt: null },
+        data: { usedAt: new Date(), orderId: created.id },
+      });
+      if (count === 0) throw new CouponTakenError();
+    }
+
     return created;
   });
 
@@ -161,6 +187,9 @@ export const POST = async (req: NextRequest) => {
     try {
       order = await placeOrder();
     } catch (err) {
+      if (err instanceof CouponTakenError) {
+        return NextResponse.json({ error: COUPON_REJECTION_MESSAGES.used, isCouponError: true }, { status: 409 });
+      }
       if (err instanceof OutOfStockError) {
         return NextResponse.json({ error: "Sản phẩm vừa hết hàng, vui lòng tải lại giỏ hàng." }, { status: 409 });
       }
@@ -199,6 +228,7 @@ export const POST = async (req: NextRequest) => {
         })),
         subtotal,
         shippingFee,
+        discount,
         total,
         paymentLabel: PAYMENT_METHOD_LABELS[paymentMethod],
         address: [shippingAddress.streetAddress, shippingAddress.ward, shippingAddress.province].filter(Boolean).join(", "),

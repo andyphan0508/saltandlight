@@ -20,8 +20,8 @@ export const CartView = () => {
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [isCouponApplied, setIsCouponApplied] = useState(false);
+  const couponCode = useCartStore((s) => s.couponCode);
+  const setCouponCode = useCartStore((s) => s.setCouponCode);
 
   // Guards against an older, slower request overwriting a newer one's result.
   const requestIdRef = useRef(0);
@@ -37,7 +37,8 @@ export const CartView = () => {
       const res = await fetchWithRetry("/api/cart/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: lines }),
+        // The current code rides along so the summary shows what it is really worth
+        body: JSON.stringify({ items: lines, couponCode: useCartStore.getState().couponCode || undefined }),
         signal: AbortSignal.timeout(10000),
         retries: 2,
         retryDelayMs: 1000,
@@ -67,7 +68,7 @@ export const CartView = () => {
     setIsLoading(true);
     fetchQuote(cartLines).finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated, lineIdsKey]);
+  }, [isHydrated, lineIdsKey, couponCode]);
 
   useEffect(() => {
     return () => {
@@ -90,7 +91,7 @@ export const CartView = () => {
           : l,
       );
       const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
-      return { ...prev, lines, subtotal, total: subtotal + (prev.shippingFee ?? 0) };
+      return { ...prev, lines, subtotal, total: subtotal + (prev.shippingFee ?? 0) - (prev.discount ?? 0) };
     });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -150,14 +151,7 @@ export const CartView = () => {
         </div>
 
         {/* Order Summary Box */}
-        <CartSummaryCard
-          quote={quote}
-          subtotal={subtotal}
-          couponCode={couponCode}
-          setCouponCode={setCouponCode}
-          isCouponApplied={isCouponApplied}
-          setIsCouponApplied={setIsCouponApplied}
-        />
+        <CartSummaryCard quote={quote} subtotal={subtotal} couponCode={couponCode} onCouponChange={setCouponCode} />
       </div>
     </div>
   );

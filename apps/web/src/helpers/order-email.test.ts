@@ -40,3 +40,8 @@ test("button text picks white or ink by the fill", () => {
   assert.equal(textOn("#133e2b"), "#ffffff");
   assert.equal(textOn("#fde68a"), "#18181b");
 });
+
+test("a coupon discount shows as its own row, and only when there is one", () => {
+  assert.ok(render({}, { ...SAMPLE_ORDER, discount: 50_000 }).html.includes("Mã giảm giá"));
+  assert.ok(!render().html.includes("Mã giảm giá"));
+});

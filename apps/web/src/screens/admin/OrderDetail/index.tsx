@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { formatVND, PAYMENT_METHOD_LABELS } from "@saltandlight/domain";
@@ -17,6 +18,7 @@ const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
       items: true,
       payments: true,
       statusHistory: { orderBy: { changedAt: "asc" }, include: { changedBy: true } },
+      coupon: { select: { code: true, campaignId: true } },
     },
   });
   if (!order) notFound();
@@ -65,6 +67,19 @@ const OrderDetailPage = async ({ params }: { params: { id: string } }) => {
                 <span>Vận chuyển</span>
                 <span>{formatVND(Number(order.shippingFee))}</span>
               </div>
+              {Number(order.discount) > 0 && (
+                <div className="flex justify-between text-emerald-700">
+                  <span>
+                    Mã giảm giá
+                    {order.coupon && (
+                      <Link href={`/admin/coupons/${order.coupon.campaignId}`} className="ml-1.5 font-mono font-semibold hover:underline">
+                        {order.coupon.code}
+                      </Link>
+                    )}
+                  </span>
+                  <span>-{formatVND(Number(order.discount))}</span>
+                </div>
+              )}
               <div className="flex justify-between text-base font-bold text-ink">
                 <span>Tổng cộng</span>
                 <span>{formatVND(Number(order.total))}</span>

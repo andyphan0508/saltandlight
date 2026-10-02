@@ -3,6 +3,8 @@ import { prisma } from "@saltandlight/db";
 import { cartQuoteSchema, pickShippingFee } from "@saltandlight/domain";
 import { getCachedShippingZones } from "@/server/queries";
 import { withMemoryCache } from "@/server/memory-cache";
+import { evaluateCoupon } from "@/server/coupons";
+import { COUPON_REJECTION_MESSAGES } from "@/helpers/coupon";
 
 export const dynamic = "force-dynamic";
 
@@ -80,10 +82,22 @@ export const POST = async (req: NextRequest) => {
     })),
   );
 
+  // A typed code is checked against this exact cart; it is not used up until an order is placed
+  const coupon = parsed.data.couponCode?.trim()
+    ? await evaluateCoupon(parsed.data.couponCode, { lines, subtotal, shippingFee })
+    : null;
+  const discount = coupon?.result.ok ? coupon.result.discount : 0;
+
   return NextResponse.json({
     lines,
     subtotal,
     shippingFee,
-    total: subtotal + shippingFee,
+    discount,
+    total: subtotal + shippingFee - discount,
+    coupon: coupon && {
+      code: coupon.code,
+      isApplied: coupon.result.ok,
+      message: coupon.result.ok ? null : COUPON_REJECTION_MESSAGES[coupon.result.reason],
+    },
   });
 };

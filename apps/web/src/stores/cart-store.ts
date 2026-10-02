@@ -11,6 +11,9 @@ export interface CartLine {
 
 interface CartState {
   lines: CartLine[];
+  /** Applied coupon code, carried from the cart to checkout; the server decides what it's worth. */
+  couponCode: string;
+  setCouponCode: (code: string) => void;
   add: (productVariantId: string, quantity?: number) => void;
   remove: (productVariantId: string) => void;
   setQuantity: (productVariantId: string, quantity: number) => void;
@@ -21,6 +24,8 @@ export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       lines: [],
+      couponCode: "",
+      setCouponCode: (couponCode) => set({ couponCode }),
       add: (productVariantId, quantity = 1) =>
         set((state) => {
           const existing = state.lines.find((l) => l.productVariantId === productVariantId);
@@ -48,7 +53,8 @@ export const useCartStore = create<CartState>()(
                   l.productVariantId === productVariantId ? { ...l, quantity } : l,
                 ),
         })),
-      clear: () => set({ lines: [] }),
+      // An order was placed: the code is spent, so it goes with the items
+      clear: () => set({ lines: [], couponCode: "" }),
     }),
     {
       name: "sl-cart",

@@ -7,7 +7,7 @@ import { adminFetch } from "@/api/admin-fetch";
 import { Modal } from "@/components/Modal";
 import { Tag, X } from "@/components/admin/Icons";
 import type { PromotionItem, PromotionProductOption } from "@/interfaces/promotion";
-import { ProductChecklist } from "./ProductChecklist";
+import { ProductChecklist } from "@/components/admin/ProductChecklist";
 
 const inputClass = "w-full rounded-xl border border-ink/15 px-3.5 py-2.5 text-sm focus:border-brand-forest focus:outline-none";
 const labelClass = "block text-xs font-bold text-ink mb-1.5";

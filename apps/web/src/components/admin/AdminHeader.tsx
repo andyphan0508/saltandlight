@@ -52,6 +52,7 @@ export const AdminHeader = ({
     customers: "Khách hàng",
     banners: "Banner & Slider",
     promotions: "Mã & Khuyến mãi",
+    coupons: "Mã giảm giá",
     editor: "Editor Trực quan",
     settings: "Cài đặt",
     payment: "Thanh toán",

@@ -12,9 +12,18 @@ export interface QuoteLine {
   availableStock: number;
 }
 
+export interface QuoteCoupon {
+  code: string;
+  isApplied: boolean;
+  /** Why the code doesn't apply to this cart; null when it does. */
+  message: string | null;
+}
+
 export interface Quote {
   lines: QuoteLine[];
   subtotal: number;
   shippingFee: number;
+  discount?: number;
   total: number;
+  coupon?: QuoteCoupon | null;
 }
