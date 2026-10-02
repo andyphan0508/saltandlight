@@ -7,7 +7,6 @@ import { CheckoutSection } from "./CheckoutSection";
 const OPTIONS: {
   value: PaymentMethodValue;
   title: string;
-
   icon: typeof Truck;
 }[] = [
   {
@@ -64,13 +63,8 @@ export const PaymentMethodPicker = ({
             >
               <Icon size={18} />
             </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-bold text-ink">
-                {option.title}
-              </span>
-              <span className="mt-0.5 block text-[11px] leading-relaxed text-ink/60">
-                {option.description}
-              </span>
+            <span className="min-w-0 self-center pr-6 text-sm font-bold text-ink">
+              {option.title}
             </span>
             <span
               aria-hidden="true"
