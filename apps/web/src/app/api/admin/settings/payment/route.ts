@@ -27,7 +27,7 @@ export const PATCH = async (req: NextRequest) => {
       action: "payment_settings.update",
       entityType: "payment_settings",
       entityId: SETTINGS_ID,
-      metadata: { showThankYouOnly: settings.showThankYouOnly, hasQrImage: !!settings.qrImageUrl },
+      metadata: { hasQrImage: !!settings.qrImageUrl, hasTransferNote: !!settings.transferNote },
     });
 
     revalidateTag("payment-settings");

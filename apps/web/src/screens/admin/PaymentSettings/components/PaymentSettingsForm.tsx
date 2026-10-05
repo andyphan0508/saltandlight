@@ -80,7 +80,7 @@ export const PaymentSettingsForm = ({ initialSettings }: { initialSettings: Paym
         <div>
           <h3 className="text-sm font-bold text-ink">Thông tin chuyển khoản</h3>
           <p className="mt-1 text-xs text-slate-500">
-            Hiện trên trang đặt hàng thành công, chỉ với đơn chọn chuyển khoản. Để trống cả hai thì khách chỉ thấy lời cảm ơn.
+            Hiện trên trang đặt hàng thành công, chỉ với đơn chọn chuyển khoản. Để trống cả hai thì khách được báo shop sẽ liên hệ gửi thông tin chuyển khoản.
           </p>
         </div>
 

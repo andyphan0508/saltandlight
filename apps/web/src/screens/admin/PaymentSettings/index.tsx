@@ -14,7 +14,7 @@ const PaymentSettingsPage = async () => {
     <div className="space-y-6">
       <PageHeader
         title="Cài Đặt Thanh Toán"
-        subtitle="Mã QR và thông tin chuyển khoản hiện cho khách sau khi đặt hàng"
+        subtitle="Mã QR và thông tin chuyển khoản — chỉ hiện cho đơn chọn chuyển khoản. Đơn COD có màn hình xác nhận riêng."
       />
       <PaymentSettingsForm
         initialSettings={settings ? { qrImageUrl: settings.qrImageUrl, transferNote: settings.transferNote } : null}

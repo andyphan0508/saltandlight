@@ -245,8 +245,6 @@ export const pageBlockReorderSchema = z.object({
 export const paymentSettingsSchema = z.object({
   qrImageUrl: z.string().url().optional().nullable(),
   transferNote: z.string().max(2000).optional().nullable(),
-  showThankYouOnly: z.boolean().default(false),
-  thankYouMessage: z.string().max(500).optional().nullable(),
 });
 
 // ── Promotions ──────────────────────────────────────────────────────
