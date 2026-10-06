@@ -1,5 +1,5 @@
 diff --git a/dist/cli/templates/worker.js b/dist/cli/templates/worker.js
-index 823c28a2306d4da78d85c01c89249c0472ff58cd..5688577e925f1cefcb62b3f5c55d158f664eb623 100644
+index 823c28a2306d4da78d85c01c89249c0472ff58cd..d10f5d38567e958ebda35b289a25ba35c005a697 100644
 --- a/dist/cli/templates/worker.js
 +++ b/dist/cli/templates/worker.js
 @@ -22,10 +22,7 @@ export default {
@@ -14,7 +14,7 @@ index 823c28a2306d4da78d85c01c89249c0472ff58cd..5688577e925f1cefcb62b3f5c55d158f
              }
              // The Middleware handler can return either a `Response` or a `Request`:
              // - `Response`s should be returned early
-@@ -65,3 +62,33 @@ function populateProcessEnv(url, nextJsEnv) {
+@@ -65,3 +62,57 @@ function populateProcessEnv(url, nextJsEnv) {
          },
      });
  }
@@ -40,11 +40,35 @@ index 823c28a2306d4da78d85c01c89249c0472ff58cd..5688577e925f1cefcb62b3f5c55d158f
 +    if (!isAllowedImageUrl(target)) {
 +        return new Response("Image host not allowed", { status: 400 });
 +    }
-+    const res = await fetch(target, { cf: { cacheEverything: true } });
-+    const type = res.headers.get("content-type") ?? "";
-+    // SVG can carry script, so only raster images pass
-+    if (!res.ok || !type.startsWith("image/") || type.includes("svg")) {
++    // Cloudflare Image Transformations: resized to the srcset width (`w`) and re-encoded to AVIF/WebP
++    // when the browser takes it. Where Transformations isn't enabled on the zone the resized fetch
++    // fails or comes back as the original, so the plain fetch stays as the fallback.
++    const params = new URL(request.url).searchParams;
++    const accept = request.headers.get("accept") ?? "";
++    const image = {
++        width: clampInt(params.get("w"), 16, 3840),
++        quality: clampInt(params.get("q"), 1, 100) ?? 75,
++        fit: "scale-down",
++        format: accept.includes("image/avif") ? "avif" : accept.includes("image/webp") ? "webp" : undefined,
++    };
++    let res = await fetch(target, { cf: { cacheEverything: true, image } });
++    if (!isRasterImage(res)) {
++        res = await fetch(target, { cf: { cacheEverything: true } });
++    }
++    if (!isRasterImage(res)) {
 +        return new Response("Not an image", { status: 400 });
 +    }
-+    return res;
++    const headers = new Headers(res.headers);
++    // The encoding depends on Accept, so browsers and proxies must not share one copy across it
++    headers.append("Vary", "Accept");
++    return new Response(res.body, { status: res.status, headers });
 +}
++// SVG can carry script, so only raster images pass
++const isRasterImage = (res) => {
++    const type = res.headers.get("content-type") ?? "";
++    return res.ok && type.startsWith("image/") && !type.includes("svg");
++};
++const clampInt = (value, min, max) => {
++    const n = Number.parseInt(value ?? "", 10);
++    return Number.isFinite(n) ? Math.min(Math.max(n, min), max) : undefined;
++};

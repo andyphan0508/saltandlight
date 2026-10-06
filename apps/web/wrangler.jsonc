@@ -6,6 +6,12 @@
   // See root wrangler.jsonc for why no_handle_cross_request_promise_resolution is needed
   // (works around confirmed upstream bug prisma/prisma#28732 under concurrent requests).
   "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
+  // Every page render makes several sequential Postgres queries to Supabase in Tokyo
+  // (ap-northeast-1); Smart Placement runs the Worker near that database instead of
+  // near the visitor once it measures that this is faster. Static assets still come
+  // from the nearest edge. If admin › Thống kê truy cập starts showing the wrong
+  // country/city for visitors, this is the line to remove.
+  "placement": { "mode": "smart" },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

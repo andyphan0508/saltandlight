@@ -11,6 +11,12 @@
   // 500s / unresponsive navigation whenever several pages load at once
   // (e.g. Next.js prefetching multiple links in the header/footer).
   "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
+  // Every page render makes several sequential Postgres queries to Supabase in Tokyo
+  // (ap-northeast-1); Smart Placement runs the Worker near that database instead of
+  // near the visitor once it measures that this is faster. Static assets still come
+  // from the nearest edge. If admin › Thống kê truy cập starts showing the wrong
+  // country/city for visitors, this is the line to remove.
+  "placement": { "mode": "smart" },
   "assets": {
     "directory": "apps/web/.open-next/assets",
     "binding": "ASSETS"
