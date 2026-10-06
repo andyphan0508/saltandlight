@@ -1,0 +1,11 @@
+# Workers Static Assets serve these files before the Next server runs, so the
+# Cache-Control rules in next.config.mjs never reach them on Cloudflare; these do.
+# Without them every asset went out as `max-age=0, must-revalidate`.
+
+# Content-hashed build output (JS, CSS, next/font files): a new build gets new names
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Hand-placed files keep their names when replaced, so a day, then revalidate in the background
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

@@ -25,7 +25,8 @@ export const Logo = ({
   const className = LOGO_SIZE_CLASSES[size][placement];
   return (
     <div className={`relative ${className}`}>
-      <Image src={src} alt={alt} fill priority={priority} className="object-contain object-left" />
+      {/* Widest preset is w-72 (288px); without sizes the srcset assumed a full-width image */}
+      <Image src={src} alt={alt} fill sizes="288px" priority={priority} className="object-contain object-left" />
     </div>
   );
 };
