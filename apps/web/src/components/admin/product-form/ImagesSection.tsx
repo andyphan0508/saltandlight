@@ -36,21 +36,20 @@ export const ImagesSection = ({ form }: { form: ProductFormState }) => (
               </button>
             </div>
           </div>
-          {form.variantColors.length > 0 && (
-            <select
-              value={image.color ?? ""}
-              onChange={(e) => form.onImageColorChange(i, e.target.value || null)}
-              aria-label={`Màu của ảnh ${i + 1}`}
-              className="w-full rounded-lg border border-ink/10 bg-white px-2 py-1 text-[11px] text-ink focus:border-brand-forest focus:outline-none"
-            >
-              <option value="">Mọi màu</option>
-              {form.variantColors.map((color) => (
-                <option key={color} value={color}>
-                  {color}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            value={image.color ?? ""}
+            onChange={(e) => form.onImageColorChange(i, e.target.value || null)}
+            disabled={form.imageColorChoices.length === 0}
+            aria-label={`Màu của ảnh ${i + 1}`}
+            className="w-full rounded-lg border border-ink/10 bg-white px-2 py-1 text-[11px] text-ink focus:border-brand-forest focus:outline-none disabled:cursor-not-allowed disabled:bg-ink/5 disabled:text-ink/40"
+          >
+            <option value="">{form.imageColorChoices.length === 0 ? "Chưa có màu" : "Mọi màu"}</option>
+            {form.imageColorChoices.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
         </div>
       ))}
 
@@ -80,11 +79,10 @@ export const ImagesSection = ({ form }: { form: ProductFormState }) => (
       💡 Ảnh tải lên được hệ thống <strong>tự động nén tối ưu (200kb - 500kb WebP)</strong>, giữ chất lượng ảnh sắc nét mà
       tải siêu nhanh. Kéo-thả để đổi vị trí.
     </p>
-    {form.variantColors.length > 0 && (
-      <p className="mt-1.5 text-xs text-ink/50">
-        Chọn màu cho từng ảnh: khi khách bấm màu đó ở trang sản phẩm, ảnh tự chuyển sang ảnh của màu này. Để “Mọi màu”
-        với ảnh chung.
-      </p>
-    )}
+    <p className="mt-1.5 text-xs text-ink/50">
+      Chọn màu cho từng ảnh: khi khách bấm màu đó ở trang sản phẩm, ảnh tự chuyển sang ảnh của màu này. Để “Mọi màu”
+      với ảnh chung.
+      {form.imageColorChoices.length === 0 && " Thêm màu ở mục Tạo biến thể nhanh hoặc Biến thể bên dưới để chọn được."}
+    </p>
   </Section>
 );

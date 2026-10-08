@@ -201,6 +201,9 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
   // Distinct variant colors, in variant order: the choices for tagging a photo
   // Exact strings, as saved on the variants: the storefront matches a photo to a color by equality
   const variantColors = [...new Set(variants.map((variant) => variant.color).filter((color) => color.trim()))];
+  // A new product has photos before variants: the colors picked in "Tạo biến thể nhanh" count too,
+  // since generating turns them into variants of the same name. Unused ones are dropped on save.
+  const imageColorChoices = [...new Set([...variantColors, ...quickColors.map((color) => color.name)])];
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -262,7 +265,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     isEditing: Boolean(initial?.id),
     images,
     variants,
-    variantColors,
+    imageColorChoices,
     uploadingCount,
     isSaving,
     error,
