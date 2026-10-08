@@ -114,6 +114,8 @@ export const getProductBySlug = async (slug: string) => {
     where: { slug, status: "published" },
     include: {
       category: true,
+      // Every category the product is listed in: product guides apply from any of them
+      categories: { select: { id: true, parentId: true } },
       images: { orderBy: { sortOrder: "asc" } },
       variants: { where: { isActive: true }, orderBy: [{ color: "asc" }, { size: "asc" }] },
     },

@@ -48,13 +48,15 @@ export const parseProductGuides = (raw: unknown): ProductGuide[] => {
   return parsed.data;
 };
 
-/** Active guides assigned to a product's category or to that category's parent. */
-export const guidesForCategory = (
+/**
+ * Active guides assigned to any of a product's categories (primary or not) or to one of their
+ * parents. Each guide shows once, in admin order, however many of the categories it matches.
+ */
+export const guidesForCategories = (
   guides: ProductGuide[],
-  category: { id: string; parentId: string | null } | null | undefined,
+  categories: ({ id: string; parentId: string | null } | null | undefined)[],
 ): ProductGuide[] => {
-  if (!category) return [];
-  // ponytail: checks the category and its direct parent only — walk the full ancestor chain if categories ever nest deeper than two levels.
-  const ids = [category.id, category.parentId];
-  return guides.filter((guide) => guide.isActive && guide.categoryIds.some((id) => ids.includes(id)));
+  // ponytail: checks each category and its direct parent only — walk the full ancestor chain if categories ever nest deeper than two levels.
+  const ids = new Set(categories.flatMap((category) => (category ? [category.id, category.parentId] : [])));
+  return guides.filter((guide) => guide.isActive && guide.categoryIds.some((id) => ids.has(id)));
 };

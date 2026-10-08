@@ -4,7 +4,7 @@ import { prisma } from "@saltandlight/db";
 import { getCachedProductBySlug, getCachedProductGuides, getCachedRelatedProducts } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
 import { contentToPlainText, parseProductContent, readPriceNote } from "@/helpers/product-content";
-import { guidesForCategory } from "@/helpers/product-guides";
+import { guidesForCategories } from "@/helpers/product-guides";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductBuyBox } from "./components/ProductBuyBox";
 import { SelectedColorProvider } from "./components/SelectedColor";
@@ -79,7 +79,7 @@ const ProductDetailPage = async ({
 
   const content = parseProductContent(plain.description);
   const descriptionBlocks = content.filter((block) => block.type !== "price_note");
-  const guides = guidesForCategory(allGuides, plain.category);
+  const guides = guidesForCategories(allGuides, [plain.category, ...plain.categories]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-4 sm:py-10 space-y-8 sm:space-y-12 w-full min-w-0 overflow-x-hidden animate-slide-up-fade">
