@@ -13,6 +13,7 @@ import { BuyActions } from "./BuyActions";
 import { ColorOptions } from "./ColorOptions";
 import { PriceBox } from "./PriceBox";
 import { QuantityStepper } from "./QuantityStepper";
+import { useSelectedColor } from "./SelectedColor";
 import { SizeOptions } from "./SizeOptions";
 import { WishlistButton } from "./WishlistButton";
 
@@ -32,6 +33,12 @@ export const ProductBuyBox = ({ productId, productName, variants, priceNote }: P
   const [quantity, setQuantity] = useState(1);
   const [isJustAdded, setIsJustAdded] = useState(false);
   const addToCart = useCartStore((s) => s.add);
+  const setSharedColor = useSelectedColor()?.setColor;
+
+  // Lets the gallery jump to the photos of the colour just picked
+  useEffect(() => {
+    setSharedColor?.(color);
+  }, [color, setSharedColor]);
 
   useEffect(() => {
     track("product_view", { productId, productName });

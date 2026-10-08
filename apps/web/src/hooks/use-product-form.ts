@@ -95,10 +95,18 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
   const onRemoveVariant = (index: number) => setVariants((prev) => prev.filter((_, i) => i !== index));
 
   /** Edits every variant of one color at once — renaming it, recoloring it, or filling its prices. */
-  const onGroupChange = (color: string, patch: Partial<VariantRow>) =>
+  const onGroupChange = (color: string, patch: Partial<VariantRow>) => {
     setVariants((prev) => prev.map((variant) => (variant.color === color ? { ...variant, ...patch } : variant)));
+    // A renamed color keeps the photos tagged with it
+    if (patch.color !== undefined && patch.color !== color) {
+      setImages((prev) => prev.map((image) => (image.color === color ? { ...image, color: patch.color || null } : image)));
+    }
+  };
 
-  const onRemoveGroup = (color: string) => setVariants((prev) => prev.filter((variant) => variant.color !== color));
+  const onRemoveGroup = (color: string) => {
+    setVariants((prev) => prev.filter((variant) => variant.color !== color));
+    setImages((prev) => prev.map((image) => (image.color === color ? { ...image, color: null } : image)));
+  };
 
   const onAddVariantToGroup = (color: string, colorHex: string) =>
     setVariants((prev) => [...prev, { ...EMPTY_VARIANT, color, colorHex }]);
@@ -113,7 +121,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     const uploaded: ImageRow[] = [];
     for (const file of files) {
       try {
-        uploaded.push({ url: await uploadImage(await compressImage(file)), sortOrder: 0 });
+        uploaded.push({ url: await uploadImage(await compressImage(file)), sortOrder: 0, color: null });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Tải ảnh thất bại");
       }
@@ -122,6 +130,9 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     setImages((prev) => withSortOrder([...prev, ...uploaded]));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const onImageColorChange = (index: number, color: string | null) =>
+    setImages((prev) => prev.map((image, i) => (i === index ? { ...image, color } : image)));
 
   const onRemoveImage = (index: number) => setImages((prev) => withSortOrder(prev.filter((_, i) => i !== index)));
 
@@ -187,6 +198,10 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     onClearDiscount();
   };
 
+  // Distinct variant colors, in variant order: the choices for tagging a photo
+  // Exact strings, as saved on the variants: the storefront matches a photo to a color by equality
+  const variantColors = [...new Set(variants.map((variant) => variant.color).filter((color) => color.trim()))];
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -203,7 +218,8 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
       status,
       isNew,
       isFeatured,
-      images,
+      // A tag whose color no longer has a variant (renamed or deleted one by one) falls back to "every color"
+      images: images.map((image) => ({ ...image, color: image.color && variantColors.includes(image.color) ? image.color : null })),
       variants: variants.map((variant, idx) => ({
         ...variant,
         sku:
@@ -246,6 +262,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     isEditing: Boolean(initial?.id),
     images,
     variants,
+    variantColors,
     uploadingCount,
     isSaving,
     error,
@@ -280,6 +297,7 @@ export const useProductForm = ({ categories, promotions, initial }: UseProductFo
     onAddVariantToGroup,
     onFilesChange,
     onRemoveImage,
+    onImageColorChange,
     onDropImage,
     onGenerateVariants,
     onApplyDiscount,

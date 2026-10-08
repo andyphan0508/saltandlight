@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles, ZoomIn } from "@/components/Icons";
 import { ImageLightboxModal } from "./ImageLightboxModal";
+import { useSelectedColor } from "./SelectedColor";
 
 interface ProductGalleryProps {
-  images: { url: string }[];
+  /** `color`: the variant colour the photo shows (admin › Ảnh sản phẩm); null = every colour. */
+  images: { url: string; color?: string | null }[];
   productName: string;
 }
 
@@ -40,6 +42,21 @@ export const ProductGallery = ({
     const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     track.scrollTo({ left: index * track.clientWidth, behavior: isReduced ? "auto" : "smooth" });
   };
+
+  // Picking a colour shows its first photo, unless one of its photos is already on screen.
+  // The buy box's starting colour is skipped so the page still opens on the main photo.
+  const selectedColor = useSelectedColor()?.color ?? null;
+  const previousColor = useRef<string | null>(null);
+  useEffect(() => {
+    const previous = previousColor.current;
+    previousColor.current = selectedColor;
+    if (!selectedColor || previous === null || previous === selectedColor) return;
+    if (images[active]?.color === selectedColor) return;
+    const index = images.findIndex((img) => img.color === selectedColor);
+    if (index >= 0) onSelectImage(index);
+    // Only a colour change should move the gallery, not swiping (`active`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColor]);
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 max-w-md mx-auto w-full">

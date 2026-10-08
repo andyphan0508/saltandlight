@@ -34,7 +34,9 @@ export const productInputSchema = z.object({
   status: z.enum(["draft", "published", "archived"]),
   isNew: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
-  images: z.array(z.object({ url: z.string().url(), sortOrder: z.number().int() })),
+  images: z.array(
+    z.object({ url: z.string().url(), sortOrder: z.number().int(), color: z.string().max(100).nullable().optional() }),
+  ),
   variants: z.array(variantInputSchema).min(1),
 });
 

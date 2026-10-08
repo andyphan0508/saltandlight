@@ -75,6 +75,9 @@ model ProductImage {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String
   sortOrder Int     @default(0) @map("sort_order")
+  /// Variant colour this photo shows (matches ProductVariant.color); picking that colour
+  /// on the product page jumps the gallery here. Null = a photo for every colour.
+  color     String?
 
   @@map("product_images")
 }

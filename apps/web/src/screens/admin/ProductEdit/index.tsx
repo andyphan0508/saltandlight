@@ -44,6 +44,7 @@ const EditProductPage = async ({ params }: { params: { id: string } }) => {
           images: plain.images.map((img) => ({
             url: img.url,
             sortOrder: img.sortOrder,
+            color: img.color,
           })),
           variants: plain.variants.map((v) => ({
             id: v.id,

@@ -33,6 +33,8 @@ export interface VariantRow {
 export interface ImageRow {
   url: string;
   sortOrder: number;
+  /** Variant colour this photo shows; null = shown for every colour. */
+  color: string | null;
 }
 
 export interface ProductFormInitial {
