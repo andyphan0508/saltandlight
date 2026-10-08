@@ -1,27 +1,36 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@saltandlight/db";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { BackLink } from "@/components/admin/BackLink";
-import { toPlain } from "@/helpers/serialize";
+import { Copy } from "@/components/admin/Icons";
+import { loadProductFormInitial } from "@/server/admin/product-form-initial";
 
 const EditProductPage = async ({ params }: { params: { id: string } }) => {
-  const [product, categories, promotions] = await Promise.all([
-    prisma.product.findUnique({
-      where: { id: params.id },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, categories: { select: { id: true } } },
-    }),
+  const [initial, categories, promotions] = await Promise.all([
+    loadProductFormInitial(params.id),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.promotion.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
   ]);
-  if (!product) notFound();
-
-  const plain = toPlain(product);
+  if (!initial) notFound();
 
   return (
     <div className="space-y-6">
       <BackLink href="/admin/products" label="Quay lại danh sách sản phẩm" />
-      <PageHeader title={plain.name} subtitle="Chỉnh sửa thông tin, ảnh, giá và biến thể sản phẩm" />
+      <PageHeader
+        title={initial.name}
+        subtitle="Chỉnh sửa thông tin, ảnh, giá và biến thể sản phẩm"
+        action={
+          <Link
+            href={`/admin/products/new?from=${initial.id}`}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-ink shadow-sm transition-all hover:border-brand-forest hover:text-brand-forest active:scale-95"
+          >
+            <Copy size={15} />
+            <span>Nhân bản sản phẩm</span>
+          </Link>
+        }
+      />
       <ProductForm
         categories={categories}
         promotions={promotions.map((p) => ({
@@ -31,33 +40,7 @@ const EditProductPage = async ({ params }: { params: { id: string } }) => {
           discountType: p.discountType,
           discountValue: Number(p.discountValue),
         }))}
-        initial={{
-          id: plain.id,
-          name: plain.name,
-          slug: plain.slug,
-          description: plain.description ?? "",
-          categoryId: plain.categoryId,
-          categoryIds: plain.categories.map((c) => c.id),
-          status: plain.status,
-          isNew: plain.isNew,
-          isFeatured: plain.isFeatured,
-          images: plain.images.map((img) => ({
-            url: img.url,
-            sortOrder: img.sortOrder,
-            color: img.color,
-          })),
-          variants: plain.variants.map((v) => ({
-            id: v.id,
-            sku: v.sku,
-            color: v.color ?? "",
-            colorHex: v.colorHex ?? "",
-            size: v.size ?? "",
-            price: Number(v.price),
-            compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,
-            stockQuantity: v.stockQuantity,
-            isActive: v.isActive,
-          })),
-        }}
+        initial={initial}
       />
     </div>
   );

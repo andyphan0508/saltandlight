@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@saltandlight/db";
+import { prisma, Prisma } from "@saltandlight/db";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import { findScriptUrl } from "@/helpers/script-url";
 
@@ -27,6 +27,16 @@ export const apiError = (err: unknown, fallbackMessage = "Có lỗi xảy ra") =
       { error: err.errors[0]?.message || "Dữ liệu không hợp lệ" },
       { status: 400 },
     );
+  }
+  // A unique column already taken, e.g. saving a copied product twice without renaming it
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+    const fields = String(err.meta?.target ?? "");
+    const message = fields.includes("slug")
+      ? "Đường dẫn (slug) này đã được dùng — hãy đổi sang tên khác."
+      : fields.includes("sku")
+        ? "Mã SKU bị trùng — để trống ô SKU để hệ thống tự tạo mã mới."
+        : "Dữ liệu bị trùng với một mục đã có.";
+    return NextResponse.json({ error: message }, { status: 409 });
   }
   console.error(fallbackMessage, err);
   return NextResponse.json({ error: fallbackMessage }, { status: 500 });
