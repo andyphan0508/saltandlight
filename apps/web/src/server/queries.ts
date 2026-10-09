@@ -19,24 +19,30 @@ const SORT_ORDER_BY: Record<SortOption, Prisma.ProductOrderByWithRelationInput> 
   "name-asc": { name: "asc" },
 };
 
-const toCardData = (p: {
-  id: string;
-  name: string;
-  slug: string;
-  isNew: boolean;
-  isFeatured?: boolean;
-  images: { url: string }[];
-  minPrice: Prisma.Decimal | null;
-  maxCompareAtPrice: Prisma.Decimal | null;
-}): ProductCardData => {
+/** Columns every product card needs; only active variant prices are read, to show a price range. */
+export const CARD_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  isNew: true,
+  isFeatured: true,
+  minPrice: true,
+  maxCompareAtPrice: true,
+  images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+  variants: { where: { isActive: true }, select: { price: true } },
+} satisfies Prisma.ProductSelect;
+
+export const toCardData = (p: Prisma.ProductGetPayload<{ select: typeof CARD_SELECT }>): ProductCardData => {
+  const minPrice = p.minPrice ? Number(p.minPrice) : 0;
   return {
     id: p.id,
     name: p.name,
     slug: p.slug,
     isNew: p.isNew,
-    isFeatured: p.isFeatured ?? false,
+    isFeatured: p.isFeatured,
     imageUrl: p.images[0]?.url ?? null,
-    minPrice: p.minPrice ? Number(p.minPrice) : 0,
+    minPrice,
+    maxPrice: Math.max(minPrice, ...p.variants.map((v) => Number(v.price))),
     maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
   };
 };
@@ -76,16 +82,7 @@ export const listPublishedProducts = async (
       orderBy: SORT_ORDER_BY[sort],
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isNew: true,
-        isFeatured: true,
-        minPrice: true,
-        maxCompareAtPrice: true,
-        images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-      },
+      select: CARD_SELECT,
     }),
     prisma.product.count({ where }),
   ]);
@@ -131,15 +128,7 @@ export const getRelatedProducts = async (
     where: { status: "published", categories: { some: { id: categoryId } }, id: { not: excludeId } },
     take: limit,
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      isNew: true,
-      minPrice: true,
-      maxCompareAtPrice: true,
-      images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-    },
+    select: CARD_SELECT,
   });
 
   return rows.map(toCardData);
@@ -172,16 +161,7 @@ export const getCachedFeaturedProducts = (pageSize = 10) => {
         where: { status: "published", isFeatured: true },
         orderBy: { updatedAt: "desc" },
         take: pageSize,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          isNew: true,
-          isFeatured: true,
-          minPrice: true,
-          maxCompareAtPrice: true,
-          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-        },
+        select: CARD_SELECT,
       });
 
       // 2. If fewer than pageSize, backfill with newest published products
@@ -196,16 +176,7 @@ export const getCachedFeaturedProducts = (pageSize = 10) => {
           },
           orderBy: { createdAt: "desc" },
           take: remaining,
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            isNew: true,
-            isFeatured: true,
-            minPrice: true,
-            maxCompareAtPrice: true,
-            images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-          },
+          select: CARD_SELECT,
         });
         rows = [...featuredRows, ...backfill];
       }

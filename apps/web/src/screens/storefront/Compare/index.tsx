@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { formatVND } from "@saltandlight/domain";
+import { formatVNDRange } from "@saltandlight/domain";
 import { useCompareStore } from "@/stores/compare-store";
 import { useStoreHydrated } from "@/stores/use-store-hydrated";
 import type { ProductCardData } from "@/interfaces/catalog";
@@ -92,7 +92,7 @@ export const CompareView = () => {
             <CompareRow label="Giá">
               {products.map((p) => (
                 <td key={p.id} className="p-3 align-top">
-                  {formatVND(p.minPrice)}
+                  {formatVNDRange(p.minPrice, p.maxPrice)}
                 </td>
               ))}
             </CompareRow>

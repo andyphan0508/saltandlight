@@ -7,7 +7,7 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { ProductSlider } from "./ProductSlider";
 import { ProductListModal } from "./ProductListModal";
 import { UpcomingCollectionBanner } from "@/components/UpcomingCollectionBanner";
-import { getCachedFeaturedProducts } from "@/server/queries";
+import { CARD_SELECT, getCachedFeaturedProducts, toCardData } from "@/server/queries";
 import { toPlain } from "@/helpers/serialize";
 import { gridViewFor, isRail, layoutUsesImage, readLayout } from "@/helpers/product-block-layout";
 import { readBlockMedia } from "@/helpers/product-block-media";
@@ -85,28 +85,10 @@ export const FeaturedProductsBlock = async ({
           },
           orderBy: { createdAt: "desc" },
           take: takeLimit,
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            isNew: true,
-            isFeatured: true,
-            minPrice: true,
-            maxCompareAtPrice: true,
-            images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-          },
+          select: CARD_SELECT,
         });
 
-        products = rows.map((p) => ({
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          isNew: p.isNew,
-          isFeatured: p.isFeatured ?? false,
-          imageUrl: p.images[0]?.url ?? null,
-          minPrice: p.minPrice ? Number(p.minPrice) : 0,
-          maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
-        }));
+        products = rows.map((p) => toCardData(p));
       }
     } else if (sourceType === "manual" && content.productIds && content.productIds.length > 0) {
       const rows = await prisma.product.findMany({
@@ -114,16 +96,7 @@ export const FeaturedProductsBlock = async ({
           id: { in: content.productIds },
           status: "published",
         },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          isNew: true,
-          isFeatured: true,
-          minPrice: true,
-          maxCompareAtPrice: true,
-          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
-        },
+        select: CARD_SELECT,
       });
 
       const productMap = new Map(rows.map((r) => [r.id, r]));
@@ -131,16 +104,7 @@ export const FeaturedProductsBlock = async ({
         .map((id) => productMap.get(id))
         .filter(Boolean) as typeof rows;
 
-      products = orderedRows.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        isNew: p.isNew,
-        isFeatured: p.isFeatured ?? false,
-        imageUrl: p.images[0]?.url ?? null,
-        minPrice: p.minPrice ? Number(p.minPrice) : 0,
-        maxCompareAtPrice: p.maxCompareAtPrice ? Number(p.maxCompareAtPrice) : null,
-      }));
+      products = orderedRows.map((p) => toCardData(p));
     } else {
       const fallbackResult = await getCachedFeaturedProducts(count);
       products = toPlain(fallbackResult.products);

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 import { Badge } from "@saltandlight/ui";
-import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
+import { formatVND, formatVNDRange, calcDiscountPercent } from "@saltandlight/domain";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { Heart, ShoppingBag } from "./Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
@@ -120,7 +120,7 @@ export const ProductCard = ({ product }: { product: ProductCardData }) => {
       {/* Pricing - compact */}
       <div className="mt-2 border-t border-ink/5 pt-2 px-0.5 flex items-baseline justify-between">
         <div className="flex flex-wrap items-baseline gap-1">
-          <span className="text-xs sm:text-sm font-bold text-ink">{formatVND(product.minPrice)}</span>
+          <span className="text-xs sm:text-sm font-bold text-ink">{formatVNDRange(product.minPrice, product.maxPrice)}</span>
           {product.maxCompareAtPrice && (
             <span className="text-[10px] sm:text-[11px] text-ink/40 line-through">
               {formatVND(product.maxCompareAtPrice)}

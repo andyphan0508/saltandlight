@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchModalStore } from "@/stores/search-store";
-import { formatVND } from "@saltandlight/domain";
+import { formatVNDRange } from "@saltandlight/domain";
 import { Search, X, ArrowRight } from "./Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
 import { usePresence } from "@/hooks/use-presence";
@@ -160,7 +160,7 @@ export const SearchSpotlight = () => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-semibold text-ink">{p.name}</div>
-                          <div className="text-xs text-ink/50">{formatVND(p.minPrice)}</div>
+                          <div className="text-xs text-ink/50">{formatVNDRange(p.minPrice, p.maxPrice)}</div>
                         </div>
                       </Link>
                     </li>

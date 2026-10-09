@@ -50,6 +50,7 @@ export const GET = async (req: NextRequest) => {
             isNew: p.isNew,
             imageUrl: p.images[0]?.url ?? null,
             minPrice: prices.length ? Math.min(...prices) : 0,
+            maxPrice: prices.length ? Math.max(...prices) : 0,
             maxCompareAtPrice: compareAts.length ? Math.max(...compareAts) : null,
             colors: Array.from(new Set(p.variants.map((v) => v.color).filter(Boolean))),
             sizes: Array.from(new Set(p.variants.map((v) => v.size).filter(Boolean))),

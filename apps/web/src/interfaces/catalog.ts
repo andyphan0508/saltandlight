@@ -6,6 +6,8 @@ export interface ProductCardData {
   isFeatured?: boolean;
   imageUrl: string | null;
   minPrice: number;
+  /** Highest active variant price; equals minPrice when every variant costs the same. */
+  maxPrice: number;
   maxCompareAtPrice: number | null;
 }
 

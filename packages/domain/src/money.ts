@@ -8,6 +8,11 @@ export function formatVND(amount: number | string): string {
   }).format(n);
 }
 
+/** "145.000 ₫ – 165.000 ₫" when variants differ in price, a single price otherwise. */
+export function formatVNDRange(min: number, max: number): string {
+  return max > min ? `${formatVND(min)} – ${formatVND(max)}` : formatVND(min);
+}
+
 export function calcDiscountPercent(price: number, compareAt: number | null | undefined): number | null {
   if (!compareAt || compareAt <= price) return null;
   return Math.round(((compareAt - price) / compareAt) * 100);

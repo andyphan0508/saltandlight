@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, Button } from "@saltandlight/ui";
-import { formatVND, calcDiscountPercent } from "@saltandlight/domain";
+import { formatVND, formatVNDRange, calcDiscountPercent } from "@saltandlight/domain";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { Heart } from "./Icons";
 import type { ProductCardData } from "@/interfaces/catalog";
@@ -46,7 +46,7 @@ export const ProductListItem = ({ product }: ProductListItemProps) => {
         </Link>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-base font-bold text-ink sm:text-lg">{formatVND(product.minPrice)}</span>
+            <span className="text-base font-bold text-ink sm:text-lg">{formatVNDRange(product.minPrice, product.maxPrice)}</span>
             {product.maxCompareAtPrice && (
               <span className="text-xs text-ink/40 line-through">{formatVND(product.maxCompareAtPrice)}</span>
             )}
