@@ -47,3 +47,12 @@ test("a missing phone yields no dead tel: link", () => {
   assert.equal(info.telHref, "");
   assert.equal(info.zaloHref, "");
 });
+
+test("saving settings turns a typed Zalo number into a link instead of rejecting it", async () => {
+  const { siteSettingsSchema } = await import("./admin-schemas");
+  const parsed = siteSettingsSchema.parse({ footerSocialLinks: withZaloLink(base.footerSocialLinks, "083 698 0148") });
+  assert.deepEqual(parsed.footerSocialLinks, [
+    { platform: "Facebook", url: "https://facebook.com/shop" },
+    { platform: "Zalo", url: "https://zalo.me/0836980148" },
+  ]);
+});

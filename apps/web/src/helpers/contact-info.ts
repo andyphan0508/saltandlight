@@ -15,7 +15,7 @@ export interface ContactInfo {
   address: string;
 }
 
-const isZalo = (link: FooterSocialLink) => link.platform.trim().toLowerCase() === "zalo";
+export const isZalo = (link: FooterSocialLink) => link.platform.trim().toLowerCase() === "zalo";
 
 /** The Zalo entry lives in the social links list, which is also what the footer renders. */
 export const findZaloLink = (links: FooterSocialLink[]) => links.find(isZalo)?.url.trim() ?? "";
@@ -31,7 +31,7 @@ export const withZaloLink = (links: FooterSocialLink[], value: string): FooterSo
  * Accepts what an admin naturally pastes into a Zalo field — a full link, a
  * "zalo.me/…" without scheme, or just a phone number — and returns a link.
  */
-const toZaloHref = (value: string, fallbackPhone: string | null) => {
+export const toZaloHref = (value: string, fallbackPhone: string | null) => {
   const trimmed = value.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   if (/^zalo\.me\//i.test(trimmed)) return `https://${trimmed}`;

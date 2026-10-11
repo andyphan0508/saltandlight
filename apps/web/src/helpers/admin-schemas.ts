@@ -4,6 +4,7 @@ import { PRODUCT_BLOCK_LAYOUTS } from "./product-block-layout";
 import { INTERVAL_MAX_MS, INTERVAL_MIN_MS, MEDIA_EFFECTS } from "./product-block-media";
 import { MANAGED_PAGES, type ManagedPageSlug } from "./managed-pages";
 import { safeRedirectPath } from "./safe-redirect";
+import { isZalo, toZaloHref } from "./contact-info";
 
 /** Shared minimum bar for any admin/staff account password — these accounts have full backend access. */
 export const adminPasswordSchema = z
@@ -334,7 +335,13 @@ export const siteSettingsSchema = z.object({
   footerEmail: z.string().trim().max(200).optional().nullable(),
   footerAddress: z.string().trim().max(200).optional().nullable(),
   footerSocialLinks: z
-    .array(z.object({ platform: z.string().trim().min(1).max(30), url: z.string().url() }))
+    .array(
+      z
+        .object({ platform: z.string().trim().min(1).max(30), url: z.string().trim() })
+        // The Zalo field accepts a bare phone number; store it as the link the footer renders
+        .transform((link) => (isZalo(link) ? { ...link, url: toZaloHref(link.url, null) } : link))
+        .pipe(z.object({ platform: z.string(), url: z.string().url("Đường dẫn mạng xã hội / Zalo không hợp lệ") })),
+    )
     .max(10)
     .optional()
     .nullable(),
