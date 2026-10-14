@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@saltandlight/db";
+import { sortSizes } from "@saltandlight/domain";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export const GET = async (req: NextRequest) => {
             maxPrice: prices.length ? Math.max(...prices) : 0,
             maxCompareAtPrice: compareAts.length ? Math.max(...compareAts) : null,
             colors: Array.from(new Set(p.variants.map((v) => v.color).filter(Boolean))),
-            sizes: Array.from(new Set(p.variants.map((v) => v.size).filter(Boolean))),
+            sizes: sortSizes(Array.from(new Set(p.variants.map((v) => v.size).filter((s): s is string => !!s)))),
           };
         }),
       },

@@ -35,3 +35,12 @@ test("the whole XXS → XXL scale sorts small to large, whichever way it is spel
     "M (baby)",
   ]);
 });
+
+test("Vietnamese '(em bé)' baby sizes sort small to large", () => {
+  assert.deepEqual(sortSizes(["M (em bé)", "S (em bé)", "XS (em bé)", "XXS (em bé)"]), [
+    "XXS (em bé)",
+    "XS (em bé)",
+    "S (em bé)",
+    "M (em bé)",
+  ]);
+});

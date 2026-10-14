@@ -1,5 +1,5 @@
 const SIZE_PREFIX = /^SIZE\s+/;
-const BABY_SUFFIX = /\(\s*BABY\s*\)/;
+const BABY_SUFFIX = /\(\s*(?:BABY|EM\s*BÉ|EM\s*BE)\s*\)/;
 const FREE_SIZE = /^FREE\s*SIZE$/;
 /** "3XL" → "XXXL", "2XS" → "XXS", so numeric and repeated-X spellings rank the same. */
 const NUMERIC_X = /^(\d)X([SL])$/;

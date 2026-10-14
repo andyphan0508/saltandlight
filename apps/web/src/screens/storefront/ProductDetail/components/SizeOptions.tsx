@@ -5,14 +5,14 @@ interface SizeOptionsProps {
   isAvailable: (size: string) => boolean;
 }
 
-/** Size buttons, sorted small → large upstream. The size chart itself is rendered
+/** Size pills, always laid out left → right from smallest to largest (XXS · XS · S · M · L · XL · XXL), sorted upstream. The size chart itself is rendered
  *  further down the page by <ProductGuides>, so there is no popup here. */
 export const SizeOptions = ({ sizes, value, onChange, isAvailable }: SizeOptionsProps) => (
   <div className="w-full min-w-0">
     <span className="text-xs font-bold uppercase tracking-wider text-ink/70">
       Kích thước: <strong className="text-ink">{value}</strong>
     </span>
-    <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
+    <div dir="ltr" className="mt-2.5 flex flex-wrap justify-start gap-2 sm:gap-2.5">
       {sizes.map((size) => {
         const isActive = size === value;
         const isInStock = isAvailable(size);
@@ -25,7 +25,7 @@ export const SizeOptions = ({ sizes, value, onChange, isAvailable }: SizeOptions
             aria-pressed={isActive}
             aria-label={isInStock ? `Size ${size}` : `Size ${size} — hết hàng`}
             title={isInStock ? undefined : "Hết hàng"}
-            className={`flex h-10 sm:h-11 min-w-10 sm:min-w-11 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-all ${
+            className={`flex h-11 min-w-12 items-center justify-center rounded-full border px-4 text-sm font-bold tracking-wide transition-all ${
               !isInStock
                 ? "cursor-not-allowed border-ink/10 bg-white text-ink opacity-35"
                 : isActive
