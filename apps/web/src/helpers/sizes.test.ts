@@ -44,3 +44,8 @@ test("Vietnamese '(em bé)' baby sizes sort small to large", () => {
     "M (em bé)",
   ]);
 });
+
+test("decomposed unicode '(em bé)' also sorts", () => {
+  const d = (s: string) => s.normalize("NFD");
+  assert.deepEqual(sortSizes([d("M (em bé)"), d("S (em bé)"), d("XXS (em bé)")]), [d("XXS (em bé)"), d("S (em bé)"), d("M (em bé)")]);
+});

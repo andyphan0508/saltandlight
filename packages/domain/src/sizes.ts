@@ -1,5 +1,5 @@
 const SIZE_PREFIX = /^SIZE\s+/;
-const BABY_SUFFIX = /\(\s*(?:BABY|EM\s*BÉ|EM\s*BE)\s*\)/;
+const BABY_SUFFIX = /\(\s*(?:BABY|EM\s*BE)\s*\)/;
 const FREE_SIZE = /^FREE\s*SIZE$/;
 /** "3XL" → "XXXL", "2XS" → "XXS", so numeric and repeated-X spellings rank the same. */
 const NUMERIC_X = /^(\d)X([SL])$/;
@@ -13,7 +13,13 @@ const CORE = /^(X*)([SML])$/;
  * thought of (XXS, 4XL) still lands in the right place.
  */
 const sizeRank = (size: string): number | null => {
-  const normalized = size.trim().toUpperCase().replace(SIZE_PREFIX, "");
+  // NFD + strip accents so "em bé" matches whether typed precomposed or decomposed
+  const normalized = size
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toUpperCase()
+    .replace(SIZE_PREFIX, "");
   if (FREE_SIZE.test(normalized)) return 200;
 
   const isBaby = BABY_SUFFIX.test(normalized);
